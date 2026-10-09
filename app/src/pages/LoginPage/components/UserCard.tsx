@@ -14,11 +14,11 @@ export const UserCard: React.FC<UserCardProps> = ({ user, onSelect, isLoading })
       <Button
         onClick={() => onSelect(user)}
         disabled={isLoading}
-        className={`w-20 h-20 rounded-full font-extrabold text-base transition-all ${getRoleColors(user.role)} shadow-xl hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
+        className={`h-20 w-20 rounded-full text-lg font-semibold transition-colors ${getRoleColors(user.role)} disabled:cursor-not-allowed disabled:opacity-50`}
       >
         {getUserInitials(user.full_name || user.name || user.username || '')}
       </Button>
-      <span className="text-xs font-bold text-foreground truncate w-full text-center group-hover:text-primary transition-colors max-w-[80px]">
+      <span className="w-full max-w-[88px] truncate text-center text-sm font-medium text-foreground">
         {user.full_name || user.name || user.username}
       </span>
     </div>

@@ -25,23 +25,16 @@ export const UserSelectionScreen: React.FC<UserSelectionScreenProps> = ({
   return (
     <div className="space-y-6 animate-fade-in">
       <LoginHeader
-        title="Welcome Back"
-        subtitle="Select your profile to check in"
-        showLogo={true}
+        title="Who's on shift?"
+        subtitle="Tap your name to sign in."
       />
 
-      <Card className="border-0 shadow-xl bg-gradient-to-br from-white/95 to-white/80 dark:from-slate-900/95 dark:to-slate-900/80 backdrop-blur-sm">
-        <CardHeader className="text-center pb-2">
-          <CardTitle className="text-base">Quick Select</CardTitle>
-          <CardDescription className="text-xs font-semibold">Tap your profile circle to continue</CardDescription>
-        </CardHeader>
-        <CardContent className="pt-6 space-y-4">
+      <Card>
+        <CardContent className="space-y-4 pt-6">
           {waiters.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-muted-foreground">
-                <p className="font-semibold">No staff available</p>
-                <p className="text-xs mt-1">Please contact administrator</p>
-              </div>
+            <div className="py-12 text-center">
+              <p className="text-base font-medium text-foreground">No staff on this device yet</p>
+              <p className="mt-1 text-sm text-muted-foreground">Ask your manager to add you.</p>
             </div>
           ) : (
             <div className="max-h-96 overflow-y-auto pr-2">
@@ -62,7 +55,7 @@ export const UserSelectionScreen: React.FC<UserSelectionScreenProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              className="text-xs font-bold gap-2 hover:bg-muted/50 text-foreground"
+              className="text-muted-foreground hover:text-foreground"
               onClick={onAdminLogin}
               disabled={isLoading || isOffline}
             >

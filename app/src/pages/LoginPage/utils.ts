@@ -1,9 +1,9 @@
 export const getRoleColors = (role: string) => {
   const colors: Record<string, string> = {
-    cashier: "bg-success hover:bg-success/90 text-success-foreground",
-    admin: "bg-primary hover:bg-primary/90 text-primary-foreground",
+    cashier: "bg-highlight hover:bg-highlight/80 text-highlight-foreground",
+    admin: "bg-primary hover:bg-primary-hover text-primary-foreground",
   };
-  return colors[role] || "bg-muted hover:bg-muted/80 text-muted-foreground";
+  return colors[role] || "bg-muted hover:bg-muted/80 text-foreground";
 };
 
 export const getRoleLabel = (role: string) => {

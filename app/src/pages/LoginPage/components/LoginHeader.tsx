@@ -23,13 +23,13 @@ export const LoginHeader: React.FC<LoginHeaderProps> = ({
   userRole
 }) => {
   return (
-    <div className="text-center space-y-4">
+    <div className="space-y-4">
       {showBackButton && onBack && (
         <Button
           variant="ghost"
           size="sm"
           onClick={onBack}
-          className="text-xs font-bold gap-2 hover:bg-transparent text-muted-foreground hover:text-foreground mx-auto"
+          className="-ml-3 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
@@ -37,34 +37,20 @@ export const LoginHeader: React.FC<LoginHeaderProps> = ({
       )}
 
       {showLogo && (
-        <div className="flex justify-center pt-2">
-          <img
-            src="/assets/logo.png?v=8"
-            alt="Logo"
-            className="w-40 h-40 object-contain bg-gradient-to-br from-white to-gray-50 rounded-3xl p-3 shadow-lg"
-          />
-        </div>
+        <img src="/assets/logo.png?v=8" alt="Logo" className="h-14 w-14 object-contain" />
       )}
 
       {userInitials && userRole && (
-        <div className="flex justify-center pt-2">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 text-white font-bold text-xl flex items-center justify-center shadow-lg">
-            {userInitials}
-          </div>
-        </div>
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-highlight text-lg font-semibold text-highlight-foreground">
+          {userInitials}
+        </span>
       )}
 
       <BranchBadge />
 
-      <div className="space-y-2">
-        <h1 className="text-2xl sm:text-3xl font-black tracking-wide text-foreground uppercase">
-          {title}
-        </h1>
-        {subtitle && (
-          <p className="text-sm text-muted-foreground font-semibold">
-            {subtitle}
-          </p>
-        )}
+      <div>
+        <h1 className="text-title text-foreground">{title}</h1>
+        {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
       </div>
     </div>
   );

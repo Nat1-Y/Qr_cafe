@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Delete } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface NumberKeypadProps {
   onNumberInput: (digit: string) => void;
@@ -9,55 +9,37 @@ interface NumberKeypadProps {
   isLoading: boolean;
 }
 
+const KEY =
+  'flex h-16 w-16 items-center justify-center rounded-full border border-border bg-card text-2xl font-medium text-foreground transition-colors hover:bg-row-hover active:bg-highlight focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 sm:h-[72px] sm:w-[72px]';
+const QUIET_KEY = 'border-transparent bg-transparent text-muted-foreground hover:bg-muted';
+
+/** PIN keypad with large round keys. */
 export const NumberKeypad: React.FC<NumberKeypadProps> = ({
   onNumberInput,
   onClear,
   onBackspace,
   isLoading
-}) => {
-  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-
-  return (
-    <div className="grid grid-cols-3 gap-3 max-w-xs mx-auto">
-      {numbers.slice(0, 9).map((num) => (
-        <Button
-          key={num}
-          type="button"
-          variant="outline"
-          onClick={() => onNumberInput(num.toString())}
-          disabled={isLoading}
-          className="h-14 text-xl font-bold border-2 border-muted-foreground/30 hover:border-primary/50 rounded-xl hover:bg-primary/5 active:scale-95 transition-all"
-        >
-          {num}
-        </Button>
-      ))}
-      <Button
-        type="button"
-        variant="destructive"
-        onClick={onClear}
-        disabled={isLoading}
-        className="h-14 text-xs font-bold rounded-xl active:scale-95 transition-all"
-      >
-        Clear
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => onNumberInput('0')}
-        disabled={isLoading}
-        className="h-14 text-xl font-bold border-2 border-muted-foreground/30 hover:border-primary/50 rounded-xl hover:bg-primary/5 active:scale-95 transition-all"
-      >
-        0
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={onBackspace}
-        disabled={isLoading}
-        className="h-14 rounded-xl border-2 border-muted-foreground/30 hover:border-primary/50 hover:bg-primary/5 active:scale-95 transition-all flex items-center justify-center"
-      >
-        <Delete className="w-5 h-5 text-muted-foreground" />
-      </Button>
-    </div>
-  );
-};
+}) => (
+  <div className="mx-auto grid w-fit grid-cols-3 gap-4">
+    {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((d) => (
+      <button key={d} type="button" className={KEY} onClick={() => onNumberInput(d)} disabled={isLoading}>
+        {d}
+      </button>
+    ))}
+    <button type="button" className={cn(KEY, QUIET_KEY, 'text-sm font-semibold')} onClick={onClear} disabled={isLoading}>
+      Clear
+    </button>
+    <button type="button" className={KEY} onClick={() => onNumberInput('0')} disabled={isLoading}>
+      0
+    </button>
+    <button
+      type="button"
+      className={cn(KEY, QUIET_KEY)}
+      onClick={onBackspace}
+      disabled={isLoading}
+      aria-label="Delete last digit"
+    >
+      <Delete className="h-6 w-6" />
+    </button>
+  </div>
+);

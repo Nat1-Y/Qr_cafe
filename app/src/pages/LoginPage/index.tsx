@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLoginForm } from './hooks/useLoginForm';
 import { useLoginPhase } from './hooks/useLoginPhase';
 import { AdminLoginScreen } from './components/AdminLoginScreen';
+import AuthSplitLayout from '@/components/layout/AuthSplitLayout';
 import syncEngine from '@/infrastructure/sync/sync-engine';
 import { WifiOff, RefreshCw } from 'lucide-react';
 
@@ -127,102 +128,41 @@ const LoginPageContainer = () => {
   }, [loginPhase]);
 
   return (
-    <div className="relative min-h-screen flex flex-col justify-center items-center p-4 overflow-hidden bg-gradient-to-br from-background via-background to-muted/50">
-      {/* Subtle dotted grid */}
-      <div
-        className="absolute inset-0 opacity-[0.4] dark:opacity-[0.25] pointer-events-none"
-        style={{
-          backgroundImage:
-            'radial-gradient(hsl(var(--muted-foreground) / 0.18) 1px, transparent 1px)',
-          backgroundSize: '22px 22px',
-          maskImage:
-            'radial-gradient(ellipse 80% 60% at 50% 40%, #000 40%, transparent 100%)',
-          WebkitMaskImage:
-            'radial-gradient(ellipse 80% 60% at 50% 40%, #000 40%, transparent 100%)',
-        }}
-      />
-
-      {/* Soft ambient glows */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/[0.07] rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-info/[0.08] rounded-full blur-3xl animate-pulse animation-delay-2000" />
-      </div>
-
-      {/* Main content */}
-      <div className="w-full max-w-md relative z-10">
-
-        {/* ── Offline banner ─────────────────────────────────────────────── */}
-        {!isOnline && (
-          <div className="mb-4 flex items-start gap-3 rounded-xl border border-red-300 bg-destructive/10 dark:bg-red-950/40 dark:border-red-800 px-4 py-3 animate-fade-in shadow-sm">
-            <WifiOff className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-destructive dark:text-red-400">No internet connection</p>
-              <p className="text-xs text-destructive/80 dark:text-red-400/70 mt-0.5">
-                An active internet connection is required to sign in. Please check your network and try again.
-              </p>
-            </div>
-            <button
-              onClick={checkConnection}
-              disabled={checkingConn}
-              className="shrink-0 rounded-lg p-1.5 text-destructive hover:bg-destructive/15 dark:hover:bg-red-900/40 transition-colors disabled:opacity-50"
-              title="Retry connection"
-            >
-              <RefreshCw className={`h-4 w-4 ${checkingConn ? 'animate-spin' : ''}`} />
-            </button>
+    <AuthSplitLayout>
+      {!isOnline && (
+        <div className="mb-6 flex items-start gap-3 rounded-card bg-destructive-soft px-4 py-3 text-destructive animate-fade-in">
+          <WifiOff className="mt-0.5 h-5 w-5 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">No internet connection</p>
+            <p className="mt-0.5 text-meta">You need to be online to sign in. Check the network and try again.</p>
           </div>
-        )}
-        {/* ─────────────────────────────────────────────────────────────── */}
-
-
-        {loginPhase === 'admin' && (
-          <AdminLoginScreen
-            formData={{ username: form.formData.username, password: form.formData.password }}
-            errors={form.errors}
-            isLoading={form.isLoading}
-            showPassword={form.showPassword}
-            onUsernameChange={form.handleChange}
-            onPasswordChange={form.handleChange}
-            onTogglePassword={() => form.setShowPassword(!form.showPassword)}
-            onSubmit={handleSubmit}
-            onBack={handleBack}
-            disabled={!isOnline}
-          />
-        )}
-
-        {/* Footer */}
-        <div className="text-center mt-8">
-          <a
-            href="https://syntaxsoftwaresolution.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[10px] uppercase tracking-[0.15em] font-semibold text-muted-foreground/70 hover:text-foreground transition-colors"
+          <button
+            onClick={checkConnection}
+            disabled={checkingConn}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-destructive/10 disabled:opacity-50"
+            title="Retry connection"
+            aria-label="Retry connection"
           >
-            © Syntax Software Solution
-          </a>
+            <RefreshCw className={`h-4 w-4 ${checkingConn ? 'animate-spin' : ''}`} />
+          </button>
         </div>
-      </div>
+      )}
 
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fade-in {
-          animation: fadeIn 0.3s ease-out;
-        }
-
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-      `}</style>
-    </div>
+      {loginPhase === 'admin' && (
+        <AdminLoginScreen
+          formData={{ username: form.formData.username, password: form.formData.password }}
+          errors={form.errors}
+          isLoading={form.isLoading}
+          showPassword={form.showPassword}
+          onUsernameChange={form.handleChange}
+          onPasswordChange={form.handleChange}
+          onTogglePassword={() => form.setShowPassword(!form.showPassword)}
+          onSubmit={handleSubmit}
+          onBack={handleBack}
+          disabled={!isOnline}
+        />
+      )}
+    </AuthSplitLayout>
   );
 };
 

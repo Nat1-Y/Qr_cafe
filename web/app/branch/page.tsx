@@ -2,21 +2,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/set-state-in-effect */
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import {
-  EyeIcon,
-  EyeOffIcon,
-  LockIcon,
-  MonitorSmartphoneIcon,
-  QrCodeIcon,
-  ShieldCheckIcon,
-  StoreIcon,
-  UserIcon,
-  XIcon,
-} from "lucide-react";
+import { EyeIcon, EyeOffIcon, MonitorSmartphoneIcon, QrCodeIcon, XIcon } from "lucide-react";
 import { Scanner, type IDetectedBarcode } from "@yudiel/react-qr-scanner";
 
 import { Button } from "@/components/ui/button";
@@ -24,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { operatorLogin } from "@/lib/auth";
 import { landingRoute } from "@/lib/permissions";
+import { AuthSplitLayout } from "@/components/auth-split-layout";
 import {
   clearDeviceEnrollment,
   enrollDevice,
@@ -45,19 +35,6 @@ function extractCode(raw: string): string {
   }
   return trimmed;
 }
-
-const HIGHLIGHTS = [
-  {
-    icon: StoreIcon,
-    title: "Built for your branch",
-    description: "Sign in scoped to the branch this device is set up for.",
-  },
-  {
-    icon: ShieldCheckIcon,
-    title: "Secure by design",
-    description: "Device enrollment keeps each branch's data isolated.",
-  },
-];
 
 export default function BranchLoginPage() {
   const router = useRouter();
@@ -133,272 +110,169 @@ export default function BranchLoginPage() {
   }
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      {/* Branding panel */}
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-zinc-950 p-12 text-zinc-50 lg:flex">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-60"
-          style={{
-            backgroundImage:
-              "radial-gradient(60% 60% at 80% 0%, rgba(255,255,255,0.10) 0%, transparent 60%), radial-gradient(50% 50% at 0% 100%, rgba(255,255,255,0.06) 0%, transparent 60%)",
-          }}
-        />
-        <div className="relative flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center overflow-hidden rounded-xl bg-white/10 ring-1 ring-white/15">
-            <Image
-              src="/logo.png"
-              alt="Logo"
-              width={40}
-              height={40}
-              className="object-contain"
-            />
-          </div>
-          <span className="text-lg font-semibold tracking-tight">Syntax Branch</span>
-        </div>
-
-        <div className="relative space-y-8">
-          <div className="space-y-3">
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Run your branch from anywhere.
-            </h1>
-            <p className="max-w-md text-sm text-zinc-400">
-              Set up this device once, then sign in to manage your
-              branch&apos;s orders, menu, staff and reports.
+    <AuthSplitLayout
+      headline="Your branch, from the back office."
+      subline="Set this device up once, then sign in to look after orders, menu, staff and reports.">
+      {enrollment ? (
+        <>
+          <div className="mb-8">
+            <h1 className="text-title text-foreground">Sign in</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Branch admins and F&amp;B managers sign in here.
             </p>
           </div>
 
-          <div className="space-y-5">
-            {HIGHLIGHTS.map(({ icon: Icon, title, description }) => (
-              <div key={title} className="flex items-start gap-3">
-                <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/10">
-                  <Icon className="size-4.5 text-zinc-100" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-zinc-100">{title}</p>
-                  <p className="text-sm text-zinc-400">{description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <p className="relative text-xs text-zinc-500">
-          © {new Date().getFullYear()} Syntax. All rights reserved.
-        </p>
-      </div>
-
-      {/* Form panel */}
-      <div className="flex items-center justify-center bg-muted/30 p-6 sm:p-10">
-        <div className="w-full max-w-sm">
-          {/* Mobile logo */}
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <div className="flex size-10 items-center justify-center overflow-hidden rounded-xl bg-primary/10">
-              <Image
-                src="/logo.png"
-                alt="Logo"
-                width={40}
-                height={40}
-                className="object-contain"
+          <form onSubmit={onSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="e.g. hana"
+                autoComplete="username"
+                className="h-11"
+                required
               />
             </div>
-            <span className="text-lg font-semibold tracking-tight">
-              Syntax Branch
-            </span>
-          </div>
 
-          {enrollment ? (
-            <>
-              <div className="mb-8 space-y-1.5">
-                <h2 className="text-2xl font-semibold tracking-tight">Sign in</h2>
-                <p className="text-sm text-muted-foreground">
-                  Branch admins and F&amp;B managers — sign in to your branch.
-                </p>
-              </div>
-
-              <form onSubmit={onSubmit} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <div className="relative">
-                    <UserIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="username"
-                      autoComplete="username"
-                      className="pl-9"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <LockIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      autoComplete="current-password"
-                      className="px-9"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-2 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                      tabIndex={-1}
-                    >
-                      {showPassword ? (
-                        <EyeOffIcon className="size-4" />
-                      ) : (
-                        <EyeIcon className="size-4" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Signing in…" : "Sign in"}
-                </Button>
-              </form>
-
-              <div className="mt-6 flex items-center justify-between gap-3 rounded-lg border bg-muted/30 px-3 py-2.5">
-                <div className="flex items-center gap-2 text-sm">
-                  <MonitorSmartphoneIcon className="size-4 shrink-0 text-emerald-600" />
-                  <span className="text-muted-foreground">
-                    This device
-                    {enrollment.deviceName ? (
-                      <span className="text-foreground"> · {enrollment.deviceName}</span>
-                    ) : null}
-                  </span>
-                </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  className="h-11 pr-12"
+                  required
+                />
                 <button
                   type="button"
-                  onClick={onChangeDevice}
-                  className="text-xs text-muted-foreground transition-colors hover:text-destructive"
-                >
-                  Change device
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute top-1/2 right-1.5 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  tabIndex={-1}>
+                  {showPassword ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
                 </button>
               </div>
-            </>
-          ) : (
-            <>
-              <div className="mb-8 space-y-1.5">
-                <h2 className="text-2xl font-semibold tracking-tight">
-                  Set up this device
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Scan the QR code from your owner or admin — or enter the
-                  enrollment code manually — to link this device to its branch.
-                </p>
+            </div>
+
+            <Button type="submit" size="charge" className="w-full" disabled={loading}>
+              {loading ? "Signing in…" : "Sign in"}
+            </Button>
+          </form>
+
+          <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-4 text-sm">
+            <span className="flex min-w-0 items-center gap-2 text-muted-foreground">
+              <MonitorSmartphoneIcon className="size-4 shrink-0 text-accent" />
+              <span className="truncate">
+                This device
+                {enrollment.deviceName ? (
+                  <span className="text-foreground"> · {enrollment.deviceName}</span>
+                ) : null}
+              </span>
+            </span>
+            <button
+              type="button"
+              onClick={onChangeDevice}
+              className="shrink-0 rounded-full px-2 py-1 text-meta text-muted-foreground transition-colors hover:text-destructive">
+              Change device
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="mb-8">
+            <p className="eyebrow mb-1">First-time setup</p>
+            <h1 className="text-title text-foreground">Set up this device</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Scan the QR code from your owner or admin, or type the enrollment code.
+            </p>
+          </div>
+
+          {scanning ? (
+            <div className="mb-5 space-y-3">
+              <div className="overflow-hidden rounded-card border border-border bg-sidebar">
+                <Scanner
+                  onScan={onScan}
+                  onError={() =>
+                    toast.error(
+                      "Couldn't access the camera. Allow camera access or enter the code manually.",
+                    )
+                  }
+                  formats={["qr_code"]}
+                  components={{ finder: true }}
+                  styles={{ container: { width: "100%" } }}
+                />
               </div>
-
-              {scanning ? (
-                <div className="mb-5 space-y-3">
-                  <div className="overflow-hidden rounded-lg border bg-black">
-                    <Scanner
-                      onScan={onScan}
-                      onError={() =>
-                        toast.error(
-                          "Couldn't access the camera. Allow camera access or enter the code manually.",
-                        )
-                      }
-                      formats={["qr_code"]}
-                      components={{ finder: true }}
-                      styles={{ container: { width: "100%" } }}
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => setScanning(false)}>
-                    <XIcon className="size-4" />
-                    Cancel scan
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  type="button"
-                  className="mb-5 w-full"
-                  disabled={enrolling}
-                  onClick={() => setScanning(true)}>
-                  <QrCodeIcon className="size-4" />
-                  Scan QR code
-                </Button>
-              )}
-
-              {!scanning && (
-                <div className="mb-5 flex items-center gap-3">
-                  <div className="h-px flex-1 bg-border" />
-                  <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    or enter manually
-                  </span>
-                  <div className="h-px flex-1 bg-border" />
-                </div>
-              )}
-
-              <form onSubmit={onEnroll} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="enroll-code">Enrollment code</Label>
-                  <Input
-                    id="enroll-code"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value.toUpperCase())}
-                    placeholder="e.g. A1B2C3D4E5F6"
-                    autoComplete="off"
-                    spellCheck={false}
-                    autoFocus
-                    className="text-center font-mono tracking-widest"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="enroll-name">
-                    Device name{" "}
-                    <span className="font-normal text-muted-foreground">(optional)</span>
-                  </Label>
-                  <Input
-                    id="enroll-name"
-                    value={deviceName}
-                    onChange={(e) => setDeviceName(e.target.value)}
-                    placeholder="e.g. Manager Laptop"
-                    autoComplete="off"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  variant="outline"
-                  className="w-full"
-                  disabled={enrolling || !code.trim()}
-                >
-                  {enrolling ? "Enrolling…" : "Enroll device"}
-                </Button>
-              </form>
-            </>
+              <Button type="button" variant="outline" className="w-full" onClick={() => setScanning(false)}>
+                <XIcon />
+                Cancel scan
+              </Button>
+            </div>
+          ) : (
+            <Button
+              type="button"
+              size="lg"
+              className="mb-5 w-full"
+              disabled={enrolling}
+              onClick={() => setScanning(true)}>
+              <QrCodeIcon />
+              Scan QR code
+            </Button>
           )}
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Owner or platform admin?{" "}
-            <Link
-              href="/login"
-              className="font-medium text-foreground underline-offset-4 hover:underline"
-            >
-              Sign in here
-            </Link>
-          </p>
+          {!scanning && (
+            <div className="mb-5 flex items-center gap-3">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-meta text-muted-foreground">or type the code</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+          )}
 
-          <p className="mt-8 text-center text-xs text-muted-foreground">
-            Protected area · Authorized personnel only
-          </p>
-        </div>
-      </div>
-    </div>
+          <form onSubmit={onEnroll} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="enroll-code">Enrollment code</Label>
+              <Input
+                id="enroll-code"
+                value={code}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                placeholder="A1B2C3D4E5F6"
+                autoComplete="off"
+                spellCheck={false}
+                autoFocus
+                className="h-12 text-center text-lg font-semibold tracking-[0.2em]"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="enroll-name">
+                Device name <span className="font-normal text-muted-foreground">(optional)</span>
+              </Label>
+              <Input
+                id="enroll-name"
+                value={deviceName}
+                onChange={(e) => setDeviceName(e.target.value)}
+                placeholder="e.g. Manager laptop"
+                autoComplete="off"
+                className="h-11"
+              />
+            </div>
+            <Button type="submit" variant="outline" size="lg" className="w-full" disabled={enrolling || !code.trim()}>
+              {enrolling ? "Enrolling…" : "Enroll device"}
+            </Button>
+          </form>
+        </>
+      )}
+
+      <p className="mt-6 text-sm text-muted-foreground">
+        Owner or platform admin?{" "}
+        <Link href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
+          Owner sign-in
+        </Link>
+      </p>
+    </AuthSplitLayout>
   );
 }
