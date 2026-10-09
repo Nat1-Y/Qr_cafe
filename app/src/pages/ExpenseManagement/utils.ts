@@ -1,12 +1,6 @@
 import { DEFAULT_CATEGORIES, DEFAULT_PAYMENT_METHODS, INITIAL_FORM } from './constants';
 import { ExpenseFormData } from './types';
 
-export const formatCurrency = (value: any) => {
-  const amount = Number.parseFloat(value || 0);
-  if (!Number.isFinite(amount)) return '0 Birr';
-  return `${parseInt(String(amount), 10).toLocaleString()} Birr`;
-};
-
 export const formatDateTime = (value: any) => {
   const date = value ? new Date(value) : null;
   if (!date || Number.isNaN(date.getTime())) return '—';

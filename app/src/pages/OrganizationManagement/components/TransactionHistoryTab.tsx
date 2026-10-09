@@ -4,8 +4,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { formatBirr } from '../utils';
+
 import { TransactionHistoryData } from '../types';
+import { formatETB } from '@/lib/format';
 
 interface TransactionHistoryTabProps {
   orgs: any[];
@@ -80,12 +81,12 @@ export const TransactionHistoryTab = ({
                         <TableCell>
                           {Array.isArray(txn.services) && txn.services.map((s, i) => (
                             <div key={i} className="text-sm">
-                              {s.description} ({formatBirr(s.cost)})
+                              {s.description} ({formatETB(s.cost)})
                             </div>
                           ))}
                         </TableCell>
                         <TableCell className="font-semibold text-rose-600 dark:text-rose-400">
-                          -{formatBirr(txn.total_amount)}
+                          -{formatETB(txn.total_amount)}
                         </TableCell>
                         <TableCell>
                           {txn.payment_id ? (

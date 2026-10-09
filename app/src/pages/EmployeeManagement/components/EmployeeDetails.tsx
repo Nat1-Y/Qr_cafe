@@ -8,7 +8,8 @@ import { Eye } from 'lucide-react';
 import EmptyState from '@/components/common/EmptyState';
 import { OrderDetailsDialog } from '@/components/common/OrderDetailsDialog';
 import { EmployeeDetailsData } from '../types';
-import { formatAmount } from '../utils';
+import { formatETB } from '@/lib/format';
+
 
 interface EmployeeDetailsProps {
   details: EmployeeDetailsData | null;
@@ -45,7 +46,7 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ details }) => 
                   <TableCell>{o.employee_name || `Employee #${o.employee_id}`}</TableCell>
                   <TableCell className="capitalize">{o.type}</TableCell>
                   <TableCell>{o.table_number ?? 'N/A'}</TableCell>
-                  <TableCell className="text-right font-medium">{formatAmount(o.total_amount)}</TableCell>
+                  <TableCell className="text-right font-medium">{formatETB(o.total_amount)}</TableCell>
                   <TableCell>
                     <Badge 
                       variant={

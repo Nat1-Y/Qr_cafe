@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { DataTable, type Column } from "@/components/data-table";
 import { apiFetch } from "@/lib/api";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 
 type Business = {
   id: string;
@@ -73,7 +73,7 @@ const columns: Column<Business>[] = [
     label: "Revenue",
     sortable: true,
     sortValue: (b) => b.revenue,
-    render: (b) => <span className="font-medium">{birr(b.revenue)}</span>,
+    render: (b) => <span className="font-medium">{formatETB(b.revenue)}</span>,
   },
   {
     key: "is_active",

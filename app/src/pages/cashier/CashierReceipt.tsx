@@ -21,7 +21,7 @@ export const CashierReceipt: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Cashier Receipt"
         description="Print payment receipts with custom formatting"

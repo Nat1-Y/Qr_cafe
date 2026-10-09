@@ -3,6 +3,7 @@ import {
   getApproximateServerDate,
   getApproximateServerDateString,
 } from "@/shared/utils/serverTime";
+import { formatETB } from '@/lib/format';
 
 interface StatsProps {
   paymentsAll: any[];
@@ -48,11 +49,7 @@ export const useCashierStats = ({
   const [selectedMenuItemId, setSelectedMenuItemId] = useState("all");
   const [tableNumberFilter, setTableNumberFilter] = useState("");
 
-  const formatCurrency = useCallback((val: any) => {
-    const n = parseFloat(val);
-    const safe = Number.isFinite(n) ? n : 0;
-    return `${safe.toLocaleString()} Birr`;
-  }, []);
+  const formatCurrency = formatETB;
 
   const getDateBoundsForStatsRange = useCallback(() => {
     const now = getApproximateServerDate();

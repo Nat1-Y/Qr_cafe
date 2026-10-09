@@ -1,39 +1,37 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 type Variant = "default" | "success" | "info" | "warning" | "destructive";
 
-const accent: Record<Variant, string> = {
+// Olive only when the number means good or available.
+const valueTone: Record<Variant, string> = {
   default: "text-foreground",
-  success: "text-green-600 dark:text-green-400",
-  info: "text-blue-600 dark:text-blue-400",
-  warning: "text-amber-600 dark:text-amber-400",
+  info: "text-foreground",
+  success: "text-accent",
+  warning: "text-warning",
   destructive: "text-destructive",
 };
 
+/** KPI card: small muted label, big number. No icon badge. */
 export function StatCard({
   title,
   value,
   subtitle,
-  icon,
   variant = "default",
+  className,
 }: {
   title: string;
   value: React.ReactNode;
   subtitle?: string;
+  /** Accepted for compatibility; KPI cards deliberately show no icon. */
   icon?: React.ReactNode;
   variant?: Variant;
+  className?: string;
 }) {
   return (
-    <Card>
-      <CardContent className="flex items-start justify-between gap-3 pt-6">
-        <div className="min-w-0 space-y-1">
-          <p className="text-muted-foreground text-xs font-medium">{title}</p>
-          <p className="truncate text-2xl font-semibold">{value}</p>
-          {subtitle && <p className="text-muted-foreground truncate text-xs">{subtitle}</p>}
-        </div>
-        {icon && <div className={cn("shrink-0", accent[variant])}>{icon}</div>}
-      </CardContent>
-    </Card>
+    <div className={cn("min-w-0 rounded-card border border-border bg-card px-5 py-4", className)}>
+      <p className="truncate text-meta text-muted-foreground">{title}</p>
+      <p className={cn("mt-1 truncate text-kpi", valueTone[variant])}>{value}</p>
+      {subtitle && <p className="mt-0.5 truncate text-meta text-muted-foreground">{subtitle}</p>}
+    </div>
   );
 }

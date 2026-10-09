@@ -26,7 +26,7 @@ import {
 import { PageHeader } from "@/components/page-header";
 import { DateFilterBar } from "@/components/date-filter-bar";
 import { Menu, Inventory, Tables, Orders, Payments } from "@/lib/resources";
-import { birr, shortDate } from "@/lib/format";
+import { formatETB, shortDate } from "@/lib/format";
 import { salesSplit, monthRange, rangeBounds } from "@/lib/profit";
 
 const withinRange = (value: any, fromDt: Date | null, toDt: Date | null) => {
@@ -146,7 +146,7 @@ export default function HomePage() {
               ) : (
                 <>
                   <div className={`text-2xl font-semibold ${c.valueClass}`}>
-                    {birr(c.value)}
+                    {formatETB(c.value)}
                   </div>
                   <p className="text-muted-foreground text-xs">{c.hint}</p>
                 </>
@@ -206,7 +206,7 @@ export default function HomePage() {
                     <TableCell>
                       <Badge variant="muted" className="capitalize">{o.status}</Badge>
                     </TableCell>
-                    <TableCell>{birr(o.total_amount)}</TableCell>
+                    <TableCell>{formatETB(o.total_amount)}</TableCell>
                     <TableCell className="text-muted-foreground">{shortDate(o.created_at)}</TableCell>
                   </TableRow>
                 ))

@@ -19,7 +19,7 @@ import { DataTable, type Column } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
 import { ProfitSummary } from "@/components/reports/profit-summary";
 import { Expenses, Orders, Payments } from "@/lib/resources";
-import { birr, shortDate } from "@/lib/format";
+import { formatETB, shortDate } from "@/lib/format";
 import { EXPENSE_CATEGORIES, categoryLabel, expenseAmount, ymd } from "@/lib/profit";
 
 type Expense = {
@@ -168,7 +168,7 @@ export default function ExpensesPage() {
       sortable: true,
       sortValue: (r) => expenseAmount(r),
       render: (r) => (
-        <span className="font-medium">{birr(expenseAmount(r))}</span>
+        <span className="font-medium">{formatETB(expenseAmount(r))}</span>
       ),
     },
     {

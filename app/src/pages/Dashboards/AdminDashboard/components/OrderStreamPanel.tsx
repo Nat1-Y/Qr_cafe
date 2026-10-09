@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { formatCurrency, formatDate } from '../utils';
+import { formatDate } from '../utils';
+import { formatETB } from '@/lib/format';
 
 interface OrderStreamPanelProps {
   orders: any[];
@@ -64,7 +65,7 @@ export const OrderStreamPanel: React.FC<OrderStreamPanelProps> = ({
               </div>
               <div className="text-right">
                 <p className="font-extrabold text-xs text-foreground">
-                  {formatCurrency(getOrderSubtotal(order))}
+                  {formatETB(getOrderSubtotal(order))}
                 </p>
                 <Badge variant="secondary" className="text-[8px] uppercase py-0 px-1 font-bold">
                   {order.type}

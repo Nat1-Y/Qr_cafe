@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { StatCard } from "@/components/stat-card";
 import { DateFilterBar } from "@/components/date-filter-bar";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 import { formatOrderNumber } from "@/lib/utils";
 import { Orders, Users as UsersResource } from "@/lib/resources";
 
@@ -234,20 +234,20 @@ export function StaffActivity() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           title="Orders Total"
-          value={birr(activeSummary.orders_total)}
+          value={formatETB(activeSummary.orders_total)}
           subtitle={`${activeSummary.orders_count} orders`}
           icon={<Users className="size-5" />}
         />
         <StatCard
           title="Paid Total"
-          value={birr(activeSummary.paid_total)}
+          value={formatETB(activeSummary.paid_total)}
           subtitle={`${activeSummary.payments_count} payments`}
           icon={<DollarSign className="size-5" />}
           variant="success"
         />
         <StatCard
           title="Unpaid Total"
-          value={birr(activeSummary.unpaid_total)}
+          value={formatETB(activeSummary.unpaid_total)}
           subtitle="Unpaid balance"
           icon={<TrendingDown className="size-5" />}
           variant="destructive"
@@ -284,12 +284,12 @@ export function StaffActivity() {
                       onClick={() => setSelectedId(e.employee_id)}
                       data-state={e.employee_id === selectedId ? "selected" : undefined}>
                       <TableCell className="font-medium">{e.employee_name}</TableCell>
-                      <TableCell className="text-right">{birr(e.orders_total)}</TableCell>
+                      <TableCell className="text-right">{formatETB(e.orders_total)}</TableCell>
                       <TableCell className="text-right font-medium text-green-600">
-                        {birr(e.paid_total)}
+                        {formatETB(e.paid_total)}
                       </TableCell>
                       <TableCell className="text-destructive text-right font-medium">
-                        {birr(e.unpaid_total)}
+                        {formatETB(e.unpaid_total)}
                       </TableCell>
                     </TableRow>
                   ))
@@ -335,7 +335,7 @@ export function StaffActivity() {
                       <TableCell className="capitalize">{o.type}</TableCell>
                       <TableCell>{o.table_number ?? "N/A"}</TableCell>
                       <TableCell className="text-right font-medium">
-                        {birr(o.total_amount)}
+                        {formatETB(o.total_amount)}
                       </TableCell>
                       <TableCell>
                         <Badge
@@ -419,7 +419,7 @@ export function StaffActivity() {
                         <TableCell>{it?.menu_item_name || it?.name || "Item"}</TableCell>
                         <TableCell className="text-right">{it?.quantity ?? 1}</TableCell>
                         <TableCell className="text-right">
-                          {birr(Number(it?.subtotal ?? it?.unit_price ?? it?.price ?? 0))}
+                          {formatETB(Number(it?.subtotal ?? it?.unit_price ?? it?.price ?? 0))}
                         </TableCell>
                       </TableRow>
                     ),
@@ -428,7 +428,7 @@ export function StaffActivity() {
               </Table>
               <div className="flex items-center justify-between border-t pt-3 text-sm font-semibold">
                 <span>Total</span>
-                <span>{birr(detailOrder.total_amount)}</span>
+                <span>{formatETB(detailOrder.total_amount)}</span>
               </div>
             </div>
           )}

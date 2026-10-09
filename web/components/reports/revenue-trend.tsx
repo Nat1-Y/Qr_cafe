@@ -9,7 +9,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 import type { RevenueTrendPoint } from "@/lib/reports";
 
 const chartConfig = {
@@ -28,7 +28,7 @@ export function RevenueTrend({ points }: { points: RevenueTrendPoint[] }) {
       <CardHeader className="border-b pb-3">
         <CardTitle className="text-base">Revenue Trend</CardTitle>
         <CardDescription>
-          Paid sales by business day · {birr(total)} total
+          Paid sales by business day · {formatETB(total)} total
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
@@ -64,7 +64,7 @@ export function RevenueTrend({ points }: { points: RevenueTrendPoint[] }) {
                       <div className="flex w-full items-center justify-between gap-4">
                         <span className="text-muted-foreground capitalize">{name}</span>
                         <span className="text-foreground font-mono font-medium tabular-nums">
-                          {name === "revenue" ? birr(Number(value)) : Number(value).toLocaleString()}
+                          {name === "revenue" ? formatETB(Number(value)) : Number(value).toLocaleString()}
                         </span>
                       </div>
                     )}

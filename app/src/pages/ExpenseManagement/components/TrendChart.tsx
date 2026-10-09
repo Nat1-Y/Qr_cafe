@@ -2,7 +2,8 @@ import React from 'react';
 import { TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendData } from '../types';
-import { formatCurrency } from '../utils';
+import { formatETB } from '@/lib/format';
+
 
 interface TrendChartProps {
   title: string;
@@ -34,7 +35,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({ title, data, colorClass 
               const height = maxAmount > 0 ? Math.max(12, Math.round((amount / maxAmount) * 110)) : 12;
               return (
                 <div key={item?.label} className="flex min-w-[50px] flex-1 flex-col items-center justify-end gap-1.5 h-full">
-                  <span className="text-[9px] font-bold text-muted-foreground whitespace-nowrap">{formatCurrency(amount).replace(' Birr', '')}</span>
+                  <span className="text-[9px] font-bold text-muted-foreground whitespace-nowrap">{formatETB(amount).replace(' Birr', '')}</span>
                   <div className={`w-full rounded-t-lg ${colorClass}`} style={{ height }} />
                   <span className="text-center text-[9px] text-muted-foreground truncate w-full font-medium">{item?.label}</span>
                 </div>

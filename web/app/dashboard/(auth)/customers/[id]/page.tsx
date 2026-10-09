@@ -36,7 +36,7 @@ import { OrgCustomerCell } from "@/components/organizations/org-customer-cell";
 import { Organizations, Orders } from "@/lib/resources";
 import { getUser } from "@/lib/auth";
 import { isAllAccessRole } from "@/lib/permissions";
-import { birr, shortDate } from "@/lib/format";
+import { formatETB, shortDate } from "@/lib/format";
 
 /** An order still owes money unless it's cancelled or already paid. */
 function isOrderUnpaid(order: any) {
@@ -235,7 +235,7 @@ export default function OrganizationDetailPage() {
                             <OrgCustomerCell order={o} />
                           </TableCell>
                           <TableCell className="capitalize">{o.status ?? "—"}</TableCell>
-                          <TableCell>{birr(o.total_amount)}</TableCell>
+                          <TableCell>{formatETB(o.total_amount)}</TableCell>
                           <TableCell className="text-muted-foreground">
                             {shortDate(o.created_at)}
                           </TableCell>
@@ -299,7 +299,7 @@ export default function OrganizationDetailPage() {
                               .join(", ") || "—"}
                           </TableCell>
                           <TableCell className="font-medium">
-                            {birr(t.total_amount)}
+                            {formatETB(t.total_amount)}
                           </TableCell>
                         </TableRow>
                       ))

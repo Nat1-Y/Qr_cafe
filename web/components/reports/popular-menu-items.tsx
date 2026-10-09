@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 import type { TopItem } from "@/lib/reports";
 
 export function PopularMenuItems({
@@ -43,7 +43,7 @@ export function PopularMenuItems({
                   <div>
                     <p className="text-foreground text-xs font-extrabold">{item.name}</p>
                     <p className="text-muted-foreground text-[10px] font-bold">
-                      {birr(item.revenue || 0)}
+                      {formatETB(item.revenue || 0)}
                     </p>
                   </div>
                 </div>

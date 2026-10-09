@@ -1,7 +1,7 @@
 import { TrendingDown, TrendingUp, Wallet } from "lucide-react";
 
 import { StatCard } from "@/components/stat-card";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 import {
   computeProfit,
   monthRange,
@@ -17,21 +17,21 @@ function ProfitGroup({ label, result }: { label: string; result: ProfitResult })
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           title="Sales (paid)"
-          value={birr(result.sales)}
+          value={formatETB(result.sales)}
           subtitle="Paid order revenue"
           icon={<TrendingUp className="size-5" />}
           variant="info"
         />
         <StatCard
           title="Expenses"
-          value={birr(result.expenses)}
+          value={formatETB(result.expenses)}
           subtitle="Recorded expenses"
           icon={<TrendingDown className="size-5" />}
           variant="warning"
         />
         <StatCard
           title="Profit"
-          value={birr(result.profit)}
+          value={formatETB(result.profit)}
           subtitle="Sales − expenses"
           icon={<Wallet className="size-5" />}
           variant={positive ? "success" : "destructive"}

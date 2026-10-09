@@ -20,6 +20,7 @@ export default {
         foreground: token("foreground"),
         body: token("body"),
         "row-hover": token("row-hover"),
+        overlay: alphaToken("overlay"),
         primary: {
           DEFAULT: token("primary"),
           foreground: token("primary-foreground"),

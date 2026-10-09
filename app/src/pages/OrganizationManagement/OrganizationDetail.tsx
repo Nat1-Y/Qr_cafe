@@ -22,8 +22,9 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import api from '@/application';
 import ConfirmOrgPaymentModal from './ConfirmOrgPaymentModal';
-import { formatBirr, isOrderUnpaid, useOrgPayment } from './useOrgPayment';
+import { isOrderUnpaid, useOrgPayment } from './useOrgPayment';
 import { OrgCustomerCell } from './OrgCustomerCell';
+import { formatETB } from '@/lib/format';
 
 export const OrganizationDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -100,7 +101,7 @@ export const OrganizationDetail: React.FC = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title={organization?.name || 'Organization'}
         description="Orders placed under this organization."
@@ -204,7 +205,7 @@ export const OrganizationDetail: React.FC = () => {
                     </TableCell>
                     <TableCell>{order.payment_status || '—'}</TableCell>
                     <TableCell>
-                      {formatBirr(order.total_amount)}
+                      {formatETB(order.total_amount)}
                       {(order.is_price_override === true ||
                         order.is_price_override === 1) && (
                         <Badge variant="outline" className="ml-2">

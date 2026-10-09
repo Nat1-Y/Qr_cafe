@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 const BRANCH_NAME = import.meta.env.VITE_BRANCH_NAME || '';
 
@@ -10,7 +11,10 @@ const BranchBadge: React.FC<BranchBadgeProps> = ({ className = '' }) => {
   if (!BRANCH_NAME) return null;
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 shadow-sm ${className}`}
+      className={cn(
+        'inline-flex items-center rounded-full bg-highlight px-2.5 py-0.5 text-eyebrow text-highlight-foreground',
+        className,
+      )}
     >
       {BRANCH_NAME}
     </span>

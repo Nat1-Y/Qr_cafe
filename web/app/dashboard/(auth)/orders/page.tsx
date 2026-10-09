@@ -30,7 +30,7 @@ import { PageHeader } from "@/components/page-header";
 import { Orders, Payments, Settings } from "@/lib/resources";
 import { getUser } from "@/lib/auth";
 import { can } from "@/lib/permissions";
-import { birr, shortDate, displayStatus, statusBadgeVariant } from "@/lib/format";
+import { formatETB, shortDate, displayStatus, statusBadgeVariant } from "@/lib/format";
 import { formatOrderNumber } from "@/lib/utils";
 
 type OrderItem = {
@@ -211,14 +211,14 @@ export default function OrdersPage() {
       },
       {
         label: "Revenue collected",
-        value: birr(serverStats.collected ?? 0),
+        value: formatETB(serverStats.collected ?? 0),
         hint: "Paid orders",
         icon: TrendingUpIcon,
         valueClass: "text-emerald-600 dark:text-emerald-500",
       },
       {
         label: "Outstanding",
-        value: birr(serverStats.outstanding ?? 0),
+        value: formatETB(serverStats.outstanding ?? 0),
         hint: "Unpaid orders",
         icon: ClockIcon,
         valueClass: "text-amber-600 dark:text-amber-500",
@@ -318,7 +318,7 @@ export default function OrdersPage() {
       key: "total_amount",
       label: "Total",
       sortable: true,
-      render: (o) => birr(o.total_amount),
+      render: (o) => formatETB(o.total_amount),
     },
     {
       key: "created_at",
@@ -551,7 +551,7 @@ export default function OrdersPage() {
                         ×{it.quantity}
                       </span>
                       <span className="text-right tabular-nums">
-                        {birr(it.subtotal ?? (it.unit_price ?? 0) * it.quantity)}
+                        {formatETB(it.subtotal ?? (it.unit_price ?? 0) * it.quantity)}
                       </span>
                     </div>
                   ))
@@ -559,7 +559,7 @@ export default function OrdersPage() {
                 <div className="grid grid-cols-[1fr_auto] gap-3 border-t px-3 py-2 text-sm font-semibold">
                   <span>Total</span>
                   <span className="text-right tabular-nums">
-                    {birr(viewing.total_amount)}
+                    {formatETB(viewing.total_amount)}
                   </span>
                 </div>
               </div>

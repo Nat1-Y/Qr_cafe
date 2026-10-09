@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 
 type Overview = {
   businesses: number;
@@ -60,8 +60,8 @@ const cards: CardDef[] = [
     key: "revenue",
     label: "Total Revenue",
     icon: BanknoteIcon,
-    format: birr,
-    sub: (d) => `${birr(d.revenue_today)} today`,
+    format: formatETB,
+    sub: (d) => `${formatETB(d.revenue_today)} today`,
   },
 ];
 

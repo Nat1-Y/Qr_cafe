@@ -36,7 +36,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api";
 import { impersonateOwner } from "@/lib/auth";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 
 type Branch = { id: string; name: string; slug: string; is_active: boolean };
 type User = {
@@ -311,8 +311,8 @@ export default function BusinessDetailPage() {
         <StatCard
           label="Revenue"
           icon={BanknoteIcon}
-          value={birr(biz.stats.revenue)}
-          sub={`${birr(biz.stats.revenue_today)} today`}
+          value={formatETB(biz.stats.revenue)}
+          sub={`${formatETB(biz.stats.revenue_today)} today`}
         />
         <StatCard
           label="Staff"

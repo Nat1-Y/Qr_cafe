@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Printer, RefreshCw, CalendarRange } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 import { Orders } from "@/lib/resources";
 
 interface ZReportData {
@@ -136,18 +136,18 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm">Gross Sales</p>
-                  <p className="text-2xl font-bold">{birr(zReport.summary.gross_sales)}</p>
+                  <p className="text-2xl font-bold">{formatETB(zReport.summary.gross_sales)}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm">Refunds</p>
                   <p className="text-destructive text-2xl font-bold">
-                    {birr(zReport.summary.refunds)}
+                    {formatETB(zReport.summary.refunds)}
                   </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm">Net Sales</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {birr(zReport.summary.net_sales)}
+                    {formatETB(zReport.summary.net_sales)}
                   </p>
                 </div>
               </div>
@@ -169,7 +169,7 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
                 {p.method}
               </span>,
               p.count,
-              birr(p.amount),
+              formatETB(p.amount),
               `${p.percentage.toFixed(1)}%`,
             ])}
           />
@@ -181,7 +181,7 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
             rows={zReport.employee_activity.map((e) => [
               e.employee_name,
               e.orders_count,
-              birr(e.total_sales),
+              formatETB(e.total_sales),
             ])}
           />
 
@@ -194,7 +194,7 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
                 {c.category}
               </span>,
               c.count,
-              birr(c.amount),
+              formatETB(c.amount),
             ])}
           />
 
@@ -207,7 +207,7 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
                 `#${t.order_id}`,
                 t.employee_name,
                 <span key="a" className="text-destructive">
-                  {birr(t.amount)}
+                  {formatETB(t.amount)}
                 </span>,
                 fmtDate(t.created_at),
               ])}

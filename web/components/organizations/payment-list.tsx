@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { birr, shortDate } from "@/lib/format";
+import { formatETB, shortDate } from "@/lib/format";
 
 type Payment = { id: string; amount: string | number; payment_date: string; notes?: string | null };
 type Transaction = {
@@ -68,10 +68,10 @@ export function PaymentList({
                   <div>
                     <div className="flex items-center gap-3">
                       <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                        {birr(payment.amount)}
+                        {formatETB(payment.amount)}
                       </span>
                       <Badge variant={remaining > 0 ? "default" : "secondary"}>
-                        {remaining > 0 ? `${birr(remaining)} remaining` : "Fully used"}
+                        {remaining > 0 ? `${formatETB(remaining)} remaining` : "Fully used"}
                       </Badge>
                     </div>
                     <p className="text-muted-foreground mt-1 text-xs">
@@ -121,7 +121,7 @@ export function PaymentList({
                             .join(", ") || "—"}
                         </TableCell>
                         <TableCell className="text-right font-medium text-rose-600 dark:text-rose-400">
-                          -{birr(t.total_amount)}
+                          -{formatETB(t.total_amount)}
                         </TableCell>
                       </TableRow>
                     ))}

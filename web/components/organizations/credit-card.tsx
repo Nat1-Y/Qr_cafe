@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 
 export function CreditSummary({
   creditBalance,
@@ -32,7 +32,7 @@ export function CreditSummary({
             <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
               {s.label}
             </p>
-            <p className={`mt-1 text-2xl font-semibold ${s.tone}`}>{birr(s.value)}</p>
+            <p className={`mt-1 text-2xl font-semibold ${s.tone}`}>{formatETB(s.value)}</p>
           </CardContent>
         </Card>
       ))}

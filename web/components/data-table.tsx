@@ -7,11 +7,10 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsUpDownIcon,
-  SearchIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -302,22 +301,19 @@ export function DataTable<T>({
     server?.onSortChange?.(next);
   }
   return (
-    <Card>
-      <div className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center">
-          <div className="relative w-full sm:max-w-xs">
-            <SearchIcon className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
-            <Input
-              value={query}
-              onChange={(e) => onQuery(e.target.value)}
-              placeholder={searchPlaceholder}
-              className="pl-8"
-            />
-          </div>
+    <Card className="gap-0 py-0">
+      <div className="flex flex-col gap-2 border-b border-border px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <SearchInput
+            value={query}
+            onChange={(e) => onQuery(e.target.value)}
+            placeholder={searchPlaceholder}
+            wrapperClassName="sm:max-w-xs"
+          />
 
           {filters?.map((f) => (
             <select
               key={f.key}
-              className="border-input h-9 rounded-md border bg-transparent px-3 text-sm"
+              className="h-10 rounded-full border border-input bg-card px-4 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring"
               value={active[f.key] ?? ""}
               onChange={(e) => onFilter(f.key, e.target.value)}>
               <option value="">{f.label}: All</option>
@@ -362,7 +358,7 @@ export function DataTable<T>({
                     <button
                       type="button"
                       onClick={() => toggleSort(c.key)}
-                      className="-ml-1 inline-flex items-center gap-1 rounded px-1 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      className="-ml-1.5 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
                       aria-label={`Sort by ${c.label}`}>
                       {c.label}
                       {sort?.key === c.key ? (
@@ -372,7 +368,7 @@ export function DataTable<T>({
                           <ArrowDownIcon className="size-3.5" />
                         )
                       ) : (
-                        <ChevronsUpDownIcon className="size-3.5 opacity-40" />
+                        <ChevronsUpDownIcon className="size-3.5 text-muted-foreground/60" />
                       )}
                     </button>
                   ) : (
@@ -388,7 +384,7 @@ export function DataTable<T>({
               [...Array(5)].map((_, i) => (
                 <TableRow key={i}>
                   <TableCell colSpan={colSpan}>
-                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-5 w-full" />
                   </TableCell>
                 </TableRow>
               ))
@@ -396,7 +392,7 @@ export function DataTable<T>({
               <TableRow>
                 <TableCell
                   colSpan={colSpan}
-                  className="text-muted-foreground py-8 text-center">
+                  className="py-12 text-center text-sm text-muted-foreground">
                   {filtered.length === 0 && rows.length > 0
                     ? "No matches for your filters."
                     : emptyMessage}
@@ -434,7 +430,7 @@ export function DataTable<T>({
       </CardContent>
 
       {!loading && totalCount > 0 && (
-        <div className="text-muted-foreground flex items-center justify-between gap-3 border-t p-3 text-sm">
+        <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-3 text-meta text-muted-foreground">
           <span>
             Showing {current * effPageSize + 1}–
             {Math.min(totalCount, current * effPageSize + paged.length)} of{" "}
@@ -446,16 +442,16 @@ export function DataTable<T>({
             </span>
             <Button
               variant="outline"
-              size="icon"
-              className="size-8"
+              size="icon-sm"
+              aria-label="Previous page"
               disabled={current === 0}
               onClick={() => goToPage(current - 1)}>
               <ChevronLeftIcon className="size-4" />
             </Button>
             <Button
               variant="outline"
-              size="icon"
-              className="size-8"
+              size="icon-sm"
+              aria-label="Next page"
               disabled={current >= pageCount - 1}
               onClick={() => goToPage(current + 1)}>
               <ChevronRightIcon className="size-4" />

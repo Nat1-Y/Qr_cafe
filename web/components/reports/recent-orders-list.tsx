@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 import { formatOrderNumber } from "@/lib/utils";
 import type { RecentOrder } from "@/lib/reports";
 
@@ -40,7 +40,7 @@ export function RecentOrdersList({ recentOrders }: { recentOrders: RecentOrder[]
                 </div>
                 <div className="space-y-1 text-right">
                   <p className="text-foreground text-xs font-extrabold">
-                    {birr(parseFloat(String(order.total_amount)))}
+                    {formatETB(parseFloat(String(order.total_amount)))}
                   </p>
                   <Badge
                     variant={

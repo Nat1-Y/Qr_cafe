@@ -23,7 +23,7 @@ import { OrgCustomerCell } from "@/components/organizations/org-customer-cell";
 import { Organizations, Orders, Settings, Users } from "@/lib/resources";
 import { getUser } from "@/lib/auth";
 import { isAllAccessRole } from "@/lib/permissions";
-import { birr, shortDate } from "@/lib/format";
+import { formatETB, shortDate } from "@/lib/format";
 
 type Org = {
   id: string;
@@ -38,7 +38,7 @@ const columns: Column<Org>[] = [
   { key: "name", label: "Name", render: (r) => <span className="font-medium">{r.name}</span> },
   { key: "contact_name", label: "Contact" },
   { key: "phone", label: "Phone" },
-  { key: "credit_balance", label: "Credit", render: (r) => birr(r.credit_balance) },
+  { key: "credit_balance", label: "Credit", render: (r) => formatETB(r.credit_balance) },
   {
     key: "is_active",
     label: "Status",
@@ -445,7 +445,7 @@ function OrganizationOrdersTab() {
                     <TableCell className="capitalize">{order.status || "—"}</TableCell>
                     <TableCell>{order.payment_status || "—"}</TableCell>
                     <TableCell>
-                      {birr(order.total_amount)}
+                      {formatETB(order.total_amount)}
                       {(order.is_price_override === true || order.is_price_override === 1) && (
                         <Badge variant="outline" className="ml-2">
                           Custom price

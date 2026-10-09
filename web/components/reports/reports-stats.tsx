@@ -5,7 +5,7 @@ import { BarChart2, CalendarRange } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 import {
   PERIOD_LABELS,
   calculatePeriodStats,
@@ -107,12 +107,12 @@ export function ReportsStats({
           <Metric label="Orders" value={stats.totalOrders} subtitle={`${stats.pendingOrders} pending`} />
           <Metric
             label="Paid Revenue"
-            value={birr(stats.paidRevenue || 0)}
+            value={formatETB(stats.paidRevenue || 0)}
             subtitle="Paid orders only"
             accent="success"
           />
           <Metric label="Paid Orders" value={stats.paidOrders} subtitle={`${stats.voidedOrders} voided`} />
-          <Metric label="Avg Paid Order" value={birr(stats.avgPaidOrderValue || 0)} />
+          <Metric label="Avg Paid Order" value={formatETB(stats.avgPaidOrderValue || 0)} />
         </div>
       </CardContent>
     </Card>

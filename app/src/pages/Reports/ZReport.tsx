@@ -7,6 +7,7 @@ import { printZReport } from '@/utils/receiptPrinter';
 import api from '@/application';
 import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
+import { formatETB } from '@/lib/format';
 
 interface ZReportData {
   report_date: string;
@@ -91,12 +92,7 @@ const ZReport = () => {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  const formatCurrency = formatETB;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();

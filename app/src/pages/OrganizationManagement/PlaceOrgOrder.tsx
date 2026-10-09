@@ -68,7 +68,7 @@ export const PlaceOrgOrder: React.FC = () => {
 
   if (!loading && !allowed) {
     return (
-      <div className="p-4 sm:p-6 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         <PageHeader title="Organization Orders" />
         <Card>
           <CardContent className="py-10 text-center text-muted-foreground">
@@ -81,7 +81,7 @@ export const PlaceOrgOrder: React.FC = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Organization Orders"
         description="Pick which organization this order is for."

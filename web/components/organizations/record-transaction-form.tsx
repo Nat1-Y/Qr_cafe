@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Organizations } from "@/lib/resources";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 
 type ServiceRow = { key: string; description: string; cost: string };
 
@@ -125,7 +125,7 @@ export function RecordTransactionForm({
 
         <div className="flex items-center justify-between border-t pt-3">
           <span className="text-muted-foreground text-sm">Total</span>
-          <span className="text-lg font-semibold">{birr(total)}</span>
+          <span className="text-lg font-semibold">{formatETB(total)}</span>
         </div>
         <Button onClick={submit} disabled={saving}>
           {saving ? "Saving…" : "Record transaction"}

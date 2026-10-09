@@ -1,22 +1,23 @@
 import type { LucideIcon } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 export type StatCard = {
   label: string;
   value: React.ReactNode;
   hint?: string;
-  icon: LucideIcon;
+  /** Accepted for compatibility; KPI cards deliberately show no icon. */
+  icon?: LucideIcon;
   valueClass?: string;
 };
 
-// Shared summary cards used across dashboard pages (Dashboard, Orders,
-// Payments). Mirrors the card style on the home dashboard.
+// Shared KPI row used across dashboard pages (Dashboard, Orders, Payments):
+// small muted label, big number, optional muted hint.
 export function StatCards({
   cards,
   loading,
-  className = "grid gap-4 sm:grid-cols-2 lg:grid-cols-4",
+  className = "grid gap-3 sm:grid-cols-2 lg:grid-cols-4",
 }: {
   cards: StatCard[];
   loading?: boolean;
@@ -25,26 +26,17 @@ export function StatCards({
   return (
     <div className={className}>
       {cards.map((c) => (
-        <Card key={c.label}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {c.label}
-            </CardTitle>
-            <c.icon className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <>
-                <div className={`text-2xl font-semibold ${c.valueClass ?? ""}`}>
-                  {c.value}
-                </div>
-                {c.hint && <p className="text-muted-foreground text-xs">{c.hint}</p>}
-              </>
-            )}
-          </CardContent>
-        </Card>
+        <div key={c.label} className="min-w-0 rounded-card border border-border bg-card px-5 py-4">
+          <p className="truncate text-meta text-muted-foreground">{c.label}</p>
+          {loading ? (
+            <Skeleton className="mt-2 h-8 w-24" />
+          ) : (
+            <>
+              <p className={cn("mt-1 truncate text-kpi text-foreground", c.valueClass)}>{c.value}</p>
+              {c.hint && <p className="mt-0.5 truncate text-meta text-muted-foreground">{c.hint}</p>}
+            </>
+          )}
+        </div>
       ))}
     </div>
   );

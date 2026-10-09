@@ -21,10 +21,11 @@ import { ManagementCenter } from './components/ManagementCenter';
 import { InventoryPanel } from './components/InventoryPanel';
 import { OrderStreamPanel } from './components/OrderStreamPanel';
 import { RevenuePanel } from './components/RevenuePanel';
-import { formatCurrency } from './utils';
+
 import { getMenuItemDepartment } from './utils';
 import { StatsCardData } from './types';
 import ZReport from '@/pages/Reports/ZReport';
+import { formatETB } from '@/lib/format';
 
 const AdminDashboard = () => {
   const { loading, dashboardData } = useAdminDashboardData();
@@ -90,20 +91,20 @@ const AdminDashboard = () => {
               : `${dateRange.timeRangeLabel} Revenue`,
         value:
           dateRange.timeRange === 'today'
-            ? formatCurrency(
+            ? formatETB(
               useGlobalTotals
                 ? dashboardData.stats.todayRevenue
                 : filtering.rangePaidTotal
             )
             : dateRange.timeRange === 'all'
-              ? formatCurrency(dashboardData.stats.allTimeRevenue)
-              : formatCurrency(filtering.rangePaidTotal),
+              ? formatETB(dashboardData.stats.allTimeRevenue)
+              : formatETB(filtering.rangePaidTotal),
         icon: <DollarSign className="w-5 h-5" />,
         variant: 'default'
       },
       {
         title: 'Paid Total',
-        value: formatCurrency(
+        value: formatETB(
           dateRange.timeRange === 'all' && useGlobalTotals
             ? dashboardData.stats.paidTotal
             : filtering.rangePaidTotal
@@ -113,7 +114,7 @@ const AdminDashboard = () => {
       },
       {
         title: 'Unpaid Total',
-        value: formatCurrency(
+        value: formatETB(
           dateRange.timeRange === 'all' && useGlobalTotals
             ? dashboardData.stats.unpaidTotal
             : filtering.rangeUnpaidTotal
@@ -132,7 +133,7 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         <Skeleton className="h-24 w-full rounded-2xl" />
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {[...Array(10)].map((_, i) => (
@@ -144,7 +145,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <WelcomeBanner />
 
       <DashboardFilters

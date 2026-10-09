@@ -1,6 +1,18 @@
 import { Metadata } from "next";
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// Teach tailwind-merge the Buna type scale, radii and shadow so e.g.
+// "text-eyebrow text-success" keeps both the size and the colour.
+const twMerge = extendTailwindMerge({
+  extend: {
+    theme: {
+      text: ["title", "section", "kpi", "meta", "eyebrow"],
+      radius: ["card", "field"],
+      shadow: ["pop"],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

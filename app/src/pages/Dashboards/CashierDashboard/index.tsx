@@ -277,7 +277,7 @@ const CashierDashboard = () => {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         <Skeleton className="h-24 w-full rounded-2xl" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map(i => (
@@ -289,7 +289,7 @@ const CashierDashboard = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       {/* Loading overlay for payment processing */}
       {isBlockingPaymentUi && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center" style={{ zIndex: 2147483647 }}>

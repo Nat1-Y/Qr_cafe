@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/page-header";
 import { Orders, Payments } from "@/lib/resources";
-import { birr, shortDate } from "@/lib/format";
+import { formatETB, shortDate } from "@/lib/format";
 import { formatOrderNumber } from "@/lib/utils";
 
 type OrderItem = {
@@ -131,7 +131,7 @@ export default function PaymentDetailPage({
                   label="Reference"
                   value={<span className="font-mono text-xs">{payment.id}</span>}
                 />
-                <Row label="Amount" value={birr(payment.amount)} />
+                <Row label="Amount" value={formatETB(payment.amount)} />
                 <Row
                   label="Method"
                   value={<span className="capitalize">{payment.payment_method ?? "—"}</span>}
@@ -159,8 +159,8 @@ export default function PaymentDetailPage({
                   <div>
                     <p className="font-medium">Amount mismatch flagged</p>
                     <p className="text-amber-700 dark:text-amber-400">
-                      The till sent {birr(payment.meta.client_sent_amount ?? null)}, but the
-                      order total was {birr(payment.meta.order_total_at_payment ?? null)}.
+                      The till sent {formatETB(payment.meta.client_sent_amount ?? null)}, but the
+                      order total was {formatETB(payment.meta.order_total_at_payment ?? null)}.
                       The recorded amount was corrected to the order total.
                     </p>
                   </div>
@@ -214,7 +214,7 @@ export default function PaymentDetailPage({
                       label="Status"
                       value={<span className="capitalize">{order.status ?? "—"}</span>}
                     />
-                    <Row label="Order total" value={birr(order.total_amount)} />
+                    <Row label="Order total" value={formatETB(order.total_amount)} />
                   </dl>
 
                   <div className="rounded-md border">
@@ -235,7 +235,7 @@ export default function PaymentDetailPage({
                           <span>{it.name ?? it.menu_item_name ?? "Item"}</span>
                           <span className="text-right tabular-nums">×{it.quantity}</span>
                           <span className="text-right tabular-nums">
-                            {birr(it.subtotal ?? (it.unit_price ?? 0) * it.quantity)}
+                            {formatETB(it.subtotal ?? (it.unit_price ?? 0) * it.quantity)}
                           </span>
                         </div>
                       ))

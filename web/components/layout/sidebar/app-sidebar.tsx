@@ -10,9 +10,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   useSidebar
 } from "@/components/ui/sidebar";
 import { NavMain } from "@/components/layout/sidebar/nav-main";
@@ -35,28 +32,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="hover:text-foreground h-10 group-data-[collapsible=icon]:px-0! hover:bg-[var(--primary)]/5">
-              <div>
-                <Logo />
-                <span className="font-semibold">Platform Admin</span>
-
-              </div>
-             
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+      <SidebarHeader className="h-16 justify-center px-3.5 group-data-[collapsible=icon]:px-3">
+        <div className="flex items-center gap-2.5">
+          <Logo />
+          <span className="truncate text-base font-semibold group-data-[collapsible=icon]:hidden">
+            Buna POS
+          </span>
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <ScrollArea className="h-full">
           <NavMain />
         </ScrollArea>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-sidebar-border">
         <NavUser />
       </SidebarFooter>
     </Sidebar>

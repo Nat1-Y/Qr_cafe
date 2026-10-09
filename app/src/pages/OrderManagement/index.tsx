@@ -64,7 +64,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ initialFilterStatus =
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         <Skeleton className="h-20 w-full rounded-2xl" />
         <Skeleton className="h-14 w-full" />
         <div className="space-y-4">
@@ -77,7 +77,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ initialFilterStatus =
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Order Management"
         description="Manage orders and track progress"

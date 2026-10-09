@@ -8,7 +8,8 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { formatBirr } from './useOrgPayment';
+import { formatETB } from '@/lib/format';
+
 
 interface ConfirmOrgPaymentModalProps {
   open: boolean;
@@ -65,7 +66,7 @@ const ConfirmOrgPaymentModal: React.FC<ConfirmOrgPaymentModalProps> = ({
             </p>
           )}
           <p className="text-base font-extrabold text-success pt-1">
-            {formatBirr(order?.total_amount || 0)}
+            {formatETB(order?.total_amount || 0)}
           </p>
         </div>
 

@@ -4,11 +4,6 @@ import { useAuth } from '@/context/AuthContext';
 import api from '@/application';
 import { syncEngine } from '@/infrastructure/sync/sync-engine';
 
-export const formatBirr = (val: any) => {
-  const n = Number(val);
-  return `${(Number.isFinite(n) ? n : 0).toLocaleString()} Birr`;
-};
-
 /** An order still owes money unless it is cancelled or already paid. */
 export const isOrderUnpaid = (order: any) => {
   const status = String(order?.status || '').toLowerCase();

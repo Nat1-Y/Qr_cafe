@@ -24,7 +24,7 @@ export const StockTransferManagement: React.FC = () => {
   } = useInventoryData();
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Stock Transfer"
         description="Move stock between locations and review transfer history."

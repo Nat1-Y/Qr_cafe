@@ -27,7 +27,7 @@ export const StockLocationManagement: React.FC = () => {
   } = useStockLocationData();
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Stock Locations"
         description="Define where inventory is stored — kitchen, barista station, freezer, and more."

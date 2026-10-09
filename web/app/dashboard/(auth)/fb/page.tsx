@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/page-header";
 import { Orders, Payments, Menu } from "@/lib/resources";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 import { salesSplit } from "@/lib/profit";
 import {
   getItemSubtotal,
@@ -271,7 +271,7 @@ export default function FbOverviewPage() {
               ) : (
                 <>
                   <div className={`text-2xl font-semibold ${c.valueClass}`}>
-                    {birr(c.value)}
+                    {formatETB(c.value)}
                   </div>
                   <p className="text-muted-foreground text-xs">{c.hint}</p>
                 </>
@@ -326,7 +326,7 @@ export default function FbOverviewPage() {
                       </TableCell>
                       <TableCell className="text-right">{r.qty}</TableCell>
                       <TableCell className="text-right">
-                        {birr(r.revenue)}
+                        {formatETB(r.revenue)}
                       </TableCell>
                     </TableRow>
                   ))
@@ -356,7 +356,7 @@ export default function FbOverviewPage() {
                     <div className="flex items-center justify-between text-sm">
                       <span className="capitalize">{unitLabel(u.unit)}</span>
                       <span className="text-muted-foreground">
-                        {birr(u.revenue)} · {pct}%
+                        {formatETB(u.revenue)} · {pct}%
                       </span>
                     </div>
                     <div className="bg-muted h-2 w-full overflow-hidden rounded-full">

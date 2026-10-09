@@ -2,7 +2,7 @@ import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { Orders } from "./resources";
-import { birr } from "./format";
+import { formatETB } from "./format";
 
 // ---------------------------------------------------------------------------
 // Types (ported from app/src/pages/Reports/types.ts)
@@ -1245,12 +1245,12 @@ export function exportItemsSoldPdf(
   doc.setFontSize(10);
   doc.text(`Total Food Items Sold: ${meta.foodQty.toLocaleString()}`, 14, 32);
   doc.text(`Total Beverages Sold: ${meta.softQty.toLocaleString()}`, 14, 38);
-  doc.text(`Total Revenue: ${birr(meta.totalRevenue)}`, 14, 44);
+  doc.text(`Total Revenue: ${formatETB(meta.totalRevenue)}`, 14, 44);
 
   autoTable(doc, {
     startY: 50,
     head: [["Business Unit", "Item Name", "Quantity Sold", "Revenue"]],
-    body: rows.map((r) => [r.unit, r.item, String(r.qtySold), birr(r.revenue)]),
+    body: rows.map((r) => [r.unit, r.item, String(r.qtySold), formatETB(r.revenue)]),
     styles: { fontSize: 9 },
     headStyles: { fillColor: [30, 41, 59] },
     columnStyles: { 2: { halign: "right" }, 3: { halign: "right" } },

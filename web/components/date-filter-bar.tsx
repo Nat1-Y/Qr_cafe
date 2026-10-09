@@ -100,32 +100,30 @@ export function DateFilterBar({
           <Button
             key={p}
             type="button"
-            variant={preset === p ? "default" : "outline"}
+            variant={preset === p ? "selected" : "outline"}
             size="sm"
             onClick={() => setPreset(p)}
-            className="text-xs font-bold capitalize">
+            className="capitalize">
             {p === "all" ? allLabel : p}
           </Button>
         ))}
       </div>
 
       {preset === "custom" && (
-        <div className="bg-muted/40 mt-3 space-y-4 rounded-xl border p-4">
+        <div className="mt-3 space-y-4 rounded-card border border-border bg-card p-4">
           <div className="grid max-w-xs grid-cols-2 gap-2">
             <Button
               type="button"
-              variant={customMode === "specific" ? "secondary" : "ghost"}
+              variant={customMode === "specific" ? "selected" : "ghost"}
               size="sm"
-              onClick={() => setCustomMode("specific")}
-              className="text-xs font-semibold">
+              onClick={() => setCustomMode("specific")}>
               Specific Date
             </Button>
             <Button
               type="button"
-              variant={customMode === "range" ? "secondary" : "ghost"}
+              variant={customMode === "range" ? "selected" : "ghost"}
               size="sm"
-              onClick={() => setCustomMode("range")}
-              className="text-xs font-semibold">
+              onClick={() => setCustomMode("range")}>
               Date Range
             </Button>
           </div>
@@ -144,7 +142,7 @@ export function DateFilterBar({
                 onChange={(e) => setCustomFrom(e.target.value)}
                 className="max-w-[12rem]"
               />
-              <span className="text-muted-foreground text-sm">to</span>
+              <span className="text-sm text-muted-foreground">to</span>
               <Input
                 type="date"
                 value={customTo}
@@ -154,7 +152,7 @@ export function DateFilterBar({
             </div>
           )}
           {showViewingBadge && (
-            <Badge variant="muted" className="text-xs font-semibold">
+            <Badge variant="muted">
               {viewingPrefix} {label}
             </Badge>
           )}

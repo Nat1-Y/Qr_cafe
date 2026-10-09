@@ -7,8 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { formatBirr } from '../utils';
+
 import { Payment, Transaction } from '../types';
+import { formatETB } from '@/lib/format';
 
 interface PaymentListTabProps {
   orgs: any[];
@@ -80,9 +81,9 @@ export const PaymentListTab = ({
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-3">
-                                <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatBirr(payment.amount)}</p>
+                                <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatETB(payment.amount)}</p>
                                 <Badge variant={remaining > 0 ? "default" : "secondary"} className="text-xs">
-                                  {remaining > 0 ? `${formatBirr(remaining)} remaining` : 'Fully used'}
+                                  {remaining > 0 ? `${formatETB(remaining)} remaining` : 'Fully used'}
                                 </Badge>
                               </div>
                               <p className="text-xs text-muted-foreground mt-1">
@@ -130,7 +131,7 @@ export const PaymentListTab = ({
                                     ))}
                                   </TableCell>
                                   <TableCell className="text-xs py-2 text-right font-semibold text-rose-600 dark:text-rose-400">
-                                    -{formatBirr(txn.total_amount)}
+                                    -{formatETB(txn.total_amount)}
                                   </TableCell>
                                 </TableRow>
                               ))}

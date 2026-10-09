@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/page-header";
 import { Orders, Payments, Menu } from "@/lib/resources";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 import {
   exportItemsSoldPdf,
   getItemSubtotal,
@@ -395,7 +395,7 @@ export default function PaymentsItemsPage() {
                   <p className="text-muted-foreground text-xs font-bold uppercase tracking-wide">
                     Total Cost
                   </p>
-                  <p className="text-2xl font-extrabold">{birr(counts.totalRevenue)}</p>
+                  <p className="text-2xl font-extrabold">{formatETB(counts.totalRevenue)}</p>
                   <p className="text-muted-foreground text-xs">Accumulated value of items sold</p>
                 </div>
                 <Coins className="text-warning size-6" />
@@ -444,7 +444,7 @@ export default function PaymentsItemsPage() {
                         </TableCell>
                         <TableCell className="text-sm font-bold">{r.qtySold}</TableCell>
                         <TableCell className="text-success text-right font-extrabold">
-                          {birr(r.revenue)}
+                          {formatETB(r.revenue)}
                         </TableCell>
                       </TableRow>
                     ))

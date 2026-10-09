@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import api from '@/application';
 import { Menu, X, ChevronLeft, ChevronRight, LayoutDashboard, Users, ShoppingBag, ClipboardList, CreditCard, BarChart3, LogOut, User, Coffee, DollarSign, Package, Receipt, UserCog, Utensils, Wrench, ArrowLeftRight, MapPin, Building2, Printer, RefreshCw, Bike } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -15,9 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import BranchBadge from '@/components/common/BranchBadge';
 import { replaceDepartmentConfigMap } from '@/infrastructure/printing/printer-config';
 import { CashierPrintingProvider } from '@/context/CashierPrintingContext';
 
@@ -61,10 +58,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
 
 ];
 
-const ROLE_COLORS: Record<string, string> = {
-  admin: 'bg-primary',
-  cashier: 'bg-success',
-};
+const BRANCH_NAME = import.meta.env.VITE_BRANCH_NAME || '';
 
 function getUserInitials(name: string) {
   return name.split(' ').map(n => n.charAt(0)).join('').toUpperCase().slice(0, 2);
@@ -180,173 +174,172 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   const userDisplayName = user?.full_name || user?.name || 'User';
 
-  const NavContent = ({ mobile = false }: { mobile?: boolean }) => (
-    <div className="flex flex-col h-full">
-      {/* Logo Header */}
-      <div className={cn('flex items-center h-16 border-b border-border px-4 shrink-0', collapsed && !mobile ? 'justify-center' : 'justify-between')}>
-        <div className={cn('flex items-center gap-2.5 min-w-0', collapsed && !mobile && 'hidden')}>
-          <img src="/assets/logo.png?v=8" alt="Logo" className="w-9 h-9 object-contain shrink-0" />
-          <div className="min-w-0">
-            <p className="text-sm font-bold truncate">Cafe System</p>
-            <BranchBadge className="mt-0.5" />
-          </div>
-        </div>
-        {collapsed && !mobile && (
-          <img src="/assets/logo.png?v=8" alt="Logo" className="w-8 h-8 object-contain" />
-        )}
-        {!mobile && (
-          <button
-            onClick={() => setCollapsed(c => !c)}
-            className="hidden lg:flex items-center justify-center w-6 h-6 rounded-md hover:bg-muted transition-colors shrink-0"
-          >
-            {collapsed ? <ChevronRight className="h-4 w-4 text-muted-foreground" /> : <ChevronLeft className="h-4 w-4 text-muted-foreground" />}
-          </button>
-        )}
-        {mobile && (
-          <button onClick={() => setSidebarOpen(false)} className="p-1 rounded-md hover:bg-muted">
-            <X className="h-5 w-5" />
-          </button>
-        )}
-      </div>
+  // Desktop sidebar: icon rail between md and lg, full width from lg unless
+  // the user collapsed it. The mobile drawer always shows labels.
+  const NavContent = ({ mobile = false }: { mobile?: boolean }) => {
+    const labelInline = mobile ? '' : collapsed ? 'hidden' : 'hidden lg:inline';
+    const labelBlock = mobile ? '' : collapsed ? 'hidden' : 'hidden lg:block';
+    const rowAlign = mobile ? '' : collapsed ? 'justify-center' : 'justify-center lg:justify-start';
+    const roleLine = [getRoleDisplayName(), BRANCH_NAME].filter(Boolean).join(' · ');
 
-      {/* Navigation */}
-      <ScrollArea className="flex-1">
-        <nav className="p-3">
-          {groups.map((group, gi) => {
-            const groupItems = filteredItems.filter(i => i.group === group);
-            return (
-              <div key={group} className={cn(gi > 0 && 'mt-4')}>
-                {(!collapsed || mobile) && (
-                  <p className="px-2 mb-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                    {group}
-                  </p>
-                )}
-                {gi > 0 && collapsed && !mobile && <Separator className="mb-3" />}
-                <ul className="space-y-0.5">
-                  {groupItems.map(item => {
-                    const Icon = item.icon;
-                    const active = isActive(item.href);
-                    return (
-                      <li key={item.href}>
-                        <button
-                          title={collapsed && !mobile ? item.name : undefined}
-                          onClick={() => {
-                            navigate(item.href);
-                            setSidebarOpen(false);
-                          }}
-                          className={cn(
-                            'flex items-center gap-3 w-full rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150',
-                            collapsed && !mobile ? 'justify-center' : '',
-                            active
-                              ? 'bg-primary text-primary-foreground'
-                              : 'text-foreground/70 hover:bg-muted hover:text-foreground'
-                          )}
-                        >
-                          <Icon className="h-4 w-4 shrink-0" />
-                          {(!collapsed || mobile) && <span className="truncate">{item.name}</span>}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            );
-          })}
-        </nav>
-      </ScrollArea>
-
-      {/* User Footer */}
-      <div className="border-t border-border p-3 shrink-0 space-y-1">
-    
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className={cn(
-              'flex items-center gap-3 w-full rounded-lg p-2 hover:bg-muted transition-colors text-left',
-              collapsed && !mobile && 'justify-center'
-            )}>
-              <Avatar className="h-8 w-8 shrink-0 ">
-                <AvatarFallback className={cn('text-xs font-bold text-forground')}>
-                  {getUserInitials(userDisplayName)}
-                </AvatarFallback>
-              </Avatar>
-              {(!collapsed || mobile) && (
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{userDisplayName}</p>
-                  <p className="text-xs text-muted-foreground truncate">{getRoleDisplayName()}</p>
-                </div>
-              )}
+    return (
+      <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
+        {/* Wordmark */}
+        <div className={cn('flex h-16 shrink-0 items-center gap-2.5 px-4', rowAlign)}>
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground">
+            <Coffee className="h-[18px] w-[18px]" strokeWidth={2} />
+          </span>
+          <p className={cn('min-w-0 truncate text-base font-semibold', labelBlock)}>Buna POS</p>
+          {mobile && (
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="ml-auto flex h-9 w-9 items-center justify-center rounded-full text-sidebar-muted hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5" />
             </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="top" align="start" className="w-56">
-            <DropdownMenuLabel>
-              <p className="font-semibold">{userDisplayName}</p>
-              <p className="text-xs text-muted-foreground font-normal">{getRoleDisplayName()}</p>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
-              <User className="h-4 w-4 mr-2" />Profile
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
-              <LogOut className="h-4 w-4 mr-2" />Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <ScrollArea className="flex-1">
+          <nav className="px-3 pb-4 pt-1">
+            {groups.map((group, gi) => {
+              const groupItems = filteredItems.filter(i => i.group === group);
+              return (
+                <div key={group} className={cn(gi > 0 && 'mt-5')}>
+                  <p className={cn('mb-1.5 px-3 text-eyebrow text-sidebar-muted', labelBlock)}>{group}</p>
+                  <ul className="space-y-0.5">
+                    {groupItems.map(item => {
+                      const Icon = item.icon;
+                      const active = isActive(item.href);
+                      return (
+                        <li key={item.href}>
+                          <button
+                            title={item.name}
+                            aria-current={active ? 'page' : undefined}
+                            onClick={() => {
+                              navigate(item.href);
+                              setSidebarOpen(false);
+                            }}
+                            className={cn(
+                              'flex h-10 w-full items-center gap-3 rounded-full px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+                              rowAlign,
+                              active
+                                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                                : 'text-sidebar-foreground/85 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                            )}
+                          >
+                            <Icon className="h-[18px] w-[18px] shrink-0" />
+                            <span className={cn('truncate', labelInline)}>{item.name}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })}
+          </nav>
+        </ScrollArea>
+
+        {/* User */}
+        <div className="shrink-0 border-t border-sidebar-border p-3">
+          <div className={cn('flex items-center gap-1', !mobile && (collapsed ? 'flex-col' : 'flex-col lg:flex-row'))}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    'flex min-w-0 flex-1 items-center gap-2.5 rounded-full p-1.5 text-left transition-colors hover:bg-sidebar-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+                    rowAlign
+                  )}
+                  title={userDisplayName}
+                >
+                  <Avatar className="h-8 w-8 shrink-0">
+                    <AvatarFallback className="text-xs">{getUserInitials(userDisplayName)}</AvatarFallback>
+                  </Avatar>
+                  <div className={cn('min-w-0 flex-1', labelBlock)}>
+                    <p className="truncate text-sm font-semibold">{userDisplayName}</p>
+                    <p className="truncate text-meta text-sidebar-muted">{roleLine}</p>
+                  </div>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" className="w-56">
+                <DropdownMenuLabel>
+                  <p className="font-semibold">{userDisplayName}</p>
+                  <p className="text-meta font-normal text-muted-foreground">{roleLine}</p>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
+                  <User className="h-4 w-4" />Profile
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                  <LogOut className="h-4 w-4" />Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <ThemeToggle className="shrink-0 text-sidebar-muted hover:bg-sidebar-accent/50 hover:text-sidebar-foreground" />
+          </div>
+          {!mobile && (
+            <button
+              onClick={() => setCollapsed(c => !c)}
+              className={cn(
+                'mt-1 hidden h-8 w-full items-center gap-2 rounded-full px-3 text-meta text-sidebar-muted transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground lg:flex',
+                collapsed && 'justify-center px-0'
+              )}
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              {!collapsed && <span>Collapse</span>}
+            </button>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <CashierPrintingProvider>
-    <div className="flex h-screen bg-background overflow-hidden">
-      {/* Desktop Sidebar */}
+    <div className="flex h-screen overflow-hidden bg-background">
+      {/* Desktop / tablet sidebar */}
       <aside className={cn(
-        'hidden lg:flex flex-col h-full bg-card border-r border-border transition-all duration-300 ease-in-out shrink-0',
-        collapsed ? 'w-16' : 'w-64'
+        'hidden h-full shrink-0 transition-[width] duration-200 ease-out md:flex md:w-16 md:flex-col',
+        collapsed ? 'lg:w-16' : 'lg:w-52'
       )}>
         <NavContent />
       </aside>
 
-      {/* Mobile Sidebar Overlay */}
+      {/* Mobile drawer */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden backdrop-blur-sm"
+          className="fixed inset-0 z-40 bg-overlay md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
-
-      {/* Mobile Sidebar Drawer */}
       <aside className={cn(
-        'fixed inset-y-0 left-0 z-50 w-72 bg-card border-r border-border lg:hidden transition-transform duration-300 ease-in-out',
+        'fixed inset-y-0 left-0 z-50 w-72 transition-transform duration-200 ease-out md:hidden',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         <NavContent mobile />
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Header - Fixed */}
-        <header className="flex items-center justify-between h-14 px-4 bg-card border-b border-border shrink-0 sticky top-0 z-30">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarOpen(true)}
-              className="h-8 w-8 lg:hidden"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <img src="/assets/logo.png?v=8" alt="Logo" className="w-8 h-8 object-contain" />
-              <span className="text-sm font-bold hidden sm:inline">Cafe System</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            <ThemeToggle />
-          </div>
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        {/* Slim mobile bar — on larger screens the sidebar carries everything */}
+        <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 md:hidden">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="-ml-1.5 flex h-10 w-10 items-center justify-center rounded-full text-foreground hover:bg-muted"
+            aria-label="Open menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-highlight text-highlight-foreground">
+            <Coffee className="h-4 w-4" />
+          </span>
+          <span className="text-base font-semibold text-foreground">Buna POS</span>
         </header>
 
-        {/* Page Content */}
         <main className="flex-1 overflow-y-auto">
           {children}
         </main>

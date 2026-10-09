@@ -47,7 +47,7 @@ export const OrganizationManagement: React.FC = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <PageHeader title="Organizations" description="Manage organizations and their credit balances." actions={
         <Button onClick={load} variant="outline" size="sm"><RefreshCw className="h-4 w-4 mr-2" />Refresh</Button>
       } />

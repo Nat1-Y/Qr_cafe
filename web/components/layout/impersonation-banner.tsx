@@ -34,7 +34,7 @@ export function ImpersonationBanner() {
   }
 
   return (
-    <div className="flex items-center justify-center gap-3 bg-amber-500/90 px-4 py-2 text-sm font-medium text-amber-950">
+    <div className="flex items-center justify-center gap-3 border-b border-warning/20 bg-warning-soft px-4 py-2 text-sm font-medium text-warning">
       <ShieldAlertIcon className="size-4 shrink-0" />
       <span>
         Signed in as <span className="font-semibold">{username}</span> on
@@ -43,7 +43,7 @@ export function ImpersonationBanner() {
       <Button
         size="sm"
         variant="outline"
-        className="h-7 border-amber-950/30 bg-transparent text-amber-950 hover:bg-amber-950/10"
+        className="h-7 border-warning/40 bg-transparent text-warning hover:bg-warning/10"
         disabled={busy}
         onClick={onReturn}>
         Return to admin

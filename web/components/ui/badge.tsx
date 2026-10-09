@@ -3,22 +3,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+// Status pills: soft background, darker text, 12px/600.
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 gap-1",
+  "inline-flex w-fit shrink-0 items-center justify-center gap-1 rounded-full border border-transparent px-2.5 py-0.5 text-eyebrow whitespace-nowrap [&_svg]:size-3 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground",
-        secondary: "border-transparent bg-secondary text-secondary-foreground",
-        destructive: "border-transparent bg-destructive text-white",
-        outline: "text-foreground",
-        success:
-          "border-transparent bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400",
-        info:
-          "border-transparent bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400",
-        warning:
-          "border-transparent bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400",
-        muted: "border-transparent bg-muted text-muted-foreground",
+        default: "bg-highlight text-highlight-foreground",
+        secondary: "bg-muted text-muted-foreground",
+        destructive: "bg-destructive-soft text-destructive",
+        outline: "border-border text-foreground",
+        success: "bg-success-soft text-success",
+        info: "bg-info-soft text-info",
+        warning: "bg-warning-soft text-warning",
+        muted: "bg-muted text-muted-foreground",
       },
     },
     defaultVariants: { variant: "default" },

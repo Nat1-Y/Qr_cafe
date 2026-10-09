@@ -329,7 +329,7 @@ const PrinterSettingsContent: React.FC = () => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6 space-y-6">
+    <div className="min-h-screen bg-background p-4 md:p-8 space-y-6">
 
       {/* ── Header ── */}
       <Card className="shadow-sm border-border/60">
@@ -767,7 +767,7 @@ const PrinterSettings: React.FC = () => {
   const unavailable = gate === 'unavailable';
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6 flex items-start justify-center">
+    <div className="min-h-screen bg-background p-4 md:p-8 flex items-start justify-center">
       <Card className="w-full max-w-md mt-16 shadow-sm border-border/60">
         <CardHeader className="pb-3 pt-6 px-6">
           <div className="flex items-center gap-3">

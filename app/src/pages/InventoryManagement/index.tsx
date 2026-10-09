@@ -141,7 +141,7 @@ export const InventoryManagement: React.FC = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Inventory Management"
         description="Manage stock levels and track transfers between locations."

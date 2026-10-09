@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import api from "@/application";
 import { useAuth } from "@/context/AuthContext";
 import { getApproximateServerDate } from "@/shared/utils/serverTime";
+import { formatETB } from '@/lib/format';
 
 // Resolve a stats range key into concrete [from, to] Date bounds. Returns null
 // for "all" (no window). Shared by the stats calculation and by the backend
@@ -654,11 +655,7 @@ export const useCashierEmployeesData = () => {
       : parts.join(", ");
   }, []);
 
-  const formatCurrency = useCallback((val: any) => {
-    const n = parseFloat(val);
-    const safe = Number.isFinite(n) ? n : 0;
-    return `${safe.toLocaleString()} Birr`;
-  }, []);
+  const formatCurrency = formatETB;
 
   return {
     loading,

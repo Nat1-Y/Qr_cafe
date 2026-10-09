@@ -2,6 +2,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 interface EmptyStateProps {
+  /** Optional small monochrome line icon. */
   icon?: React.ReactNode;
   title: string;
   description?: string;
@@ -9,16 +10,15 @@ interface EmptyStateProps {
   className?: string;
 }
 
+/** One plain line, one action. */
 const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, description, action, className }) => {
   return (
-    <div className={cn('flex flex-col items-center justify-center py-16 px-4 text-center', className)}>
+    <div className={cn('flex flex-col items-center justify-center px-4 py-12 text-center', className)}>
       {icon && (
-        <div className="flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
-          <div className="text-muted-foreground [&_svg]:h-8 [&_svg]:w-8">{icon}</div>
-        </div>
+        <div className="mb-3 text-muted-foreground [&_svg]:h-6 [&_svg]:w-6 [&_svg]:stroke-[1.5]">{icon}</div>
       )}
-      <h3 className="text-base font-semibold text-foreground mb-1">{title}</h3>
-      {description && <p className="text-sm text-muted-foreground max-w-sm">{description}</p>}
+      <p className="text-base font-medium text-foreground">{title}</p>
+      {description && <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );

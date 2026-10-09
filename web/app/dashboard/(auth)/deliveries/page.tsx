@@ -41,7 +41,7 @@ import {
 import { PageHeader } from "@/components/page-header";
 import { StatCards, type StatCard } from "@/components/stat-cards";
 import { Deliveries, Settings } from "@/lib/resources";
-import { birr, shortDate } from "@/lib/format";
+import { formatETB, shortDate } from "@/lib/format";
 import { formatOrderNumber } from "@/lib/utils";
 
 // Hoisted so DataTable's `searchKeys` prop keeps a stable reference across
@@ -257,14 +257,14 @@ function ManageDeliveryDialog({
               <div className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
                 Total
               </div>
-              <div className="text-sm font-bold">{birr(order.total_amount)}</div>
+              <div className="text-sm font-bold">{formatETB(order.total_amount)}</div>
             </div>
             <div className="px-2 py-2.5">
               <div className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
                 Collected
               </div>
               <div className="text-sm font-bold text-emerald-600 dark:text-emerald-500">
-                {birr(order.delivery_payment_summary.paid_cents / 100)}
+                {formatETB(order.delivery_payment_summary.paid_cents / 100)}
               </div>
             </div>
             <div className="px-2 py-2.5">
@@ -274,7 +274,7 @@ function ManageDeliveryDialog({
               <div
                 className={`text-sm font-bold ${remainingDueCents > 0 ? "text-amber-600 dark:text-amber-500" : "text-emerald-600 dark:text-emerald-500"}`}
               >
-                {birr(remainingDueCents / 100)}
+                {formatETB(remainingDueCents / 100)}
               </div>
             </div>
           </div>
@@ -302,14 +302,14 @@ function ManageDeliveryDialog({
                       ×{it.quantity}
                     </span>
                     <span className="text-right font-medium tabular-nums">
-                      {birr(it.subtotal ?? (it.unit_price ?? 0) * it.quantity)}
+                      {formatETB(it.subtotal ?? (it.unit_price ?? 0) * it.quantity)}
                     </span>
                   </div>
                 ))
               )}
               <div className="bg-muted/20 grid grid-cols-[1fr_auto] gap-3 border-t px-3 py-2 text-sm font-semibold">
                 <span>Total</span>
-                <span className="text-right tabular-nums">{birr(order.total_amount)}</span>
+                <span className="text-right tabular-nums">{formatETB(order.total_amount)}</span>
               </div>
             </div>
           </div>
@@ -423,7 +423,7 @@ function ManageDeliveryDialog({
                         <CreditCardIcon className="text-muted-foreground size-4" />
                       </div>
                       <div>
-                        <div className="font-medium">{birr(p.amount_cents / 100)}</div>
+                        <div className="font-medium">{formatETB(p.amount_cents / 100)}</div>
                         <div className="text-xs text-muted-foreground">
                           {[p.method, p.processed_by_name].filter(Boolean).join(" · ") || "—"}
                         </div>
@@ -457,7 +457,7 @@ function ManageDeliveryDialog({
                     Amount due
                   </span>
                   <span className="text-sm font-bold text-amber-900 dark:text-amber-300">
-                    {birr(remainingDueCents / 100)}
+                    {formatETB(remainingDueCents / 100)}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -564,7 +564,7 @@ function DeliveryPaymentsPopover({
         <div className="mb-2 flex items-center justify-between">
           <span className="text-sm font-semibold">{formatOrderNumber(order)}</span>
           <span className="text-muted-foreground text-xs">
-            {birr(order.delivery_payment_summary.paid_cents / 100)} of {birr(order.total_amount)}
+            {formatETB(order.delivery_payment_summary.paid_cents / 100)} of {formatETB(order.total_amount)}
           </span>
         </div>
 
@@ -578,7 +578,7 @@ function DeliveryPaymentsPopover({
                 className="flex items-center justify-between rounded-md border px-2 py-1.5 text-xs"
               >
                 <div>
-                  <span className="font-medium">{birr(p.amount_cents / 100)}</span>{" "}
+                  <span className="font-medium">{formatETB(p.amount_cents / 100)}</span>{" "}
                   <Badge
                     variant={p.status === "paid" ? "success" : p.status === "cancelled" ? "destructive" : "warning"}
                     className="ml-1"
@@ -596,7 +596,7 @@ function DeliveryPaymentsPopover({
           <>
             <div className="mb-2 flex items-center justify-between rounded-md border bg-muted/20 px-2 py-1.5 text-xs">
               <span className="font-medium text-muted-foreground">Amount due</span>
-              <span className="font-bold">{birr(remainingDueCents / 100)}</span>
+              <span className="font-bold">{formatETB(remainingDueCents / 100)}</span>
             </div>
             <div className="flex gap-1.5">
               <Input
@@ -669,7 +669,7 @@ function BulkConfirmDeliveryPaymentsDialog({
               Total amount
             </span>
             <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-500">
-              {birr(totalDueCents / 100)}
+              {formatETB(totalDueCents / 100)}
             </span>
           </div>
 
@@ -682,7 +682,7 @@ function BulkConfirmDeliveryPaymentsDialog({
               return (
                 <div key={o.id} className="flex items-center justify-between text-xs">
                   <span className="font-medium">{formatOrderNumber(o)}</span>
-                  <span className="text-muted-foreground">{birr(due / 100)}</span>
+                  <span className="text-muted-foreground">{formatETB(due / 100)}</span>
                 </div>
               );
             })}
@@ -881,7 +881,7 @@ export default function DeliveriesPage() {
       {
         key: "total_amount",
         label: "Total",
-        render: (r) => birr(r.total_amount),
+        render: (r) => formatETB(r.total_amount),
         sortable: true,
         sortValue: (r) => Number(r.total_amount ?? 0),
       },
@@ -1010,8 +1010,8 @@ export default function DeliveriesPage() {
     { label: "Pending", value: stats.pending, icon: HourglassIcon, valueClass: "text-amber-600 dark:text-amber-500" },
     { label: "Delivered", value: stats.delivered, icon: PackageCheckIcon, valueClass: "text-emerald-600 dark:text-emerald-500" },
     { label: "Cancelled", value: stats.cancelled, icon: XCircleIcon, valueClass: "text-destructive" },
-    { label: "Collected", value: birr(stats.collectedCents / 100), icon: CreditCardIcon, valueClass: "text-emerald-600 dark:text-emerald-500" },
-    { label: "Outstanding", value: birr(stats.outstanding), icon: WalletIcon, valueClass: "text-amber-600 dark:text-amber-500" },
+    { label: "Collected", value: formatETB(stats.collectedCents / 100), icon: CreditCardIcon, valueClass: "text-emerald-600 dark:text-emerald-500" },
+    { label: "Outstanding", value: formatETB(stats.outstanding), icon: WalletIcon, valueClass: "text-amber-600 dark:text-amber-500" },
   ];
 
   return (

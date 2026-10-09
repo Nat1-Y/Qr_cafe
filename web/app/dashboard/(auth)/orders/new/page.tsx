@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/page-header";
 import { Menu, Tables, Orders, Organizations, Users, Settings } from "@/lib/resources";
 import { getUser } from "@/lib/auth";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 
 type Item = {
   id: string;
@@ -235,7 +235,7 @@ export default function NewOrderPage() {
                     onClick={() => add(it)}
                     className="hover:border-primary hover:bg-primary/5 flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-colors">
                     <span className="line-clamp-2 text-sm font-medium">{it.name}</span>
-                    <span className="text-muted-foreground text-xs">{birr(it.price)}</span>
+                    <span className="text-muted-foreground text-xs">{formatETB(it.price)}</span>
                   </button>
                 ))}
               </div>
@@ -259,7 +259,7 @@ export default function NewOrderPage() {
                   <div key={l.item.id} className="flex items-center gap-2">
                     <div className="flex-1">
                       <div className="text-sm font-medium">{l.item.name}</div>
-                      <div className="text-muted-foreground text-xs">{birr(l.item.price)}</div>
+                      <div className="text-muted-foreground text-xs">{formatETB(l.item.price)}</div>
                     </div>
                     <div className="flex items-center gap-1">
                       <Button variant="outline" size="icon" className="size-7" onClick={() => setQty(l.item.id, l.qty - 1)}>
@@ -374,7 +374,7 @@ export default function NewOrderPage() {
 
             <div className="flex items-center justify-between border-t pt-3">
               <span className="text-muted-foreground text-sm">Total</span>
-              <span className="text-lg font-semibold">{birr(total)}</span>
+              <span className="text-lg font-semibold">{formatETB(total)}</span>
             </div>
             <Button className="w-full" onClick={placeOrder} disabled={placing || lines.length === 0 || !waiterId}>
               {placing ? "Placing…" : "Place order"}

@@ -22,16 +22,16 @@ export default async function AuthLayout({
       defaultOpen={defaultOpen}
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 64)",
+          "--sidebar-width": "calc(var(--spacing) * 52)",
           "--header-height": "calc(var(--spacing) * 14)"
         } as React.CSSProperties
       }>
-      <AppSidebar variant="inset" />
+      <AppSidebar />
       <SidebarInset>
         <ImpersonationBanner />
         <SiteHeader />
         <div className="flex flex-1 flex-col">
-          <div className="@container/main p-4">
+          <div className="@container/main px-4 pt-2 pb-8 md:px-8">
             <PermissionGate>{children}</PermissionGate>
           </div>
         </div>

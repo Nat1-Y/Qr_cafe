@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/chart";
 import { DateFilterBar } from "@/components/date-filter-bar";
 import { apiFetch } from "@/lib/api";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 
 type BusinessRow = { id: string; name: string };
 type BranchOption = { id: string; name: string };
@@ -226,7 +226,7 @@ export default function MonitoringPage() {
           label="Revenue"
           icon={BanknoteIcon}
           loading={loading}
-          value={data ? birr(data.summary.revenue) : "—"}
+          value={data ? formatETB(data.summary.revenue) : "—"}
         />
         <StatCard
           label="Orders"
@@ -238,7 +238,7 @@ export default function MonitoringPage() {
           label="Avg order value"
           icon={TrendingUpIcon}
           loading={loading}
-          value={data ? birr(data.summary.avg_order_value) : "—"}
+          value={data ? formatETB(data.summary.avg_order_value) : "—"}
         />
         <StatCard
           label="Active branches"
@@ -303,7 +303,7 @@ export default function MonitoringPage() {
                       <ChartTooltipContent
                         formatter={(value) => (
                           <span className="text-foreground font-mono font-medium tabular-nums">
-                            {birr(Number(value))}
+                            {formatETB(Number(value))}
                           </span>
                         )}
                       />
@@ -409,7 +409,7 @@ export default function MonitoringPage() {
                       <ChartTooltipContent
                         formatter={(value) => (
                           <span className="text-foreground font-mono font-medium tabular-nums">
-                            {birr(Number(value))}
+                            {formatETB(Number(value))}
                           </span>
                         )}
                       />
@@ -517,7 +517,7 @@ export default function MonitoringPage() {
                         {b.orders.toLocaleString()}
                       </td>
                       <td className="py-2 text-right font-mono tabular-nums">
-                        {birr(b.revenue)}
+                        {formatETB(b.revenue)}
                       </td>
                     </tr>
                   ))}

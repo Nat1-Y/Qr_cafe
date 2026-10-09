@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { formatCurrency, formatDate } from '../utils';
+import { formatDate } from '../utils';
+import { formatETB } from '@/lib/format';
 
 interface RevenuePanelProps {
   payments: any[];
@@ -56,7 +57,7 @@ export const RevenuePanel: React.FC<RevenuePanelProps> = ({
                 <div className="text-foreground">#{payment.order_id}</div>
                 <div>
                   <span className="font-extrabold text-success bg-success/10 dark:bg-green-950/20 px-2 py-0.5 rounded-md border border-success/30">
-                    {formatCurrency(getPaymentAmount(payment))}
+                    {formatETB(getPaymentAmount(payment))}
                   </span>
                 </div>
                 <div>

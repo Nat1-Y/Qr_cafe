@@ -18,7 +18,7 @@ import { DataTable, type Column, type SortState } from "@/components/data-table"
 import { PageHeader } from "@/components/page-header";
 import { StatCards, type StatCard } from "@/components/stat-cards";
 import { Payments } from "@/lib/resources";
-import { birr, shortDate, displayStatus, statusBadgeVariant } from "@/lib/format";
+import { formatETB, shortDate, displayStatus, statusBadgeVariant } from "@/lib/format";
 
 type Payment = {
   id: string;
@@ -71,15 +71,15 @@ const columns: Column<Payment>[] = [
       r.meta?.amount_mismatch ? (
         <span
           className="inline-flex items-center gap-1.5 text-amber-600 dark:text-amber-500"
-          title={`Till sent ${birr(r.meta.client_sent_amount ?? null)}; order total was ${birr(
+          title={`Till sent ${formatETB(r.meta.client_sent_amount ?? null)}; order total was ${formatETB(
             r.meta.order_total_at_payment ?? null,
           )}. Recorded amount was corrected to the order total.`}
         >
           <TriangleAlertIcon className="size-3.5 shrink-0" />
-          {birr(r.amount)}
+          {formatETB(r.amount)}
         </span>
       ) : (
-        birr(r.amount)
+        formatETB(r.amount)
       ),
   },
   { key: "payment_method", label: "Method", render: (r) => <span className="capitalize">{r.payment_method ?? "—"}</span> },
@@ -146,7 +146,7 @@ export default function PaymentsPage() {
       { label: "Total payments", value: serverStats.total_payments ?? 0, icon: WalletIcon },
       {
         label: "Collected",
-        value: birr(collected),
+        value: formatETB(collected),
         hint: `${paidCount} paid`,
         icon: BanknoteIcon,
         valueClass: "text-emerald-600 dark:text-emerald-500",
@@ -160,7 +160,7 @@ export default function PaymentsPage() {
       },
       {
         label: "Avg payment",
-        value: birr(serverStats.avg ?? 0),
+        value: formatETB(serverStats.avg ?? 0),
         hint: "Paid only",
         icon: CalculatorIcon,
       },

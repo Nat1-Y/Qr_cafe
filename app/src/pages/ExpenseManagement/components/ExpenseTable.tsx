@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import EmptyState from '@/components/common/EmptyState';
 import { Expense } from '../types';
-import { formatCurrency, formatDateTime } from '../utils';
+import { formatDateTime } from '../utils';
+import { formatETB } from '@/lib/format';
 
 interface ExpenseTableProps {
   expenses: Expense[];
@@ -71,7 +72,7 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
                   <TableCell className="hidden sm:table-cell">
                     <Badge variant="info" className="text-[10px]">{expense.payment_method || '—'}</Badge>
                   </TableCell>
-                  <TableCell className="text-right font-bold text-destructive">{formatCurrency(expense.amount || expense.total)}</TableCell>
+                  <TableCell className="text-right font-bold text-destructive">{formatETB(expense.amount || expense.total)}</TableCell>
                   <TableCell className="hidden md:table-cell text-xs text-muted-foreground">{formatDateTime(expense.created_at)}</TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">

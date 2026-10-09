@@ -5,7 +5,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Users } from 'lucide-react';
 import EmptyState from '@/components/common/EmptyState';
 import { EmployeeSummary } from '../types';
-import { formatAmount } from '../utils';
+import { formatETB } from '@/lib/format';
+
 
 interface EmployeesTableProps {
   loading: boolean;
@@ -49,9 +50,9 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
                   data-state={String(e.employee_id) === selectedEmployeeId ? 'selected' : undefined}
                 >
                   <TableCell className="font-medium">{e.employee_name}</TableCell>
-                  <TableCell className="text-right">{formatAmount(e.orders_total)}</TableCell>
-                  <TableCell className="text-right text-success font-medium">{formatAmount(e.paid_total)}</TableCell>
-                  <TableCell className="text-right text-destructive font-medium">{formatAmount(e.unpaid_total)}</TableCell>
+                  <TableCell className="text-right">{formatETB(e.orders_total)}</TableCell>
+                  <TableCell className="text-right text-success font-medium">{formatETB(e.paid_total)}</TableCell>
+                  <TableCell className="text-right text-destructive font-medium">{formatETB(e.unpaid_total)}</TableCell>
                 </TableRow>
               )) : (
                 <TableRow>

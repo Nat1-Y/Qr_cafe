@@ -24,8 +24,9 @@ import {
 import api from '@/application';
 import { useAuth } from '@/context/AuthContext';
 import ConfirmOrgPaymentModal from './ConfirmOrgPaymentModal';
-import { formatBirr, isOrderUnpaid, useOrgPayment } from './useOrgPayment';
+import { isOrderUnpaid, useOrgPayment } from './useOrgPayment';
 import { OrgCustomerCell } from './OrgCustomerCell';
+import { formatETB } from '@/lib/format';
 
 interface OrganizationOrdersProps {
   /** Organizations already loaded by the parent (active + inactive for admin). */
@@ -293,7 +294,7 @@ export const OrganizationOrders: React.FC<OrganizationOrdersProps> = ({
                       </TableCell>
                       <TableCell>{order.payment_status || '—'}</TableCell>
                       <TableCell>
-                        {formatBirr(order.total_amount)}
+                        {formatETB(order.total_amount)}
                         {(order.is_price_override === true ||
                           order.is_price_override === 1) && (
                           <Badge variant="outline" className="ml-2">

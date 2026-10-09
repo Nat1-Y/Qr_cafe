@@ -24,7 +24,7 @@ const THICKNESS: Record<SpinnerSize, number> = {
 const Ring: React.FC<{ size: SpinnerSize }> = ({ size }) => {
   const px = SIZE_PX[size];
   const t = THICKNESS[size];
-  const ringMask = `radial-gradient(farthest-side, transparent calc(100% - ${t}px), #000 calc(100% - ${t}px))`;
+  const ringMask = `radial-gradient(farthest-side, transparent calc(100% - ${t}px), hsl(var(--foreground)) calc(100% - ${t}px))`;
 
   return (
     <span className="relative inline-block" style={{ width: px, height: px }}>
@@ -77,19 +77,14 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
         <img
           src="/assets/logo.png?v=8"
           alt="Logo"
-          className="h-16 w-16 object-contain opacity-90 animate-pulse"
-          style={{ animationDuration: '2s' }}
+          className="h-14 w-14 object-contain"
         />
       )}
 
-      <div className="relative flex items-center justify-center">
-        {/* soft glow behind the ring */}
-        <span className="absolute h-16 w-16 rounded-full bg-primary/10 blur-xl" />
-        <Ring size={size} />
-      </div>
+      <Ring size={size} />
 
       {showText && (
-        <p className="text-sm font-medium text-muted-foreground tracking-wide animate-pulse">
+        <p className="text-sm text-muted-foreground">
           {text}
         </p>
       )}
@@ -102,7 +97,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   return (
     <div
-      className={`flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-background via-background to-muted/40 ${className}`}
+      className={`flex min-h-screen flex-col items-center justify-center bg-background ${className}`}
     >
       {body}
     </div>

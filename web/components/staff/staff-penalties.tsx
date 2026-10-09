@@ -29,7 +29,7 @@ import {
 import { DataTable, type Column } from "@/components/data-table";
 import { StatCard } from "@/components/stat-card";
 import { DateFilterBar } from "@/components/date-filter-bar";
-import { birr, shortDate } from "@/lib/format";
+import { formatETB, shortDate } from "@/lib/format";
 import { StaffPenalties as StaffPenaltiesApi, Users as UsersResource } from "@/lib/resources";
 import { can } from "@/lib/permissions";
 
@@ -245,7 +245,7 @@ export function StaffPenalties() {
       className: "text-right",
       sortable: true,
       sortValue: (r) => r.amount ?? 0,
-      render: (r) => (r.amount != null ? <span className="font-medium">{birr(r.amount)}</span> : "—"),
+      render: (r) => (r.amount != null ? <span className="font-medium">{formatETB(r.amount)}</span> : "—"),
     },
     { key: "recorded_by_name", label: "By", render: (r) => r.recorded_by_name || "—" },
   ];
@@ -285,7 +285,7 @@ export function StaffPenalties() {
         />
         <StatCard
           title="Total Fine Amount"
-          value={birr(summary?.total ?? 0)}
+          value={formatETB(summary?.total ?? 0)}
           subtitle="Sum of monetary penalties"
           icon={<DollarSign className="size-5" />}
           variant="destructive"
@@ -317,7 +317,7 @@ export function StaffPenalties() {
                     <TableCell className="font-medium">{e.employee_name}</TableCell>
                     <TableCell className="text-right">{e.count}</TableCell>
                     <TableCell className="text-destructive text-right font-medium">
-                      {birr(e.amount)}
+                      {formatETB(e.amount)}
                     </TableCell>
                   </TableRow>
                 ))

@@ -15,15 +15,12 @@ import OrderFiltersPanel from './components/CreateOrder/OrderFiltersPanel';
 import WaiterCartSidebar from './components/CreateOrder/WaiterCartSidebar';
 import MobileCartDialog from './components/CreateOrder/MobileCartDialog';
 import MenuItemCard from './components/CreateOrder/MenuItemCard';
+import { formatETB } from '@/lib/format';
 
 const CashierCreateOrderAsWaiter = () => {
   const navigate = useNavigate();
   const [isMobileSummaryOpen, setIsMobileSummaryOpen] = React.useState(false);
-  const formatCurrency = React.useCallback((val: any) => {
-    const n = parseFloat(val);
-    const safe = Number.isFinite(n) ? n : 0;
-    return `${safe.toLocaleString()} Birr`;
-  }, []);
+  const formatCurrency = formatETB;
   const getOrderRoutingInfo = React.useCallback(() => null, []);
   const {
     loading,

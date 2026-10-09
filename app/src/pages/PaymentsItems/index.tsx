@@ -34,7 +34,7 @@ export const PaymentsItems: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         <Skeleton className="h-20 w-full rounded-2xl" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Skeleton className="h-24 w-full" />
@@ -46,7 +46,7 @@ export const PaymentsItems: React.FC = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Foods &amp; Drinks Sold"
         description="Aggregated breakdown of individual sold items matching paid transactions"

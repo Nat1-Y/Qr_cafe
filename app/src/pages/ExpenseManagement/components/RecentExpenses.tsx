@@ -2,7 +2,8 @@ import React from 'react';
 import { Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Expense } from '../types';
-import { formatCurrency, formatDateTime } from '../utils';
+import { formatDateTime } from '../utils';
+import { formatETB } from '@/lib/format';
 
 interface RecentExpensesProps {
   recentExpenses: Expense[];
@@ -31,7 +32,7 @@ export const RecentExpenses: React.FC<RecentExpensesProps> = ({ recentExpenses }
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-extrabold text-sm text-destructive">{formatCurrency(expense.amount || expense.total)}</p>
+                  <p className="font-extrabold text-sm text-destructive">{formatETB(expense.amount || expense.total)}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">{formatDateTime(expense.created_at)}</p>
                 </div>
               </div>

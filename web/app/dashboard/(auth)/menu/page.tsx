@@ -21,7 +21,7 @@ import {
 import { DataTable, type Column } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
 import { Menu } from "@/lib/resources";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 import { RecipeDialog } from "@/components/menu/recipe-dialog";
 
 type Item = {
@@ -208,7 +208,7 @@ export default function MenuPage() {
       label: "Price",
       sortable: true,
       sortValue: (it) => it.price,
-      render: (it) => birr(it.price),
+      render: (it) => formatETB(it.price),
     },
     {
       key: "is_available",

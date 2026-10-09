@@ -8,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { CreditBadge } from './CreditBadge';
-import { formatBirr } from '../utils';
+
 import { ServiceRow, Payment, Transaction } from '../types';
+import { formatETB } from '@/lib/format';
 
 interface RecordTransactionTabProps {
   orgs: any[];
@@ -70,7 +71,7 @@ export const RecordTransactionTab = ({
               <SelectContent>
                 {orgs.filter(o => o.is_active !== false && o.is_active !== 0).map(o => (
                   <SelectItem key={o.id} value={String(o.id)}>
-                    {o.name} — <span className="text-muted-foreground">{formatBirr(Number(o.credit_balance ?? 0))}</span>
+                    {o.name} — <span className="text-muted-foreground">{formatETB(Number(o.credit_balance ?? 0))}</span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -127,7 +128,7 @@ export const RecordTransactionTab = ({
 
           <div className="flex items-center justify-between border-t pt-3">
             <span className="text-sm text-muted-foreground">Total deduction</span>
-            <span className="font-bold text-rose-600 dark:text-rose-400">{formatBirr(txTotal)}</span>
+            <span className="font-bold text-rose-600 dark:text-rose-400">{formatETB(txTotal)}</span>
           </div>
 
           <Button className="w-full" onClick={onSubmit} disabled={txSubmitting || !txOrgId}>
@@ -152,7 +153,7 @@ export const RecordTransactionTab = ({
                 <button className="w-full text-left rounded-lg border bg-card px-4 py-3 hover:bg-muted/50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatBirr(payment.amount)}</p>
+                      <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatETB(payment.amount)}</p>
                       <p className="text-xs text-muted-foreground">{new Date(payment.payment_date).toLocaleDateString()}{payment.notes ? ` · ${payment.notes}` : ''}</p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -169,12 +170,12 @@ export const RecordTransactionTab = ({
                   <div key={txn.id} className="space-y-1">
                     <div className="flex justify-between text-xs">
                       <span className="text-muted-foreground">{new Date(txn.transaction_date).toLocaleDateString()}{txn.notes ? ` · ${txn.notes}` : ''}</span>
-                      <span className="font-semibold text-rose-600 dark:text-rose-400">−{formatBirr(txn.total_amount)}</span>
+                      <span className="font-semibold text-rose-600 dark:text-rose-400">−{formatETB(txn.total_amount)}</span>
                     </div>
                     {Array.isArray(txn.services) && txn.services.map((s: any, si: number) => (
                       <div key={si} className="flex justify-between text-xs pl-2 border-l border-muted-foreground/20">
                         <span className="text-muted-foreground">{s.description}</span>
-                        <span>{formatBirr(s.cost)}</span>
+                        <span>{formatETB(s.cost)}</span>
                       </div>
                     ))}
                   </div>

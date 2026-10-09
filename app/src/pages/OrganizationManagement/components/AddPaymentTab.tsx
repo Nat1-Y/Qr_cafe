@@ -5,7 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { formatBirr } from '../utils';
+import { formatETB } from '@/lib/format';
+
 
 interface AddPaymentTabProps {
   orgs: any[];
@@ -49,7 +50,7 @@ export const AddPaymentTab = ({
               <SelectContent>
                 {orgs.filter(o => o.is_active !== false && o.is_active !== 0).map(o => (
                   <SelectItem key={o.id} value={String(o.id)}>
-                    {o.name} — <span className="text-muted-foreground">{formatBirr(Number(o.credit_balance ?? 0))}</span>
+                    {o.name} — <span className="text-muted-foreground">{formatETB(Number(o.credit_balance ?? 0))}</span>
                   </SelectItem>
                 ))}
               </SelectContent>

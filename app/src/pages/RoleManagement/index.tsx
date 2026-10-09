@@ -29,7 +29,7 @@ export const RoleManagement: React.FC = () => {
   const online = useSyncOnline();
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Role Management"
         description="Create and manage custom roles for assigning to users"

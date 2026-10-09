@@ -11,7 +11,8 @@ import { RecentExpenses } from './components/RecentExpenses';
 import { ExpenseFilters } from './components/ExpenseFilters';
 import { ExpenseReports } from './components/ExpenseReports';
 import { ExpenseTable } from './components/ExpenseTable';
-import { formatCurrency } from './utils';
+import { formatETB } from '@/lib/format';
+
 
 const ExpenseManagement = () => {
   const {
@@ -48,7 +49,7 @@ const ExpenseManagement = () => {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 space-y-6">
+      <div className="p-4 md:p-8 space-y-6">
         <Skeleton className="h-20 w-full rounded-2xl" />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}
@@ -62,7 +63,7 @@ const ExpenseManagement = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Expense Management"
         description="Track operating costs, review spending patterns, and compare expenses against sales"
@@ -70,7 +71,7 @@ const ExpenseManagement = () => {
           <div className="flex items-center gap-3">
             <div className="hidden sm:block text-right">
               <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Visible Expenses</p>
-              <p className="text-sm font-extrabold text-primary">{formatCurrency(totalVisibleAmount)}</p>
+              <p className="text-sm font-extrabold text-primary">{formatETB(totalVisibleAmount)}</p>
             </div>
             <Button variant="outline" onClick={() => loadExpenseData(filters)} disabled={refreshing}>
               <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />

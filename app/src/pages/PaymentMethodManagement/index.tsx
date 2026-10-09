@@ -28,7 +28,7 @@ export const PaymentMethodManagement: React.FC = () => {
   const online = useSyncOnline();
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Payment Methods"
         description="Manage the payment methods displayed at checkout"

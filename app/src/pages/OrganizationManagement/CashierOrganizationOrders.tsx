@@ -61,7 +61,7 @@ export const CashierOrganizationOrders: React.FC = () => {
   }, [isAdmin, user?.id]);
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Organization Orders"
         description="Orders attached to an organization — billed to its credit account, not collected as cash. Only the owner can confirm one."

@@ -37,6 +37,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-row-hover: var(--row-hover);
+  --color-overlay: var(--overlay);
   --color-paper: var(--paper);
   --color-paper-foreground: var(--paper-foreground);
   --color-success: var(--success);
@@ -150,6 +151,8 @@
   --sidebar-border: rgb(255 255 255 / 12%);
   --sidebar-ring: rgb(246 203 169 / 60%);
 
+  --overlay: rgb(28 14 8 / 45%);
+
   --radius: 1rem;
   --pop-shadow: 0 12px 32px -12px rgb(66 30 15 / 18%);
   color-scheme: light;
@@ -207,6 +210,8 @@
   --sidebar-border: rgb(255 255 255 / 8%);
   --sidebar-ring: rgb(208 100 63 / 60%);
 
+  --overlay: rgb(10 7 6 / 70%);
+
   --pop-shadow: 0 12px 32px -12px rgb(0 0 0 / 60%);
   color-scheme: dark;
 }
@@ -228,6 +233,8 @@
   }
   body {
     @apply bg-background text-body text-base antialiased;
+    /* Money, quantities, order numbers and times all line up. */
+    font-variant-numeric: tabular-nums;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply text-foreground;

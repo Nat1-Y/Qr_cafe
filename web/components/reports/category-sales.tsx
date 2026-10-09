@@ -9,7 +9,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { birr } from "@/lib/format";
+import { formatETB } from "@/lib/format";
 import type { CategorySalesItem } from "@/lib/reports";
 
 const chartConfig = {
@@ -61,7 +61,7 @@ export function CategorySales({ items }: { items: CategorySalesItem[] }) {
                     formatter={(value, name, item) => (
                       <div className="flex w-full flex-col gap-0.5">
                         <span className="text-foreground font-mono font-medium tabular-nums">
-                          {birr(Number(value))}
+                          {formatETB(Number(value))}
                         </span>
                         <span className="text-muted-foreground">
                           {(item?.payload as any)?.quantity} sold
