@@ -77,7 +77,7 @@ export const DateFilter: React.FC<DateFilterProps> = ({ selectedDate, onDateChan
             className={`text-xs font-medium h-9 px-4 transition-all ${
               selectedDate === option.key
                 ? 'shadow-sm ring-2 ring-primary/20'
-                : 'hover:bg-accent hover:text-accent-foreground'
+                : 'hover:bg-muted hover:text-foreground'
             }`}
           >
             {option.label}

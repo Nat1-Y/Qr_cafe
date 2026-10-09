@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiPlus } from 'react-icons/fi';
+import { PlusIcon } from 'lucide-react';
 
 interface MenuItemCardProps {
   item: any;
@@ -27,7 +27,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
         </div>
         
         <div className="w-8 h-8 rounded-full bg-muted/30 flex items-center justify-center text-muted-foreground/60 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
-          <FiPlus className="w-4 h-4" />
+          <PlusIcon className="w-4 h-4" />
         </div>
       </div>
     </div>

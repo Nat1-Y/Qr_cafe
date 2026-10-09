@@ -18,8 +18,8 @@ import {
   useSidebar
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { LogOutIcon, UserIcon } from "lucide-react";
-import { DotsVerticalIcon } from "@radix-ui/react-icons";
+import { EllipsisVerticalIcon, LogOutIcon, UserIcon } from "lucide-react";
+
 import { getUser, logout, roleLabel, type SessionUser } from "@/lib/auth";
 
 export function NavUser() {
@@ -56,7 +56,7 @@ export function NavUser() {
                   {roleLabel(user?.role)}
                 </span>
               </div>
-              <DotsVerticalIcon className="ml-auto size-4" />
+              <EllipsisVerticalIcon className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

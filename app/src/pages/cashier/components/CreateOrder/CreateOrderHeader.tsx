@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiArrowLeft, FiHome } from 'react-icons/fi';
+import { ArrowLeftIcon, HouseIcon } from 'lucide-react';
 import BranchBadge from '../../../../components/common/BranchBadge';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -60,7 +60,7 @@ const CreateOrderHeader: React.FC<CreateOrderHeaderProps> = ({
             onClick={onNavigateToWaiters}
             className="flex items-center gap-1 px-3 py-2 text-xs sm:text-sm font-semibold text-info hover:bg-info/10 rounded-xl transition-colors duration-200 hover:shadow-sm"
           >
-            <FiArrowLeft className="w-4 h-4" />
+            <ArrowLeftIcon className="w-4 h-4" />
             <span className="hidden sm:inline">{deliveryMode ? 'Change' : 'Change Waiter'}</span>
           </button>
 
@@ -68,7 +68,7 @@ const CreateOrderHeader: React.FC<CreateOrderHeaderProps> = ({
             onClick={onNavigateToDashboard}
             className="flex items-center gap-1 px-3 py-2 text-xs sm:text-sm font-semibold text-foreground/80 hover:bg-muted rounded-xl transition-colors duration-200 hover:shadow-sm"
           >
-            <FiHome className="w-4 h-4" />
+            <HouseIcon className="w-4 h-4" />
             <span className="hidden sm:inline">Dashboard</span>
           </button>
         </div>

@@ -1,17 +1,30 @@
 import React from "react";
 import type { Metadata, Viewport } from "next";
-import { cookies } from "next/headers";
+import { Noto_Sans_Ethiopic, Outfit } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "next-themes";
 
 import "./globals.css";
 
-import { ActiveThemeProvider } from "@/components/active-theme";
-import { DEFAULT_THEME } from "@/lib/themes";
+import { BRAND } from "@/lib/brand";
 import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PWARegister } from "@/components/pwa-register";
+
+const outfit = Outfit({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-outfit",
+  display: "swap",
+});
+
+// Fallback for Amharic text. Only fetched when Ethiopic glyphs appear.
+const ethiopic = Noto_Sans_Ethiopic({
+  subsets: ["ethiopic"],
+  variable: "--font-ethiopic",
+  display: "swap",
+  preload: false,
+});
 
 export const metadata: Metadata = {
   title: "Syntax Cafe System",
@@ -27,51 +40,32 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: BRAND.sidebar },
+    { media: "(prefers-color-scheme: dark)", color: BRAND.sidebarNight },
+  ],
 };
 
-
-export default async function RootLayout({
+export default function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const themeSettings = {
-    preset: (cookieStore.get("theme_preset")?.value ?? DEFAULT_THEME.preset) as any,
-    scale: (cookieStore.get("theme_scale")?.value ?? DEFAULT_THEME.scale) as any,
-    radius: (cookieStore.get("theme_radius")?.value ?? DEFAULT_THEME.radius) as any,
-    contentLayout: (cookieStore.get("theme_content_layout")?.value ??
-      DEFAULT_THEME.contentLayout) as any
-  };
-
-  const bodyAttributes = Object.fromEntries(
-    Object.entries(themeSettings)
-      .filter(([_, value]) => value)
-      .map(([key, value]) => [`data-theme-${key.replace(/([A-Z])/g, "-$1").toLowerCase()}`, value])
-  );
-
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        suppressHydrationWarning
-        className={cn("bg-background group/layout font-sans")}
-        {...bodyAttributes}>
-          <TooltipProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="light"
-              enableSystem
-              disableTransitionOnChange>
-              <ActiveThemeProvider initialTheme={themeSettings}>
-                {children}
-                <PWARegister />
-                <Toaster position="top-center" richColors />
-                <NextTopLoader color="var(--primary)" showSpinner={false} height={2} shadow-sm="none" />
-              </ActiveThemeProvider>
-            </ThemeProvider>
-
-          </TooltipProvider>
+    <html lang="en" className={cn(outfit.variable, ethiopic.variable)} suppressHydrationWarning>
+      <body suppressHydrationWarning className="bg-background font-sans">
+        <TooltipProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange>
+            {children}
+            <PWARegister />
+            <Toaster position="top-center" />
+            <NextTopLoader color="var(--primary)" showSpinner={false} height={2} shadow={false} />
+          </ThemeProvider>
+        </TooltipProvider>
       </body>
     </html>
   );

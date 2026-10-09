@@ -306,7 +306,7 @@ export const CreateOrgOrder: React.FC = () => {
                   <button
                     key={item.id}
                     onClick={() => addToCart(item)}
-                    className="text-left rounded-lg border p-3 hover:border-primary hover:bg-accent transition-colors"
+                    className="text-left rounded-lg border p-3 hover:border-primary hover:bg-muted transition-colors"
                   >
                     <p className="font-medium text-sm truncate">{item.name}</p>
                     <p className="text-xs text-muted-foreground">

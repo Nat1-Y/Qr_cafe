@@ -62,7 +62,7 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ details }) => 
                   </TableCell>
                   <TableCell>{o.created_at ? new Date(o.created_at).toLocaleString() : 'N/A'}</TableCell>
                   <TableCell className="text-center">
-                    <Button variant="ghost" size="icon" onClick={() => setSelectedOrder(o)} className="h-8 w-8 hover:bg-accent hover:text-accent-foreground">
+                    <Button variant="ghost" size="icon" onClick={() => setSelectedOrder(o)} className="h-8 w-8 hover:bg-muted hover:text-foreground">
                       <Eye className="h-4 w-4" />
                     </Button>
                   </TableCell>

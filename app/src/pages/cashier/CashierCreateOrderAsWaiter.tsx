@@ -69,7 +69,7 @@ const CashierCreateOrderAsWaiter = () => {
   if (loading) return <LoadingSpinner text="Loading menu..." />;
 
   return (
-    <div className="h-screen overflow-hidden bg-background font-sans selection:bg-accent selection:text-accent-foreground flex flex-col animate-in fade-in duration-300">
+    <div className="h-screen overflow-hidden bg-background font-sans flex flex-col animate-in fade-in duration-300">
       <CreateOrderHeader
         waiterName={waiterName}
         deliveryMode={deliveryMode}

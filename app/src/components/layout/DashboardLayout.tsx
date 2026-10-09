@@ -197,13 +197,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         {!mobile && (
           <button
             onClick={() => setCollapsed(c => !c)}
-            className="hidden lg:flex items-center justify-center w-6 h-6 rounded-md hover:bg-accent transition-colors shrink-0"
+            className="hidden lg:flex items-center justify-center w-6 h-6 rounded-md hover:bg-muted transition-colors shrink-0"
           >
             {collapsed ? <ChevronRight className="h-4 w-4 text-muted-foreground" /> : <ChevronLeft className="h-4 w-4 text-muted-foreground" />}
           </button>
         )}
         {mobile && (
-          <button onClick={() => setSidebarOpen(false)} className="p-1 rounded-md hover:bg-accent">
+          <button onClick={() => setSidebarOpen(false)} className="p-1 rounded-md hover:bg-muted">
             <X className="h-5 w-5" />
           </button>
         )}
@@ -239,7 +239,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                             collapsed && !mobile ? 'justify-center' : '',
                             active
                               ? 'bg-primary text-primary-foreground'
-                              : 'text-foreground/70 hover:bg-accent hover:text-accent-foreground'
+                              : 'text-foreground/70 hover:bg-muted hover:text-foreground'
                           )}
                         >
                           <Icon className="h-4 w-4 shrink-0" />
@@ -261,7 +261,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className={cn(
-              'flex items-center gap-3 w-full rounded-lg p-2 hover:bg-accent transition-colors text-left',
+              'flex items-center gap-3 w-full rounded-lg p-2 hover:bg-muted transition-colors text-left',
               collapsed && !mobile && 'justify-center'
             )}>
               <Avatar className="h-8 w-8 shrink-0 ">

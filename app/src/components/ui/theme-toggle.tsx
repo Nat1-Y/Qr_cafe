@@ -22,7 +22,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       className={cn(
         'flex items-center justify-center w-8 h-8 rounded-md transition-colors',
-        'text-muted-foreground hover:text-foreground hover:bg-accent',
+        'text-muted-foreground hover:text-foreground hover:bg-muted',
         className
       )}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}

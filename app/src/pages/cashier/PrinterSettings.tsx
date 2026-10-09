@@ -557,7 +557,7 @@ const PrinterSettingsContent: React.FC = () => {
               <div key={dept.slug} className="rounded-xl border-2 border-border/50 overflow-hidden">
                 <button
                   type="button"
-                  className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent/30 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-row-hover transition-colors"
                   onClick={() => setExpandedDept(expanded ? null : dept.slug)}
                 >
                   <span className="font-bold text-sm text-foreground flex-1 truncate">{dept.name}</span>

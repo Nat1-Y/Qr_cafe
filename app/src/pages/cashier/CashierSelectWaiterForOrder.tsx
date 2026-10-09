@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '@/application';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-import { FiArrowLeft, FiUser } from 'react-icons/fi';
+import { ArrowLeftIcon, UserIcon } from 'lucide-react';
 import { Bike } from 'lucide-react';
 
 export const SESSION_KEY = 'cashier_order_waiter_v1';
@@ -131,7 +131,7 @@ const CashierSelectWaiterForOrder = () => {
             onClick={() => navigate('/dashboard')}
             className="flex items-center space-x-2 px-4 py-2 border border-border rounded-lg bg-background hover:bg-muted transition-colors"
           >
-            <FiArrowLeft className="w-4 h-4" />
+            <ArrowLeftIcon className="w-4 h-4" />
             <span>Back</span>
           </button>
 
@@ -192,7 +192,7 @@ const CashierSelectWaiterForOrder = () => {
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 p-2 rounded-full bg-muted">
-                          <FiUser className="w-5 h-5" />
+                          <UserIcon className="w-5 h-5" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="font-semibold truncate">{name}</div>

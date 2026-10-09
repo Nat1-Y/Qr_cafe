@@ -7,8 +7,8 @@
   "scope": "/waiter",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#F5ECE3",
+  "theme_color": "#7E2E1C",
   "icons": [
     {
       "src": "/icons/icon-192.png",

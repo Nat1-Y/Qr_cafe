@@ -1,4 +1,10 @@
 /** @type {import('tailwindcss').Config} */
+
+// Buna tokens live in src/index.css as HSL triplets.
+const token = (name) => `hsl(var(--${name}) / <alpha-value>)`;
+// Tokens that already carry their own alpha (see index.css).
+const alphaToken = (name) => `hsl(var(--${name}))`;
+
 export default {
   darkMode: ["class"],
   content: [
@@ -7,75 +13,108 @@ export default {
   theme: {
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        border: token("border"),
+        input: token("input"),
+        ring: alphaToken("ring"),
+        background: token("background"),
+        foreground: token("foreground"),
+        body: token("body"),
+        "row-hover": token("row-hover"),
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: token("primary"),
+          foreground: token("primary-foreground"),
+          hover: token("primary-hover"),
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: token("secondary"),
+          foreground: token("secondary-foreground"),
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: token("destructive"),
+          foreground: token("destructive-foreground"),
+          soft: alphaToken("destructive-soft"),
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: token("muted"),
+          foreground: token("muted-foreground"),
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: token("accent"),
+          foreground: token("accent-foreground"),
+        },
+        highlight: {
+          DEFAULT: token("highlight"),
+          foreground: token("highlight-foreground"),
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: token("popover"),
+          foreground: token("popover-foreground"),
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: token("card"),
+          foreground: token("card-foreground"),
+        },
+        paper: {
+          DEFAULT: token("paper"),
+          foreground: token("paper-foreground"),
         },
         success: {
-          DEFAULT: "hsl(var(--success))",
-          foreground: "hsl(var(--success-foreground))",
+          DEFAULT: token("success"),
+          foreground: token("success-foreground"),
+          soft: alphaToken("success-soft"),
         },
         warning: {
-          DEFAULT: "hsl(var(--warning))",
-          foreground: "hsl(var(--warning-foreground))",
+          DEFAULT: token("warning"),
+          foreground: token("warning-foreground"),
+          soft: alphaToken("warning-soft"),
         },
         info: {
-          DEFAULT: "hsl(var(--info))",
-          foreground: "hsl(var(--info-foreground))",
+          DEFAULT: token("info"),
+          foreground: token("info-foreground"),
+          soft: alphaToken("info-soft"),
+        },
+        chart: {
+          1: token("chart-1"),
+          2: token("chart-2"),
+          3: token("chart-3"),
+          4: token("chart-4"),
+          5: token("chart-5"),
         },
         sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+          DEFAULT: token("sidebar"),
+          foreground: token("sidebar-foreground"),
+          muted: token("sidebar-muted"),
+          primary: token("sidebar-primary"),
+          "primary-foreground": token("sidebar-primary-foreground"),
+          accent: token("sidebar-accent"),
+          "accent-foreground": token("sidebar-accent-foreground"),
+          border: alphaToken("sidebar-border"),
+          ring: alphaToken("sidebar-ring"),
         },
       },
+      ringColor: {
+        DEFAULT: alphaToken("ring"),
+      },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        card: "var(--radius)",
+        field: "12px",
+      },
+      boxShadow: {
+        pop: "var(--shadow-pop)",
       },
       fontFamily: {
-        'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
-        'display': ['Poppins', 'ui-sans-serif', 'system-ui'],
+        sans: ['"Outfit Variable"', '"Noto Sans Ethiopic Variable"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        title: ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "600" }],
+        section: ["18px", { lineHeight: "26px", fontWeight: "600" }],
+        kpi: ["28px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "600" }],
+        base: ["15px", { lineHeight: "22px" }],
+        meta: ["13px", { lineHeight: "18px" }],
+        eyebrow: ["12px", { lineHeight: "16px", fontWeight: "600" }],
       },
       animation: {
-        'fade-in': 'fadeIn 0.5s ease-in-out',
-        'slide-up': 'slideUp 0.3s ease-out',
-        'bounce-light': 'bounceLight 2s infinite',
+        'fade-in': 'fadeIn 0.2s ease-out',
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
@@ -83,15 +122,6 @@ export default {
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
-        },
-        slideUp: {
-          '0%': { transform: 'translateY(10px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
-        },
-        bounceLight: {
-          '0%, 20%, 50%, 80%, 100%': { transform: 'translateY(0)' },
-          '40%': { transform: 'translateY(-10px)' },
-          '60%': { transform: 'translateY(-5px)' },
         },
         "accordion-down": {
           from: { height: "0" },

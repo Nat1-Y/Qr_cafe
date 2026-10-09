@@ -113,7 +113,7 @@ export const PlaceOrgOrder: React.FC = () => {
                   onClick={() =>
                     navigate(`/dashboard/organizations/${org.id}/create-order`)
                   }
-                  className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-accent transition-colors"
+                  className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-muted transition-colors"
                 >
                   <span className="flex items-center gap-2.5 min-w-0">
                     <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />

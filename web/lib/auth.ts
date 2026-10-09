@@ -14,8 +14,7 @@ export type SessionUser = {
 
 // Writes a persistent, cross-tab cookie. Mobile Safari/Chrome are strict about
 // SameSite=Lax cookies set from JS over HTTPS: without `Secure` they may be
-// dropped, which is why a fresh tab on a phone looked "logged out". Mirrors the
-// attribute handling in components/active-theme.tsx.
+// dropped, which is why a fresh tab on a phone looked "logged out".
 function setCookie(name: string, value: string, maxAgeSeconds: number) {
   const secure =
     typeof window !== "undefined" && window.location.protocol === "https:"

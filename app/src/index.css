@@ -2,82 +2,124 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Buna design tokens. Kept in sync with web/app/globals.css — same palette,
+ * expressed here as HSL triplets so Tailwind 3 can add opacity modifiers.
+ * Tokens with a baked-in alpha (ring, sidebar-border, dark *-soft) are wired
+ * without <alpha-value> in tailwind.config.js.
+ */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.5rem;
+    --background: 30 47.4% 92.5%;
+    --foreground: 20 40% 11.8%;
+    --body: 23.1 21.3% 23.9%;
+    --card: 34.3 100% 98.6%;
+    --card-foreground: 20 40% 11.8%;
+    --popover: 34.3 100% 98.6%;
+    --popover-foreground: 20 40% 11.8%;
+    --primary: 11.1 62.8% 33.7%;
+    --primary-foreground: 28 100% 97.1%;
+    --primary-hover: 11 64.1% 28.4%;
+    --secondary: 31.3 41.8% 89.2%;
+    --secondary-foreground: 20 40% 11.8%;
+    --muted: 31.3 41.8% 89.2%;
+    --muted-foreground: 25.5 16.9% 38.2%;
+    --accent: 72.2 42.7% 29.4%;
+    --accent-foreground: 28 100% 97.1%;
+    --highlight: 26.5 81.1% 81.4%;
+    --highlight-foreground: 11.1 62.8% 33.7%;
+    --border: 30 38.2% 86.7%;
+    --input: 30 34.1% 82.7%;
+    --ring: 11.1 62.8% 33.7% / 0.35;
+    --row-hover: 32.3 61.9% 95.9%;
+    --paper: 0 0% 100%;
+    --paper-foreground: 0 0% 0%;
+    --success: 141.6 40.4% 29.6%;
+    --success-foreground: 28 100% 97.1%;
+    --success-soft: 135.8 38.8% 90.4%;
+    --warning: 36.4 79.2% 30.2%;
+    --warning-foreground: 28 100% 97.1%;
+    --warning-soft: 41.9 86.9% 88%;
+    --info: 211.9 50.5% 36.5%;
+    --info-foreground: 28 100% 97.1%;
+    --info-soft: 212.3 59.1% 91.4%;
+    --destructive: 3.7 55.6% 40.6%;
+    --destructive-foreground: 28 100% 97.1%;
+    --destructive-soft: 4.1 64.4% 91.2%;
+    --chart-1: 11.1 62.8% 33.7%;
+    --chart-2: 72.2 42.7% 29.4%;
+    --chart-3: 30 53.8% 54.1%;
+    --chart-4: 211.9 50.5% 36.5%;
+    --chart-5: 15.1 42% 50%;
+    --sidebar: 11 63.6% 30.2%;
+    --sidebar-foreground: 25 60% 92.2%;
+    --sidebar-muted: 20.8 46.7% 79.4%;
+    --sidebar-primary: 26.5 81.1% 81.4%;
+    --sidebar-primary-foreground: 11 63.6% 30.2%;
+    --sidebar-accent: 12 61.2% 38.4%;
+    --sidebar-accent-foreground: 28 100% 97.1%;
+    --sidebar-border: 0 0% 100% / 0.12;
+    --sidebar-ring: 26.5 81.1% 81.4% / 0.6;
 
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 98%;
-    --warning: 0 0% 44%;
-    --warning-foreground: 0 0% 0%;
-    --info: 221 83% 53%;
-    --info-foreground: 0 0% 98%;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 240 5.9% 90%;
-    --sidebar-ring: 240 5.9% 10%;
+    --radius: 1rem;
+    --shadow-pop: 0 12px 32px -12px rgba(66, 30, 15, 0.18);
+    color-scheme: light;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 5.5%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 5.5%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 50%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --background: 16.4 24.4% 8.8%;
+    --foreground: 28.7 51.1% 91.2%;
+    --body: 26 30% 80.4%;
+    --card: 20 25.4% 11.6%;
+    --card-foreground: 28.7 51.1% 91.2%;
+    --popover: 20 25.4% 11.6%;
+    --popover-foreground: 28.7 51.1% 91.2%;
+    --primary: 15.3 60.7% 53.1%;
+    --primary-foreground: 16.4 24.4% 8.8%;
+    --primary-hover: 16.2 65.6% 59%;
+    --secondary: 20 24.3% 14.5%;
+    --secondary-foreground: 28.7 51.1% 91.2%;
+    --muted: 20 24.3% 14.5%;
+    --muted-foreground: 25.7 18.1% 62.2%;
+    --accent: 70.7 31.6% 54.7%;
+    --accent-foreground: 16.4 24.4% 8.8%;
+    --highlight: 16.4 42.3% 20.4%;
+    --highlight-foreground: 26.5 81.1% 81.4%;
+    --border: 21.8 23.4% 18.4%;
+    --input: 22.8 24.4% 23.3%;
+    --ring: 15.3 60.7% 53.1% / 0.45;
+    --row-hover: 20 25.7% 13.7%;
+    --paper: 0 0% 100%;
+    --paper-foreground: 0 0% 0%;
+    --success: 142.9 35.4% 62.4%;
+    --success-foreground: 16.4 24.4% 8.8%;
+    --success-soft: 142.9 35.4% 62.4% / 0.2;
+    --warning: 38.5 75.5% 63.1%;
+    --warning-foreground: 16.4 24.4% 8.8%;
+    --warning-soft: 38.5 75.5% 63.1% / 0.2;
+    --info: 212.5 59.4% 72%;
+    --info-foreground: 16.4 24.4% 8.8%;
+    --info-soft: 212.5 59.4% 72% / 0.2;
+    --destructive: 6 70.5% 69.4%;
+    --destructive-foreground: 16.4 24.4% 8.8%;
+    --destructive-soft: 6 70.5% 69.4% / 0.2;
+    --chart-1: 15.3 60.7% 53.1%;
+    --chart-2: 70.7 31.6% 54.7%;
+    --chart-3: 30.3 60.2% 62.5%;
+    --chart-4: 212.5 59.4% 72%;
+    --chart-5: 15.2 46.8% 60.2%;
+    --sidebar: 18 29.4% 6.7%;
+    --sidebar-foreground: 28.7 51.1% 91.2%;
+    --sidebar-muted: 25.7 18.1% 62.2%;
+    --sidebar-primary: 26.5 81.1% 81.4%;
+    --sidebar-primary-foreground: 18 29.4% 6.7%;
+    --sidebar-accent: 16.4 39.8% 16.3%;
+    --sidebar-accent-foreground: 25 60% 92.2%;
+    --sidebar-border: 0 0% 100% / 0.08;
+    --sidebar-ring: 15.3 60.7% 53.1% / 0.6;
 
-    --success: 142 76% 56%;
-    --success-foreground: 0 0% 0%;
-    --warning: 32 95% 60%;
-    --warning-foreground: 0 0% 0%;
-    --info: 221 83% 65%;
-    --info-foreground: 0 0% 0%;
-
-    --sidebar-background: 240 10% 3.9%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 240 5.9% 10%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 240 4.9% 83.9%;
+    --shadow-pop: 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
   }
 
   * {
@@ -85,7 +127,29 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-body text-base font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-foreground;
+  }
+
+  ::selection {
+    background: hsl(var(--highlight));
+    color: hsl(var(--foreground));
+  }
+
+  /* Visible keyboard focus for anything the primitives don't already ring. */
+  :where(a, button, [role="button"], [tabindex]):focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Small olive label above a title, e.g. "Current order". Sentence case. */
+  .eyebrow {
+    @apply text-eyebrow text-accent;
   }
 }
 
@@ -95,13 +159,13 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  @apply bg-muted/30;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   @apply bg-border rounded-full;
 }
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/30;
+  @apply bg-muted-foreground/40;
 }
 
 /* Loading spinner */
