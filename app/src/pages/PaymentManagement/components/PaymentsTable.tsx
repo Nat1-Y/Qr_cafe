@@ -1,0 +1,159 @@
+import { uuidToDisplayId, displayStatus, statusBadgeVariant } from "@/lib/utils";
+import React from 'react';
+import { CreditCard, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import EmptyState from '@/components/common/EmptyState';
+import { PaymentRecord } from '../types';
+
+interface PaymentsTableProps {
+  loading: boolean;
+  filteredPayments: PaymentRecord[];
+  openView: (payment: PaymentRecord) => void;
+  page: number;
+  setPage: (page: number) => void;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
+export const PaymentsTable: React.FC<PaymentsTableProps> = ({
+  loading,
+  filteredPayments,
+  openView,
+  page,
+  setPage,
+  pageSize,
+  totalCount,
+  totalPages
+}) => {
+  const rangeStart = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
+  const rangeEnd = Math.min(page * pageSize, totalCount);
+  return (
+    <Card>
+      <CardContent className="p-0">
+        {loading ? (
+          <div className="p-6 space-y-3">
+            {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Order</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="hidden sm:table-cell">Method</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="hidden md:table-cell">Date</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredPayments.length > 0 ? (
+                filteredPayments.map(p => (
+                  <TableRow key={p.id}>
+                    <TableCell>
+                      {p.order_id ? (
+                        <button
+                          type="button"
+                          onClick={() => openView(p)}
+                          className="font-semibold text-primary hover:underline"
+                        >
+                          #{(p as any).order_number ?? uuidToDisplayId(p.order_id)}
+                        </button>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right font-bold">
+                      {parseFloat(String(p.amount || 0)).toLocaleString()} Birr
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      {p.payment_method ? (
+                        <Badge variant="info" className="text-[10px]">
+                          {p.payment_method.replace('_', ' ')}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={statusBadgeVariant(p.status)}>{displayStatus(p.status)}</Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                      {(() => {
+                        // Prefer paid_at (real payment time) over created_at,
+                        // which is the sync time for payments made offline.
+                        const when = (p as any).paid_at || p.created_at;
+                        return when ? new Date(when).toLocaleString() : '-';
+                      })()}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => openView(p)}
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7}>
+                    <EmptyState
+                      icon={<CreditCard />}
+                      title="No payments found"
+                      description="Try adjusting filters"
+                    />
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        )}
+        {!loading && totalCount > 0 && (
+          <div className="flex items-center justify-between gap-2 border-t px-4 py-3">
+            <p className="text-sm text-muted-foreground">
+              Showing {rangeStart}-{rangeEnd} of {totalCount}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8"
+                disabled={page <= 1}
+                onClick={() => setPage(Math.max(1, page - 1))}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Prev
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Page {page} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8"
+                disabled={page >= totalPages}
+                onClick={() => setPage(Math.min(totalPages, page + 1))}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default PaymentsTable;

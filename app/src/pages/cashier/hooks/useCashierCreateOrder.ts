@@ -1,0 +1,705 @@
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import api from "@/application";
+import { SESSION_KEY, DELIVERY_MODE_KEY } from "../CashierSelectWaiterForOrder";
+import { syncEngine } from "@/infrastructure/sync/sync-engine";
+import { useSyncRefetch } from "@/hooks/useSyncRefetch";
+import { useAuth } from "@/context/AuthContext";
+import { generateLocalId } from "@/db/localDb";
+
+// Cheap content fingerprint of the menu list — lets a background refetch detect
+// "nothing changed" and skip the state update (and the re-render/flash).
+const menuSignature = (items: any[]): string =>
+  Array.isArray(items)
+    ? items
+        .map((i) => `${i?.id}:${i?.name}:${i?.price}:${i?.is_available}`)
+        .join("|")
+    : "";
+
+export const useCashierCreateOrder = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth() as any;
+
+  const [loading, setLoading] = useState(true);
+  const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [filteredItems, setFilteredItems] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedMainCategory, setSelectedMainCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [creatingOrder, setCreatingOrder] = useState(false);
+  const [selectedTable, setSelectedTable] = useState("");
+  const [orderItems, setOrderItems] = useState<any[]>([]);
+  const [notes, setNotes] = useState("");
+  const [allTables, setAllTables] = useState<any[]>([]);
+  const [forceTableSelection, setForceTableSelection] = useState(false);
+  // Owner-configured delivery channels (web dashboard only) — the cashier is
+  // never restricted by the waiter allow-list, that only gates the waiter's
+  // own self-service web portal.
+  const [deliveryMethods, setDeliveryMethods] = useState<any[]>([]);
+  const [selectedDeliveryMethodId, setSelectedDeliveryMethodIdRaw] = useState("");
+
+  const submitLockRef = useRef(false);
+  // Stable idempotency key for this whole "add items" screen visit — generated
+  // once on the first submit attempt and reused for every submit after that
+  // until one actually succeeds. Deliberately NOT cleared when the cart is
+  // edited: a cashier unsure whether a submit went through commonly goes back
+  // to the item picker and re-taps the same items before retrying, rather than
+  // re-clicking the same submit button — clearing the key on every cart edit
+  // (as an earlier version of this code did) meant that ordinary retry path
+  // minted a fresh id every time, defeating the guard entirely and doubling
+  // the added items. Only a confirmed success starts a new key, so a genuinely
+  // separate second round of additions is still its own addition.
+  const addItemsIdRef = useRef<string | null>(null);
+  const [isOnline, setIsOnline] = useState(true);
+
+  // Only the first load shows the full-screen spinner. Subsequent
+  // reloadKey-driven refetches (every background sync cycle) refresh the menu /
+  // tables in place — without flashing the spinner over the whole page.
+  const hasLoadedRef = useRef(false);
+
+  // Bumped when a sync cycle finishes so the menu/tables fetch effect re-runs
+  // once background hydration / reconnect / manual sync lands fresh local data.
+  const [reloadKey, setReloadKey] = useState(0);
+  useSyncRefetch(() => setReloadKey((k) => k + 1));
+
+  useEffect(() => {
+    const unsubscribe = syncEngine.subscribe((status) => {
+      setIsOnline(status.online);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const slugifyCategory = useCallback((value: any) => {
+    // Keep Unicode letters/numbers (\p{L}\p{N}) — an [a-z0-9]-only slug maps every
+    // Amharic category name to "" so all departments collapse to the same empty
+    // slug and the main-category filter matches every item (i.e. stops filtering).
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, "-")
+      .replace(/(^-|-$)/g, "");
+  }, []);
+
+  const getItemCategories = useCallback(
+    (item: any) => {
+      const categories = Array.isArray(item?.categories) ? item.categories : [];
+      if (categories.length > 0) return categories;
+      const fallback =
+        item?.meta?.main_category ||
+        item?.main_category ||
+        item?.category ||
+        "cafe";
+      return [
+        { name: fallback, slug: slugifyCategory(fallback), type: "main" },
+      ];
+    },
+    [slugifyCategory],
+  );
+
+  const itemHasCategory = useCallback(
+    (item: any, category: string) => {
+      if (category === "all") return true;
+      const normalized = slugifyCategory(category);
+      if (slugifyCategory(item.main_category) === normalized) return true;
+      if (slugifyCategory(item.category) === normalized) return true;
+      if (slugifyCategory(item.sub_category) === normalized) return true;
+
+      return getItemCategories(item).some(
+        (entry: any) =>
+          slugifyCategory(entry.slug || entry.name) === normalized,
+      );
+    },
+    [getItemCategories, slugifyCategory],
+  );
+
+  const isFastingCategory = useCallback((cat: any) => {
+    return true;
+  }, []);
+
+  const getMainCategoryLabel = useCallback((cat: any) => {
+    return cat.charAt(0).toUpperCase() + cat.slice(1);
+  }, []);
+
+  const extractMenuItemsFromResponse = useCallback((response: any) => {
+    const payload = response?.data;
+    const candidates = [payload?.data?.menuItems];
+
+    for (const candidate of candidates) {
+      if (Array.isArray(candidate)) return candidate;
+    }
+
+    return [];
+  }, []);
+
+  const waiter = useMemo(() => {
+    const fromState = location?.state?.waiter;
+    if (fromState && fromState.id) return fromState;
+
+    try {
+      const raw = sessionStorage.getItem(SESSION_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed && parsed.id ? parsed : null;
+    } catch {
+      return null;
+    }
+  }, [location?.state?.waiter]);
+
+  // A delivery order has no waiter — set by the "Start Delivery Order" card
+  // on the select-waiter screen. Falls back to the sessionStorage flag on
+  // refresh, same as `waiter` above falls back to SESSION_KEY.
+  const deliveryMode = useMemo(() => {
+    if (location?.state?.deliveryMode) return true;
+    try {
+      return sessionStorage.getItem(DELIVERY_MODE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }, [location?.state?.deliveryMode]);
+
+  // When set, this screen adds items to an already-created order instead of
+  // creating a new one — the order's waiter is always passed alongside it
+  // (OrdersForPaymentPanel derives it from the order itself), so the
+  // select-waiter redirect below never fires in this mode. No sessionStorage
+  // backup: on refresh this just degrades to normal create-new-order mode,
+  // which is an acceptable, non-destructive fallback.
+  const existingOrder = location?.state?.existingOrder ?? null;
+  const isAddMode = !!existingOrder;
+
+  useEffect(() => {
+    if (!waiter?.id && !deliveryMode) {
+      toast.error("Please select a waiter first");
+      navigate("/dashboard/cashier/select-waiter", { replace: true });
+    }
+  }, [navigate, waiter?.id, deliveryMode]);
+
+  useEffect(() => {
+    const normalizeMenuItems = (rawItems: any[]) => {
+      const normalizedItems = Array.isArray(rawItems)
+        ? rawItems.map((item) => ({
+            ...item,
+            main_category: item.meta?.main_category || item.main_category,
+            category: item.category,
+            sub_category:
+              item.meta?.sub_category ||
+              item.sub_category ||
+              item.category ||
+              "",
+            is_available:
+              typeof item.is_available === "boolean"
+                ? item.is_available
+                : (item.available ?? true),
+          }))
+        : [];
+      return normalizedItems.filter((item) => item.is_available);
+    };
+
+    let cancelled = false;
+
+    const fetchData = async () => {
+      try {
+        if (!hasLoadedRef.current) setLoading(true);
+        const [menuResult, tablesResult, settingsResult, deliveryMethodsResult] =
+          await Promise.allSettled([
+            api.menu.getCafeMenu(),
+            api.tables.getAll(),
+            api.settings.getTableSelectionSettings(),
+            api.settings.getDeliveryMethods(),
+          ]);
+
+        if (cancelled) return;
+
+        let resolvedMenuItems: any[] = [];
+
+        if (menuResult.status === "fulfilled") {
+          const menuResponse = menuResult.value;
+          const rawItems = extractMenuItemsFromResponse(menuResponse);
+          resolvedMenuItems = normalizeMenuItems(rawItems);
+        } else {
+          console.error("Failed to fetch /api/menu/cafe:", menuResult.reason);
+        }
+
+        if (resolvedMenuItems.length === 0) {
+          const fallbackMenuResult = await Promise.allSettled([
+            api.menu.getAll(),
+          ]);
+          const allMenuAttempt = fallbackMenuResult[0];
+          if (allMenuAttempt.status === "fulfilled") {
+            const rawItems = extractMenuItemsFromResponse(allMenuAttempt.value);
+            resolvedMenuItems = normalizeMenuItems(rawItems);
+          } else {
+            console.error(
+              "Failed to fetch /api/menu fallback:",
+              allMenuAttempt.reason,
+            );
+          }
+        }
+
+        if (!cancelled) {
+          // Skip the state update when a background refetch returns the same
+          // menu (the common case every sync cycle) — returning `prev` keeps the
+          // reference stable so the grid doesn't re-render/flash. `filteredItems`
+          // is derived from `menuItems` by the filter effect below, so we don't
+          // set it here (doing so would briefly show the full, unfiltered list
+          // before the active category/search is re-applied — a visible flash).
+          setMenuItems((prev) =>
+            menuSignature(prev) === menuSignature(resolvedMenuItems)
+              ? prev
+              : resolvedMenuItems,
+          );
+        }
+
+        if (tablesResult.status === "fulfilled") {
+          const allTablesResponse = (tablesResult as any).value;
+          const tables = allTablesResponse?.data?.data?.tables ?? [];
+          const tablesArray = Array.isArray(tables)
+            ? tables.sort((a: any, b: any) => a.number - b.number)
+            : [];
+          setAllTables(tablesArray);
+        }
+
+        if (settingsResult.status === "fulfilled") {
+          setForceTableSelection(
+            Boolean((settingsResult.value as any)?.force_table_selection),
+          );
+        }
+
+        if (deliveryMethodsResult.status === "fulfilled") {
+          setDeliveryMethods(
+            Array.isArray(deliveryMethodsResult.value) ? deliveryMethodsResult.value : [],
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Failed to load menu items or table status");
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+          hasLoadedRef.current = true;
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isFastingCategory, extractMenuItemsFromResponse, reloadKey]);
+
+  useEffect(() => {
+    const searchTerm = searchQuery.trim().toLowerCase();
+    const mainFiltered =
+      selectedMainCategory === "all"
+        ? menuItems
+        : menuItems.filter((item) =>
+            itemHasCategory(item, selectedMainCategory),
+          );
+
+    const matchesSearch = (item: any) => {
+      if (!searchTerm) return true;
+      const haystack = [
+        item.name,
+        item.category,
+        item.sub_category,
+        item.main_category,
+        item.sku,
+        item.barcode,
+        ...getItemCategories(item).flatMap((category: any) => [
+          category.name,
+          category.slug,
+        ]),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(searchTerm);
+    };
+
+    const searchableItems = mainFiltered.filter(matchesSearch);
+
+    if (selectedCategory === "all") {
+      setFilteredItems(searchableItems);
+    } else {
+      setFilteredItems(
+        searchableItems.filter(
+          (item) => (item.category || item.sub_category) === selectedCategory,
+        ),
+      );
+    }
+  }, [
+    selectedCategory,
+    selectedMainCategory,
+    searchQuery,
+    menuItems,
+    getItemCategories,
+    itemHasCategory,
+    isFastingCategory,
+  ]);
+
+  useEffect(() => {
+    setSelectedCategory("all");
+  }, [selectedMainCategory]);
+
+  const getMainCategories = useCallback(() => {
+    const seen = new Set<string>();
+    const categories: string[] = [];
+
+    menuItems.forEach((item) => {
+      const mainCategory =
+        item.main_category ||
+        getItemCategories(item).find(
+          (category: any) => category.type === "main",
+        )?.slug ||
+        item.category;
+      if (!mainCategory || seen.has(mainCategory)) return;
+      seen.add(mainCategory);
+      categories.push(mainCategory);
+    });
+
+    return categories;
+  }, [getItemCategories, menuItems]);
+
+  const getCategories = useCallback(() => {
+    const seen = new Set<string>();
+    const categories: string[] = [];
+
+    menuItems.forEach((item) => {
+      if (selectedMainCategory !== "all") {
+        if (
+          !itemHasCategory(item, selectedMainCategory) &&
+          item.main_category !== selectedMainCategory
+        ) {
+          return;
+        }
+      }
+
+      const sub = item.category || item.sub_category;
+      if (sub && !seen.has(sub)) {
+        seen.add(sub);
+        categories.push(sub);
+      }
+    });
+
+    return categories;
+  }, [selectedMainCategory, menuItems, itemHasCategory]);
+
+  // Functional updater so this callback never depends on `orderItems` — a stable
+  // identity lets the memoized MenuItemCards skip re-rendering when the cart
+  // changes (otherwise every "add" re-rendered the whole menu grid → flicker).
+  const addToOrder = useCallback((menuItem: any) => {
+    setOrderItems((prev) => {
+      const existingItem = prev.find(
+        (item) => item.menu_item_id === menuItem.id,
+      );
+      if (existingItem) {
+        return prev.map((item) =>
+          item.menu_item_id === menuItem.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
+        );
+      }
+      return [
+        ...prev,
+        {
+          menu_item_id: menuItem.id,
+          menu_item_name: menuItem.name,
+          price: menuItem.price,
+          quantity: 1,
+          main_category: menuItem.main_category,
+          predefined_notes: Array.isArray(menuItem.predefined_notes)
+            ? menuItem.predefined_notes
+            : Array.isArray(menuItem?.meta?.predefined_notes)
+              ? menuItem.meta.predefined_notes
+              : [],
+        },
+      ];
+    });
+
+    toast.success("Added to order", {
+      id: "cashier-add-to-order",
+      duration: 2000,
+    });
+  }, []);
+
+  const removeFromOrder = useCallback((menuItemId: any) => {
+    setOrderItems((prev) =>
+      prev.filter((item) => item.menu_item_id !== menuItemId),
+    );
+  }, []);
+
+  const updateQuantity = useCallback((menuItemId: any, change: number) => {
+    setOrderItems((prev) =>
+      prev
+        .map((item) => {
+          if (item.menu_item_id === menuItemId) {
+            const newQuantity = item.quantity + change;
+            return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
+          }
+          return item;
+        })
+        .filter((item) => item.quantity > 0),
+    );
+  }, []);
+
+  const updateItemNote = useCallback((menuItemId: any, note: string) => {
+    setOrderItems((prev) =>
+      prev.map((item) =>
+        item.menu_item_id === menuItemId ? { ...item, note } : item,
+      ),
+    );
+  }, []);
+
+  const calculateTotal = useCallback(() => {
+    return orderItems
+      .reduce((sum, item) => sum + parseFloat(item.price) * item.quantity, 0)
+      .toFixed(2);
+  }, [orderItems]);
+
+  const handleSubmitOrder = useCallback(async () => {
+    if (submitLockRef.current) return;
+    if (creatingOrder) return;
+    submitLockRef.current = true;
+
+    try {
+      setCreatingOrder(true);
+
+      if (!waiter?.id && !deliveryMode) {
+        toast.error("Please select a waiter first");
+        return;
+      }
+
+      if (orderItems.length === 0) {
+        toast.error("Please add at least one item to the order");
+        return;
+      }
+
+      if (isAddMode) {
+        // Reused across retries of this same cart (cleared on success or when
+        // the cart itself changes) so a resubmit after a transient failure is
+        // recognized as the same action instead of re-adding the items.
+        if (!addItemsIdRef.current) addItemsIdRef.current = generateLocalId();
+        await api.orders.addItems(existingOrder.id, {
+          items: orderItems.map((item) => {
+            const unitPrice = parseFloat(item.price);
+            const quantity = parseInt(item.quantity, 10);
+            return {
+              menu_item_id: item.menu_item_id,
+              menu_item_name: item.menu_item_name,
+              quantity,
+              unit_price: unitPrice,
+              subtotal: unitPrice * quantity,
+              main_category: item.main_category || "cafe",
+              item_type: item.main_category || "cafe",
+              note: item.note?.trim() || undefined,
+            };
+          }),
+          updated_by: user?.id ? user.id : waiter.id,
+          addition_id: addItemsIdRef.current,
+        });
+        addItemsIdRef.current = null;
+        toast.success("Items added to order successfully!");
+        setOrderItems([]);
+        setNotes("");
+        navigate("/dashboard");
+        return;
+      }
+
+      const orderData: any = {
+        // No waiter is attributed to a delivery order — the cashier who placed
+        // it is recorded as cashier_id instead (see order.service.ts: without
+        // an explicit waiter_id/employee_id, finalWaiterId would otherwise
+        // silently fall back to the creator and mislabel the cashier as a
+        // waiter).
+        employee_id: waiter?.id || undefined,
+        waiter_id: waiter?.id || undefined,
+        cashier_id: waiter?.id ? undefined : user?.id,
+        created_by_id: user?.id ? user.id : waiter?.id,
+        type: "cafe",
+        items: orderItems.map((item) => {
+          const unitPrice = parseFloat(item.price);
+          const quantity = parseInt(item.quantity, 10);
+
+          return {
+            menu_item_id: item.menu_item_id,
+            menu_item_name: item.menu_item_name,
+            quantity,
+            unit_price: unitPrice,
+            subtotal: unitPrice * quantity,
+            main_category: item.main_category || "cafe",
+            item_type: item.main_category || "cafe",
+            note: item.note?.trim() || undefined,
+          };
+        }),
+        total_amount: parseFloat(calculateTotal()),
+        notes: notes.trim() || undefined,
+      };
+
+      const selectedDeliveryMethod = selectedDeliveryMethodId
+        ? deliveryMethods.find((m) => m.id === selectedDeliveryMethodId)
+        : null;
+
+      if (deliveryMode && !selectedDeliveryMethod) {
+        toast.error("Select a delivery method");
+        return;
+      }
+
+      // A delivery order or an explicit Take Away both carry no table by
+      // design — force_table_selection only blocks placing an order with no
+      // choice made at all, same as the backend.
+      if (forceTableSelection && !selectedTable && !selectedDeliveryMethod) {
+        toast.error("Table selection is mandatory.");
+        return;
+      }
+
+      // When enforcement is off, no selection defaults to Take Away.
+      const effectiveTable = selectedTable || "takeaway";
+
+      if (selectedDeliveryMethod) {
+        orderData.delivery_method_id = selectedDeliveryMethod.id;
+        orderData.order_type_label = selectedDeliveryMethod.display_name;
+      } else {
+        orderData.order_type_label =
+          effectiveTable === "takeaway" ? "Take Away" : `Table ${effectiveTable}`;
+        if (effectiveTable === "takeaway") {
+          orderData.is_takeaway = true;
+        } else {
+          orderData.table_number = parseInt(effectiveTable, 10);
+        }
+      }
+
+      await api.orders.createCafe(orderData);
+      toast.success("Order created successfully!");
+
+      setSelectedTable("");
+      setSelectedDeliveryMethodIdRaw("");
+      setOrderItems([]);
+      setNotes("");
+      navigate("/dashboard");
+    } catch (e: any) {
+      console.error(isAddMode ? "Add items error:" : "Create order error:", e);
+      if (e?.response?.status === 409) {
+        toast.error(e?.response?.data?.message || "Not enough inventory");
+      } else if (isAddMode && e?.response?.status === 403) {
+        toast.error(
+          "Only the staff member who created this order can add items to it.",
+        );
+      } else {
+        toast.error(
+          isAddMode ? "Failed to add items" : "Failed to create order",
+        );
+      }
+    } finally {
+      setCreatingOrder(false);
+      submitLockRef.current = false;
+    }
+  }, [
+    calculateTotal,
+    creatingOrder,
+    navigate,
+    orderItems,
+    notes,
+    selectedTable,
+    selectedDeliveryMethodId,
+    deliveryMethods,
+    waiter?.id,
+    deliveryMode,
+    user?.id,
+    forceTableSelection,
+    isAddMode,
+    existingOrder?.id,
+  ]);
+
+  // Table and delivery selection are mutually exclusive — picking one clears
+  // the other, mirroring the backend which only honors delivery_method_id
+  // when set and drops table_number.
+  const selectTable = useCallback((table: string) => {
+    setSelectedTable(table);
+    setSelectedDeliveryMethodIdRaw("");
+  }, []);
+  const selectDeliveryMethod = useCallback((id: string) => {
+    setSelectedDeliveryMethodIdRaw(id);
+    if (id) setSelectedTable("");
+  }, []);
+
+  const waiterName = deliveryMode
+    ? "Delivery"
+    : waiter?.full_name || waiter?.name || waiter?.username;
+
+  const selectedDeliveryMethodName =
+    deliveryMethods.find((m) => m.id === selectedDeliveryMethodId)?.display_name ?? null;
+
+  const mappedMainCategories = useMemo(() => {
+    return getMainCategories().map((c) => ({
+      id: c,
+      label: getMainCategoryLabel(c),
+      count: menuItems.filter(
+        (item) => itemHasCategory(item, c) || item.main_category === c,
+      ).length,
+    }));
+  }, [getMainCategories, getMainCategoryLabel, itemHasCategory, menuItems]);
+
+  const mappedSubCategories = useMemo(() => {
+    return getCategories().map((c) => ({
+      id: c,
+      label: c,
+      count: menuItems
+        .filter(
+          (item) =>
+            itemHasCategory(item, selectedMainCategory) ||
+            item.main_category === selectedMainCategory,
+        )
+        .filter((item) => (item.category || item.sub_category) === c).length,
+    }));
+  }, [getCategories, itemHasCategory, menuItems, selectedMainCategory]);
+
+  const mainFilteredCount = useMemo(() => {
+    return menuItems.filter(
+      (item) =>
+        itemHasCategory(item, selectedMainCategory) ||
+        item.main_category === selectedMainCategory,
+    ).length;
+  }, [itemHasCategory, menuItems, selectedMainCategory]);
+
+  return {
+    loading,
+    menuItems,
+    filteredItems,
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    selectedMainCategory,
+    setSelectedMainCategory,
+    creatingOrder,
+    selectedTable,
+    setSelectedTable: selectTable,
+    deliveryMethods,
+    selectedDeliveryMethodId,
+    setSelectedDeliveryMethodId: selectDeliveryMethod,
+    selectedDeliveryMethodName,
+    orderItems,
+    notes,
+    setNotes,
+    allTables,
+    isOnline,
+    waiter,
+    waiterName,
+    deliveryMode,
+    isAddMode,
+    existingOrder,
+    mappedMainCategories,
+    mappedSubCategories,
+    mainFilteredCount,
+    isFastingCategory,
+    addToOrder,
+    removeFromOrder,
+    updateQuantity,
+    updateItemNote,
+    calculateTotal,
+    handleSubmitOrder,
+    forceTableSelection,
+  };
+};

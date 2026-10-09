@@ -1,0 +1,817 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  UnauthorizedException,
+  ForbiddenException,
+  BadRequestException,
+  Headers,
+  Delete,
+} from "@nestjs/common";
+import {
+  ApiBody,
+  ApiOperation,
+  ApiOkResponse,
+  ApiParam,
+  ApiTags,
+} from "@nestjs/swagger";
+import { SettingsService } from "./settings.service";
+import { RequirePermission } from "../../common/permissions/require-permission.decorator";
+import {
+  PaymentMethodRequestDto,
+  PaymentMethodResponseDto,
+  PaymentMethodsResponseDto,
+} from "./dto/payment-method.dto";
+import {
+  RoleRequestDto,
+  RoleResponseDto,
+  RolesResponseDto,
+  CancelPasswordRequestDto,
+  PrinterPasswordRequestDto,
+  PrintCopiesRequestDto,
+  UserSettingsResponseDto,
+} from "./dto/role.dto";
+import { CourierRequestDto } from "./dto/courier.dto";
+
+@ApiTags("settings")
+@RequirePermission("settings")
+@Controller("settings")
+export class SettingsController {
+  constructor(private readonly settingsService: SettingsService) {}
+
+  // ── Payment Methods ────────────────────────────────────────────────────────
+  // Same "own resource, not the class-level settings gate" fix as Delivery
+  // Methods below — payment_methods was defined as an independent resource in
+  // Roles & Permissions but was never actually enforced on these routes.
+
+  @ApiOperation({ summary: "Get all active payment methods" })
+  @ApiOkResponse({ type: PaymentMethodsResponseDto })
+  @RequirePermission("payment_methods")
+  @Get("payment-methods")
+  async getPaymentMethods(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const methods = await this.settingsService.getAllPaymentMethods();
+    return {
+      status: "success",
+      data: { payment_methods: methods, count: methods.length },
+    };
+  }
+
+  @ApiOperation({ summary: "Create a new payment method (admin)" })
+  @ApiBody({ type: PaymentMethodRequestDto })
+  @ApiOkResponse({ type: PaymentMethodResponseDto })
+  @RequirePermission("payment_methods")
+  @Post("payment-methods")
+  async createPaymentMethod(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: PaymentMethodRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const method = await this.settingsService.createPaymentMethod(body);
+    return { status: "success", data: { payment_method: method } };
+  }
+
+  @ApiOperation({ summary: "Update a payment method (admin)" })
+  @ApiParam({ name: "id" })
+  @ApiBody({ type: PaymentMethodRequestDto })
+  @ApiOkResponse({ type: PaymentMethodResponseDto })
+  @RequirePermission("payment_methods")
+  @Put("payment-methods/:id")
+  async updatePaymentMethod(
+    @Headers("x-app-client") appClient: string,
+    @Param("id") id: string,
+    @Body() body: PaymentMethodRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const method = await this.settingsService.updatePaymentMethod(id, body);
+    return { status: "success", data: { payment_method: method } };
+  }
+
+  @ApiOperation({ summary: "Soft-delete (disable) a payment method (admin)" })
+  @ApiParam({ name: "id" })
+  @ApiOkResponse({ type: PaymentMethodResponseDto })
+  @RequirePermission("payment_methods")
+  @Delete("payment-methods/:id")
+  async deletePaymentMethod(
+    @Headers("x-app-client") appClient: string,
+    @Param("id") id: string,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const method = await this.settingsService.deletePaymentMethod(id);
+    return { status: "success", data: { payment_method: method } };
+  }
+
+  // ── Delivery Methods ────────────────────────────────────────────────────────
+  // Gated by its own "delivery_methods" resource (not the class-level
+  // "settings" one) so the dedicated toggle in Roles & Permissions actually
+  // controls access — previously these fell through to "settings", so an
+  // owner restricting the (much broader) Settings resource for a role would
+  // silently 403 the waiter portal's delivery option even with
+  // "Delivery Methods" granted. See web/lib/permissions.ts's delivery_methods
+  // row, which already pointed at this page.
+
+  @ApiOperation({ summary: "Get all active delivery methods" })
+  @RequirePermission("delivery_methods")
+  @Get("delivery-methods")
+  async getDeliveryMethods(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const methods = await this.settingsService.getAllDeliveryMethods();
+    return {
+      status: "success",
+      data: { delivery_methods: methods, count: methods.length },
+    };
+  }
+
+  @ApiOperation({ summary: "Create a new delivery method (owner)" })
+  @RequirePermission("delivery_methods")
+  @Post("delivery-methods")
+  async createDeliveryMethod(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: PaymentMethodRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const method = await this.settingsService.createDeliveryMethod(body);
+    return { status: "success", data: { delivery_method: method } };
+  }
+
+  @ApiOperation({ summary: "Update a delivery method (owner)" })
+  @ApiParam({ name: "id" })
+  @RequirePermission("delivery_methods")
+  @Put("delivery-methods/:id")
+  async updateDeliveryMethod(
+    @Headers("x-app-client") appClient: string,
+    @Param("id") id: string,
+    @Body() body: PaymentMethodRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const method = await this.settingsService.updateDeliveryMethod(id, body);
+    return { status: "success", data: { delivery_method: method } };
+  }
+
+  @ApiOperation({ summary: "Soft-delete (disable) a delivery method (owner)" })
+  @ApiParam({ name: "id" })
+  @RequirePermission("delivery_methods")
+  @Delete("delivery-methods/:id")
+  async deleteDeliveryMethod(
+    @Headers("x-app-client") appClient: string,
+    @Param("id") id: string,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const method = await this.settingsService.deleteDeliveryMethod(id);
+    return { status: "success", data: { delivery_method: method } };
+  }
+
+  // ── Couriers ─────────────────────────────────────────────────────────────────
+  // Preconfigured courier profiles an owner sets up so a cashier can pick one
+  // from a dropdown on the delivery management dialog, instead of always
+  // typing courier name/phone by hand. Manual entry there stays available —
+  // this list is just a convenience shortcut. Own "couriers" resource, same
+  // reasoning as Delivery/Payment Methods above.
+
+  @ApiOperation({ summary: "Get all active courier profiles" })
+  @RequirePermission("couriers")
+  @Get("couriers")
+  async getCouriers(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const list = await this.settingsService.getAllCouriers();
+    return { status: "success", data: { couriers: list, count: list.length } };
+  }
+
+  @ApiOperation({ summary: "Create a new courier profile (admin)" })
+  @RequirePermission("couriers")
+  @Post("couriers")
+  async createCourier(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: CourierRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const courier = await this.settingsService.createCourier(body);
+    return { status: "success", data: { courier } };
+  }
+
+  @ApiOperation({ summary: "Update a courier profile (admin)" })
+  @ApiParam({ name: "id" })
+  @RequirePermission("couriers")
+  @Put("couriers/:id")
+  async updateCourier(
+    @Headers("x-app-client") appClient: string,
+    @Param("id") id: string,
+    @Body() body: CourierRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const courier = await this.settingsService.updateCourier(id, body);
+    return { status: "success", data: { courier } };
+  }
+
+  @ApiOperation({ summary: "Soft-delete (disable) a courier profile (admin)" })
+  @ApiParam({ name: "id" })
+  @RequirePermission("couriers")
+  @Delete("couriers/:id")
+  async deleteCourier(
+    @Headers("x-app-client") appClient: string,
+    @Param("id") id: string,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const courier = await this.settingsService.deleteCourier(id);
+    return { status: "success", data: { courier } };
+  }
+
+  @ApiOperation({
+    summary: "Get the waiter ids allowed to place delivery orders",
+  })
+  @RequirePermission("delivery_methods")
+  @Get("system/delivery-allowed-waiters")
+  async getDeliveryAllowedWaiters(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.getDeliveryAllowedWaiterIds();
+    return { status: "success", data };
+  }
+
+  @ApiOperation({
+    summary: "Set the waiter ids allowed to place delivery orders (owner)",
+  })
+  @RequirePermission("delivery_methods")
+  @Put("system/delivery-allowed-waiters")
+  async updateDeliveryAllowedWaiters(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: { waiter_ids?: string[] },
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.updateDeliveryAllowedWaiterIds(
+      body?.waiter_ids ?? [],
+    );
+    return { status: "success", data };
+  }
+
+  // ── Organization order access ─────────────────────────────────────────────
+  // Which waiters/cashiers may attach an order to an organization while
+  // placing it. Gated by "customers" — the same resource that already governs
+  // the Organizations feature end to end (web's /dashboard/customers, its
+  // "Organizations" nav label, and OrganizationController itself) — rather
+  // than a new resource, so there's one toggle per role for this whole area.
+
+  @ApiOperation({
+    summary: "Get the user ids allowed to attach orders to an organization",
+  })
+  @RequirePermission("customers")
+  @Get("system/organization-order-allowed-users")
+  async getOrganizationOrderAllowedUsers(
+    @Headers("x-app-client") appClient: string,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.getOrganizationOrderAllowedUserIds();
+    return { status: "success", data };
+  }
+
+  @ApiOperation({
+    summary:
+      "Set the user ids allowed to attach orders to an organization (owner)",
+  })
+  @RequirePermission("customers")
+  @Put("system/organization-order-allowed-users")
+  async updateOrganizationOrderAllowedUsers(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: { user_ids?: string[] },
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.updateOrganizationOrderAllowedUserIds(
+      body?.user_ids ?? [],
+    );
+    return { status: "success", data };
+  }
+
+  // ── Data Management ────────────────────────────────────────────────────────
+
+  @ApiOperation({ summary: "Cleanup all orders and payments (admin)" })
+  @Post("cleanup-data")
+  async cleanupData(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    await this.settingsService.cleanupData();
+    return {
+      status: "success",
+      message: "Data cleanup completed successfully.",
+    };
+  }
+
+  // ── Roles ──────────────────────────────────────────────────────────────────
+
+  @ApiOperation({ summary: "Get all roles" })
+  @ApiOkResponse({ type: RolesResponseDto })
+  @Get("roles")
+  async getRoles(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const rolesList = await this.settingsService.getAllRoles();
+    return {
+      status: "success",
+      data: { roles: rolesList, count: rolesList.length },
+    };
+  }
+
+  @ApiOperation({ summary: "Create a new role (admin)" })
+  @ApiBody({ type: RoleRequestDto })
+  @ApiOkResponse({ type: RoleResponseDto })
+  @Post("roles")
+  async createRole(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: RoleRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const role = await this.settingsService.createRole(body);
+    return { status: "success", data: { role } };
+  }
+
+  @ApiOperation({ summary: "Update a role (admin)" })
+  @ApiParam({ name: "id" })
+  @ApiBody({ type: RoleRequestDto })
+  @ApiOkResponse({ type: RoleResponseDto })
+  @Put("roles/:id")
+  async updateRole(
+    @Headers("x-app-client") appClient: string,
+    @Param("id") id: string,
+    @Body() body: RoleRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const role = await this.settingsService.updateRole(id, body);
+    return { status: "success", data: { role } };
+  }
+
+  @ApiOperation({ summary: "Soft-delete (disable) a role (admin)" })
+  @ApiParam({ name: "id" })
+  @ApiOkResponse({ type: RoleResponseDto })
+  @Delete("roles/:id")
+  async deleteRole(
+    @Headers("x-app-client") appClient: string,
+    @Param("id") id: string,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const role = await this.settingsService.deleteRole(id);
+    return { status: "success", data: { role } };
+  }
+
+  // ── Current-User Settings ──────────────────────────────────────────────────
+
+  @ApiOperation({
+    summary: "Get current user's settings (cancel-password, print-copies)",
+  })
+  @ApiOkResponse({ type: UserSettingsResponseDto })
+  @Get("current-user-settings")
+  async getCurrentUserSettings(
+    @Headers("x-app-client") appClient: string,
+    @Headers("x-user-id") userIdHeader: string,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    if (!userIdHeader) throw new UnauthorizedException("User ID required");
+    const settings =
+      await this.settingsService.getCurrentUserSettings(userIdHeader);
+    return { status: "success", data: settings };
+  }
+
+  @ApiOperation({
+    summary: "Update current user's cancellation override password",
+  })
+  @ApiBody({ type: CancelPasswordRequestDto })
+  @ApiOkResponse({ type: UserSettingsResponseDto })
+  @Put("current-user-settings/cancel-password")
+  async updateCancelPassword(
+    @Headers("x-app-client") appClient: string,
+    @Headers("x-user-id") userIdHeader: string,
+    @Body() body: CancelPasswordRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    if (!userIdHeader) throw new UnauthorizedException("User ID required");
+    try {
+      const result = await this.settingsService.updateCancelPassword(
+        userIdHeader,
+        body.cancel_password,
+      );
+      return { status: "success", data: result };
+    } catch (error: any) {
+      if (error.message.includes("Only admins can change")) {
+        throw new ForbiddenException(error.message);
+      }
+      throw error;
+    }
+  }
+
+  @ApiOperation({ summary: "Update current user's order print-copies setting" })
+  @ApiBody({ type: PrintCopiesRequestDto })
+  @ApiOkResponse({ type: UserSettingsResponseDto })
+  @Put("current-user-settings/print-copies")
+  async updatePrintCopies(
+    @Headers("x-app-client") appClient: string,
+    @Headers("x-user-id") userIdHeader: string,
+    @Body() body: PrintCopiesRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    if (!userIdHeader) throw new UnauthorizedException("User ID required");
+    const result = await this.settingsService.updatePrintCopies(
+      userIdHeader,
+      String(body.print_copies),
+    );
+    return { status: "success", data: result };
+  }
+
+  // ── System / Inventory Settings ────────────────────────────────────────────
+
+  @ApiOperation({ summary: "Get all system settings key/value pairs" })
+  @Get("system/all")
+  async getAllSystemSettings(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const settings = await this.settingsService.getAllSystemSettings();
+    return { status: "success", data: { settings, count: settings.length } };
+  }
+
+  @ApiOperation({ summary: "Get inventory-related system settings" })
+  @Get("system/inventory")
+  async getInventorySettings(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.getInventorySettings();
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Update inventory-related system settings (admin)" })
+  @Put("system/inventory")
+  async updateInventorySettings(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: { allow_low_stock_orders: boolean },
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.updateInventorySettings({
+      allow_low_stock_orders: Boolean(body.allow_low_stock_orders),
+    });
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Get menu-availability system settings" })
+  @Get("system/menu-availability")
+  async getMenuAvailabilitySettings(
+    @Headers("x-app-client") appClient: string,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.getMenuAvailabilitySettings();
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Update menu-availability system settings (admin)" })
+  @Put("system/menu-availability")
+  async updateMenuAvailabilitySettings(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: { show_menu_inventory_availability: boolean },
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.updateMenuAvailabilitySettings({
+      show_menu_inventory_availability: Boolean(
+        body.show_menu_inventory_availability,
+      ),
+    });
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Get inventory item ids exposed to waiters" })
+  @Get("system/waiter-visible-inventory")
+  async getWaiterVisibleInventorySettings(
+    @Headers("x-app-client") appClient: string,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.getWaiterVisibleInventoryItemIds();
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Set inventory item ids exposed to waiters (owner)" })
+  @Put("system/waiter-visible-inventory")
+  async updateWaiterVisibleInventorySettings(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: { item_ids?: string[] },
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.updateWaiterVisibleInventoryItemIds(
+      body?.item_ids ?? [],
+    );
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Get organization-related system settings" })
+  @Get("system/organizations")
+  async getOrganizationSettings(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.getOrganizationSettings();
+    return { status: "success", data };
+  }
+
+  @ApiOperation({
+    summary: "Update organization-related system settings (admin)",
+  })
+  @Put("system/organizations")
+  async updateOrganizationSettings(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: { allow_cashier_manage_org_orders: boolean },
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.updateOrganizationSettings({
+      allow_cashier_manage_org_orders: Boolean(
+        body.allow_cashier_manage_org_orders,
+      ),
+    });
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Get table-selection system settings" })
+  @Get("system/table-selection")
+  async getTableSelectionSettings(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.getTableSelectionSettings();
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Update table-selection system settings (admin)" })
+  @Put("system/table-selection")
+  async updateTableSelectionSettings(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: { force_table_selection: boolean },
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.updateTableSelectionSettings({
+      force_table_selection: Boolean(body.force_table_selection),
+    });
+    return { status: "success", data };
+  }
+
+  @ApiOperation({
+    summary: "Get per-role history lookback (days of past data each role sees)",
+  })
+  @Get("system/role-history-lookback")
+  async getRoleHistoryLookback(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.getRoleHistoryLookback();
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Update per-role history lookback (owner)" })
+  @Put("system/role-history-lookback")
+  async updateRoleHistoryLookback(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: { role_history_lookback?: Record<string, number> },
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.updateRoleHistoryLookback(
+      body?.role_history_lookback ?? {},
+    );
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Get printer department routing settings" })
+  @Get("system/printer-routing")
+  async getPrinterRoutingSettings(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.getPrinterRoutingSettings();
+    return { status: "success", data };
+  }
+
+  @ApiOperation({
+    summary: "Update printer department routing settings (admin)",
+  })
+  @Put("system/printer-routing")
+  async updatePrinterRoutingSettings(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: { printer_department_routing: Record<string, unknown> },
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.updatePrinterRoutingSettings({
+      printer_department_routing: body?.printer_department_routing ?? {},
+    });
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Get receipt system settings" })
+  @Get("system/receipt")
+  async getReceiptSettings(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.getReceiptSettings();
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Update receipt system settings (admin)" })
+  @Put("system/receipt")
+  async updateReceiptSettings(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: { enable_cashier_receipt: boolean },
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.updateReceiptSettings({
+      enable_cashier_receipt: Boolean(body.enable_cashier_receipt),
+    });
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Get cancelled-order ticket printing setting" })
+  @Get("system/cancellation-print")
+  async getCancellationPrintSettings(
+    @Headers("x-app-client") appClient: string,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.getCancellationPrintSettings();
+    return { status: "success", data };
+  }
+
+  @ApiOperation({
+    summary: "Update cancelled-order ticket printing setting (admin)",
+  })
+  @Put("system/cancellation-print")
+  async updateCancellationPrintSettings(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: { print_cancelled_order_tickets: boolean },
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.updateCancellationPrintSettings({
+      print_cancelled_order_tickets: Boolean(
+        body.print_cancelled_order_tickets,
+      ),
+    });
+    return { status: "success", data };
+  }
+
+  @ApiOperation({
+    summary: "Get whether a branch cancel-order password is set",
+  })
+  @Get("system/cancel-password")
+  async getCancelPasswordStatus(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.getCancelPasswordStatus();
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Verify a typed branch cancel-order password" })
+  @ApiBody({ type: CancelPasswordRequestDto })
+  @Post("system/cancel-password/verify")
+  async verifySystemCancelPassword(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: CancelPasswordRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const valid = await this.settingsService.verifySystemCancelPassword(
+      body.cancel_password,
+    );
+    return { status: "success", data: { valid } };
+  }
+
+  @ApiOperation({ summary: "Set the branch cancel-order password (owner)" })
+  @ApiBody({ type: CancelPasswordRequestDto })
+  @Put("system/cancel-password")
+  async updateSystemCancelPassword(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: CancelPasswordRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    try {
+      const data = await this.settingsService.updateSystemCancelPassword(
+        body.cancel_password,
+      );
+      return { status: "success", data };
+    } catch (error: any) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @ApiOperation({
+    summary: "Get whether a branch printer-settings password is set",
+  })
+  @Get("system/printer-password")
+  async getPrinterPasswordStatus(@Headers("x-app-client") appClient: string) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const data = await this.settingsService.getPrinterPasswordStatus();
+    return { status: "success", data };
+  }
+
+  @ApiOperation({ summary: "Verify a typed branch printer-settings password" })
+  @ApiBody({ type: PrinterPasswordRequestDto })
+  @Post("system/printer-password/verify")
+  async verifySystemPrinterPassword(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: PrinterPasswordRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    const valid = await this.settingsService.verifyPrinterPassword(
+      body.printer_password,
+    );
+    return { status: "success", data: { valid } };
+  }
+
+  @ApiOperation({ summary: "Set the branch printer-settings password (owner)" })
+  @ApiBody({ type: PrinterPasswordRequestDto })
+  @Put("system/printer-password")
+  async updateSystemPrinterPassword(
+    @Headers("x-app-client") appClient: string,
+    @Body() body: PrinterPasswordRequestDto,
+  ) {
+    if (appClient !== "tauri-pos-app") {
+      throw new ForbiddenException("Access denied.");
+    }
+    try {
+      const data = await this.settingsService.updatePrinterPassword(
+        body.printer_password,
+      );
+      return { status: "success", data };
+    } catch (error: any) {
+      throw new BadRequestException(error.message);
+    }
+  }
+}

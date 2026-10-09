@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1781153402801,
+      "tag": "0000_stale_texas_twister",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1781153402802,
+      "tag": "0001_device_enrollment",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1781153402803,
+      "tag": "0002_status_vocabulary",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1781153402804,
+      "tag": "0003_done_implies_paid",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1781153402805,
+      "tag": "0004_perf_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1781153402806,
+      "tag": "0005_item_additions",
+      "breakpoints": true
+    }
+  ]
+}

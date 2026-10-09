@@ -1,0 +1,287 @@
+"use client";
+
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  useSidebar
+} from "@/components/ui/sidebar";
+import { useEffect, useState } from "react";
+import {
+  ChevronRight,
+  GaugeIcon,
+  ShoppingBagIcon,
+  LayoutDashboardIcon,
+  ReceiptTextIcon,
+  CreditCardIcon,
+  CoffeeIcon,
+  UtensilsCrossedIcon,
+  BikeIcon,
+  BoxesIcon,
+  WarehouseIcon,
+  ArrowLeftRightIcon,
+  Link2Icon,
+  UsersIcon,
+  Building2Icon,
+  BarChart3Icon,
+  BanknoteIcon,
+  WalletCardsIcon,
+  ShieldIcon,
+  MonitorSmartphoneIcon,
+  ArmchairIcon,
+  ScrollTextIcon,
+  SlidersHorizontalIcon,
+  ContactIcon,
+  SettingsIcon,
+  type LucideIcon,
+} from "lucide-react";
+import { getUser } from "@/lib/auth";
+import { can, isAllAccessRole, type ResourceId } from "@/lib/permissions";
+import Link from "next/link";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { usePathname } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+
+type NavGroup = {
+  title: string;
+  items: NavItem;
+};
+
+type NavItem = {
+  title: string;
+  href: string;
+  icon?: LucideIcon;
+  isComing?: boolean;
+  isDataBadge?: string;
+  isNew?: boolean;
+  newTab?: boolean;
+  // Resource that gates this item. Items without one are always shown.
+  resource?: ResourceId;
+  // Hard-restricted to owner/business_admin/super_admin, independent of the
+  // configurable permission matrix (e.g. the revenue dashboard).
+  ownerOnly?: boolean;
+  items?: NavItem;
+}[];
+
+const platformNav: NavGroup[] = [
+  {
+    title: "Platform",
+    items: [
+      { title: "Overview", href: "/dashboard/overview", icon: GaugeIcon },
+      { title: "Monitoring", href: "/dashboard/monitoring", icon: BarChart3Icon },
+      { title: "Businesses", href: "/dashboard/businesses", icon: ShoppingBagIcon },
+      { title: "Users", href: "/dashboard/users", icon: UsersIcon },
+      { title: "Devices", href: "/dashboard/devices", icon: MonitorSmartphoneIcon },
+      { title: "Audit log", href: "/dashboard/audit", icon: ScrollTextIcon }
+    ]
+  }
+];
+
+const ownerNav: NavGroup[] = [
+  {
+    title: "Overview",
+    items: [
+      { title: "Dashboard", href: "/dashboard/home", icon: LayoutDashboardIcon, ownerOnly: true }
+    ]
+  },
+  {
+    title: "Operations",
+    items: [
+      { title: "Orders", href: "/dashboard/orders", icon: ReceiptTextIcon, resource: "orders" },
+      { title: "Deliveries", href: "/dashboard/deliveries", icon: BikeIcon, resource: "deliveries" },
+      { title: "Payments", href: "/dashboard/payments", icon: CreditCardIcon, resource: "payments" },
+      { title: "Items Sold", href: "/dashboard/payments/items", icon: CoffeeIcon, resource: "items_sold" },
+      { title: "Tables", href: "/dashboard/tables", icon: ArmchairIcon, resource: "tables" }
+    ]
+  },
+  {
+    title: "Catalog & Inventory",
+    items: [
+      { title: "Menu", href: "/dashboard/menu", icon: UtensilsCrossedIcon, resource: "menu" },
+      { title: "Inventory", href: "/dashboard/inventory", icon: BoxesIcon, resource: "inventory" },
+      { title: "Stock Locations", href: "/dashboard/inventory/locations", icon: WarehouseIcon, resource: "stock_locations" },
+      { title: "Transfers", href: "/dashboard/inventory/transfers", icon: ArrowLeftRightIcon, resource: "transfers" },
+      { title: "Ledger", href: "/dashboard/inventory/ledger", icon: ScrollTextIcon, resource: "inventory" },
+      { title: "Item Links", href: "/dashboard/inventory/links", icon: Link2Icon, resource: "inventory" }
+    ]
+  },
+  {
+    title: "People",
+    items: [
+      { title: "Staff", href: "/dashboard/staff", icon: UsersIcon, resource: "staff" },
+      { title: "Organizations", href: "/dashboard/customers", icon: Building2Icon, resource: "customers" }
+    ]
+  },
+  {
+    title: "Insights",
+    items: [
+      { title: "Reports", href: "/dashboard/reports", icon: BarChart3Icon, resource: "reports" },
+      { title: "Expenses", href: "/dashboard/expenses", icon: BanknoteIcon, resource: "expenses" }
+    ]
+  },
+  {
+    title: "Settings",
+    items: [
+      { title: "All Settings", href: "/dashboard/settings", icon: SettingsIcon, resource: "settings" },
+      { title: "Order Rules", href: "/dashboard/settings/preferences", icon: SlidersHorizontalIcon, resource: "settings" },
+      { title: "Payment Methods", href: "/dashboard/settings/payment-methods", icon: WalletCardsIcon, resource: "payment_methods" },
+      { title: "Delivery Methods", href: "/dashboard/settings/delivery-methods", icon: BikeIcon, resource: "delivery_methods" },
+      { title: "Couriers", href: "/dashboard/settings/couriers", icon: ContactIcon, resource: "couriers" },
+      { title: "Roles", href: "/dashboard/settings/roles", icon: ShieldIcon, resource: "roles" },
+      { title: "Devices", href: "/dashboard/settings/devices", icon: MonitorSmartphoneIcon, resource: "devices" }
+    ]
+  }
+];
+
+// Keep only the items (and groups) whose resource the user can read. Items
+// with no resource are always kept, except `ownerOnly` items (e.g. the
+// revenue Dashboard), which never show for a filtered (non-all-access) nav.
+// Empty groups drop out.
+function filterNavByPermissions(groups: NavGroup[]): NavGroup[] {
+  return groups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter(
+        (item) => !item.ownerOnly && (!item.resource || can(item.resource, "read")),
+      ),
+    }))
+    .filter((group) => group.items.length > 0);
+}
+
+// The F&B manager keeps a dedicated overview landing page; it's prepended to the
+// permission-filtered nav when present so they still get their branch snapshot.
+const fbOverviewGroup: NavGroup = {
+  title: "Food & Beverage",
+  items: [{ title: "F&B Overview", href: "/dashboard/fb", icon: GaugeIcon }],
+};
+
+export function NavMain() {
+  const pathname = usePathname();
+  const { isMobile } = useSidebar();
+  const [items, setItems] = useState<NavGroup[]>([]);
+
+  useEffect(() => {
+    const role = getUser()?.role;
+    if (role === "super_admin") {
+      setItems(platformNav);
+      return;
+    }
+    // Owners/business admins see the full nav; everyone else is filtered by the
+    // permissions cached at login.
+    const base = isAllAccessRole(role) ? ownerNav : filterNavByPermissions(ownerNav);
+    setItems(role === "fb_manager" ? [fbOverviewGroup, ...base] : base);
+  }, []);
+
+  return (
+    <>
+      {items.map((nav) => (
+        <SidebarGroup key={nav.title}>
+          <SidebarGroupLabel>{nav.title}</SidebarGroupLabel>
+          <SidebarGroupContent className="flex flex-col gap-2">
+            <SidebarMenu>
+              {nav.items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  {Array.isArray(item.items) && item.items.length > 0 ? (
+                    <>
+                      <div className="hidden group-data-[collapsible=icon]:block">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <SidebarMenuButton tooltip={item.title}>
+                              {item.icon && <item.icon />}
+                              <span>{item.title}</span>
+                              <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            </SidebarMenuButton>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            side={isMobile ? "bottom" : "right"}
+                            align={isMobile ? "end" : "start"}
+                            className="min-w-48 rounded-lg">
+                            <DropdownMenuLabel>{item.title}</DropdownMenuLabel>
+                            {item.items?.map((item) => (
+                              <DropdownMenuItem
+                                className="hover:text-foreground active:text-foreground hover:bg-[var(--primary)]/10! active:bg-[var(--primary)]/10!"
+                                asChild
+                                key={item.title}>
+                                <a href={item.href}>{item.title}</a>
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                      <Collapsible className="group/collapsible block group-data-[collapsible=icon]:hidden">
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            className="hover:text-foreground active:text-foreground hover:bg-[var(--primary)]/10 active:bg-[var(--primary)]/10"
+                            tooltip={item.title}>
+                            {item.icon && <item.icon />}
+                            <span>{item.title}</span>
+                            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            {item?.items?.map((subItem, key) => (
+                              <SidebarMenuSubItem key={key}>
+                                <SidebarMenuSubButton
+                                  className="hover:text-foreground active:text-foreground hover:bg-[var(--primary)]/10 active:bg-[var(--primary)]/10"
+                                  isActive={pathname === subItem.href}
+                                  asChild>
+                                  <Link href={subItem.href} target={subItem.newTab ? "_blank" : ""}>
+                                    <span>{subItem.title}</span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            ))}
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    </>
+                  ) : (
+                    <SidebarMenuButton
+                      className="hover:text-foreground active:text-foreground hover:bg-[var(--primary)]/10 active:bg-[var(--primary)]/10"
+                      isActive={pathname === item.href}
+                      tooltip={item.title}
+                      asChild>
+                      <Link href={item.href} target={item.newTab ? "_blank" : ""}>
+                        {item.icon && <item.icon />}
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  )}
+                  {!!item.isComing && (
+                    <SidebarMenuBadge className="peer-hover/menu-button:text-foreground opacity-50">
+                      Coming
+                    </SidebarMenuBadge>
+                  )}
+                  {!!item.isNew && (
+                    <SidebarMenuBadge className="border border-green-400 text-green-600 peer-hover/menu-button:text-green-600">
+                      New
+                    </SidebarMenuBadge>
+                  )}
+                  {!!item.isDataBadge && (
+                    <SidebarMenuBadge className="peer-hover/menu-button:text-foreground">
+                      {item.isDataBadge}
+                    </SidebarMenuBadge>
+                  )}
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      ))}
+    </>
+  );
+}

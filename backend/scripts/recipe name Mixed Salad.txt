@@ -1,0 +1,1044 @@
+[
+  {
+    "recipe_name": "Mixed Salad",
+    "ingredients": [
+      { "ingredient": "Lettuce", "quantity": "50 gm" },
+      { "ingredient": "Tomato", "quantity": "20 gm" },
+      { "ingredient": "Oil", "quantity": "35 ml" },
+      { "ingredient": "Cucumber", "quantity": "20 gm" },
+      { "ingredient": "Onion", "quantity": "20 gm" },
+      { "ingredient": "Paper", "quantity": "20 gm" },
+      { "ingredient": "Carrot", "quantity": "30 gm" },
+      { "ingredient": "Mustard & Carlike Dressing", "quantity": "10 gm" },
+      { "ingredient": "Mini Bread", "quantity": "2 ea" },
+      { "ingredient": "Vinegar", "quantity": "20 ml" }
+    ]
+  },
+  {
+    "recipe_name": "Beef Salad",
+    "ingredients": [
+      { "ingredient": "Beef", "quantity": "50 Gm" },
+      { "ingredient": "Lettuce", "quantity": "50 Gm" },
+      { "ingredient": "Tomato", "quantity": "20 Gm" },
+      { "ingredient": "Onion", "quantity": "20 Gm" },
+      { "ingredient": "Paper", "quantity": "20 Gm" },
+      { "ingredient": "Mayonisse", "quantity": "100 Gm" },
+      { "ingredient": "Bread Mini", "quantity": "2 Ea" }
+    ]
+  },
+  {
+    "recipe_name": "Chicken Salad",
+    "ingredients": [
+      { "ingredient": "Chicken", "quantity": "50 gm" },
+      { "ingredient": "Lettuce", "quantity": "50 gm" },
+      { "ingredient": "Tomato", "quantity": "20 gm" },
+      { "ingredient": "Paper", "quantity": "20 gm" },
+      { "ingredient": "Boiled Egg", "quantity": "1 ea" },
+      { "ingredient": "Mayonisse Dressing", "quantity": "100 gm" },
+      { "ingredient": "Mini Bread", "quantity": "2 pc" }
+    ]
+  },
+  {
+    "recipe_name": "Fruit Salad",
+    "ingredients": [
+      { "ingredient": "Avocado", "quantity": "20 gm" },
+      { "ingredient": "Papaya", "quantity": "20 gm" },
+      { "ingredient": "Strawberry", "quantity": "20 gm" },
+      { "ingredient": "Water melon", "quantity": "20 gm" },
+      { "ingredient": "Banana", "quantity": "20 gm" }
+    ]
+  }
+]
+
+[
+  {
+    "recipe_name": "French Fries",
+    "ingredients": [
+      { "ingredient": "French Fries(Potato)", "quantity": "360 gm" },
+      { "ingredient": "Tomato Ketchup", "quantity": "70 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Classic Burger",
+    "ingredients": [
+      { "ingredient": "Meat", "quantity": "100 gm" },
+      { "ingredient": "Tomato", "quantity": "10 gm" },
+      { "ingredient": "Burger Bread", "quantity": "1 Ea" },
+      { "ingredient": "Onion", "quantity": "10 gm" },
+      { "ingredient": "Mayonnisse", "quantity": "10 gm" },
+      { "ingredient": "Lettuce", "quantity": "10 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Double Beef Burger",
+    "ingredients": [
+      { "ingredient": "Meat", "quantity": "140 gm" },
+      { "ingredient": "Tomato", "quantity": "10 gm" },
+      { "ingredient": "Burger Bread", "quantity": "1 ea" },
+      { "ingredient": "Onion", "quantity": "10 gm" },
+      { "ingredient": "Lettuce", "quantity": "10 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Cheese Burger",
+    "ingredients": [
+      { "ingredient": "Meat", "quantity": "100 gm" },
+      { "ingredient": "Cheese", "quantity": "40 gm" },
+      { "ingredient": "Burger Bread", "quantity": "1 ea" },
+      { "ingredient": "Lettuce", "quantity": "10 gm" },
+      { "ingredient": "Tomato", "quantity": "10 gm" },
+      { "ingredient": "Onion", "quantity": "10 gm" },
+      { "ingredient": "Paper", "quantity": "0.5 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Kabub Special Burger",
+    "ingredients": [
+      { "ingredient": "Meat", "quantity": "200 gm" },
+      { "ingredient": "Cheese", "quantity": "20 gm" },
+      { "ingredient": "Egg", "quantity": "1 ea" },
+      { "ingredient": "Hum", "quantity": "20 gm" },
+      { "ingredient": "Burger Bread", "quantity": "1 ea" },
+      { "ingredient": "Lettuce", "quantity": "10 gm" },
+      { "ingredient": "Tomato", "quantity": "10 gm" },
+      { "ingredient": "Onion", "quantity": "10 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Beef Club Sandwich",
+    "ingredients": [
+      { "ingredient": "Tomato", "quantity": "10 gm" },
+      { "ingredient": "Beef", "quantity": "50 gm" },
+      { "ingredient": "Slice Bread", "quantity": "6 ea" },
+      { "ingredient": "Onion", "quantity": "10 gm" },
+      { "ingredient": "Lettuce", "quantity": "25 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Chicken Club Sandwich",
+    "ingredients": [
+      { "ingredient": "Tomato", "quantity": "10 gm" },
+      { "ingredient": "Chicken", "quantity": "50 gm" },
+      { "ingredient": "Slice Bread", "quantity": "6 Ea" },
+      { "ingredient": "Onion", "quantity": "10 gm" },
+      { "ingredient": "Soda", "quantity": "1 Ea" },
+      { "ingredient": "Lettuce", "quantity": "25 gm" }
+    ]
+  }
+]
+
+[
+  {
+    "recipe_name": "Pasta with Tomato",
+    "ingredients": [
+      { "ingredient": "Pasta", "quantity": "300 gm" },
+      { "ingredient": "Tomato Sauce", "quantity": "11 gm" },
+      { "ingredient": "Salt", "quantity": "15 gm" },
+      { "ingredient": "Oil", "quantity": "20 ml" },
+      { "ingredient": "Mixed Salad", "quantity": "Half Portion" },
+      { "ingredient": "Soda", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Pasta with Vegetable",
+    "ingredients": [
+      { "ingredient": "Pasta", "quantity": "250 gm" },
+      { "ingredient": "Vegetable", "quantity": "1 gm" },
+      { "ingredient": "Oil", "quantity": "15 ml" }
+    ]
+  },
+  {
+    "recipe_name": "Pasta with Meat",
+    "ingredients": [
+      { "ingredient": "Meat", "quantity": "50 gm" },
+      { "ingredient": "Sauce", "quantity": "1 ea" },
+      { "ingredient": "Pasta", "quantity": "300 gm" },
+      { "ingredient": "Oil", "quantity": "20 ml" },
+      { "ingredient": "Salt", "quantity": "15 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Rice with Veg",
+    "ingredients": [
+      { "ingredient": "Rice", "quantity": "230 gm" },
+      { "ingredient": "Veg", "quantity": "1 portion" },
+      { "ingredient": "Oil", "quantity": "20 ml" },
+      { "ingredient": "Salt", "quantity": "15 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Rice with Meat",
+    "ingredients": [
+      { "ingredient": "Meat", "quantity": "50 gm" },
+      { "ingredient": "Rice", "quantity": "200 gm" },
+      { "ingredient": "Tomato", "quantity": "120 gm" },
+      { "ingredient": "Oil", "quantity": "25 ml" },
+      { "ingredient": "Salt", "quantity": "15 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Fata Bread 2 Pic",
+    "ingredients": [
+      { "ingredient": "Fatta Bread", "quantity": "2 Ea" },
+      { "ingredient": "Sauce", "quantity": "50 gm" },
+      { "ingredient": "Onion", "quantity": "15 gm" },
+      { "ingredient": "Tomato", "quantity": "15 gm" },
+      { "ingredient": "Paper", "quantity": "10 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Special Fata",
+    "ingredients": [
+      { "ingredient": "Feta Bread", "quantity": "2 ea" },
+      { "ingredient": "Sauce", "quantity": "50 gm" },
+      { "ingredient": "Egg", "quantity": "1 ea" },
+      { "ingredient": "Youghert", "quantity": "65 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Roasted Chicken",
+    "ingredients": [
+      { "ingredient": "Chicken Leg", "quantity": "150 gm" },
+      { "ingredient": "Flour", "quantity": "30 gm" },
+      { "ingredient": "Dark Soya", "quantity": "30 ml" },
+      { "ingredient": "Kondo Barbera", "quantity": "10 gm" },
+      { "ingredient": "White Cream", "quantity": "10 ml" },
+      { "ingredient": "Salt", "quantity": "10 gm" },
+      { "ingredient": "Table Butter", "quantity": "0.5 gm" },
+      { "ingredient": "Rice", "quantity": "50 gm" },
+      { "ingredient": "Veg", "quantity": "1 gm" },
+      { "ingredient": "Bread Mini", "quantity": "2 ea" }
+    ]
+  }
+]
+
+
+[
+  {
+    "recipe_name": "Chicken Cutlet",
+    "ingredients": [
+      { "ingredient": "Chicken Breast", "quantity": "150 gm" },
+      { "ingredient": "Egg", "quantity": "1 ea" },
+      { "ingredient": "Bread Cream (mini bread)", "quantity": "1 gm" },
+      { "ingredient": "Rice", "quantity": "50 gm" },
+      { "ingredient": "Vegetable", "quantity": "1 portion" },
+      { "ingredient": "Flour", "quantity": "50 gm" },
+      { "ingredient": "oil", "quantity": "20 ml" },
+      { "ingredient": "Butter", "quantity": "10 gm" },
+      { "ingredient": "Bread Mini", "quantity": "2 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Tibs",
+    "ingredients": [
+      { "ingredient": "Beef", "quantity": "150 gm" },
+      { "ingredient": "Onion", "quantity": "10 gm" },
+      { "ingredient": "Tomato", "quantity": "10 gm" },
+      { "ingredient": "Paper", "quantity": "10 gm" },
+      { "ingredient": "Oil", "quantity": "50 ml" },
+      { "ingredient": "Butter", "quantity": "0.5 gm" },
+      { "ingredient": "Salt", "quantity": "5 gm" },
+      { "ingredient": "Injera", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Quanta Firfir",
+    "ingredients": [
+      { "ingredient": "Beef", "quantity": "115 gm" },
+      { "ingredient": "Onion", "quantity": "200 gm" },
+      { "ingredient": "Tomato", "quantity": "150 gm" },
+      { "ingredient": "Egg", "quantity": "1 ea" },
+      { "ingredient": "Oil", "quantity": "50 ml" },
+      { "ingredient": "Butter", "quantity": "0.5 gm" },
+      { "ingredient": "Salt", "quantity": "5 gm" },
+      { "ingredient": "Injera", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Tibs Firfir",
+    "ingredients": [
+      { "ingredient": "Beef", "quantity": "70 gm" },
+      { "ingredient": "Egg", "quantity": "1 ea" },
+      { "ingredient": "Butter", "quantity": "20 gm" },
+      { "ingredient": "Onion", "quantity": "200 gm" },
+      { "ingredient": "Tomato", "quantity": "150 gm" },
+      { "ingredient": "oil", "quantity": "50 ml" },
+      { "ingredient": "Butter", "quantity": "0.5 gm" },
+      { "ingredient": "salt", "quantity": "5 gm" },
+      { "ingredient": "injera", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Bozena Shero",
+    "ingredients": [
+      { "ingredient": "Beef", "quantity": "70 gm" },
+      { "ingredient": "Onion", "quantity": "35 gm" },
+      { "ingredient": "Tomato", "quantity": "20 gm" },
+      { "ingredient": "Shiro", "quantity": "50 gm" },
+      { "ingredient": "Oil", "quantity": "40 ml" },
+      { "ingredient": "Ocha", "quantity": "20 gm" },
+      { "ingredient": "Salt", "quantity": "5 gm" },
+      { "ingredient": "Injera", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Gomen Besiga",
+    "ingredients": [
+      { "ingredient": "beef", "quantity": "70 gm" },
+      { "ingredient": "egg", "quantity": "1 ea" },
+      { "ingredient": "oil", "quantity": "40 ml" },
+      { "ingredient": "butter", "quantity": "20 gm" },
+      { "ingredient": "onion", "quantity": "100 gm" },
+      { "ingredient": "garlic", "quantity": "10 gm" },
+      { "ingredient": "oil", "quantity": "50 ml" },
+      { "ingredient": "salt", "quantity": "5 gm" },
+      { "ingredient": "injera", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Dirkosh Q.F",
+    "ingredients": [
+      { "ingredient": "Beef", "quantity": "115 gm" },
+      { "ingredient": "onion", "quantity": "35 gm" },
+      { "ingredient": "Tomato", "quantity": "20 gm" },
+      { "ingredient": "Paper", "quantity": "30 gm" },
+      { "ingredient": "oil", "quantity": "40 ml" },
+      { "ingredient": "butter", "quantity": "20 gm" },
+      { "ingredient": "salt", "quantity": "5 gm" },
+      { "ingredient": "Injera", "quantity": "1 ea" }
+    ]
+  }
+]
+
+[
+  {
+    "recipe_name": "Dirkosh T.F",
+    "ingredients": [
+      { "ingredient": "Beef", "quantity": "70 gm" },
+      { "ingredient": "Onion", "quantity": "35 gm" },
+      { "ingredient": "Tomato", "quantity": "20 gm" },
+      { "ingredient": "Paper", "quantity": "30 gm" },
+      { "ingredient": "Oil", "quantity": "40 ml" },
+      { "ingredient": "Butter", "quantity": "20 gm" },
+      { "ingredient": "Salt", "quantity": "5 gm" },
+      { "ingredient": "Injera", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Kabun Special Combo",
+    "ingredients": [
+      { "ingredient": "Beef", "quantity": "40 gm" },
+      { "ingredient": "Gomen", "quantity": "50 gm" },
+      { "ingredient": "Onion", "quantity": "20 gm" },
+      { "ingredient": "Oil", "quantity": "20 ml" },
+      { "ingredient": "Butter", "quantity": "10 gm" },
+      { "ingredient": "Salt", "quantity": "0.5 gm" },
+      { "ingredient": "Onion", "quantity": "100 gm" },
+      { "ingredient": "Turmeric", "quantity": "0.5 gm" },
+      { "ingredient": "Salt", "quantity": "0.5 gm" },
+      { "ingredient": "Beef", "quantity": "70 gm" },
+      { "ingredient": "Butter", "quantity": "10 gm" },
+      { "ingredient": "Injera", "quantity": "4 ea" },
+      { "ingredient": "Oil", "quantity": "20 ml" },
+      { "ingredient": "Onion", "quantity": "300 gm" },
+      { "ingredient": "Berbera", "quantity": "20 gm" },
+      { "ingredient": "Oil", "quantity": "30 ml" },
+      { "ingredient": "Salt", "quantity": "15 gm" },
+      { "ingredient": "Butter", "quantity": "20 gm" },
+      { "ingredient": "Egg", "quantity": "1 ea" },
+      { "ingredient": "Ayibe", "quantity": "100 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Dirkosh Firfir Fasting",
+    "ingredients": [
+      { "ingredient": "Onion", "quantity": "35 gm" },
+      { "ingredient": "Tomato", "quantity": "20 gm" },
+      { "ingredient": "Ocha", "quantity": "20 gm" },
+      { "ingredient": "Paper", "quantity": "30 gm" },
+      { "ingredient": "Oil", "quantity": "40 ml" },
+      { "ingredient": "Salt", "quantity": "5 gm" },
+      { "ingredient": "Injera", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Timatim Lablab",
+    "ingredients": [
+      { "ingredient": "Onion", "quantity": "55 gm" },
+      { "ingredient": "Tomato", "quantity": "375 gm" },
+      { "ingredient": "Oil", "quantity": "30 ml" },
+      { "ingredient": "Ocha", "quantity": "20 gm" },
+      { "ingredient": "Paper", "quantity": "15 gm" },
+      { "ingredient": "Green Paper", "quantity": "40 gm" },
+      { "ingredient": "Salt", "quantity": "5 gm" },
+      { "ingredient": "Injera", "quantity": "1 Ea" }
+    ]
+  },
+  {
+    "recipe_name": "Beyayent",
+    "ingredients": [
+      { "ingredient": "Shiro", "quantity": "30 gm" },
+      { "ingredient": "Meser", "quantity": "60 gm" },
+      { "ingredient": "Ater Kekel", "quantity": "30 gm" },
+      { "ingredient": "Gomene", "quantity": "20 gm" },
+      { "ingredient": "Sufe Fitfit", "quantity": "50 gm" },
+      { "ingredient": "Potato", "quantity": "30 gm" },
+      { "ingredient": "Carrot", "quantity": "10 gm" },
+      { "ingredient": "Onion", "quantity": "200 gm" },
+      { "ingredient": "Tomato", "quantity": "50 gm" },
+      { "ingredient": "Oil", "quantity": "100 ml" },
+      { "ingredient": "Salt", "quantity": "40 gm" },
+      { "ingredient": "garlic", "quantity": "50 gm" },
+      { "ingredient": "Injera", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Fasting Firfir",
+    "ingredients": [
+      { "ingredient": "Onion", "quantity": "35 gm" },
+      { "ingredient": "Tomato", "quantity": "20 gm" },
+      { "ingredient": "Paper", "quantity": "20 gm" },
+      { "ingredient": "Oil", "quantity": "40 ml" },
+      { "ingredient": "Ocha", "quantity": "20 gm" },
+      { "ingredient": "Salt", "quantity": "5 gm" },
+      { "ingredient": "Injera", "quantity": "1 ea" }
+    ]
+  }
+]
+
+[
+  {
+    "recipe_name": "Shiro",
+    "ingredients": [
+      { "ingredient": "onion", "quantity": "35 gm" },
+      { "ingredient": "Tomato", "quantity": "20 gm" },
+      { "ingredient": "Shiro", "quantity": "50 gm" },
+      { "ingredient": "oil", "quantity": "40 ml" },
+      { "ingredient": "ocha", "quantity": "20 gm" },
+      { "ingredient": "salt", "quantity": "5 gm" },
+      { "ingredient": "Injera", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Fasting Combo",
+    "ingredients": [
+      { "ingredient": "Shero", "quantity": "50 gm" },
+      { "ingredient": "Pasta", "quantity": "100 gm" },
+      { "ingredient": "Tomato", "quantity": "120 gm" },
+      { "ingredient": "chilli", "quantity": "10 gm" },
+      { "ingredient": "onion", "quantity": "220 gm" },
+      { "ingredient": "injera", "quantity": "2 ea" },
+      { "ingredient": "berbera", "quantity": "50 gm" },
+      { "ingredient": "erred", "quantity": "10 gm" },
+      { "ingredient": "carrot", "quantity": "10 gm" },
+      { "ingredient": "zuchini", "quantity": "10 gm" },
+      { "ingredient": "cabbage", "quantity": "10 gm" },
+      { "ingredient": "Kosta", "quantity": "10 gm" },
+      { "ingredient": "oil", "quantity": "100 ml" },
+      { "ingredient": "Ocha", "quantity": "20 ml" },
+      { "ingredient": "Salt", "quantity": "30 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Roosted Chicken",
+    "ingredients": [
+      { "ingredient": "Chicken Leg", "quantity": "150 gm" },
+      { "ingredient": "Dukate", "quantity": "30 gm" },
+      { "ingredient": "Dark Soya", "quantity": "30 ml" },
+      { "ingredient": "Kondo Berbera", "quantity": "10 gm" },
+      { "ingredient": "White Cream", "quantity": "10 ml" },
+      { "ingredient": "Table Butter", "quantity": "0.5 gm" },
+      { "ingredient": "Salt", "quantity": "10 gm" },
+      { "ingredient": "Rice", "quantity": "50 gm" },
+      { "ingredient": "V.G Table", "quantity": "1 porion" },
+      { "ingredient": "Bread Mini", "quantity": "2 ea" }
+    ]
+  }
+]
+
+[
+  {
+    "recipe_name": "Fatta Bread with Meat",
+    "ingredients": [
+      { "ingredient": "Flour", "quantity": "150 gm" },
+      { "ingredient": "Egg", "quantity": "1 ea" },
+      { "ingredient": "Tomato", "quantity": "15 gm" },
+      { "ingredient": "Beef", "quantity": "50 gm" },
+      { "ingredient": "oil", "quantity": "10 ml" },
+      { "ingredient": "Butter", "quantity": "10 gm" },
+      { "ingredient": "Bread", "quantity": "2 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Spaghetti Tomato",
+    "ingredients": [
+      { "ingredient": "Tomato", "quantity": "30 gm" },
+      { "ingredient": "Tomato", "quantity": "20 gm" },
+      { "ingredient": "Tomato Sauce", "quantity": "11 gm" },
+      { "ingredient": "Oil", "quantity": "20 ml" },
+      { "ingredient": "Pasta", "quantity": "150 gm" },
+      { "ingredient": "Salt", "quantity": "5 gm" },
+      { "ingredient": "Bread mini", "quantity": "2 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Spaghetti with Vegetable",
+    "ingredients": [
+      { "ingredient": "Vegetable", "quantity": "1 portion" },
+      { "ingredient": "Oil", "quantity": "15 ml" },
+      { "ingredient": "Pasta", "quantity": "150 gm" },
+      { "ingredient": "Salt", "quantity": "5 gm" },
+      { "ingredient": "Bread mini", "quantity": "2 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Rice with Tomato",
+    "ingredients": [
+      { "ingredient": "Tomato", "quantity": "30 gm" },
+      { "ingredient": "Tomato", "quantity": "20 gm" },
+      { "ingredient": "Tomato Sauce", "quantity": "11 gm" },
+      { "ingredient": "Oil", "quantity": "20 ml" },
+      { "ingredient": "Rice", "quantity": "150 gm" },
+      { "ingredient": "Salt", "quantity": "5 gm" },
+      { "ingredient": "Bread mini", "quantity": "2 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Rice with Vegetable",
+    "ingredients": [
+      { "ingredient": "Vegetable", "quantity": "1 portion" },
+      { "ingredient": "Oil", "quantity": "15 ml" },
+      { "ingredient": "Rice", "quantity": "150 gm" },
+      { "ingredient": "Salt", "quantity": "5 gm" },
+      { "ingredient": "Bread mini", "quantity": "2 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Fish Dulsh",
+    "ingredients": [
+      { "ingredient": "Fish", "quantity": "150 gm" },
+      { "ingredient": "Tomato Sauce", "quantity": "1 portion" },
+      { "ingredient": "Onion", "quantity": "0.5 gm" },
+      { "ingredient": "Oil", "quantity": "20 ml" },
+      { "ingredient": "Flour", "quantity": "20 gm" },
+      { "ingredient": "Salt", "quantity": "10 gm" },
+      { "ingredient": "Paper", "quantity": "0.5 gm" },
+      { "ingredient": "Injera", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Fish Goulash",
+    "ingredients": [
+      { "ingredient": "Fish", "quantity": "150 gm" },
+      { "ingredient": "Onion", "quantity": "10 gm" },
+      { "ingredient": "Tomato", "quantity": "10 gm" },
+      { "ingredient": "Paper", "quantity": "10 gm" },
+      { "ingredient": "oil", "quantity": "20 ml" },
+      { "ingredient": "Salt", "quantity": "5 gm" },
+      { "ingredient": "Injera", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Fish Cutlet",
+    "ingredients": [
+      { "ingredient": "Fish", "quantity": "150 gm" },
+      { "ingredient": "Oil", "quantity": "20 ml" },
+      { "ingredient": "Salt", "quantity": "5 gm" },
+      { "ingredient": "Egg", "quantity": "1 ea" },
+      { "ingredient": "Flour", "quantity": "50 gm" },
+      { "ingredient": "bread crumb", "quantity": "1 portion" },
+      { "ingredient": "Lemon", "quantity": "1 gm" },
+      { "ingredient": "Rice", "quantity": "50 gm" },
+      { "ingredient": "Veg", "quantity": "1 portion" },
+      { "ingredient": "Bread mini", "quantity": "2 ea" }
+    ]
+  }
+]
+
+[
+  {
+    "recipe_name": "Continatal Breakfast",
+    "ingredients": [
+      { "ingredient": "Jam", "quantity": "65 gm" },
+      { "ingredient": "Tost Bread", "quantity": "3 ea" },
+      { "ingredient": "Table Butter", "quantity": "20 gm" },
+      { "ingredient": "Water melon", "quantity": "30 gm" },
+      { "ingredient": "Papaya", "quantity": "50 gm" },
+      { "ingredient": "Tea", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Traditional Combo B.F",
+    "ingredients": [
+      { "ingredient": "Chachabesa", "quantity": "half portion" },
+      { "ingredient": "Mini Bread", "quantity": "2 ea" },
+      { "ingredient": "Kincha", "quantity": "100 gm" },
+      { "ingredient": "Fasting Firfir", "quantity": "half portion" }
+    ]
+  },
+  {
+    "recipe_name": "Ganfo",
+    "ingredients": [
+      { "ingredient": "Aja Flour", "quantity": "200 gm" },
+      { "ingredient": "Mintmita", "quantity": "20 gm" },
+      { "ingredient": "Butter", "quantity": "50 gm" },
+      { "ingredient": "Salt", "quantity": "10 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Bula Kitfo",
+    "ingredients": [
+      { "ingredient": "Beef", "quantity": "50 gm" },
+      { "ingredient": "Butter", "quantity": "50 gm" },
+      { "ingredient": "Mitmita", "quantity": "20 gm" },
+      { "ingredient": "Salt", "quantity": "10 gm" },
+      { "ingredient": "Bula", "quantity": "250 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Bula firfir",
+    "ingredients": [
+      { "ingredient": "Bula", "quantity": "200 gm" },
+      { "ingredient": "Butter", "quantity": "50 gm" },
+      { "ingredient": "Salt", "quantity": "20 gm" },
+      { "ingredient": "Mitmita", "quantity": "20 gm" },
+      { "ingredient": "Tomato", "quantity": "20 gm" },
+      { "ingredient": "Onion", "quantity": "20 gm" },
+      { "ingredient": "Garlic", "quantity": "0.5 gm" }
+    ]
+  }
+]
+
+[
+  {
+    "recipe_name": "Special Chechebsa",
+    "ingredients": [
+      { "ingredient": "Pitta", "quantity": "250 gm" },
+      { "ingredient": "Ocha", "quantity": "35 gm" },
+      { "ingredient": "Birbera", "quantity": "10 gm" },
+      { "ingredient": "Youghurt", "quantity": "65 ml" },
+      { "ingredient": "egg", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Egg Sandwich",
+    "ingredients": [
+      { "ingredient": "Egg", "quantity": "2 ea" },
+      { "ingredient": "Tomato", "quantity": "10 gm" },
+      { "ingredient": "Onion", "quantity": "10 gm" },
+      { "ingredient": "Paper", "quantity": "10 gm" },
+      { "ingredient": "Chipes", "quantity": "half portion" },
+      { "ingredient": "Oil", "quantity": "15 ml" }
+    ]
+  },
+  {
+    "recipe_name": "Scramble Egg",
+    "ingredients": [
+      { "ingredient": "Egg", "quantity": "3 ea" },
+      { "ingredient": "Tomato", "quantity": "10 gm" },
+      { "ingredient": "Onion", "quantity": "10 gm" },
+      { "ingredient": "Paper", "quantity": "10 gm" },
+      { "ingredient": "Oil", "quantity": "15 ml" }
+    ]
+  },
+  {
+    "recipe_name": "Egg With Meat",
+    "ingredients": [
+      { "ingredient": "Meat", "quantity": "30 gm" },
+      { "ingredient": "Egg", "quantity": "2 ea" },
+      { "ingredient": "Tomato", "quantity": "0.5 gm" },
+      { "ingredient": "Oil", "quantity": "15 ml" },
+      { "ingredient": "Onion", "quantity": "0.5 gm" },
+      { "ingredient": "Paper", "quantity": "0.5 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Fetira",
+    "ingredients": [
+      { "ingredient": "Pitta", "quantity": "1 portion" },
+      { "ingredient": "Honey", "quantity": "50 gm" },
+      { "ingredient": "Oil", "quantity": "20 ml" }
+    ]
+  },
+  {
+    "recipe_name": "Special Fetira",
+    "ingredients": [
+      { "ingredient": "Pitta", "quantity": "1 portion" },
+      { "ingredient": "Egg", "quantity": "2 ea" },
+      { "ingredient": "Oil", "quantity": "20 ml" },
+      { "ingredient": "Honey", "quantity": "50 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Full",
+    "ingredients": [
+      { "ingredient": "Full", "quantity": "170 gm" },
+      { "ingredient": "Onion", "quantity": "15 gm" },
+      { "ingredient": "Paper", "quantity": "10 gm" },
+      { "ingredient": "Tomato", "quantity": "15 gm" },
+      { "ingredient": "Sauce", "quantity": "1 portion" }
+    ]
+  }
+]
+
+[
+  {
+    "recipe_name": "Beef Piza",
+    "ingredients": [
+      { "ingredient": "Pitta", "quantity": "1 portion" },
+      { "ingredient": "Cheese", "quantity": "150 gm" },
+      { "ingredient": "Beef", "quantity": "50 gm" },
+      { "ingredient": "Sauce", "quantity": "1 portion" }
+    ]
+  },
+  {
+    "recipe_name": "Chicken Pizza",
+    "ingredients": [
+      { "ingredient": "Pitta", "quantity": "1 portion" },
+      { "ingredient": "Chicken", "quantity": "50 gm" },
+      { "ingredient": "Cheese", "quantity": "150 gm" },
+      { "ingredient": "Sauce", "quantity": "1 portion" }
+    ]
+  },
+  {
+    "recipe_name": "Kabun Pizza",
+    "ingredients": [
+      { "ingredient": "Pitta", "quantity": "1 portion" },
+      { "ingredient": "Cheese", "quantity": "150 gm" },
+      { "ingredient": "Beef", "quantity": "25 gm" },
+      { "ingredient": "Mushroom", "quantity": "10 gm" },
+      { "ingredient": "B. Olive", "quantity": "0.5 gm" },
+      { "ingredient": "Chicken", "quantity": "25 gm" },
+      { "ingredient": "Ham", "quantity": "10 gm" },
+      { "ingredient": "Sauce", "quantity": "1 portion" }
+    ]
+  },
+  {
+    "recipe_name": "Talataliy with veg",
+    "ingredients": [
+      { "ingredient": "Flour", "quantity": "150 gm" },
+      { "ingredient": "Egg", "quantity": "1.5 ea" },
+      { "ingredient": "Veg", "quantity": "1 portion" },
+      { "ingredient": "Bread Mini", "quantity": "2 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Vegetable Recipe",
+    "ingredients": [
+      { "ingredient": "Carrot", "quantity": "10 gm" },
+      { "ingredient": "Zuchni", "quantity": "15 gm" },
+      { "ingredient": "Cabbage", "quantity": "15 gm" },
+      { "ingredient": "Spinach", "quantity": "10 gm" },
+      { "ingredient": "Onion", "quantity": "0.5 gm" },
+      { "ingredient": "Garlic", "quantity": "0.5 gm" },
+      { "ingredient": "Salt", "quantity": "10 gm" },
+      { "ingredient": "Oil", "quantity": "20 ml" }
+    ]
+  },
+  {
+    "recipe_name": "Tomato Sauce",
+    "ingredients": [
+      { "ingredient": "Baro", "quantity": "5 gm" },
+      { "ingredient": "Onion", "quantity": "3 kg" },
+      { "ingredient": "Clery", "quantity": "5 gm" },
+      { "ingredient": "Tomato Paste", "quantity": "1 Ea" },
+      { "ingredient": "Oil", "quantity": "250 ml" }
+    ]
+  }
+]
+
+[
+  {
+    "recipe_name": "Home Made Mayonisse",
+    "ingredients": [
+      { "ingredient": "Egg", "quantity": "2 Ea" },
+      { "ingredient": "Oil", "quantity": "2 Lt" },
+      { "ingredient": "Kodo Berbera", "quantity": "0.5 gm" },
+      { "ingredient": "Vinegar", "quantity": "10 ml" },
+      { "ingredient": "Salt", "quantity": "0.5 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Mini Bread",
+    "ingredients": [
+      { "ingredient": "Flour", "quantity": "3 kg" },
+      { "ingredient": "Baking Powder", "quantity": "30 gm" },
+      { "ingredient": "Yeast", "quantity": "5 gm" },
+      { "ingredient": "Salt", "quantity": "15 gm" },
+      { "ingredient": "Improver", "quantity": "25 gm" },
+      { "ingredient": "Suger", "quantity": "50 gm" },
+      { "ingredient": "Oil", "quantity": "20 ml" }
+    ]
+  },
+  {
+    "recipe_name": "Pitta For Chechebsa",
+    "ingredients": [
+      { "ingredient": "Flour", "quantity": "1 kg" },
+      { "ingredient": "Salt", "quantity": "10 gm" },
+      { "ingredient": "Suger", "quantity": "20 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Pitta For Pizza/fetira normal",
+    "ingredients": [
+      { "ingredient": "Flour", "quantity": "1 kg" },
+      { "ingredient": "Salt", "quantity": "10 gm" },
+      { "ingredient": "Suger", "quantity": "20 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Pitta For Wrap",
+    "ingredients": [
+      { "ingredient": "Flour", "quantity": "1 kg" },
+      { "ingredient": "Salt", "quantity": "10 gm" },
+      { "ingredient": "Suger", "quantity": "20 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Pitta For Special Fetira",
+    "ingredients": [
+      { "ingredient": "Flour", "quantity": "1 kg" },
+      { "ingredient": "Salt", "quantity": "10 gm" },
+      { "ingredient": "Suger", "quantity": "20 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Pizza Sauce",
+    "ingredients": [
+      { "ingredient": "Tomato", "quantity": "5 kg" },
+      { "ingredient": "Tomato Paste", "quantity": "1 ea" },
+      { "ingredient": "Garlic", "quantity": "20 gm" },
+      { "ingredient": "Baro", "quantity": "10 gm" },
+      { "ingredient": "Salt", "quantity": "20 gm" },
+      { "ingredient": "Calary", "quantity": "10 gm" },
+      { "ingredient": "Oil", "quantity": "30 ml" }
+    ]
+  },
+  {
+    "recipe_name": "Key Wot",
+    "ingredients": [
+      { "ingredient": "Onion", "quantity": "9 kg" },
+      { "ingredient": "Beef", "quantity": "3 kg" },
+      { "ingredient": "Berbera", "quantity": "600 gm" },
+      { "ingredient": "Oil", "quantity": "1 Lt" },
+      { "ingredient": "Mekelesha", "quantity": "50 gm" },
+      { "ingredient": "Salt", "quantity": "10 gm" },
+      { "ingredient": "Egg", "quantity": "18 ea" },
+      { "ingredient": "Ayib", "quantity": "360 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Veg Wrap",
+    "ingredients": [
+      { "ingredient": "Veg", "quantity": "1 portion" },
+      { "ingredient": "Chilli", "quantity": "50 gm" },
+      { "ingredient": "Tomato Ketchup", "quantity": "50 gm" },
+      { "ingredient": "Frech Fries", "quantity": "half portion" },
+      { "ingredient": "Pitta", "quantity": "1 Portion" }
+    ]
+  }
+]
+
+[
+  {
+    "recipe_name": "Beef Wrap",
+    "ingredients": [
+      { "ingredient": "Beef", "quantity": "70 gm" },
+      { "ingredient": "Veg", "quantity": "1 portion" },
+      { "ingredient": "Chili", "quantity": "50 gm" },
+      { "ingredient": "Tomato Ketchup", "quantity": "50 gm" },
+      { "ingredient": "Pitta", "quantity": "1 Portion" },
+      { "ingredient": "Frech Fries", "quantity": "half portion" }
+    ]
+  },
+  {
+    "recipe_name": "Chicken Wrap",
+    "ingredients": [
+      { "ingredient": "Chicken", "quantity": "70 gm" },
+      { "ingredient": "Veg", "quantity": "1 portion" },
+      { "ingredient": "Pitta", "quantity": "1 Portion" },
+      { "ingredient": "Chili", "quantity": "50 gm" },
+      { "ingredient": "Tomato Ketchup", "quantity": "50 gm" },
+      { "ingredient": "Frech Fries", "quantity": "half portion" }
+    ]
+  },
+  {
+    "recipe_name": "Shiro Be Keba",
+    "ingredients": [
+      { "ingredient": "Shiro", "quantity": "50 gm" },
+      { "ingredient": "Butter", "quantity": "10 gm" },
+      { "ingredient": "Onion", "quantity": "10 gm" },
+      { "ingredient": "Tomato", "quantity": "0.5 gm" },
+      { "ingredient": "Salt", "quantity": "0.5 gm" },
+      { "ingredient": "Oil", "quantity": "20 ml" },
+      { "ingredient": "Injera", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Chili",
+    "ingredients": [
+      { "ingredient": "Baro", "quantity": "145 gm" },
+      { "ingredient": "Celery", "quantity": "100 gm" },
+      { "ingredient": "Garlic", "quantity": "50 gm" },
+      { "ingredient": "Oil", "quantity": "1 lt" },
+      { "ingredient": "Ginger", "quantity": "45 gm" },
+      { "ingredient": "Onion", "quantity": "100 gm" },
+      { "ingredient": "Mustard", "quantity": "50 gm" },
+      { "ingredient": "Vinegar", "quantity": "110 gm" },
+      { "ingredient": "Salt", "quantity": "30 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Lazagn",
+    "ingredients": [
+      { "ingredient": "Flour", "quantity": "200 gm" },
+      { "ingredient": "Egg", "quantity": "2 ea" },
+      { "ingredient": "Cheese", "quantity": "100 gm" },
+      { "ingredient": "Beef", "quantity": "70 gm" },
+      { "ingredient": "Tomato Sauce", "quantity": "2 Portion" },
+      { "ingredient": "Cream", "quantity": "100 gm" },
+      { "ingredient": "Table Butter Portion", "quantity": "20 gm" }
+    ]
+  }
+]
+
+[
+  {
+    "recipe_name": "Avocado Juice",
+    "ingredients": [
+      { "ingredient": "Avocado", "quantity": "250 gm" },
+      { "ingredient": "Vinto", "quantity": "5 ml" },
+      { "ingredient": "Suger", "quantity": "0.5 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Papaya",
+    "ingredients": [
+      { "ingredient": "Papaya", "quantity": "250 gm" },
+      { "ingredient": "Vinto", "quantity": "5 ml" },
+      { "ingredient": "Suger", "quantity": "0.5 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Mixed Juice",
+    "ingredients": [
+      { "ingredient": "Avocado", "quantity": "80 gm" },
+      { "ingredient": "Suger", "quantity": "0.5 gm" },
+      { "ingredient": "Vinto", "quantity": "5 ml" },
+      { "ingredient": "Papay", "quantity": "80 gm" },
+      { "ingredient": "Strawberry", "quantity": "80 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Kabun Special Juice",
+    "ingredients": [
+      { "ingredient": "Banana", "quantity": "50 gm" },
+      { "ingredient": "Strawberry", "quantity": "50 gm" },
+      { "ingredient": "Avocado", "quantity": "50 gm" },
+      { "ingredient": "Suger", "quantity": "0.5 gm" },
+      { "ingredient": "Vinto", "quantity": "5 ml" },
+      { "ingredient": "Milk", "quantity": "100 ml" }
+    ]
+  },
+  {
+    "recipe_name": "Bula",
+    "ingredients": [
+      { "ingredient": "Butter", "quantity": "50 gm" },
+      { "ingredient": "Mitmita", "quantity": "20 gm" },
+      { "ingredient": "Salt", "quantity": "10 gm" },
+      { "ingredient": "Bula", "quantity": "250 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Banana Milk Shake",
+    "ingredients": [
+      { "ingredient": "Banana", "quantity": "200 gm" },
+      { "ingredient": "Suger", "quantity": "0.5 gm" },
+      { "ingredient": "Milk", "quantity": "150 ml" },
+      { "ingredient": "Ice", "quantity": "30 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Papaya Milk Shake",
+    "ingredients": [
+      { "ingredient": "Papaya", "quantity": "200 gm" },
+      { "ingredient": "Suger", "quantity": "0.5 gm" },
+      { "ingredient": "Milk", "quantity": "150 ml" },
+      { "ingredient": "Ice", "quantity": "30 gm" }
+    ]
+  }
+]
+
+[
+  {
+    "recipe_name": "Avocado Milk Shake",
+    "ingredients": [
+      { "ingredient": "Avocado", "quantity": "250 gm" },
+      { "ingredient": "Suger", "quantity": "0.5 gm" },
+      { "ingredient": "Milk", "quantity": "150 ml" },
+      { "ingredient": "Ice", "quantity": "30 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Strawberry Milk Shake",
+    "ingredients": [
+      { "ingredient": "Strawberry", "quantity": "200 gm" },
+      { "ingredient": "Suger", "quantity": "0.5 gm" },
+      { "ingredient": "Milk", "quantity": "150 ml" },
+      { "ingredient": "Ice", "quantity": "30 gm" }
+    ]
+  },
+  {
+    "recipe_name": "Hum and Cheese Wrap",
+    "ingredients": [
+      { "ingredient": "Hum", "quantity": "40 gm" },
+      { "ingredient": "Cheese", "quantity": "40 gm" },
+      { "ingredient": "Vegetable", "quantity": "40 gm" },
+      { "ingredient": "Pitta", "quantity": "1 ea" },
+      { "ingredient": "French Fries", "quantity": "half portion" },
+      { "ingredient": "Ketchup", "quantity": "" }
+    ]
+  },
+  {
+    "recipe_name": "Barbq Burger",
+    "ingredients": [
+      { "ingredient": "Beef", "quantity": "100 gm" },
+      { "ingredient": "Tomato", "quantity": "20 gm" },
+      { "ingredient": "Onion", "quantity": "15 gm" },
+      { "ingredient": "Lettuce", "quantity": "0.5 gm" },
+      { "ingredient": "Burger Bread", "quantity": "1 ea" },
+      { "ingredient": "French Fries", "quantity": "Half Portion" },
+      { "ingredient": "BBQ Sauce", "quantity": "" },
+      { "ingredient": "Mayonise", "quantity": "" }
+    ]
+  },
+  {
+    "recipe_name": "Dulet",
+    "ingredients": [
+      { "ingredient": "Beef", "quantity": "100 gm" },
+      { "ingredient": "Onion", "quantity": "20 gm" },
+      { "ingredient": "Paper", "quantity": "10 gm" },
+      { "ingredient": "Oil", "quantity": "20 ml" },
+      { "ingredient": "Mitmita", "quantity": "10 gm" },
+      { "ingredient": "Butter", "quantity": "15 gm" },
+      { "ingredient": "Injera", "quantity": "1 Ea" }
+    ]
+  },
+  {
+    "recipe_name": "Tegabino",
+    "ingredients": [
+      { "ingredient": "Shiro", "quantity": "80 gm" },
+      { "ingredient": "Oil", "quantity": "40 ml" },
+      { "ingredient": "Salt", "quantity": "0.5 gm" },
+      { "ingredient": "Ocha", "quantity": "20 gm" },
+      { "ingredient": "Injera", "quantity": "1 ea" }
+    ]
+  },
+  {
+    "recipe_name": "Watermelon Juice",
+    "ingredients": [
+      { "ingredient": "Watermelon", "quantity": "300 gm" },
+      { "ingredient": "Suger", "quantity": "0.5 gm" }
+    ]
+  }
+]

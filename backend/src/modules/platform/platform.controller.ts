@@ -1,0 +1,139 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { PlatformService } from "./platform.service";
+import { PlatformGuard } from "./platform.guard";
+
+@ApiTags("platform")
+@ApiBearerAuth()
+@UseGuards(PlatformGuard)
+@Controller("platform")
+export class PlatformController {
+  constructor(private readonly platform: PlatformService) {}
+
+  @ApiOperation({ summary: "Platform-wide counts" })
+  @Get("overview")
+  overview() {
+    return this.platform.overview();
+  }
+
+  @ApiOperation({ summary: "List all businesses" })
+  @Get("businesses")
+  listBusinesses() {
+    return this.platform.listBusinesses();
+  }
+
+  @ApiOperation({
+    summary: "Date-filtered monitoring analytics across businesses/branches",
+  })
+  @Get("analytics")
+  analytics(
+    @Query("business_id") businessId?: string,
+    @Query("branch_id") branchId?: string,
+    @Query("from") from?: string,
+    @Query("to") to?: string,
+  ) {
+    return this.platform.analytics({
+      business_id: businessId,
+      branch_id: branchId,
+      from,
+      to,
+    });
+  }
+
+  @ApiOperation({ summary: "All users across the platform, grouped by business" })
+  @Get("users")
+  listUsers() {
+    return this.platform.listAllUsers();
+  }
+
+  @ApiOperation({ summary: "Create a user under a business (and branch)" })
+  @Post("users")
+  createUser(@Body() body: any) {
+    return this.platform.createUser(body);
+  }
+
+  @ApiOperation({ summary: "Reset a user's password" })
+  @Post("users/:id/reset-password")
+  resetUserPassword(@Param("id") id: string, @Body() body: any) {
+    return this.platform.resetUserPassword(id, body?.password);
+  }
+
+  @ApiOperation({ summary: "Enable or disable a user account" })
+  @Patch("users/:id")
+  updateUser(@Param("id") id: string, @Body() body: any) {
+    return this.platform.setUserActive(id, !!body?.is_active);
+  }
+
+  @ApiOperation({ summary: "Delete a user account" })
+  @Delete("users/:id")
+  deleteUser(@Param("id") id: string) {
+    return this.platform.deleteUser(id);
+  }
+
+  @ApiOperation({ summary: "All enrolled devices with online state" })
+  @Get("devices")
+  listDevices() {
+    return this.platform.listDevices();
+  }
+
+  @ApiOperation({ summary: "Recent super-admin audit log" })
+  @Get("audit")
+  listAudit() {
+    return this.platform.listAudit();
+  }
+
+  @ApiOperation({ summary: "Create a business and provision its owner" })
+  @Post("businesses")
+  createBusiness(@Body() body: any) {
+    return this.platform.createBusiness(body);
+  }
+
+  @ApiOperation({ summary: "Get a business with its branches and owner" })
+  @Get("businesses/:id")
+  getBusiness(@Param("id") id: string) {
+    return this.platform.getBusiness(id);
+  }
+
+  @ApiOperation({ summary: "Sign in as this business's owner (impersonation)" })
+  @Post("businesses/:id/impersonate")
+  impersonate(@Param("id") id: string) {
+    return this.platform.impersonateOwner(id);
+  }
+
+  @ApiOperation({ summary: "Update a business (plan, limits, suspend)" })
+  @Patch("businesses/:id")
+  updateBusiness(@Param("id") id: string, @Body() body: any) {
+    return this.platform.updateBusiness(id, body);
+  }
+
+  @ApiOperation({ summary: "Create a branch under a business" })
+  @Post("businesses/:id/branches")
+  createBranch(@Param("id") id: string, @Body() body: any) {
+    return this.platform.createBranch(id, body);
+  }
+
+  @ApiOperation({ summary: "Delete a branch" })
+  @Delete("businesses/:id/branches/:branchId")
+  deleteBranch(
+    @Param("id") id: string,
+    @Param("branchId") branchId: string,
+  ) {
+    return this.platform.deleteBranch(id, branchId);
+  }
+
+  @ApiOperation({ summary: "Delete a business and all its branches/staff" })
+  @Delete("businesses/:id")
+  deleteBusiness(@Param("id") id: string) {
+    return this.platform.deleteBusiness(id);
+  }
+}

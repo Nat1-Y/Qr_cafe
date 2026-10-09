@@ -1,0 +1,606 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import {
+  EyeIcon,
+  PlusIcon,
+  ReceiptTextIcon,
+  TrendingUpIcon,
+  ClockIcon,
+  HourglassIcon,
+  XCircleIcon,
+} from "lucide-react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { StatCards, type StatCard } from "@/components/stat-cards";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DataTable, type Column, type SortState } from "@/components/data-table";
+import { PageHeader } from "@/components/page-header";
+import { Orders, Payments, Settings } from "@/lib/resources";
+import { getUser } from "@/lib/auth";
+import { can } from "@/lib/permissions";
+import { birr, shortDate, displayStatus, statusBadgeVariant } from "@/lib/format";
+import { formatOrderNumber } from "@/lib/utils";
+
+type OrderItem = {
+  id: string;
+  name?: string | null;
+  menu_item_name?: string | null;
+  quantity: number;
+  unit_price?: number | null;
+  subtotal?: number | null;
+  main_category?: string | null;
+};
+
+type Order = {
+  id: string;
+  order_number?: number | null;
+  type: string | null;
+  status: string;
+  payment_status: string | null;
+  total_amount: number | null;
+  created_at: string;
+  table_number?: number | null;
+  employee_name?: string | null;
+  employee_role?: string | null;
+  cashier_name?: string | null;
+  customer_id?: string | null;
+  notes?: string | null;
+  items?: OrderItem[];
+};
+
+const PAGE_SIZE = 25;
+
+export default function OrdersPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [count, setCount] = useState(0);
+  const [serverStats, setServerStats] = useState<Record<string, number>>({});
+  const [methods, setMethods] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [paying, setPaying] = useState<Order | null>(null);
+  const [viewing, setViewing] = useState<Order | null>(null);
+  const [cancelling, setCancelling] = useState<Order | null>(null);
+  const [cancelBusy, setCancelBusy] = useState(false);
+  const [method, setMethod] = useState("");
+  const [amount, setAmount] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  // Server-driven query state.
+  const [page, setPage] = useState(0); // 0-based
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [status, setStatus] = useState("");
+  const [paid, setPaid] = useState("");
+  const [dateFrom, setDateFrom] = useState<string | undefined>();
+  const [dateTo, setDateTo] = useState<string | undefined>();
+  const [sort, setSort] = useState<SortState | null>(null);
+
+  // Debounce the search box so we don't refetch on every keystroke.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(0);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  const reload = useCallback(() => {
+    setLoading(true);
+    const params: Record<string, any> = {
+      page: page + 1,
+      limit: PAGE_SIZE,
+      // Delivery orders live on their own Deliveries board (own status, own
+      // payments ledger) — never mix them into the normal Orders list.
+      exclude_delivery: "1",
+      // Same reasoning for organization orders: they settle on that
+      // organization's own credit ledger (see /dashboard/customers) and
+      // never touch the shared `payments` table, so they shouldn't count
+      // toward this page's revenue/pending stats either.
+      exclude_organization: "1",
+    };
+    if (debouncedSearch) params.search = debouncedSearch;
+    if (status) params.status = status;
+    if (paid) params.paid = paid;
+    if (dateFrom) params.date_from = dateFrom;
+    if (dateTo) params.date_to = dateTo;
+    if (sort) {
+      params.sort_by = sort.key;
+      params.sort_dir = sort.dir;
+    }
+    return Promise.all([
+      Orders.page<Order>(params),
+      Settings.paymentMethods().catch(() => []),
+    ])
+      .then(([res, m]) => {
+        setOrders(res.rows);
+        setCount(res.count);
+        setServerStats(res.stats);
+        setMethods(m);
+      })
+      .catch((e) => toast.error(e.message))
+      .finally(() => setLoading(false));
+  }, [page, debouncedSearch, status, paid, dateFrom, dateTo, sort]);
+
+  useEffect(() => {
+    reload();
+  }, [reload]);
+
+  // Deep-link target: /dashboard/orders?focus=<orderId> opens that order's
+  // dialog directly (used by the order-number links on the payments pages).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const focus = new URLSearchParams(window.location.search).get("focus");
+    if (!focus) return;
+    Orders.get(focus)
+      .then((o) => {
+        if (o) setViewing(o);
+      })
+      .catch(() => {});
+  }, []);
+
+  function openPay(o: Order) {
+    setPaying(o);
+    setAmount(String(o.total_amount ?? 0));
+    setMethod(methods[0]?.name ?? "cash");
+  }
+
+  async function takePayment() {
+    if (!paying) return;
+    setBusy(true);
+    try {
+      const uid = getUser()?.id;
+      const payment = await Payments.create({
+        order_id: paying.id,
+        amount: Number(amount),
+        payment_method: method,
+        processed_by: uid,
+      });
+      await Payments.confirm(payment.id, uid);
+      toast.success("Payment recorded");
+      setPaying(null);
+      await reload();
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const isPaid = (o: Order) => o.payment_status === "paid" || o.status === "paid";
+
+  // Owner/manager back-office cancellation, gated by its own permission. Only a
+  // still-open (pending) order can be voided — the backend enforces this too.
+  // The desktop POS picks up the voided order on its next sync/realtime push.
+  const canCancelPerm = can("order_cancellation", "delete");
+  const canCancel = (o: Order) => canCancelPerm && o.status === "pending";
+
+  async function confirmCancel() {
+    if (!cancelling) return;
+    setCancelBusy(true);
+    try {
+      await Orders.cancel(cancelling.id, getUser()?.id);
+      toast.success(`Order ${formatOrderNumber(cancelling)} cancelled`);
+      setCancelling(null);
+      await reload();
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setCancelBusy(false);
+    }
+  }
+
+  // Stats are computed server-side over the whole filtered window, not just the
+  // current page, so they stay correct under pagination.
+  const statCards: StatCard[] = useMemo(
+    () => [
+      {
+        label: "Total orders",
+        value: serverStats.total_orders ?? 0,
+        icon: ReceiptTextIcon,
+      },
+      {
+        label: "Revenue collected",
+        value: birr(serverStats.collected ?? 0),
+        hint: "Paid orders",
+        icon: TrendingUpIcon,
+        valueClass: "text-emerald-600 dark:text-emerald-500",
+      },
+      {
+        label: "Outstanding",
+        value: birr(serverStats.outstanding ?? 0),
+        hint: "Unpaid orders",
+        icon: ClockIcon,
+        valueClass: "text-amber-600 dark:text-amber-500",
+      },
+      {
+        label: "Pending",
+        value: serverStats.pending ?? 0,
+        hint: "Awaiting completion",
+        icon: HourglassIcon,
+      },
+    ],
+    [serverStats],
+  );
+
+  const columns: Column<Order>[] = [
+    {
+      key: "id",
+      label: "Order",
+      className: "font-mono text-xs",
+      render: (o) => formatOrderNumber(o),
+    },
+    {
+      key: "type",
+      label: "Type",
+      className: "capitalize",
+      render: (o) => o.type ?? "—",
+    },
+    {
+      key: "table_number",
+      label: "Table",
+      render: (o) => (o.table_number != null ? `Table ${o.table_number}` : "—"),
+    },
+    {
+      key: "employee_name",
+      label: "By",
+      searchValue: (o) =>
+        `${o.employee_name ?? ""} ${o.employee_role ?? ""} ${o.cashier_name ?? ""}`,
+      render: (o) => (
+        <div className="flex items-center gap-2">
+          <span>{o.employee_name ?? "—"}</span>
+          {o.cashier_name ? (
+            <Badge variant="muted">Cashier: {o.cashier_name}</Badge>
+          ) : (
+            o.employee_role === "cashier" && (
+              <Badge variant="muted">Cashier</Badge>
+            )
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "items",
+      label: "Items",
+      searchValue: (o) =>
+        (o.items ?? [])
+          .map((it) => it.name ?? it.menu_item_name ?? "")
+          .join(" "),
+      render: (o) => {
+        const items = o.items ?? [];
+        if (items.length === 0) return <span className="text-muted-foreground">—</span>;
+        const summary = items
+          .map((it) => `${it.quantity}× ${it.name ?? it.menu_item_name ?? "Item"}`)
+          .join(", ");
+        return (
+          <span
+            className="text-muted-foreground block max-w-[16rem] truncate"
+            title={summary}
+          >
+            {summary}
+          </span>
+        );
+      },
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (o) => (
+        <Badge variant={statusBadgeVariant(o.status)} className="capitalize">
+          {displayStatus(o.status)}
+        </Badge>
+      ),
+    },
+    {
+      key: "payment_status",
+      label: "Payment",
+      searchValue: (o) => o.payment_status ?? "unpaid",
+      render: (o) => (
+        <Badge
+          variant={statusBadgeVariant(o.payment_status ?? o.status)}
+          className="capitalize"
+        >
+          {displayStatus(o.payment_status ?? o.status)}
+        </Badge>
+      ),
+    },
+    {
+      key: "total_amount",
+      label: "Total",
+      sortable: true,
+      render: (o) => birr(o.total_amount),
+    },
+    {
+      key: "created_at",
+      label: "Created",
+      className: "text-muted-foreground",
+      render: (o) => shortDate(o.created_at),
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Orders"
+        description="Orders recorded at this branch."
+        action={
+          <Button asChild>
+            <Link href="/dashboard/orders/new">
+              <PlusIcon className="size-4" />
+              New order
+            </Link>
+          </Button>
+        }
+      />
+
+      <StatCards cards={statCards} loading={loading} />
+
+      <DataTable<Order>
+        columns={columns}
+        rows={orders}
+        loading={loading}
+        searchPlaceholder="Search orders…"
+        emptyMessage="No orders yet. Create your first order."
+        server={{
+          total: count,
+          page,
+          pageSize: PAGE_SIZE,
+          onPageChange: setPage,
+          onSearchChange: setSearch,
+          onFilterChange: (key, value) => {
+            setPage(0);
+            if (key === "status") setStatus(value);
+            else if (key === "payment") setPaid(value);
+          },
+          onRangeChange: (_key, range) => {
+            setPage(0);
+            setDateFrom(range.from);
+            setDateTo(range.to);
+          },
+          onSortChange: (s) => {
+            setPage(0);
+            setSort(s);
+          },
+        }}
+        filters={[
+          {
+            key: "status",
+            label: "Status",
+            options: [
+              { value: "pending", label: "Pending" },
+              { value: "completed", label: "Completed" },
+              { value: "paid", label: "Paid" },
+              { value: "cancelled", label: "Cancelled" },
+            ],
+          },
+          {
+            key: "payment",
+            label: "Payment",
+            options: [
+              { value: "paid", label: "Paid" },
+              { value: "unpaid", label: "Unpaid" },
+            ],
+            match: (o, v) => (v === "paid" ? isPaid(o) : !isPaid(o)),
+          },
+        ]}
+        dateFilters={[
+          { key: "created_at", label: "Date", getDate: (o) => o.created_at },
+        ]}
+        rowActions={(o) => (
+          <div className="flex items-center justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => setViewing(o)}>
+              <EyeIcon className="size-4" />
+              View
+            </Button>
+            {!isPaid(o) && (
+              <Button variant="outline" size="sm" onClick={() => openPay(o)}>
+                Take payment
+              </Button>
+            )}
+            {canCancel(o) && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-destructive hover:text-destructive"
+                onClick={() => setCancelling(o)}>
+                <XCircleIcon className="size-4" />
+                Cancel
+              </Button>
+            )}
+          </div>
+        )}
+      />
+
+      <Dialog open={!!paying} onOpenChange={(v) => !v && setPaying(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Take payment</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Amount (ETB)</Label>
+              <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>Payment method</Label>
+              <select
+                className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                value={method}
+                onChange={(e) => setMethod(e.target.value)}>
+                {methods.length === 0 && <option value="cash">Cash</option>}
+                {methods.map((m) => (
+                  <option key={m.id} value={m.name}>{m.display_name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPaying(null)}>Cancel</Button>
+            <Button onClick={takePayment} disabled={busy}>
+              {busy ? "Processing…" : "Confirm payment"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!cancelling} onOpenChange={(v) => !v && setCancelling(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Cancel order {cancelling ? formatOrderNumber(cancelling) : ""}?
+            </DialogTitle>
+          </DialogHeader>
+          <div className="text-muted-foreground space-y-2 text-sm">
+            <p>
+              This voids the pending order and reverses any stock it consumed.
+              The change syncs to the POS. This cannot be undone.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCancelling(null)}>
+              Keep order
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmCancel}
+              disabled={cancelBusy}>
+              {cancelBusy ? "Cancelling…" : "Cancel order"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!viewing} onOpenChange={(v) => !v && setViewing(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              Order {viewing ? formatOrderNumber(viewing) : ""}
+            </DialogTitle>
+          </DialogHeader>
+          {viewing && (
+            <div className="space-y-4">
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <dt className="text-muted-foreground">Ordered by</dt>
+                <dd className="text-right font-medium">
+                  {viewing.employee_name ?? "—"}
+                  {viewing.employee_role && (
+                    <span className="text-muted-foreground ml-1 capitalize font-normal">
+                      ({viewing.employee_role.replace(/_/g, " ")})
+                    </span>
+                  )}
+                </dd>
+                {viewing.cashier_name && (
+                  <>
+                    <dt className="text-muted-foreground">Placed by cashier</dt>
+                    <dd className="text-right font-medium">
+                      {viewing.cashier_name}
+                    </dd>
+                  </>
+                )}
+                <dt className="text-muted-foreground">Table</dt>
+                <dd className="text-right font-medium">
+                  {viewing.table_number != null
+                    ? `Table ${viewing.table_number}`
+                    : "—"}
+                </dd>
+                <dt className="text-muted-foreground">Type</dt>
+                <dd className="text-right font-medium capitalize">
+                  {viewing.type ?? "—"}
+                </dd>
+                <dt className="text-muted-foreground">Status</dt>
+                <dd className="text-right font-medium capitalize">
+                  {viewing.status}
+                </dd>
+                <dt className="text-muted-foreground">Payment</dt>
+                <dd className="text-right font-medium capitalize">
+                  {viewing.payment_status ?? "unpaid"}
+                </dd>
+                <dt className="text-muted-foreground">Created</dt>
+                <dd className="text-right font-medium">
+                  {shortDate(viewing.created_at)}
+                </dd>
+              </dl>
+
+              <div className="rounded-md border">
+                <div className="bg-muted/50 text-muted-foreground grid grid-cols-[1fr_auto_auto] gap-3 px-3 py-2 text-xs font-medium">
+                  <span>Item</span>
+                  <span className="text-right">Qty</span>
+                  <span className="text-right">Subtotal</span>
+                </div>
+                {(viewing.items ?? []).length === 0 ? (
+                  <div className="text-muted-foreground px-3 py-4 text-center text-sm">
+                    No items recorded for this order.
+                  </div>
+                ) : (
+                  (viewing.items ?? []).map((it) => (
+                    <div
+                      key={it.id}
+                      className="grid grid-cols-[1fr_auto_auto] gap-3 border-t px-3 py-2 text-sm">
+                      <span>{it.name ?? it.menu_item_name ?? "Item"}</span>
+                      <span className="text-right tabular-nums">
+                        ×{it.quantity}
+                      </span>
+                      <span className="text-right tabular-nums">
+                        {birr(it.subtotal ?? (it.unit_price ?? 0) * it.quantity)}
+                      </span>
+                    </div>
+                  ))
+                )}
+                <div className="grid grid-cols-[1fr_auto] gap-3 border-t px-3 py-2 text-sm font-semibold">
+                  <span>Total</span>
+                  <span className="text-right tabular-nums">
+                    {birr(viewing.total_amount)}
+                  </span>
+                </div>
+              </div>
+
+              {viewing.notes && (
+                <div className="text-sm">
+                  <span className="text-muted-foreground">Notes: </span>
+                  {viewing.notes}
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewing(null)}>
+              Close
+            </Button>
+            {viewing && canCancel(viewing) && (
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  const o = viewing;
+                  setViewing(null);
+                  setCancelling(o);
+                }}>
+                <XCircleIcon className="size-4" />
+                Cancel order
+              </Button>
+            )}
+            {viewing && !isPaid(viewing) && (
+              <Button
+                onClick={() => {
+                  const o = viewing;
+                  setViewing(null);
+                  openPay(o);
+                }}>
+                Take payment
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

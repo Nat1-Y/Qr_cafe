@@ -1,0 +1,1264 @@
+import * as XLSX from "xlsx";
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
+import { Orders } from "./resources";
+import { birr } from "./format";
+
+// ---------------------------------------------------------------------------
+// Types (ported from app/src/pages/Reports/types.ts)
+// ---------------------------------------------------------------------------
+
+export interface DailyStats {
+  totalOrders: number;
+  paidOrders: number;
+  pendingOrders: number;
+  voidedOrders: number;
+  paidRevenue: number;
+  cafeOrders: number;
+  restaurantOrders: number;
+  baristaOrders: number;
+}
+
+export interface WeeklyStats {
+  totalOrders: number;
+  paidOrders: number;
+  pendingOrders: number;
+  voidedOrders: number;
+  paidRevenue: number;
+  avgPaidOrderValue: number;
+}
+
+export interface MonthlyStats {
+  totalOrders: number;
+  paidOrders: number;
+  pendingOrders: number;
+  voidedOrders: number;
+  paidRevenue: number;
+  growth: number;
+}
+
+export interface TopItem {
+  name: string;
+  sold: number;
+  revenue?: number;
+}
+
+export interface RevenueTrendPoint {
+  label: string;
+  revenue: number;
+  orders: number;
+}
+
+export interface CategorySalesItem {
+  name: string;
+  quantity: number;
+  revenue: number;
+}
+
+export interface HourlyPerformanceItem {
+  hour: string;
+  orders: number;
+  revenue: number;
+}
+
+export interface RecentOrder {
+  id: string;
+  created_at: string;
+  type: string;
+  total_amount: string | number;
+  derived_status: "paid" | "pending" | "voided";
+  employee_name?: string | null;
+  waiter_name?: string | null;
+  employee_id?: number | null;
+}
+
+export interface ReportData {
+  dailyStats: DailyStats;
+  weeklyStats: WeeklyStats;
+  monthlyStats: MonthlyStats;
+  topItems: TopItem[];
+  recentOrders: RecentOrder[];
+  paymentMethods: Record<string, number>;
+  revenueTrend: RevenueTrendPoint[];
+  categorySales: CategorySalesItem[];
+  hourlyPerformance: HourlyPerformanceItem[];
+}
+
+export interface SourceData {
+  orders: any[];
+  payments: any[];
+  menuItems: any[];
+}
+
+// ---------------------------------------------------------------------------
+// Constants (ported from app/src/pages/Reports/constants.ts)
+// ---------------------------------------------------------------------------
+
+export const INITIAL_REPORT_DATA: ReportData = {
+  dailyStats: {
+    totalOrders: 0,
+    paidOrders: 0,
+    pendingOrders: 0,
+    voidedOrders: 0,
+    paidRevenue: 0,
+    cafeOrders: 0,
+    restaurantOrders: 0,
+    baristaOrders: 0,
+  },
+  weeklyStats: {
+    totalOrders: 0,
+    paidOrders: 0,
+    pendingOrders: 0,
+    voidedOrders: 0,
+    paidRevenue: 0,
+    avgPaidOrderValue: 0,
+  },
+  monthlyStats: {
+    totalOrders: 0,
+    paidOrders: 0,
+    pendingOrders: 0,
+    voidedOrders: 0,
+    paidRevenue: 0,
+    growth: 0,
+  },
+  topItems: [],
+  recentOrders: [],
+  paymentMethods: {},
+  revenueTrend: [],
+  categorySales: [],
+  hourlyPerformance: [],
+};
+
+// ---------------------------------------------------------------------------
+// Pure helpers (ported from app/src/pages/Reports/utils.ts).
+// The desktop app used an approximate-server-clock; on the web we use the
+// browser clock directly.
+// ---------------------------------------------------------------------------
+
+export const extractCollection = (response: any, key: string): any[] => {
+  const direct = response?.[key];
+  if (Array.isArray(direct)) return direct;
+
+  const nested = response?.data?.[key];
+  if (Array.isArray(nested)) return nested;
+
+  const wrapped = response?.data?.data?.[key];
+  if (Array.isArray(wrapped)) return wrapped;
+
+  return [];
+};
+
+export const buildSheetFromRows = (rows: any[], headers: string[]): XLSX.WorkSheet => {
+  if (Array.isArray(rows) && rows.length > 0) {
+    return XLSX.utils.json_to_sheet(rows);
+  }
+
+  return XLSX.utils.aoa_to_sheet([Array.isArray(headers) ? headers : []]);
+};
+
+// A single worksheet can hold several titled tables stacked vertically. This is
+// used so each report tab (which usually renders more than one widget) maps to
+// exactly one sheet in the workbook.
+type SheetSection = {
+  title?: string;
+  columns?: (string | number)[];
+  rows?: (string | number | null | undefined)[][];
+};
+
+export const buildSectionSheet = (sections: SheetSection[]): XLSX.WorkSheet => {
+  const aoa: (string | number | null | undefined)[][] = [];
+  sections.forEach((section, idx) => {
+    if (idx > 0) aoa.push([]); // blank spacer row between sections
+    if (section.title) aoa.push([section.title]);
+    if (section.columns && section.columns.length) aoa.push(section.columns);
+    const rows = Array.isArray(section.rows) ? section.rows : [];
+    if (rows.length) {
+      rows.forEach((row) => aoa.push(row));
+    } else {
+      aoa.push(["No data"]);
+    }
+  });
+  return XLSX.utils.aoa_to_sheet(aoa.length ? aoa : [[]]);
+};
+
+export const filterSourceDataByDateRange = (
+  ordersRaw: any[],
+  paymentsRaw: any[],
+  menuItemsRaw: any[],
+  fromRaw: string,
+  toRaw: string,
+) => {
+  const orders = Array.isArray(ordersRaw) ? ordersRaw : [];
+  const payments = Array.isArray(paymentsRaw) ? paymentsRaw : [];
+  const menuItems = Array.isArray(menuItemsRaw) ? menuItemsRaw : [];
+
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+  const endOfDay = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+
+  const parseLocalDateOnly = (ymd: string) => {
+    const s = String(ymd || "").trim();
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return null;
+    const y = parseInt(m[1], 10);
+    const mo = parseInt(m[2], 10);
+    const da = parseInt(m[3], 10);
+    if (!Number.isFinite(y) || !Number.isFinite(mo) || !Number.isFinite(da)) return null;
+    return new Date(y, mo - 1, da);
+  };
+
+  const rangeFrom = fromRaw ? parseLocalDateOnly(fromRaw) : null;
+  const rangeTo = toRaw ? parseLocalDateOnly(toRaw) : null;
+  const fromDt = rangeFrom ? startOfDay(rangeFrom) : null;
+  const toDt = rangeTo ? endOfDay(rangeTo) : null;
+
+  const withinRange = (iso: string) => {
+    if (!fromDt && !toDt) return true;
+    const dt = new Date(iso);
+    if (Number.isNaN(dt.getTime())) return false;
+    if (fromDt && dt < fromDt) return false;
+    if (toDt && dt > toDt) return false;
+    return true;
+  };
+
+  return {
+    orders: orders.filter((order) => withinRange(order?.created_at)),
+    // paid_at is the real payment time; created_at is the sync time for payments
+    // that came from an offline client, so it would misbucket them by date.
+    payments: payments.filter((payment) =>
+      withinRange(payment?.paid_at || payment?.created_at),
+    ),
+    menuItems,
+  };
+};
+
+export const normalizeStatus = (s: string) => String(s || "").trim().toLowerCase();
+
+export const isVoidedOrderStatus = (s: string) => {
+  const st = normalizeStatus(s);
+  return ["deleted", "canceled", "cancelled", "void", "voided"].includes(st);
+};
+
+export const normalizeId = (v: any) => (v == null ? null : String(v));
+
+export const normalizeOrderType = (value: any) => {
+  const normalized = String(value || "").trim().toLowerCase();
+  return normalized === "bakery" ? "cafe" : normalized;
+};
+
+export const toIsoIfValid = (value: any) => {
+  const dt = new Date(value);
+  return Number.isNaN(dt.getTime()) ? null : dt.toISOString();
+};
+
+export const getLaterIso = (currentValue: any, nextValue: any) => {
+  if (!currentValue) return nextValue || null;
+  if (!nextValue) return currentValue || null;
+  return new Date(currentValue) >= new Date(nextValue) ? currentValue : nextValue;
+};
+
+export const getEarlierIso = (currentValue: any, nextValue: any) => {
+  if (!currentValue) return nextValue || null;
+  if (!nextValue) return currentValue || null;
+  return new Date(currentValue) <= new Date(nextValue) ? currentValue : nextValue;
+};
+
+export const getItemSubtotal = (it: any) => {
+  const qty = parseFloat(it?.quantity || 0);
+  const subtotal = parseFloat(it?.subtotal);
+  if (Number.isFinite(subtotal)) return subtotal;
+  const unitPrice = parseFloat(it?.unit_price);
+  if (Number.isFinite(unitPrice) && qty > 0) return unitPrice * qty;
+  const price = parseFloat(it?.price);
+  if (Number.isFinite(price) && qty > 0) return price * qty;
+  return 0;
+};
+
+export const makeGetItemDepartment = (menuItems: any[]) => {
+  const menuMainCategoryById: { [key: number]: string } = {};
+  menuItems.forEach((it) => {
+    const id = it?.id != null ? it.id : null;
+    if (id === "") return;
+    const main = String(it?.main_category || "").trim().toLowerCase();
+    if (!main) return;
+    menuMainCategoryById[id as number] = main;
+  });
+
+  return (item: any) => {
+    const menuId = item?.menu_item_id != null ? item.menu_item_id : null;
+    const mapped =
+      menuId !== null && menuId !== undefined && menuId !== ""
+        ? String(menuMainCategoryById[menuId as number] || "").trim().toLowerCase()
+        : "";
+    return mapped;
+  };
+};
+
+export const makeGetOrderSubtotalForUnit = (
+  getItemDepartment: (item: any) => string | null,
+) => {
+  return (order: any, targetUnit: string) => {
+    if (!order) return 0;
+    const items = Array.isArray(order?.items) ? order.items : [];
+    const orderFallback = String(order?.type || "").trim().toLowerCase();
+    const fallbackDept = orderFallback === "bakery" ? "cafe" : orderFallback || null;
+    let subtotal = 0;
+    for (const it of items) {
+      const dept = getItemDepartment(it) || fallbackDept;
+      if (targetUnit && targetUnit !== "all" && dept !== targetUnit) continue;
+      subtotal += getItemSubtotal(it);
+    }
+    if (!targetUnit || targetUnit === "all") {
+      const total = parseFloat(order?.total_amount);
+      return Number.isFinite(total) ? total : subtotal;
+    }
+    return subtotal;
+  };
+};
+
+export const makeIsPaidOrder = (paidOrderIdSet: Set<string | null>) => {
+  return (order: any) => {
+    const oid = normalizeId(order?.id);
+    if (oid && paidOrderIdSet.has(oid)) return true;
+    const st = normalizeStatus(order?.status);
+    const pst = normalizeStatus(order?.payment_status);
+    return st === "paid" || st === "completed" || pst === "paid";
+  };
+};
+
+export const calculateReportData = (
+  ordersRaw: any[],
+  paymentsRaw: any[],
+  menuItemsRaw: any[],
+  unitRaw: string,
+  topItemsPeriodRaw = "selected_range",
+): ReportData => {
+  const unit = String(unitRaw || "all").trim().toLowerCase() || "all";
+  const topItemsPeriod =
+    String(topItemsPeriodRaw || "selected_range").trim().toLowerCase() || "selected_range";
+  const orders = Array.isArray(ordersRaw) ? ordersRaw : [];
+  const payments = Array.isArray(paymentsRaw) ? paymentsRaw : [];
+  const menuItems = Array.isArray(menuItemsRaw) ? menuItemsRaw : [];
+
+  const getItemDepartment = makeGetItemDepartment(menuItems);
+  const getOrderSubtotalForUnit = makeGetOrderSubtotalForUnit(getItemDepartment);
+
+  const paidPayments = payments.filter((p) => normalizeStatus(p?.status) === "paid");
+  const paidOrderIdSet = new Set(
+    paidPayments.map((p) => normalizeId(p?.order_id)).filter(Boolean),
+  );
+  const isPaidOrder = makeIsPaidOrder(paidOrderIdSet);
+
+  const getDerivedStatus = (order: any) => {
+    if (isVoidedOrderStatus(order?.status)) return "voided";
+    if (isPaidOrder(order)) return "paid";
+    return "pending";
+  };
+
+  const orderMatchesUnit = (order: any) => {
+    if (unit === "all") return true;
+    return getOrderSubtotalForUnit(order, unit) > 0;
+  };
+
+  const getOrderTotalForSelectedUnit = (order: any) => {
+    if (!unit || unit === "all") return getOrderSubtotalForUnit(order, "all");
+    return getOrderSubtotalForUnit(order, unit);
+  };
+
+  const now = new Date();
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+  const endOfDay = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+  const within = (iso: string, from: Date, to: Date) => {
+    const dt = new Date(iso);
+    if (Number.isNaN(dt.getTime())) return false;
+    return dt >= from && dt <= to;
+  };
+
+  const todayFrom = startOfDay(now);
+  const todayTo = endOfDay(now);
+  const weekFrom = new Date(todayFrom);
+  weekFrom.setDate(weekFrom.getDate() - 6);
+  const monthFrom = new Date(todayFrom);
+  monthFrom.setDate(monthFrom.getDate() - 29);
+
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+
+  const ordersToday = orders.filter((o) => within(o?.created_at, todayFrom, todayTo));
+  const ordersWeek = orders.filter((o) => within(o?.created_at, weekFrom, todayTo));
+  const ordersMonth = orders.filter((o) => within(o?.created_at, monthFrom, todayTo));
+
+  const summarize = (list: any[]) => {
+    const counts: { [key: string]: number } = { paid: 0, pending: 0, voided: 0 };
+    const unitCounts = { cafe: 0, restaurant: 0, barista: 0 };
+    let paidRevenue = 0;
+
+    let considered = 0;
+    for (const o of list) {
+      if (!orderMatchesUnit(o)) continue;
+      considered += 1;
+
+      const status = getDerivedStatus(o);
+      counts[status] = (counts[status] || 0) + 1;
+
+      if (status === "paid") {
+        paidRevenue += getOrderTotalForSelectedUnit(o);
+      }
+
+      if (unit === "all") {
+        const cafeAmt = getOrderSubtotalForUnit(o, "cafe");
+        const restAmt = getOrderSubtotalForUnit(o, "restaurant");
+        const barAmt = getOrderSubtotalForUnit(o, "barista");
+        if (cafeAmt > 0) unitCounts.cafe += 1;
+        if (restAmt > 0) unitCounts.restaurant += 1;
+        if (barAmt > 0) unitCounts.barista += 1;
+      }
+    }
+
+    if (unit !== "all") {
+      unitCounts.cafe = unit === "cafe" ? considered : 0;
+      unitCounts.restaurant = unit === "restaurant" ? considered : 0;
+      unitCounts.barista = unit === "barista" ? considered : 0;
+    }
+
+    const nonVoidedTotal = considered - (counts.voided || 0);
+    return {
+      totalOrders: nonVoidedTotal,
+      paidOrders: counts.paid || 0,
+      pendingOrders: counts.pending || 0,
+      voidedOrders: counts.voided || 0,
+      paidRevenue,
+      cafeOrders: unitCounts.cafe,
+      restaurantOrders: unitCounts.restaurant,
+      baristaOrders: unitCounts.barista,
+    };
+  };
+
+  const dailySummary = summarize(ordersToday);
+  const weeklySummary = summarize(ordersWeek);
+  const monthlySummary = summarize(ordersMonth);
+
+  const avgPaidOrderValue =
+    weeklySummary.paidOrders > 0 ? weeklySummary.paidRevenue / weeklySummary.paidOrders : 0;
+
+  const revenuePrevMonth = orders
+    .filter((o) => within(o?.created_at, prevMonthStart, prevMonthEnd))
+    .filter((o) => orderMatchesUnit(o))
+    .filter((o) => getDerivedStatus(o) === "paid")
+    .reduce((sum, o) => sum + getOrderTotalForSelectedUnit(o), 0);
+
+  const revenueThisMonth = orders
+    .filter((o) => within(o?.created_at, monthStart, todayTo))
+    .filter((o) => orderMatchesUnit(o))
+    .filter((o) => getDerivedStatus(o) === "paid")
+    .reduce((sum, o) => sum + getOrderTotalForSelectedUnit(o), 0);
+
+  const growthPct =
+    revenuePrevMonth > 0
+      ? ((revenueThisMonth - revenuePrevMonth) / revenuePrevMonth) * 100
+      : 0;
+
+  const paymentMethods = paidPayments
+    .filter((p) => {
+      const oid = normalizeId(p?.order_id);
+      if (!oid) return unit === "all";
+      const order = orders.find((o) => normalizeId(o?.id) === oid);
+      if (!order) return unit === "all";
+      if (isVoidedOrderStatus(order?.status)) return false;
+      return orderMatchesUnit(order);
+    })
+    .reduce((acc: { [key: string]: number }, payment) => {
+      const method = String(payment?.payment_method || "unknown").trim().toLowerCase();
+      acc[method] = (acc[method] || 0) + 1;
+      return acc;
+    }, {});
+
+  const topItemMap = new Map<string, number>();
+  const topItemRevenueMap = new Map<string, number>();
+  const categorySalesMap = new Map<string, { name: string; quantity: number; revenue: number }>();
+  const revenueTrendMap = new Map<string, { label: string; revenue: number; orders: number }>();
+  const hourlyMap = new Map<number, { hour: string; orders: number; revenue: number }>();
+  for (let hour = 0; hour < 24; hour += 1) {
+    hourlyMap.set(hour, {
+      hour: `${String(hour).padStart(2, "0")}:00`,
+      orders: 0,
+      revenue: 0,
+    });
+  }
+
+  const formatDateKey = (value: any) => {
+    const dt = new Date(value);
+    if (Number.isNaN(dt.getTime())) return null;
+    return dt.toISOString().slice(0, 10);
+  };
+
+  orders
+    .filter((o) => orderMatchesUnit(o))
+    .filter((o) => !isVoidedOrderStatus(o?.status))
+    .forEach((o) => {
+      const paid = getDerivedStatus(o) === "paid";
+      const orderRevenue = paid ? getOrderTotalForSelectedUnit(o) : 0;
+      const dateKey = formatDateKey(o?.created_at);
+      if (dateKey) {
+        const existing = revenueTrendMap.get(dateKey) || {
+          label: new Date(dateKey).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+          }),
+          revenue: 0,
+          orders: 0,
+        };
+        existing.orders += 1;
+        existing.revenue += orderRevenue;
+        revenueTrendMap.set(dateKey, existing);
+      }
+
+      const hour = new Date(o?.created_at).getHours();
+      if (Number.isFinite(hour) && hourlyMap.has(hour)) {
+        const existing = hourlyMap.get(hour)!;
+        existing.orders += 1;
+        existing.revenue += orderRevenue;
+      }
+
+      const items = Array.isArray(o?.items) ? o.items : [];
+      const orderFallback = String(o?.type || "").trim().toLowerCase();
+      const fallbackDept = orderFallback === "bakery" ? "cafe" : orderFallback || null;
+      items.forEach((it: any) => {
+        const dept = getItemDepartment(it) || fallbackDept || "uncategorized";
+        if (unit !== "all" && dept !== unit) return;
+        const qty = parseFloat(it?.quantity || 0) || 0;
+        const revenue = paid ? getItemSubtotal(it) : 0;
+        const category =
+          String(it?.category || it?.sub_category || dept || "Uncategorized").trim() ||
+          "Uncategorized";
+        const key = category.toLowerCase();
+        const existing = categorySalesMap.get(key) || { name: category, quantity: 0, revenue: 0 };
+        existing.quantity += qty;
+        existing.revenue += revenue;
+        categorySalesMap.set(key, existing);
+      });
+    });
+
+  const topItemsSourceOrders = (() => {
+    if (topItemsPeriod === "this_week") {
+      return orders.filter((o) => within(o?.created_at, weekFrom, todayTo));
+    }
+
+    if (topItemsPeriod === "this_month") {
+      return orders.filter((o) => within(o?.created_at, monthStart, todayTo));
+    }
+
+    return orders;
+  })();
+
+  const eligibleTopItemOrders = topItemsSourceOrders
+    .filter((o) => orderMatchesUnit(o))
+    .filter((o) => !isVoidedOrderStatus(o?.status));
+
+  const topItemOrders = eligibleTopItemOrders.some((o) => getDerivedStatus(o) === "paid")
+    ? eligibleTopItemOrders.filter((o) => getDerivedStatus(o) === "paid")
+    : eligibleTopItemOrders;
+
+  topItemOrders.forEach((o) => {
+    const items = Array.isArray(o?.items) ? o.items : [];
+    const orderFallback = String(o?.type || "").trim().toLowerCase();
+    const fallbackDept = orderFallback === "bakery" ? "cafe" : orderFallback || null;
+    items.forEach((it: any) => {
+      if (unit !== "all") {
+        const dept = getItemDepartment(it) || fallbackDept;
+        if (dept !== unit) return;
+      }
+      const name = String(it?.menu_item_name || it?.name || "").trim();
+      if (!name) return;
+      const qty = parseFloat(it?.quantity || 0) || 0;
+      const revenue = getItemSubtotal(it);
+      const prev = topItemMap.get(name) || 0;
+      const prevRevenue = topItemRevenueMap.get(name) || 0;
+      topItemMap.set(name, prev + qty);
+      topItemRevenueMap.set(name, prevRevenue + revenue);
+    });
+  });
+  const topItems = Array.from(topItemMap.entries())
+    .map(([name, sold]) => ({ name, sold, revenue: topItemRevenueMap.get(name) || 0 }))
+    .sort((a, b) => (b.sold || 0) - (a.sold || 0))
+    .slice(0, 8);
+
+  const revenueTrend = Array.from(revenueTrendMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-14)
+    .map(([, point]) => point);
+
+  const categorySales = Array.from(categorySalesMap.values())
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 8);
+
+  // Hourly performance is a time-of-day series: keep it chronological (00:00 →
+  // 23:00) so the chart reads as a daily pattern rather than a top-N ranking.
+  const hourlyPerformance = Array.from(hourlyMap.values())
+    .filter((point) => point.orders > 0 || point.revenue > 0)
+    .sort((a, b) => a.hour.localeCompare(b.hour));
+
+  const recentOrders = orders
+    .slice()
+    .sort((a, b) => new Date(b?.created_at || 0).getTime() - new Date(a?.created_at || 0).getTime())
+    .filter((o) => orderMatchesUnit(o))
+    .slice(0, 10)
+    .map((o) => ({
+      ...o,
+      derived_status: getDerivedStatus(o),
+    }));
+
+  return {
+    dailyStats: dailySummary,
+    weeklyStats: {
+      ...weeklySummary,
+      avgPaidOrderValue,
+    },
+    monthlyStats: {
+      ...monthlySummary,
+      paidRevenue: revenueThisMonth,
+      growth: growthPct,
+    },
+    topItems,
+    recentOrders,
+    paymentMethods,
+    revenueTrend,
+    categorySales,
+    hourlyPerformance,
+  };
+};
+
+// ---------------------------------------------------------------------------
+// Period stats — drives the single date-dependent summary card on the report
+// page. Driven either by the Today / This Month / This Year toggle, or by an
+// explicit date range from the page's date picker when one is supplied.
+// ---------------------------------------------------------------------------
+
+export type StatsPeriod = "today" | "month" | "year";
+
+// An explicit window; either bound may be open (null) to leave that side
+// unbounded, matching the date-picker's "from only" / "to only" behaviour.
+export type StatsDateRange = { from: Date | null; to: Date | null };
+
+export interface PeriodStats {
+  totalOrders: number;
+  paidOrders: number;
+  pendingOrders: number;
+  voidedOrders: number;
+  paidRevenue: number;
+  avgPaidOrderValue: number;
+}
+
+export const PERIOD_LABELS: Record<StatsPeriod, string> = {
+  today: "Today",
+  month: "This Month",
+  year: "This Year",
+};
+
+export const getPeriodRange = (period: StatsPeriod, now: Date = new Date()) => {
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+  const endOfDay = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+  const to = endOfDay(now);
+  if (period === "month") return { from: new Date(now.getFullYear(), now.getMonth(), 1), to };
+  if (period === "year") return { from: new Date(now.getFullYear(), 0, 1), to };
+  return { from: startOfDay(now), to };
+};
+
+export const calculatePeriodStats = (
+  ordersRaw: any[],
+  paymentsRaw: any[],
+  menuItemsRaw: any[],
+  unitRaw: string,
+  period: StatsPeriod,
+  range?: StatsDateRange | null,
+): PeriodStats => {
+  const unit = String(unitRaw || "all").trim().toLowerCase() || "all";
+  const orders = Array.isArray(ordersRaw) ? ordersRaw : [];
+  const payments = Array.isArray(paymentsRaw) ? paymentsRaw : [];
+  const menuItems = Array.isArray(menuItemsRaw) ? menuItemsRaw : [];
+
+  const getItemDepartment = makeGetItemDepartment(menuItems);
+  const getOrderSubtotalForUnit = makeGetOrderSubtotalForUnit(getItemDepartment);
+  const paidPayments = payments.filter((p) => normalizeStatus(p?.status) === "paid");
+  const paidOrderIdSet = new Set(paidPayments.map((p) => normalizeId(p?.order_id)).filter(Boolean));
+  const isPaidOrder = makeIsPaidOrder(paidOrderIdSet);
+
+  const getDerivedStatus = (order: any) => {
+    if (isVoidedOrderStatus(order?.status)) return "voided";
+    if (isPaidOrder(order)) return "paid";
+    return "pending";
+  };
+  const orderMatchesUnit = (order: any) => {
+    if (unit === "all") return true;
+    return getOrderSubtotalForUnit(order, unit) > 0;
+  };
+  const getOrderTotalForSelectedUnit = (order: any) =>
+    unit === "all" ? getOrderSubtotalForUnit(order, "all") : getOrderSubtotalForUnit(order, unit);
+
+  // An explicit range (from the date picker) takes precedence over the
+  // Today / Month / Year toggle. Either bound may be open.
+  const { from, to } = range ?? getPeriodRange(period);
+  const within = (iso: string) => {
+    const dt = new Date(iso);
+    if (Number.isNaN(dt.getTime())) return false;
+    if (from && dt < from) return false;
+    if (to && dt > to) return false;
+    return true;
+  };
+
+  let totalOrders = 0;
+  let paidOrders = 0;
+  let pendingOrders = 0;
+  let voidedOrders = 0;
+  let paidRevenue = 0;
+  for (const o of orders) {
+    if (!within(o?.created_at)) continue;
+    if (!orderMatchesUnit(o)) continue;
+    const status = getDerivedStatus(o);
+    if (status === "voided") {
+      voidedOrders += 1;
+      continue;
+    }
+    totalOrders += 1;
+    if (status === "paid") {
+      paidOrders += 1;
+      paidRevenue += getOrderTotalForSelectedUnit(o);
+    } else {
+      pendingOrders += 1;
+    }
+  }
+  const avgPaidOrderValue = paidOrders > 0 ? paidRevenue / paidOrders : 0;
+  return { totalOrders, paidOrders, pendingOrders, voidedOrders, paidRevenue, avgPaidOrderValue };
+};
+
+export const generateCSVReport = (metricsData: ReportData): string => {
+  const headers = ["Metric", "Value", "Period"];
+  const rows: (string | number)[][] = [
+    ["Total Orders Today", metricsData.dailyStats.totalOrders, "Daily"],
+    ["Paid Revenue Today", (metricsData.dailyStats.paidRevenue || 0).toFixed(2), "Daily"],
+    ["Paid Orders Today", metricsData.dailyStats.paidOrders, "Daily"],
+    ["Pending Orders Today", metricsData.dailyStats.pendingOrders, "Daily"],
+    ["Voided Orders Today", metricsData.dailyStats.voidedOrders, "Daily"],
+    ["Cafe Orders Today", metricsData.dailyStats.cafeOrders, "Daily"],
+    ["Restaurant Orders Today", metricsData.dailyStats.restaurantOrders, "Daily"],
+    ["Barista Orders Today", metricsData.dailyStats.baristaOrders, "Daily"],
+    ["Weekly Orders", metricsData.weeklyStats.totalOrders, "Weekly"],
+    ["Weekly Paid Revenue", (metricsData.weeklyStats.paidRevenue || 0).toFixed(2), "Weekly"],
+    ["Weekly Paid Orders", metricsData.weeklyStats.paidOrders, "Weekly"],
+    ["Weekly Pending Orders", metricsData.weeklyStats.pendingOrders, "Weekly"],
+    ["Weekly Avg Paid Order", (metricsData.weeklyStats.avgPaidOrderValue || 0).toFixed(2), "Weekly"],
+    ["Monthly Orders", metricsData.monthlyStats.totalOrders, "Monthly"],
+    ["Monthly Paid Revenue", (metricsData.monthlyStats.paidRevenue || 0).toFixed(2), "Monthly"],
+    ["Monthly Growth", `${metricsData.monthlyStats.growth}%`, "Monthly"],
+  ];
+
+  Object.entries(metricsData.paymentMethods || {}).forEach(([method, count]) => {
+    rows.push([`Payment Method: ${method.replace("_", " ")}`, String(count), "Selected Range"]);
+  });
+
+  const csvRows = [headers, ...rows];
+  return csvRows.map((row) => row.map((field) => `"${field}"`).join(",")).join("\n");
+};
+
+// ---------------------------------------------------------------------------
+// Multi-sheet Excel export (ported from the desktop handleExportReport).
+// Builds the workbook from already-fetched source data and triggers a download.
+// ---------------------------------------------------------------------------
+
+export async function exportBusinessData(
+  source: SourceData,
+  businessUnit: string,
+  dateFrom: string,
+  dateTo: string,
+) {
+  const filtered = filterSourceDataByDateRange(
+    source.orders,
+    source.payments,
+    source.menuItems,
+    dateFrom,
+    dateTo,
+  );
+
+  const safeOrders = Array.isArray(filtered.orders) ? filtered.orders : [];
+  const safePayments = Array.isArray(filtered.payments) ? filtered.payments : [];
+  const safeMenuItems = Array.isArray(filtered.menuItems) ? filtered.menuItems : [];
+  const allOrders = Array.isArray(source.orders) ? source.orders : [];
+  const selectedUnit = String(businessUnit || "all").trim().toLowerCase() || "all";
+
+  const getItemDepartment = makeGetItemDepartment(safeMenuItems);
+  const getOrderSubtotalForUnit = makeGetOrderSubtotalForUnit(getItemDepartment);
+
+  const paidPayments = safePayments.filter((p) => normalizeStatus(p?.status) === "paid");
+  const paidOrderIdSet = new Set(paidPayments.map((p) => normalizeId(p?.order_id)).filter(Boolean));
+  const allOrdersById = new Map(allOrders.map((order) => [normalizeId(order?.id), order]));
+  const isPaidOrder = makeIsPaidOrder(paidOrderIdSet);
+
+  const getDerivedStatus = (order: any) => {
+    if (isVoidedOrderStatus(order?.status)) return "voided";
+    if (isPaidOrder(order)) return "paid";
+    return "pending";
+  };
+
+  const orderMatchesUnit = (order: any) => {
+    if (selectedUnit === "all") return true;
+    return getOrderSubtotalForUnit(order, selectedUnit) > 0;
+  };
+
+  const getOrderTotalForSelectedUnit = (order: any) => {
+    if (selectedUnit === "all") return getOrderSubtotalForUnit(order, "all");
+    return getOrderSubtotalForUnit(order, selectedUnit);
+  };
+
+  const paymentMatchesUnit = (payment: any) => {
+    if (selectedUnit === "all") return true;
+    const order = allOrdersById.get(normalizeId(payment?.order_id));
+    if (order) return orderMatchesUnit(order);
+    return normalizeOrderType(payment?.order_type) === selectedUnit;
+  };
+
+  const relevantOrders = safeOrders.filter((order) => orderMatchesUnit(order));
+  const activeOrders = relevantOrders.filter((order) => !isVoidedOrderStatus(order?.status));
+  const paidOrders = activeOrders.filter((order) => isPaidOrder(order));
+  const pendingOrders = activeOrders.filter((order) => !isPaidOrder(order));
+  const voidedOrders = relevantOrders.filter((order) => isVoidedOrderStatus(order?.status));
+  const relevantPayments = safePayments.filter((payment) => paymentMatchesUnit(payment));
+  const relevantPaidPayments = relevantPayments.filter(
+    (payment) => normalizeStatus(payment?.status) === "paid",
+  );
+  const exportMetrics = calculateReportData(safeOrders, safePayments, safeMenuItems, selectedUnit);
+
+  const itemSummaryMap = new Map<string, any>();
+  safeOrders
+    .filter((order) => !isVoidedOrderStatus(order?.status))
+    .filter((order) => orderMatchesUnit(order))
+    .forEach((o) => {
+      const items = Array.isArray(o?.items) ? o.items : [];
+      const paid = isPaidOrder(o);
+      for (const it of items) {
+        const orderFallback = String(o?.type || "").trim().toLowerCase();
+        const fallbackDept = orderFallback === "bakery" ? "cafe" : orderFallback || null;
+        const dept = getItemDepartment(it) || fallbackDept;
+        if (selectedUnit !== "all" && dept !== selectedUnit) continue;
+
+        const mid = it?.menu_item_id != null ? it.menu_item_id : null;
+        const qty = parseFloat(it?.quantity || 0);
+        const revenue = getItemSubtotal(it);
+        const key = Number.isFinite(mid)
+          ? `menu-${mid}`
+          : `name-${String(it?.menu_item_name || it?.name || "unknown").trim().toLowerCase()}`;
+
+        const existing = itemSummaryMap.get(key) || {
+          menu_item_id: Number.isFinite(mid) ? mid : null,
+          menu_item_name: it?.menu_item_name || it?.name || "Unknown Item",
+          category: it?.category || it?.sub_category || null,
+          main_category: it?.main_category || null,
+          business_unit: dept || normalizeOrderType(o?.type) || "unknown",
+          first_ordered_at: null as any,
+          last_ordered_at: null as any,
+          first_paid_at: null as any,
+          last_paid_at: null as any,
+          ordered_qty: 0,
+          paid_qty: 0,
+          ordered_revenue: 0,
+          paid_revenue: 0,
+        };
+
+        const orderedAt = toIsoIfValid(o?.created_at);
+        const paidAt = toIsoIfValid(o?.paid_at) || orderedAt;
+
+        existing.ordered_qty += Number.isFinite(qty) ? qty : 0;
+        existing.ordered_revenue += Number.isFinite(revenue) ? revenue : 0;
+        existing.first_ordered_at = getEarlierIso(existing.first_ordered_at, orderedAt);
+        existing.last_ordered_at = getLaterIso(existing.last_ordered_at, orderedAt);
+        if (paid) {
+          existing.paid_qty += Number.isFinite(qty) ? qty : 0;
+          existing.paid_revenue += Number.isFinite(revenue) ? revenue : 0;
+          existing.first_paid_at = getEarlierIso(existing.first_paid_at, paidAt);
+          existing.last_paid_at = getLaterIso(existing.last_paid_at, paidAt);
+        }
+
+        itemSummaryMap.set(key, existing);
+      }
+    });
+
+  const exportSummary = (() => {
+    const paidRevenue = paidOrders.reduce(
+      (sum, order) => sum + getOrderTotalForSelectedUnit(order),
+      0,
+    );
+    const paymentsTotal = relevantPaidPayments.reduce(
+      (sum, payment) => sum + (parseFloat(payment?.amount) || 0),
+      0,
+    );
+    return {
+      totalOrders: activeOrders.length,
+      paidOrders: paidOrders.length,
+      pendingOrders: pendingOrders.length,
+      voidedOrders: voidedOrders.length,
+      paidRevenue,
+      totalPayments: relevantPayments.length,
+      paidPayments: relevantPaidPayments.length,
+      paymentsTotal,
+    };
+  })();
+
+  const wb = XLSX.utils.book_new();
+
+  const summaryAoa = [
+    ["Report", "Business Data Export"],
+    ["Business Unit", selectedUnit === "all" ? "All" : selectedUnit],
+    ["Date From", dateFrom || "All"],
+    ["Date To", dateTo || "All"],
+    ["Generated At", new Date().toLocaleString()],
+    ["Summary Metric", "Value"],
+    ["Total Orders", exportSummary.totalOrders],
+    ["Paid Orders", exportSummary.paidOrders],
+    ["Pending Orders", exportSummary.pendingOrders],
+    ["Voided Orders", exportSummary.voidedOrders],
+    ["Paid Revenue (Orders Total)", exportSummary.paidRevenue],
+    ["Payments Count", exportSummary.totalPayments],
+    ["Paid Payments Count", exportSummary.paidPayments],
+    ["Paid Payments Total", exportSummary.paymentsTotal],
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryAoa), "Summary");
+
+  // ----- Per-tab sheets: one worksheet per report tab -----
+  const paymentMethodRows = Object.entries(exportMetrics.paymentMethods || {}).map(
+    ([method, count]) => [String(method).replace(/_/g, " "), Number(count) || 0],
+  );
+  const revenueTrendRows = (exportMetrics.revenueTrend || []).map((p) => [
+    p.label,
+    p.orders,
+    p.revenue,
+  ]);
+  const categorySalesRows = (exportMetrics.categorySales || []).map((c) => [
+    c.name,
+    c.quantity,
+    c.revenue,
+  ]);
+  const topItemRows = (exportMetrics.topItems || []).map((t) => [t.name, t.sold, t.revenue ?? 0]);
+  const hourlyRows = (exportMetrics.hourlyPerformance || []).map((h) => [
+    h.hour,
+    h.orders,
+    h.revenue,
+  ]);
+
+  // Overview tab: revenue trend + payment methods
+  XLSX.utils.book_append_sheet(
+    wb,
+    buildSectionSheet([
+      { title: "Revenue Trend", columns: ["Date", "Orders", "Revenue"], rows: revenueTrendRows },
+      { title: "Payment Methods", columns: ["Method", "Paid Payments"], rows: paymentMethodRows },
+    ]),
+    "Overview",
+  );
+
+  // Product Mix tab: popular menu items + category sales
+  XLSX.utils.book_append_sheet(
+    wb,
+    buildSectionSheet([
+      { title: "Popular Menu Items", columns: ["Item", "Qty Sold", "Revenue"], rows: topItemRows },
+      {
+        title: "Category Sales",
+        columns: ["Category", "Quantity", "Revenue"],
+        rows: categorySalesRows,
+      },
+    ]),
+    "Product Mix",
+  );
+
+  // Sales Breakdown tab: payment methods + category sales
+  XLSX.utils.book_append_sheet(
+    wb,
+    buildSectionSheet([
+      { title: "Payment Methods", columns: ["Method", "Paid Payments"], rows: paymentMethodRows },
+      {
+        title: "Category Sales",
+        columns: ["Category", "Quantity", "Revenue"],
+        rows: categorySalesRows,
+      },
+    ]),
+    "Sales Breakdown",
+  );
+
+  // Operations tab: hourly performance
+  XLSX.utils.book_append_sheet(
+    wb,
+    buildSectionSheet([
+      { title: "Hourly Performance", columns: ["Hour", "Orders", "Revenue"], rows: hourlyRows },
+    ]),
+    "Operations",
+  );
+
+  const orderHeaders = [
+    "order_id",
+    "created_at",
+    "type",
+    "status",
+    "derived_status",
+    "payment_status",
+    "employee_id",
+    "employee_name",
+    "table_number",
+    "total_amount",
+    "selected_unit",
+    "selected_unit_total_amount",
+    "notes",
+    "menu_item_id",
+    "menu_item_name",
+    "category",
+    "main_category",
+    "item_type",
+    "quantity",
+    "unit_price",
+    "subtotal",
+  ];
+
+  const orderRows: any[] = [];
+  relevantOrders.forEach((order) => {
+    const items = Array.isArray(order?.items) ? order.items : [];
+    const orderFallback = String(order?.type || "").trim().toLowerCase();
+    const fallbackDept = orderFallback === "bakery" ? "cafe" : orderFallback || null;
+    const relevantItems =
+      selectedUnit === "all"
+        ? items
+        : items.filter((item: any) => (getItemDepartment(item) || fallbackDept) === selectedUnit);
+    const selectedUnitTotal = getOrderTotalForSelectedUnit(order);
+    const derivedStatus = getDerivedStatus(order);
+
+    const base = {
+      order_id: order?.id,
+      created_at: order?.created_at,
+      type: order?.type,
+      status: order?.status,
+      derived_status: derivedStatus,
+      payment_status: order?.payment_status,
+      employee_id: order?.employee_id,
+      employee_name: order?.employee_name,
+      table_number: order?.table_number,
+      total_amount: order?.total_amount,
+      selected_unit: selectedUnit,
+      selected_unit_total_amount: selectedUnitTotal,
+      notes: order?.notes,
+    };
+
+    if (relevantItems.length === 0) {
+      orderRows.push({
+        ...base,
+        menu_item_id: null,
+        menu_item_name: null,
+        category: null,
+        main_category: null,
+        item_type: null,
+        quantity: null,
+        unit_price: null,
+        subtotal: null,
+      });
+      return;
+    }
+
+    relevantItems.forEach((it: any) => {
+      orderRows.push({
+        ...base,
+        menu_item_id: it?.menu_item_id,
+        menu_item_name: it?.menu_item_name || it?.name,
+        category: it?.category,
+        main_category: it?.main_category,
+        item_type: it?.item_type,
+        quantity: it?.quantity,
+        unit_price: it?.unit_price,
+        subtotal: it?.subtotal,
+      });
+    });
+  });
+  XLSX.utils.book_append_sheet(wb, buildSheetFromRows(orderRows, orderHeaders), "Orders");
+
+  const paymentHeaders = [
+    "payment_id",
+    "created_at",
+    "order_id",
+    "order_type",
+    "selected_unit",
+    "amount",
+    "payment_method",
+    "status",
+    "processed_by",
+    "processed_by_name",
+    "description",
+  ];
+  const paymentRows = relevantPayments.map((p) => ({
+    payment_id: p?.id,
+    created_at: p?.created_at,
+    order_id: p?.order_id,
+    order_type: p?.order_type,
+    selected_unit: selectedUnit,
+    amount: p?.amount,
+    payment_method: p?.payment_method,
+    status: p?.status,
+    processed_by: p?.processed_by,
+    processed_by_name: p?.processed_by_name,
+    description: p?.description,
+  }));
+  XLSX.utils.book_append_sheet(wb, buildSheetFromRows(paymentRows, paymentHeaders), "Payments");
+
+  const itemSummaryHeaders = [
+    "menu_item_id",
+    "menu_item_name",
+    "category",
+    "main_category",
+    "business_unit",
+    "first_ordered_at",
+    "last_ordered_at",
+    "first_paid_at",
+    "last_paid_at",
+    "ordered_qty",
+    "paid_qty",
+    "ordered_revenue",
+    "paid_revenue",
+  ];
+  const itemSummaryRows = Array.from(itemSummaryMap.values()).sort(
+    (a, b) => (b.ordered_qty || 0) - (a.ordered_qty || 0),
+  );
+  XLSX.utils.book_append_sheet(
+    wb,
+    buildSheetFromRows(itemSummaryRows, itemSummaryHeaders),
+    "Items Summary",
+  );
+
+  // Z-Report tab: fetched from the backend for the selected date range.
+  // Empty dates fall back to today, matching the backend default.
+  let zReport: any = null;
+  try {
+    zReport = await Orders.zReport({
+      start_date: dateFrom || undefined,
+      end_date: dateTo || undefined,
+    });
+  } catch {
+    zReport = null;
+  }
+
+  const zSections: SheetSection[] = [];
+  if (zReport) {
+    zSections.push({
+      title: "Z-Report Summary",
+      columns: ["Metric", "Value"],
+      rows: [
+        ["Period Start", zReport.period_start || ""],
+        ["Period End", zReport.period_end || ""],
+        ["Generated At", zReport.report_date || ""],
+        ["Total Orders", zReport.summary?.total_orders ?? 0],
+        ["Gross Sales", zReport.summary?.gross_sales ?? 0],
+        ["Refunds", zReport.summary?.refunds ?? 0],
+        ["Discounts", zReport.summary?.discounts ?? 0],
+        ["Net Sales", zReport.summary?.net_sales ?? 0],
+      ],
+    });
+    zSections.push({
+      title: "Payment Breakdown",
+      columns: ["Method", "Count", "Amount", "%"],
+      rows: (zReport.payment_breakdown || []).map((p: any) => [
+        p.method,
+        p.count,
+        p.amount,
+        `${Number(p.percentage || 0).toFixed(1)}%`,
+      ]),
+    });
+    zSections.push({
+      title: "Employee Activity",
+      columns: ["Employee", "Orders", "Sales"],
+      rows: (zReport.employee_activity || []).map((e: any) => [
+        e.employee_name,
+        e.orders_count,
+        e.total_sales,
+      ]),
+    });
+    zSections.push({
+      title: "Category Breakdown",
+      columns: ["Category", "Count", "Amount"],
+      rows: (zReport.category_breakdown || []).map((c: any) => [c.category, c.count, c.amount]),
+    });
+    zSections.push({
+      title: "Voided Transactions",
+      columns: ["Order ID", "Employee", "Amount", "Time"],
+      rows: (zReport.voided_transactions || []).map((t: any) => [
+        `#${t.order_id}`,
+        t.employee_name,
+        t.amount,
+        t.created_at,
+      ]),
+    });
+  } else {
+    zSections.push({
+      title: "Z-Report",
+      rows: [["Unable to load Z-Report for the selected range"]],
+    });
+  }
+  XLSX.utils.book_append_sheet(wb, buildSectionSheet(zSections), "Z-Report");
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const fromSlug = dateFrom || "all";
+  const toSlug = dateTo || "all";
+  const unitSlug = selectedUnit || "all";
+  const filename = `business-data-${unitSlug}-${fromSlug}-to-${toSlug}-${todayStr}.xlsx`;
+
+  XLSX.writeFile(wb, filename);
+}
+
+// ---------------------------------------------------------------------------
+// PDF export for the "Foods & Drinks Sold" items table.
+// ---------------------------------------------------------------------------
+
+export interface ItemsSoldPdfRow {
+  unit: string;
+  item: string;
+  qtySold: number;
+  revenue: number;
+}
+
+export function exportItemsSoldPdf(
+  rows: ItemsSoldPdfRow[],
+  meta: {
+    periodLabel: string;
+    unitFilter: string;
+    foodQty: number;
+    softQty: number;
+    totalRevenue: number;
+  },
+) {
+  const doc = new jsPDF();
+
+  doc.setFontSize(16);
+  doc.text("Foods & Drinks Sold", 14, 16);
+
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text(
+    `Period: ${meta.periodLabel}   |   Unit: ${meta.unitFilter}   |   Generated: ${new Date().toLocaleString()}`,
+    14,
+    23,
+  );
+
+  doc.setTextColor(0);
+  doc.setFontSize(10);
+  doc.text(`Total Food Items Sold: ${meta.foodQty.toLocaleString()}`, 14, 32);
+  doc.text(`Total Beverages Sold: ${meta.softQty.toLocaleString()}`, 14, 38);
+  doc.text(`Total Revenue: ${birr(meta.totalRevenue)}`, 14, 44);
+
+  autoTable(doc, {
+    startY: 50,
+    head: [["Business Unit", "Item Name", "Quantity Sold", "Revenue"]],
+    body: rows.map((r) => [r.unit, r.item, String(r.qtySold), birr(r.revenue)]),
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [30, 41, 59] },
+    columnStyles: { 2: { halign: "right" }, 3: { halign: "right" } },
+  });
+
+  const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  const unitSlug = slugify(meta.unitFilter || "all") || "all";
+  const periodSlug = slugify(meta.periodLabel) || "range";
+  const todaySlug = new Date().toISOString().slice(0, 10);
+  doc.save(`items-sold-${unitSlug}-${periodSlug}-${todaySlug}.pdf`);
+}
