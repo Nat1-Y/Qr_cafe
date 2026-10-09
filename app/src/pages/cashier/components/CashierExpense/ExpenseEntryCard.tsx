@@ -27,7 +27,7 @@ export const ExpenseEntryCard: React.FC<ExpenseEntryCardProps> = ({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-base">New Expense Entry</CardTitle>
+        <CardTitle>New expense entry</CardTitle>
         <div className="text-sm font-semibold rounded-md border bg-muted/50 px-3 py-1.5">
           Total: {total.toFixed(2)} Birr
         </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Clipboard, CheckCircle, Coffee, DollarSign } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import StatsCard from '@/components/common/StatsCard';
 
 interface Stats {
   ordersCreated: number;
@@ -42,27 +42,10 @@ export const EmployeeStatsGrid: React.FC<EmployeeStatsGridProps> = ({
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {cards.map((card, idx) => {
-        const Icon = card.icon;
-        return (
-          <Card key={idx} className="transition-colors hover:bg-muted/40">
-            <CardContent className="flex items-center justify-between p-5">
-              <div className="space-y-1.5">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  {card.title}
-                </p>
-                <p className="text-xl font-semibold tracking-tight text-foreground">
-                  {card.value}
-                </p>
-              </div>
-              <div className="rounded-xl bg-muted p-3 text-muted-foreground">
-                <Icon className="h-5 w-5" />
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {cards.map((card, idx) => (
+        <StatsCard key={idx} title={card.title} value={card.value} />
+      ))}
     </div>
   );
 };

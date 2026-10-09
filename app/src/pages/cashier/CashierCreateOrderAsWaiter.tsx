@@ -1,9 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { formatOrderNumber } from '@/lib/utils';
 
 // Hooks
@@ -17,6 +15,7 @@ import MobileCartDialog from './components/CreateOrder/MobileCartDialog';
 import MenuItemCard from './components/CreateOrder/MenuItemCard';
 import { formatETB } from '@/lib/format';
 
+import EmptyState from '@/components/common/EmptyState';
 const CashierCreateOrderAsWaiter = () => {
   const navigate = useNavigate();
   const [isMobileSummaryOpen, setIsMobileSummaryOpen] = React.useState(false);
@@ -66,7 +65,7 @@ const CashierCreateOrderAsWaiter = () => {
   if (loading) return <LoadingSpinner text="Loading menu..." />;
 
   return (
-    <div className="h-screen overflow-hidden bg-background font-sans flex flex-col animate-in fade-in duration-300">
+    <div className="flex h-screen flex-col overflow-hidden bg-background">
       <CreateOrderHeader
         waiterName={waiterName}
         deliveryMode={deliveryMode}
@@ -76,18 +75,18 @@ const CashierCreateOrderAsWaiter = () => {
       />
 
       {isAddMode && (
-        <div className="mx-4 sm:mx-6 mt-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-bold text-primary">
-          Adding items to Order {formatOrderNumber(existingOrder)}
-          {existingOrder?.table_number ? ` • Table ${existingOrder.table_number}` : ''}
+        <div className="mx-4 mt-3 rounded-xl bg-highlight/50 px-4 py-2.5 text-sm text-foreground sm:mx-6">
+          Adding to <span className="font-semibold">{formatOrderNumber(existingOrder)}</span>
+          {existingOrder?.table_number ? ` · Table ${existingOrder.table_number}` : ''}
         </div>
       )}
 
-      <div className="flex-1 min-h-0 max-w-full mx-auto px-4 sm:px-6 pb-5 flex flex-col lg:flex-row gap-6 overflow-hidden w-full">
-        <div className="flex-1 min-h-0 space-y-2 flex flex-col">
+      <div className="mx-auto flex min-h-0 w-full max-w-full flex-1 flex-col gap-6 overflow-hidden px-4 pb-24 pt-4 sm:px-6 lg:flex-row lg:pb-5">
+        <div className="flex min-h-0 flex-1 flex-col gap-3">
           <OrderFiltersPanel
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
-            searchPlaceholder="Search menu items for this table..."
+            searchPlaceholder="Search the menu"
             allTables={allTables}
             selectedTable={selectedTable}
             onSelectTable={setSelectedTable}
@@ -109,65 +108,37 @@ const CashierCreateOrderAsWaiter = () => {
             forceTableSelection={forceTableSelection}
           />
 
-          <Card className="flex min-h-0 flex-1 flex-col overflow-hidden border-border/80 bg-card/90 shadow-sm">
-            <div className="flex flex-col gap-3 border-b border-border/50 bg-muted/30 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <h3 className="text-base font-bold text-foreground">Menu items</h3>
-                  <Badge variant="outline" className="border-border bg-accent text-accent-foreground">
-                    {filteredItems.length} items
-                  </Badge>
-                </div>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {trimmedSearchQuery
-                    ? `Showing matches for “${trimmedSearchQuery}”.`
-                    : 'Tap Add on any row to include the item in this order.'}
-                </p>
-              </div>
-
+          <section className="flex min-h-0 flex-1 flex-col">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="text-sm text-muted-foreground">
+                {trimmedSearchQuery
+                  ? `${filteredItems.length} ${filteredItems.length === 1 ? 'match' : 'matches'} for “${trimmedSearchQuery}”`
+                  : `${filteredItems.length} ${filteredItems.length === 1 ? 'item' : 'items'}`}
+              </p>
               {trimmedSearchQuery ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSearchQuery('')}
-                  className="self-start border-border bg-background text-foreground/80 hover:bg-muted/40"
-                >
+                <Button type="button" variant="ghost" size="sm" onClick={() => setSearchQuery('')}>
                   Clear search
                 </Button>
               ) : null}
             </div>
 
-            <CardContent className="min-h-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 overflow-auto gap-2 p-2">
-              {filteredItems.length === 0 ? (
-                <div className="flex min-h-full flex-col items-center justify-center px-6 py-16 text-center">
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted text-2xl shadow-sm">
-                    🍽️
-                  </div>
-                  <h3 className="text-lg font-bold text-foreground mb-1">
-                    {trimmedSearchQuery ? 'No matching items found' : 'No items found'}
-                  </h3>
-                  <p className="text-muted-foreground font-medium max-w-md">
-                    {trimmedSearchQuery
-                      ? 'Try a different keyword or clear the search to see all available items.'
-                      : 'Try selecting a different category to load items here.'}
-                  </p>
-                </div>
-              ) : (
-                  <>
-                  {
-                    filteredItems.map((item) => (
-                      <MenuItemCard key={item.id} item={item} onAddToCart={addToOrder} />
-                    ))
-                  }
-                  </>
-                
-              )}
-            </CardContent>
-          </Card>
+            {filteredItems.length === 0 ? (
+              <EmptyState
+                className="rounded-card border border-dashed border-border"
+                title={trimmedSearchQuery ? 'Nothing on the menu matches that' : 'No items in this category'}
+                description={trimmedSearchQuery ? 'Try another word, or clear the search.' : 'Pick another category above.'}
+              />
+            ) : (
+              <div className="grid min-h-0 grid-cols-2 content-start gap-3 overflow-auto pb-1 sm:grid-cols-3 xl:grid-cols-4">
+                {filteredItems.map((item) => (
+                  <MenuItemCard key={item.id} item={item} onAddToCart={addToOrder} />
+                ))}
+              </div>
+            )}
+          </section>
         </div>
 
-        <div className="hidden lg:flex lg:flex-col lg:w-96 min-h-0">
+        <div className="hidden min-h-0 lg:flex lg:w-96 lg:flex-col">
           <WaiterCartSidebar
             orderItems={orderItems}
             selectedTable={selectedTable}

@@ -1,4 +1,4 @@
-import { uuidToDisplayId } from "@/lib/utils";
+
 import React, { useRef, useState, useEffect } from 'react';
 import { Order } from '@/types/api.types';
 import { ReceiptFormat } from '../../hooks/useReceiptData';
@@ -67,7 +67,6 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
         { Text: { text: `Time: ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`, align: 'Center' } },
       ];
 
-
       sections.push({ Text: { text: '--------------------------------', align: 'Center' } });
       sections.push({ Text: { text: '--------------------------------', align: 'Center' } });
       sections.push({
@@ -135,15 +134,15 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
               <style>
                 body { font-family: monospace; margin: 0; padding: 20px; }
                 .receipt { max-width: 300px; margin: 0 auto; }
-                .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px }
+                .header { text-align: center; border-bottom: 2px dashed black; padding-bottom: 10px; margin-bottom: 10px }
                 .title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
                 .row { display: flex; justify-content: space-between; margin: 5px 0; }
-                .divider { border-top: 1px dashed #000; margin: 10px 0; }
+                .divider { border-top: 1px dashed black; margin: 10px 0; }
                 .total { font-weight: bold; font-size: 16px; }
                 .footer { text-align: center; margin-top: 15px; font-size: 12px; }
                 table { width: 100%; border-collapse: collapse; }
                 th, td { text-align: left; padding: 5px 0; }
-                th { border-bottom: 1px solid #000; }
+                th { border-bottom: 1px solid black; }
               </style>
             </head>
             <body>
@@ -175,8 +174,8 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="text-center text-gray-500 py-12">
+      <div className="rounded-card border border-border bg-card p-6">
+        <div className="text-center text-muted-foreground py-12">
           <p className="text-lg">Loading order details...</p>
         </div>
       </div>
@@ -185,8 +184,8 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
 
   if (!transaction) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="text-center text-gray-500 py-12">
+      <div className="rounded-card border border-border bg-card p-6">
+        <div className="text-center text-muted-foreground py-12">
           <p className="text-lg">Select a payment or order to preview receipt</p>
         </div>
       </div>
@@ -194,26 +193,26 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 space-y-4">
+    <div className="space-y-4 rounded-card border border-border bg-card p-6">
       <div className="flex justify-between items-center gap-2">
-        <h3 className="font-semibold text-lg">Receipt Preview</h3>
+        <h3 className="text-section">Receipt preview</h3>
         <div className="flex gap-2">
           {availablePrinters.length > 0 && (
             <div className="relative">
               <Button
+                variant="outline"
                 onClick={() => setShowPrinterDropdown(!showPrinterDropdown)}
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg transition-colors hover:bg-gray-700 flex items-center gap-2"
               >
                 <Printer className="w-4 h-4" />
-                {selectedPrinter || 'Select Printer'}
+                {selectedPrinter || 'Choose printer'}
                 <ChevronDown className="w-4 h-4" />
               </Button>
               {showPrinterDropdown && (
-                <div className="absolute right-0 top-full mt-1 bg-white border rounded-lg shadow-lg z-50 min-w-[200px]">
+                <div className="absolute right-0 top-full z-50 mt-1 min-w-[200px] rounded-xl border border-border bg-popover p-1 shadow-pop">
                   {availablePrinters.map((printer) => (
                     <button
                       key={printer}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 first:rounded-t-lg last:rounded-b-lg"
+                      className="w-full rounded-lg px-2.5 py-2 text-left text-sm hover:bg-muted"
                       onClick={() => {
                         setSelectedPrinter(printer);
                         setShowPrinterDropdown(false);
@@ -228,32 +227,31 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
           )}
           <Button
             onClick={handlePrint}
-            className="px-4 py-2 text-white rounded-lg transition-colors"
             disabled={!selectedPrinter}
           >
-            Print Receipt
+            Print receipt
           </Button>
           <Button
             onClick={handleBrowserPrint}
-            className="px-4 py-2 bg-gray-600 text-white rounded-lg transition-colors hover:bg-gray-700"
+            variant="outline"
           >
-            Browser Print
+            Browser print
           </Button>
         </div>
       </div>
 
-      <div className="border rounded-lg p-6 bg-gray-50">
-        <div ref={receiptRef} className="max-w-sm mx-auto bg-white p-6 font-mono text-sm">
+      <div className="rounded-xl bg-muted p-6">
+        <div ref={receiptRef} className="mx-auto max-w-sm bg-paper p-6 font-mono text-sm text-paper-foreground">
           {/* Business Header */}
-          <div className="text-center border-b-2 border-black pb-4 mb-4">
-            <div className="font-bold text-lg">{format.businessName}</div>
+          <div className="text-center border-b-2 border-paper-foreground pb-4 mb-4">
+            <div className="font-semibold text-lg">{format.businessName}</div>
             <div className="text-xs mt-1">{format.businessAddress}</div>
             <div className="text-xs">{format.businessPhone}</div>
             <div className="text-xs">{format.businessEmail}</div>
           </div>
 
           {/* Receipt Title */}
-          <div className="text-center border-b border-dashed border-black pb-2 mb-4">
+          <div className="text-center border-b border-dashed border-paper-foreground pb-2 mb-4">
             {format.showDate && (
               <div className="text-xs mt-1">
                 {new Date().toLocaleDateString('en-GB', {
@@ -273,13 +271,12 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
             )}
           </div>
 
-
           {/* Items */}
           {order?.items && order.items.length > 0 ? (
-            <div className="border-b border-dashed border-black pb-2 mb-4">
+            <div className="border-b border-dashed border-paper-foreground pb-2 mb-4">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-black">
+                  <tr className="border-b border-paper-foreground">
                     <th className="text-left py-1">Item</th>
                     <th className="text-right py-1">Qty</th>
                     <th className="text-right py-1">Price</th>
@@ -303,7 +300,7 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
               </table>
             </div>
           ) : (
-            <div className="border-b border-dashed border-black pb-2 mb-4">
+            <div className="border-b border-dashed border-paper-foreground pb-2 mb-4">
               <div className="flex justify-between">
                 <span>Amount:</span>
                 <span>{parseFloat(String(amount)).toFixed(2)} {format.currency}</span>
@@ -312,7 +309,7 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
           )}
 
           {/* Financial Summary */}
-          <div className="border-b-2 border-black pb-2 mb-4">
+          <div className="border-b-2 border-paper-foreground pb-2 mb-4">
             {format.showSubtotal && order?.items && (
               <div className="flex justify-between">
                 <span>Subtotal:</span>
@@ -337,7 +334,7 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
                 <span>{tax.toFixed(2)} {format.currency}</span>
               </div>
             )}
-            <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t border-black">
+            <div className="flex justify-between font-semibold text-lg mt-2 pt-2 border-t border-paper-foreground">
               <span>TOTAL:</span>
               <span>{parseFloat(String(total || amount)).toFixed(2)} {format.currency}</span>
             </div>
@@ -345,25 +342,25 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
 
           {/* Footer */}
           <div className="text-center text-xs space-y-2">
-            <div className="border-t border-dashed border-black pt-2">
+            <div className="border-t border-dashed border-paper-foreground pt-2">
               <p className="font-semibold">{format.receiptFooter}</p>
             </div>
             {/* Demo Disclaimer */}
-            <div className="text-center border-b border-dashed border-black pb-2 mb-4">
-              <p className="font-bold text-xs text-red-600">
+            <div className="text-center border-b border-dashed border-paper-foreground pb-2 mb-4">
+              <p className="font-semibold text-xs text-destructive">
                 This is only used for demo purposes. Don't use this for commercial purposes.
               </p>
             </div>
 
             {format.showRefundPolicy && (
-              <p className="text-gray-600">{format.showRefundPolicy}</p>
+              <p className="text-muted-foreground">{format.showRefundPolicy}</p>
             )}
 
             {format.showSignature && (
-              <div className="mt-4 pt-2 border-t border-dashed border-black">
+              <div className="mt-4 pt-2 border-t border-dashed border-paper-foreground">
                 <div className="flex justify-center mt-6">
                   <div className="text-center">
-                    <div className="border-b border-black w-32 mb-1"></div>
+                    <div className="border-b border-paper-foreground w-32 mb-1"></div>
                     <span>Cashier Signature</span>
                   </div>
 
@@ -372,7 +369,7 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
             )}
 
             {order?.updated_at && (
-              <p className="text-gray-500 mt-2">
+              <p className="text-muted-foreground mt-2">
                 Paid: {new Date(order.updated_at).toLocaleString()}
               </p>
             )}

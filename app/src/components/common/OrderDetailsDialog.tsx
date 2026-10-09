@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import api from '@/application';
-import { uuidToDisplayId, formatOrderNumber } from '@/lib/utils';
+import { formatOrderNumber } from '@/lib/utils';
 
 export interface OrderDetailsDialogProps {
   order: any | null;

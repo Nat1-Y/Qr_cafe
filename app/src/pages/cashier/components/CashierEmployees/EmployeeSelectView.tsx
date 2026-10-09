@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/input';
 
 interface Employee {
   id: number;
@@ -35,26 +34,19 @@ export const EmployeeSelectView: React.FC<EmployeeSelectViewProps> = ({
 
   return (
     <Card>
-      <CardHeader className="flex flex-col gap-4 border-b sm:flex-row sm:items-center sm:justify-between">
-        <CardTitle className="text-base font-semibold text-foreground">
-          Waiter Profiles
-        </CardTitle>
-
-        <div className="relative w-full sm:w-72">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search by name, username..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
-        </div>
+      <CardHeader className="flex flex-col gap-4 border-b border-border sm:flex-row sm:items-center sm:justify-between">
+        <CardTitle>All waiters</CardTitle>
+        <SearchInput
+          placeholder="Find by name"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          wrapperClassName="sm:w-72"
+        />
       </CardHeader>
 
       <CardContent className="p-4">
         {filteredEmployees.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredEmployees.map((e) => {
               const initials = e.full_name
                 .split(' ')
@@ -69,14 +61,14 @@ export const EmployeeSelectView: React.FC<EmployeeSelectViewProps> = ({
                   key={e.id}
                   type="button"
                   onClick={() => onSelectEmployee(String(e.id))}
-                  className="group flex items-center gap-3 rounded-lg border bg-card p-2.5 text-left transition-colors hover:bg-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="group flex min-h-14 items-center gap-3 rounded-card border border-border bg-card p-3 text-left transition-colors hover:border-primary/40 hover:bg-row-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-ring"
                 >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-highlight text-sm font-semibold text-highlight-foreground">
                     {initials || '?'}
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-medium leading-tight text-foreground">
+                    <p className="truncate text-sm font-medium text-foreground">
                       {e.full_name}
                     </p>
                     <div className="mt-1 flex items-center gap-1.5">
@@ -85,7 +77,7 @@ export const EmployeeSelectView: React.FC<EmployeeSelectViewProps> = ({
                           e.is_active ? 'bg-success' : 'bg-muted-foreground'
                         }`}
                       />
-                      <span className="truncate text-[10px] capitalize text-muted-foreground">
+                      <span className="truncate text-xs capitalize text-muted-foreground">
                         {e.role.replace('_', ' ')}
                       </span>
                     </div>
@@ -95,9 +87,7 @@ export const EmployeeSelectView: React.FC<EmployeeSelectViewProps> = ({
             })}
           </div>
         ) : (
-          <div className="py-16 text-center text-xs text-muted-foreground">
-            No employees match your search criteria.
-          </div>
+          <p className="py-12 text-center text-sm text-muted-foreground">No waiter by that name.</p>
         )}
       </CardContent>
     </Card>

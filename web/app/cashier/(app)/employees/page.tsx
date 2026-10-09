@@ -6,12 +6,6 @@ import Link from "next/link";
 import { toast } from "sonner";
 import {
   ArrowLeft,
-  Search,
-  User,
-  Clipboard,
-  CheckCircle,
-  Coffee,
-  DollarSign,
   RefreshCw,
   CheckCircle2,
   XCircle,
@@ -28,6 +22,10 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatETB } from "@/lib/format";
+import { SearchInput } from "@/components/ui/input";
+import { Segmented } from "@/components/segmented";
+import { PageHeader } from "@/components/page-header";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -64,10 +62,7 @@ const PAYMENT_METHODS = [
   { value: "mobile", label: "Mobile" },
 ];
 
-function formatCurrency(n: any): string {
-  const v = Number(n) || 0;
-  return `${v.toLocaleString()} Br`;
-}
+const formatCurrency = formatETB;
 
 function normalizeStatus(s: any): string {
   return String(s || "").toLowerCase().replace(/[^a-z]/g, "").trim();
@@ -677,7 +672,7 @@ export default function CashierEmployeesPage() {
 
   const ItemLines = ({ items }: { items: any[] }) =>
     items.length > 0 ? (
-      <div className="space-y-1 rounded-lg border bg-muted/30 p-2 text-[11px]">
+      <div className="space-y-1 rounded-lg border bg-muted/30 p-2 text-xs">
         {items.map((it: any, idx: number) => (
           <div key={it.id || idx} className="flex justify-between gap-2 text-muted-foreground">
             <span className="truncate">
@@ -694,37 +689,33 @@ export default function CashierEmployeesPage() {
   // ── Render: employee select ────────────────────────────────────────────────
   if (!selectedId) {
     return (
-      <div className="p-4 sm:p-6 space-y-6">
-        <Card>
-          <CardHeader className="pb-3 border-b">
-            <CardTitle className="text-base flex items-center gap-2">
-              <User className="h-5 w-5 text-primary" />
-              Employees
-            </CardTitle>
-            <CardDescription>
-              {isAttached
-                ? `Review each waiter's ${departments.map((d) => prettyDept(d, deptLabels)).join(", ")} orders`
-                : "Pick a waiter to review their active orders and payments"}
-            </CardDescription>
-            <CardAction>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/cashier">
-                  <ArrowLeft className="size-4" />
-                  Queue
-                </Link>
-              </Button>
-            </CardAction>
-          </CardHeader>
-          <CardContent className="pt-5 space-y-4">
-            <div className="relative w-full sm:max-w-xs">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search by name, username…"
+      <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-8">
+        <PageHeader
+          title="Waiters"
+          description={
+            isAttached
+              ? `Each waiter's ${departments.map((d) => prettyDept(d, deptLabels)).join(", ")} orders.`
+              : "Pick a waiter to see their orders and payments."
+          }
+          action={
+            <>
+              <SearchInput
+                placeholder="Find a waiter"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
+                wrapperClassName="w-full sm:w-64"
               />
-            </div>
+              <Button variant="outline" asChild>
+                <Link href="/cashier">
+                  <ArrowLeft />
+                  Till
+                </Link>
+              </Button>
+            </>
+          }
+        />
+        <Card>
+          <CardContent className="space-y-4">
 
             {loadingEmployees ? (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -733,11 +724,9 @@ export default function CashierEmployeesPage() {
                 ))}
               </div>
             ) : filteredEmployees.length === 0 ? (
-              <div className="py-16 text-center text-sm text-muted-foreground">
-                No employees match your search.
-              </div>
+              <p className="py-12 text-center text-sm text-muted-foreground">No waiter by that name.</p>
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filteredEmployees.map((e) => (
                   <button
                     key={e.id}
@@ -746,9 +735,9 @@ export default function CashierEmployeesPage() {
                       setSelectedId(e.id);
                       setTableFilter("");
                     }}
-                    className="group flex items-center gap-3 rounded-xl border bg-card p-3 text-left transition-colors hover:bg-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="group flex min-h-14 items-center gap-3 rounded-card border border-border bg-card p-3 text-left transition-colors outline-none hover:border-primary/40 hover:bg-row-hover focus-visible:ring-4 focus-visible:ring-ring"
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-highlight text-sm font-semibold text-highlight-foreground">
                       {initials(e.full_name)}
                     </span>
                     <span className="min-w-0 flex-1">
@@ -759,7 +748,7 @@ export default function CashierEmployeesPage() {
                         <span
                           className={`h-1.5 w-1.5 rounded-full ${e.is_active ? "bg-success" : "bg-muted-foreground"}`}
                         />
-                        <span className="truncate text-[11px] capitalize text-muted-foreground">
+                        <span className="truncate text-xs capitalize text-muted-foreground">
                           {e.role.replace("_", " ")}
                         </span>
                       </span>
@@ -776,100 +765,60 @@ export default function CashierEmployeesPage() {
 
   // ── Render: employee detail ────────────────────────────────────────────────
   return (
-    <div className="p-4 sm:p-6 space-y-6">
-      <Card>
-        <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-sm font-bold text-primary">
-              {initials(selectedEmployee?.full_name || "")}
-            </span>
-            <div className="min-w-0">
-              <h1 className="truncate text-lg font-extrabold text-foreground">
-                {selectedEmployee?.full_name || selectedId}
-              </h1>
-              <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                <span className="text-xs font-semibold capitalize text-muted-foreground">
-                  {(selectedEmployee?.role || "cafe waiter").replace("_", " ")}
-                </span>
-                {isAttached
-                  ? departments.map((d) => (
-                      <Badge key={d} variant="info" className="text-[9px] uppercase">
-                        {prettyDept(d, deptLabels)}
-                      </Badge>
-                    ))
-                  : null}
-              </div>
-            </div>
-          </div>
-          <Button variant="outline" size="sm" onClick={() => setSelectedId("")}>
-            <ArrowLeft className="size-4" />
-            Back to employees
+    <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-8">
+      <PageHeader
+        eyebrow={<span className="capitalize">{(selectedEmployee?.role || "cafe waiter").replace("_", " ")}</span>}
+        title={selectedEmployee?.full_name || selectedId}
+        description={
+          isAttached ? departments.map((d) => prettyDept(d, deptLabels)).join(" · ") : "Orders, payments and checkout."
+        }
+        action={
+          <Button variant="outline" onClick={() => setSelectedId("")}>
+            <ArrowLeft />
+            All waiters
           </Button>
-        </CardContent>
-      </Card>
+        }
+      />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard title="Created Orders" value={stats.created} icon={<Clipboard className="w-5 h-5" />} variant="info" />
-        <StatsCard title="Settled Orders" value={stats.served} icon={<CheckCircle className="w-5 h-5" />} variant="success" />
-        <StatsCard title={isAttached ? "Gross (dept)" : "Gross Settled"} value={formatCurrency(stats.revenue)} icon={<Coffee className="w-5 h-5" />} variant="default" />
-        <StatsCard title="Pending Balance" value={formatCurrency(stats.pending)} icon={<DollarSign className="w-5 h-5" />} variant="warning" />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatsCard title="Orders taken" value={stats.created} />
+        <StatsCard title="Orders paid" value={stats.served} variant="success" />
+        <StatsCard title={isAttached ? "Taken for your department" : "Taken"} value={formatCurrency(stats.revenue)} />
+        <StatsCard title="Still to pay" value={formatCurrency(stats.pending)} variant="warning" />
       </div>
 
-      {/* Range filter */}
-      <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-            Time range
-          </p>
-          <p className="text-sm text-muted-foreground">Filter stats and activity</p>
-        </div>
-        <div className="inline-flex flex-wrap gap-1 rounded-lg border bg-muted/40 p-1">
-          {RANGES.map((r) => (
-            <Button
-              key={r.key}
-              variant={range === r.key ? "secondary" : "ghost"}
-              size="sm"
-              className="h-8 px-3 text-xs font-bold"
-              onClick={() => setRange(r.key)}
-            >
-              {r.label}
-            </Button>
-          ))}
-        </div>
-      </div>
+      <Segmented
+        aria-label="Time range"
+        value={range}
+        onChange={(v) => setRange(v)}
+        options={RANGES.map((r) => ({ value: r.key, label: r.label }))}
+      />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start">
         {/* Active invoices */}
         <Card className="flex flex-col overflow-hidden">
           <CardHeader className="pb-3 border-b">
-            <CardTitle className="text-base">Active Invoices</CardTitle>
+            <CardTitle>Waiting for payment</CardTitle>
             <CardDescription>
-              {isAttached
-                ? "Your department's share, ready to settle"
-                : "Orders ready for payment"}
+              {isAttached ? "Your department's share." : "This waiter's served orders."}
             </CardDescription>
             <CardAction>
-              <Badge variant="info" className="text-xs font-bold">
-                {visibleQueue.length} Pending
+              <Badge variant="default">
+                {visibleQueue.length} {visibleQueue.length === 1 ? "order" : "orders"}
               </Badge>
             </CardAction>
           </CardHeader>
           <CardContent className="pt-4 space-y-3">
-            <div className="relative w-full sm:max-w-[12rem]">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
+            <SearchInput
                 placeholder="Table filter…"
                 value={tableFilter}
-                onChange={(e) => setTableFilter(e.target.value)}
-                className="h-9 pl-8 text-xs"
-              />
-            </div>
+                onChange={(e) => setTableFilter(e.target.value)} wrapperClassName="w-full sm:max-w-[12rem]" />
 
             {pendingSettleTasks.length > 1 ? (
               <Button
                 size="sm"
-                className="w-full h-10 bg-success hover:bg-success/90 text-white font-bold"
+                className="w-full h-10 bg-success hover:bg-success/90 text-success-foreground"
                 disabled={settlingAll}
                 onClick={() => {
                   setConfirmMethod("cash");
@@ -886,7 +835,7 @@ export default function CashierEmployeesPage() {
             ) : null}
 
             {loadingDetail && visibleQueue.length === 0 ? (
-              [...Array(3)].map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-2xl" />)
+              [...Array(3)].map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-card" />)
             ) : visibleQueue.length === 0 ? (
               <div className="py-12 text-center text-xs text-muted-foreground">
                 No active invoices waiting for payment
@@ -895,10 +844,10 @@ export default function CashierEmployeesPage() {
               visibleQueue.map((order) => {
                 const dues = order.department_dues ?? [];
                 return (
-                  <div key={order.id} className="border rounded-2xl p-4 bg-muted/20 space-y-3">
+                  <div key={order.id} className="border rounded-card p-4 bg-muted/20 space-y-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="text-xs font-extrabold text-foreground">
+                        <p className="text-xs font-semibold text-foreground">
                           #{order.order_number ?? "—"}
                           {order.table_number ? (
                             <span className="ml-2 font-medium text-muted-foreground">
@@ -906,7 +855,7 @@ export default function CashierEmployeesPage() {
                             </span>
                           ) : null}
                         </p>
-                        <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        <p className="mt-0.5 text-xs text-muted-foreground">
                           {formatCurrency(order.total_amount)} total
                         </p>
                       </div>
@@ -916,17 +865,17 @@ export default function CashierEmployeesPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="w-full h-8 text-xs font-bold"
+                        className="w-full h-8"
                         onClick={() => setAddItemsTarget(order)}
                       >
-                        Add Items
+                        Add items
                       </Button>
                     )}
 
                     {isAttached ? (
                       <>
                       {dues.length === 0 ? (
-                        <p className="py-2 text-center text-[11px] text-muted-foreground">
+                        <p className="py-2 text-center text-xs text-muted-foreground">
                           Nothing to settle for your department.
                         </p>
                       ) : (
@@ -936,13 +885,13 @@ export default function CashierEmployeesPage() {
                           return (
                             <div key={due.department} className="rounded-xl border bg-background p-3 space-y-2">
                               <div className="flex items-center justify-between gap-2">
-                                <span className="text-xs font-extrabold uppercase tracking-wide text-foreground">
+                                <span className="text-xs font-semibold text-foreground">
                                   {prettyDept(due.department, deptLabels)}
                                 </span>
                                 {due.settled ? (
-                                  <Badge variant="success" className="text-[9px] uppercase">Paid</Badge>
+                                  <Badge variant="success">Paid</Badge>
                                 ) : (
-                                  <span className="text-sm font-extrabold text-foreground">
+                                  <span className="text-sm font-semibold text-foreground">
                                     {formatCurrency(due.subtotal)}
                                   </span>
                                 )}
@@ -951,7 +900,7 @@ export default function CashierEmployeesPage() {
                               {!due.settled ? (
                                 <Button
                                   size="sm"
-                                  className="w-full h-9 bg-success hover:bg-success/90 text-white font-bold"
+                                  className="w-full h-9 bg-success hover:bg-success/90 text-success-foreground"
                                   disabled={busy}
                                   onClick={() => {
                                     setConfirmMethod("cash");
@@ -969,7 +918,7 @@ export default function CashierEmployeesPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="w-full h-9 border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20 font-bold"
+                        className="w-full h-9 border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20"
                         disabled={processing.has(order.id)}
                         onClick={() => setCancelOrder(order)}
                       >
@@ -983,7 +932,7 @@ export default function CashierEmployeesPage() {
                         <div className="flex items-center gap-2">
                           <Button
                             size="sm"
-                            className="flex-1 h-9 bg-success hover:bg-success/90 text-white font-bold"
+                            className="flex-1 h-9 bg-success hover:bg-success/90 text-success-foreground"
                             disabled={processing.has(order.id)}
                             onClick={() => {
                               setConfirmMethod("cash");
@@ -1016,7 +965,7 @@ export default function CashierEmployeesPage() {
         {/* Timeline */}
         <Card className="flex flex-col overflow-hidden">
           <CardHeader className="pb-3 border-b">
-            <CardTitle className="text-base">Order Timeline</CardTitle>
+            <CardTitle>Order timeline</CardTitle>
             <CardDescription>
               {isAttached ? "Department activity in range" : "Recent activity in range"}
             </CardDescription>
@@ -1050,28 +999,28 @@ export default function CashierEmployeesPage() {
                       className={`flex items-start justify-between gap-3 rounded-xl border p-3 ${isCanceled ? "opacity-60 bg-destructive/5" : "bg-muted/10"}`}
                     >
                       <div className="min-w-0">
-                        <p className="flex items-center gap-1.5 text-xs font-extrabold text-foreground">
+                        <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                           <MapPin className="h-3 w-3 text-primary" />
                           {o.table_number ? `Table ${o.table_number}` : "Take Away"}
                           <span className="font-medium text-muted-foreground">#{o.order_number ?? "—"}</span>
                         </p>
                         {itemsPreview(deptItems) ? (
-                          <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                          <p className="mt-0.5 truncate text-xs text-muted-foreground">
                             {itemsPreview(deptItems)}
                           </p>
                         ) : null}
-                        <p className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground">
+                        <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                           <Clock className="h-3 w-3" />
                           {clockTime(o.created_at)}
                         </p>
                       </div>
                       <div className="flex flex-col items-end gap-1 shrink-0">
-                        <span className="text-xs font-extrabold text-foreground">
+                        <span className="text-xs font-semibold text-foreground">
                           {formatCurrency(deptSubtotalOf(o))}
                         </span>
                         <Badge
                           variant={label === "paid" ? "success" : label === "cancelled" ? "destructive" : "warning"}
-                          className="text-[9px] uppercase"
+                         
                         >
                           {label}
                         </Badge>
@@ -1101,7 +1050,7 @@ export default function CashierEmployeesPage() {
             <div className="space-y-4 py-1">
               <div className="flex items-center justify-between rounded-xl border bg-muted/30 px-4 py-3">
                 <span className="text-sm font-semibold text-muted-foreground">Amount due</span>
-                <span className="text-xl font-extrabold text-foreground">
+                <span className="text-xl font-semibold text-foreground">
                   {formatCurrency(
                     confirmTarget.kind === "department"
                       ? confirmTarget.due.subtotal
@@ -1114,7 +1063,7 @@ export default function CashierEmployeesPage() {
                 <select
                   value={confirmMethod}
                   onChange={(e) => setConfirmMethod(e.target.value)}
-                  className="h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 >
                   {PAYMENT_METHODS.map((m) => (
                     <option key={m.value} value={m.value}>
@@ -1157,7 +1106,7 @@ export default function CashierEmployeesPage() {
           <div className="space-y-4 py-1">
             <div className="flex items-center justify-between rounded-xl border bg-muted/30 px-4 py-3">
               <span className="text-sm font-semibold text-muted-foreground">Total amount</span>
-              <span className="text-xl font-extrabold text-foreground">
+              <span className="text-xl font-semibold text-foreground">
                 {formatCurrency(pendingSettleTotal)}
               </span>
             </div>
@@ -1167,7 +1116,7 @@ export default function CashierEmployeesPage() {
                 value={confirmMethod}
                 onChange={(e) => setConfirmMethod(e.target.value)}
                 disabled={settlingAll}
-                className="h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
               >
                 {PAYMENT_METHODS.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -1175,7 +1124,7 @@ export default function CashierEmployeesPage() {
                   </option>
                 ))}
               </select>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Applied to every payment in this batch.
               </p>
             </div>
@@ -1194,7 +1143,7 @@ export default function CashierEmployeesPage() {
               Cancel
             </Button>
             <Button
-              className="bg-success hover:bg-success/90 text-white"
+              className="bg-success hover:bg-success/90 text-success-foreground"
               onClick={doSettleAll}
               disabled={settlingAll || pendingSettleTasks.length === 0}
             >

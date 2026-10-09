@@ -3,9 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '@/application';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-import { ArrowLeftIcon, UserIcon } from 'lucide-react';
+import { ArrowLeftIcon } from 'lucide-react';
 import { Bike } from 'lucide-react';
 
+import PageHeader from '@/components/layout/PageHeader';
+import EmptyState from '@/components/common/EmptyState';
+import StatusBadge from '@/components/common/StatusBadge';
+import { Button } from '@/components/ui/button';
+import { SearchInput } from '@/components/ui/input';
 export const SESSION_KEY = 'cashier_order_waiter_v1';
 // A delivery order has no waiter to attribute — set when the cashier picks
 // "Start Delivery Order" here, read by useCashierCreateOrder as a fallback
@@ -123,95 +128,81 @@ const CashierSelectWaiterForOrder = () => {
   if (loading) return <LoadingSpinner text="Loading waiters..." />;
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <button
-            type="button"
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center space-x-2 px-4 py-2 border border-border rounded-lg bg-background hover:bg-muted transition-colors"
-          >
-            <ArrowLeftIcon className="w-4 h-4" />
-            <span>Back</span>
-          </button>
-
-          <div>
-            <h1 className="text-xl font-bold">Select Waiter</h1>
-          </div>
-        </div>
-
-        {deliveryMethods.length > 0 && (
-          <button
-            type="button"
-            onClick={handleStartDelivery}
-            className="mb-4 flex w-full items-center gap-3 rounded-lg border border-sky-300 bg-sky-500/10 p-4 text-left transition-colors hover:bg-sky-500/15"
-          >
-            <div className="flex-shrink-0 rounded-full bg-sky-500/15 p-2 text-sky-600">
-              <Bike className="h-5 w-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="font-semibold text-sky-700">Start Delivery Order</div>
-              <div className="text-sm text-sky-700/70">
-                No waiter needed — pick a delivery method on the next screen.
-              </div>
-            </div>
-          </button>
-        )}
-
-        <div className="border border-border rounded-lg bg-card">
-          <div className="p-4 border-b border-border">
-            <input
+    <div className="p-4 md:p-8 space-y-6">
+      <PageHeader
+        eyebrow="New order"
+        title="Who is it for?"
+        description="Pick the waiter serving this table, or start a delivery."
+        actions={
+          <>
+            <SearchInput
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search waiter..."
-              className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-background"
+              placeholder="Find a waiter"
+              wrapperClassName="w-full sm:w-64"
             />
-          </div>
+            <Button variant="outline" onClick={() => navigate('/dashboard')}>
+              <ArrowLeftIcon />
+              Back
+            </Button>
+          </>
+        }
+      />
 
-          <div className="p-4">
-            {waiters.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">No waiters found</div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {waiters.map((u) => {
-                  const name = u?.full_name || u?.name || u?.username || 'Waiter';
-                  const username = u?.username ? String(u.username) : '';
-                  const inactive = u?.is_active === false;
-
-                  return (
-                    <button
-                      key={u.id || name}
-                      type="button"
-                      onClick={() => handleSelect(u)}
-                      disabled={inactive}
-                      className={`text-left w-full rounded-lg border p-4 hover:bg-muted transition-colors ${
-                        inactive 
-                          ? 'opacity-50 cursor-not-allowed border-border bg-muted' 
-                          : 'border-border bg-card'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 p-2 rounded-full bg-muted">
-                          <UserIcon className="w-5 h-5" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="font-semibold truncate">{name}</div>
-                          {username && (
-                            <div className="text-sm text-muted-foreground truncate">@{username}</div>
-                          )}
-                          {inactive && (
-                            <div className="text-sm text-destructive mt-1">Inactive</div>
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+      {deliveryMethods.length > 0 && (
+        <button
+          type="button"
+          onClick={handleStartDelivery}
+          className="flex w-full items-center gap-4 rounded-card border border-border bg-card p-4 text-left transition-colors hover:bg-row-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
+        >
+          <Bike className="h-5 w-5 shrink-0 text-primary" />
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-foreground">Delivery order</p>
+            <p className="text-sm text-muted-foreground">No waiter needed. Pick the delivery method on the next screen.</p>
           </div>
+        </button>
+      )}
+
+      {waiters.length === 0 ? (
+        <EmptyState
+          className="rounded-card border border-dashed border-border"
+          title={search ? 'No waiter by that name' : 'No waiters yet'}
+          description={search ? 'Check the spelling or clear the search.' : 'Add waiters in Employees first.'}
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {waiters.map((u) => {
+            const name = u?.full_name || u?.name || u?.username || 'Waiter';
+            const username = u?.username ? String(u.username) : '';
+            const inactive = u?.is_active === false;
+            const initials = name
+              .split(/\s+/)
+              .map((p: string) => p.charAt(0))
+              .join('')
+              .slice(0, 2)
+              .toUpperCase();
+
+            return (
+              <button
+                key={u.id || name}
+                type="button"
+                onClick={() => handleSelect(u)}
+                disabled={inactive}
+                className="flex min-h-16 w-full items-center gap-3 rounded-card border border-border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-row-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-card"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-highlight text-sm font-semibold text-highlight-foreground">
+                  {initials}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-semibold text-foreground">{name}</span>
+                  {username && <span className="block truncate text-meta text-muted-foreground">@{username}</span>}
+                </span>
+                {inactive && <StatusBadge status="inactive" label="Inactive" />}
+              </button>
+            );
+          })}
         </div>
-      </div>
+      )}
     </div>
   );
 };

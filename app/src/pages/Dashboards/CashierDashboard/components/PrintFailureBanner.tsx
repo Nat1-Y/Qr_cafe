@@ -21,15 +21,15 @@ export const PrintFailureBanner: React.FC<PrintFailureBannerProps> = ({
   if (!stuckOrders || stuckOrders.length === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 shadow-sm">
+    <div className="rounded-card border border-destructive/30 bg-destructive/10 p-4">
       <div className="flex items-start gap-3">
         <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-sm font-bold text-destructive">
+            <h3 className="text-sm font-semibold text-destructive">
               {stuckOrders.length} order{stuckOrders.length > 1 ? 's' : ''} failed to print
             </h3>
-            <span className="text-[11px] text-destructive/80">
+            <span className="text-xs text-destructive/80">
               Auto-retrying in the background — check the printer (paper, power, connection).
             </span>
           </div>
@@ -45,11 +45,11 @@ export const PrintFailureBanner: React.FC<PrintFailureBannerProps> = ({
                     Order #{o.id}
                     {o.table_number ? ` · Table ${o.table_number}` : ''}
                   </span>
-                  <span className="text-[10px] text-muted-foreground shrink-0">
+                  <span className="text-xs text-muted-foreground shrink-0">
                     {o.attempts} attempts
                   </span>
                   {o.error ? (
-                    <span className="text-[10px] text-destructive/70 truncate hidden sm:inline">
+                    <span className="text-xs text-destructive/70 truncate hidden sm:inline">
                       — {o.error}
                     </span>
                   ) : null}
@@ -57,7 +57,7 @@ export const PrintFailureBanner: React.FC<PrintFailureBannerProps> = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 text-[11px] font-bold gap-1 shrink-0"
+                  className="h-7 gap-1 shrink-0"
                   onClick={() => onRetry(o.id)}
                 >
                   <RotateCw className="w-3 h-3" />

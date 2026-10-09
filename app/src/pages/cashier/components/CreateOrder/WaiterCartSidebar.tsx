@@ -1,16 +1,10 @@
 import React from 'react';
-import {
-  ShoppingCart,
-  Plus,
-  Minus,
-  X,
-  MapPin,
-  Clock,
-  Check,
-  AlertTriangle,
-} from 'lucide-react';
+import { AlertTriangle, Minus, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ButtonSpinner } from '@/components/common/LoadingSpinner';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 
 // Item notes combine free text with quick-select preset chips. Presets are
 // stored as comma-separated parts inside the same note string, so a chip is
@@ -66,6 +60,7 @@ export const WaiterCartSidebar: React.FC<WaiterCartSidebarProps> = ({
   forceTableSelection = false,
   notes = '',
   onNotesChange,
+  isMobile = false,
 }) => {
   const totalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   // A delivery order or an explicit Take Away both carry no table by design —
@@ -77,155 +72,117 @@ export const WaiterCartSidebar: React.FC<WaiterCartSidebarProps> = ({
   const tableLabel = selectedDeliveryMethodName
     ? selectedDeliveryMethodName
     : selectedTable === 'takeaway'
-      ? 'Take Away'
+      ? 'Takeaway'
       : selectedTable
-      ? `Table #${selectedTable}`
+      ? `Table ${selectedTable}`
       : null;
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-card">
+    <div
+      className={cn(
+        'flex h-full min-h-0 flex-col overflow-hidden bg-card',
+        !isMobile && 'rounded-card border border-border'
+      )}
+    >
       {/* Header */}
-      <div className="shrink-0 border-b border-border/60 px-5 py-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <ShoppingCart className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-sm font-bold tracking-tight text-foreground">
-                Order Summary
-              </h3>
-              <p className="text-[11px] font-medium text-muted-foreground">
-                {totalItems} {totalItems === 1 ? 'item' : 'items'} in cart
-              </p>
-            </div>
-          </div>
-
-          {tableLabel ? (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-success/20 bg-success/10 px-2.5 py-1 text-[11px] font-semibold text-success">
-              <MapPin className="h-3 w-3" />
-              {tableLabel}
-            </span>
-          ) : (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-warning/20 bg-warning/10 px-2.5 py-1 text-[11px] font-semibold text-warning">
-              <Clock className="h-3 w-3" />
-              No table
-            </span>
-          )}
+      <div className="shrink-0 border-b border-border px-5 pb-4 pt-5 pr-12">
+        <p className="eyebrow">Current order</p>
+        <div className="mt-1 flex items-baseline justify-between gap-3">
+          <h3 className={cn('truncate text-section', tableLabel ? 'text-foreground' : 'text-muted-foreground')}>
+            {tableLabel ?? 'No table yet'}
+          </h3>
+          <span className="shrink-0 text-meta text-muted-foreground">
+            {totalItems} {totalItems === 1 ? 'item' : 'items'}
+          </span>
         </div>
       </div>
 
-      {/* Cart Content */}
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+      {/* Lines */}
+      <div className="min-h-0 flex-1 overflow-y-auto px-5">
         {orderItems.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-border/70 px-6 py-12 text-center animate-in fade-in duration-300">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted/50">
-              <ShoppingCart className="h-7 w-7 text-muted-foreground/50" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-foreground">Your cart is empty</p>
-              <p className="mx-auto max-w-[220px] text-xs leading-relaxed text-muted-foreground">
-                Add items from the menu to build the order, then place it when ready.
-              </p>
-            </div>
+          <div className="flex h-full flex-col items-center justify-center py-12 text-center">
+            <p className="text-base font-medium text-foreground">Nothing in this order yet</p>
+            <p className="mt-1 max-w-[240px] text-sm text-muted-foreground">Tap a menu item to add it.</p>
           </div>
         ) : (
-          <ul className="space-y-2.5">
+          <ul className="divide-y divide-border">
             {orderItems.map((item) => (
-              <li
-                key={item.menu_item_id}
-                className="group rounded-2xl border border-border/60 bg-background p-3 shadow-sm transition-colors hover:border-border"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="min-w-0 flex-1">
-                    <h4 className="truncate text-sm font-semibold text-foreground">
-                      {item.menu_item_name}
-                    </h4>
-                    <p className="mt-0.5 text-xs font-medium text-muted-foreground">
-                      {formatCurrency(item.price)}
-                      <span className="text-muted-foreground/50"> × {item.quantity}</span>
-                    </p>
-                  </div>
-
-                  <div className="flex shrink-0 flex-col items-end gap-1.5">
-                    <button
-                      type="button"
-                      className="rounded-md p-1 text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
-                      onClick={() => onRemoveFromOrder(item.menu_item_id)}
-                      aria-label="Remove item"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                    <span className="text-sm font-bold tabular-nums text-foreground">
-                      {formatCurrency(Number(item.price) * Number(item.quantity))}
-                    </span>
-                  </div>
+              <li key={item.menu_item_id} className="py-3">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="min-w-0 text-sm">
+                    <span className="text-muted-foreground">{item.quantity} ×</span>{' '}
+                    <span className="font-medium text-foreground">{item.menu_item_name}</span>
+                  </p>
+                  <span className="shrink-0 text-sm text-foreground">
+                    {formatCurrency(Number(item.price) * Number(item.quantity))}
+                  </span>
                 </div>
 
-                <div className="mt-2.5 flex items-center justify-between gap-2">
-                  {/* Quantity stepper */}
-                  <div className="inline-flex items-center rounded-lg border border-border/70 bg-muted/40">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 rounded-l-lg rounded-r-none text-muted-foreground hover:bg-muted hover:text-foreground"
+                <div className="mt-2 flex items-center gap-3">
+                  <div className="inline-flex h-10 items-center rounded-full border border-border bg-card">
+                    <button
+                      type="button"
+                      className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                       onClick={() => onUpdateQuantity(item.menu_item_id, -1)}
-                      aria-label="Decrease quantity"
+                      aria-label="One less"
                     >
-                      <Minus className="h-3.5 w-3.5" />
-                    </Button>
-                    <span className="w-8 text-center text-sm font-bold tabular-nums text-foreground">
-                      {item.quantity}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 rounded-r-lg rounded-l-none text-muted-foreground hover:bg-muted hover:text-foreground"
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="w-7 text-center text-sm font-semibold text-foreground">{item.quantity}</span>
+                    <button
+                      type="button"
+                      className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                       onClick={() => onUpdateQuantity(item.menu_item_id, 1)}
-                      aria-label="Increase quantity"
+                      aria-label="One more"
                     >
-                      <Plus className="h-3.5 w-3.5" />
-                    </Button>
+                      <Plus className="h-4 w-4" />
+                    </button>
                   </div>
+                  <span className="text-meta text-muted-foreground">{formatCurrency(item.price)} each</span>
+                  <button
+                    type="button"
+                    className="ml-auto flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive-soft hover:text-destructive"
+                    onClick={() => onRemoveFromOrder(item.menu_item_id)}
+                    aria-label={`Remove ${item.menu_item_name}`}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
 
                 {onUpdateItemNote && (
-                  <div className="mt-2.5 space-y-2">
-                    {Array.isArray(item.predefined_notes) &&
-                      item.predefined_notes.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {item.predefined_notes.map((presetNote: string) => {
-                            const active = noteHasPart(item.note, presetNote);
-                            return (
-                              <button
-                                key={presetNote}
-                                type="button"
-                                onClick={() =>
-                                  onUpdateItemNote(
-                                    item.menu_item_id,
-                                    togglePart(item.note, presetNote),
-                                  )
-                                }
-                                className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
-                                  active
-                                    ? 'border-primary bg-primary/10 text-primary'
-                                    : 'border-border/60 bg-muted/30 text-muted-foreground hover:border-border hover:text-foreground'
-                                }`}
-                              >
-                                {active ? '✓ ' : ''}
-                                {presetNote}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    <input
+                  <div className="mt-2 space-y-2">
+                    {Array.isArray(item.predefined_notes) && item.predefined_notes.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {item.predefined_notes.map((presetNote: string) => {
+                          const active = noteHasPart(item.note, presetNote);
+                          return (
+                            <button
+                              key={presetNote}
+                              type="button"
+                              aria-pressed={active}
+                              onClick={() =>
+                                onUpdateItemNote(item.menu_item_id, togglePart(item.note, presetNote))
+                              }
+                              className={cn(
+                                'h-8 rounded-full border px-3 text-meta transition-colors',
+                                active
+                                  ? 'border-[1.5px] border-primary bg-card font-medium text-primary'
+                                  : 'border-border bg-card text-muted-foreground hover:text-foreground'
+                              )}
+                            >
+                              {presetNote}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                    <Input
                       type="text"
                       value={item.note || ''}
                       onChange={(e) => onUpdateItemNote(item.menu_item_id, e.target.value)}
                       maxLength={200}
-                      placeholder="Item note (e.g. no ice, well done)…"
-                      className="w-full rounded-lg border border-border/60 bg-muted/30 px-2.5 py-1.5 text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground/55 focus:border-ring focus:bg-background"
+                      placeholder="Note for the kitchen, e.g. no sugar"
+                      className="h-9"
                     />
                   </div>
                 )}
@@ -235,57 +192,50 @@ export const WaiterCartSidebar: React.FC<WaiterCartSidebarProps> = ({
         )}
       </div>
 
-      {/* Footer: notes + total + submit */}
+      {/* Total + send */}
       {orderItems.length > 0 && (
-        <div className="shrink-0 space-y-3 border-t border-border/60 bg-muted/20 px-5 py-4">
+        <div className="shrink-0 space-y-3 border-t border-dashed border-border px-5 pb-5 pt-4">
           {onNotesChange && (
-            <div>
-              <label className="mb-1.5 block text-[11px] font-semibold text-muted-foreground">
-                Order note{' '}
-                <span className="font-normal text-muted-foreground/70">(optional)</span>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">
+                Order note <span className="font-normal text-muted-foreground">(optional)</span>
               </label>
-              <textarea
+              <Textarea
                 value={notes}
                 onChange={(e) => onNotesChange(e.target.value)}
                 rows={2}
                 maxLength={300}
-                placeholder="e.g. no sugar, extra hot, allergy info…"
-                className="w-full resize-none rounded-xl border border-border/60 bg-background px-3 py-2 text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-ring"
+                placeholder="e.g. allergy info, serve together"
+                className="min-h-[64px] resize-none"
               />
             </div>
           )}
 
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Total
-            </span>
-            <span className="text-xl font-extrabold tracking-tight text-foreground tabular-nums">
-              {formatCurrency(calculateTotal())}
-            </span>
+          <div className="flex items-baseline justify-between">
+            <span className="text-base font-semibold text-foreground">Total</span>
+            <span className="text-kpi text-foreground">{formatCurrency(calculateTotal())}</span>
           </div>
 
           {tableRequirementUnmet && (
-            <p className="flex items-center gap-1.5 rounded-lg bg-warning/10 px-2.5 py-1.5 text-[11px] font-medium text-warning">
-              <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-              Select a table or choose Take Away to place this order.
+            <p className="flex items-center gap-2 rounded-xl bg-warning-soft px-3 py-2 text-meta text-warning">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              Pick a table or Takeaway first.
             </p>
           )}
 
           <Button
+            size="charge"
             disabled={creatingOrder || tableRequirementUnmet}
-            className="h-12 w-full gap-2 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98] disabled:shadow-none"
+            className="w-full"
             onClick={onSubmitOrder}
           >
             {creatingOrder ? (
               <>
                 <ButtonSpinner />
-                Placing order…
+                Sending…
               </>
             ) : (
-              <>
-                <Check className="h-4 w-4" />
-                Place Order
-              </>
+              'Send to kitchen'
             )}
           </Button>
         </div>

@@ -4,28 +4,21 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { ArrowLeft, Building2, RefreshCw, Search } from "lucide-react";
+import { ArrowLeft, RefreshCw } from "lucide-react";
 
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Segmented } from "@/components/segmented";
+import { PageHeader } from "@/components/page-header";
+import { formatETB } from "@/lib/format";
+import { SearchInput } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cashierServices } from "@/lib/cashier/api";
 
 type PaymentFilter = "active" | "paid" | "all";
 
-function formatCurrency(n: any): string {
-  const v = Number(n) || 0;
-  return `${v.toLocaleString()} Br`;
-}
+const formatCurrency = formatETB;
 
 /** An order still owes money unless it's cancelled or already confirmed paid. */
 function isOrderUnpaid(order: any): boolean {
@@ -121,50 +114,39 @@ export default function CashierOrganizationOrdersPage() {
   const activeCount = useMemo(() => orders.filter(isOrderUnpaid).length, [orders]);
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
-      <Card>
-        <CardHeader className="pb-3 border-b">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-primary" />
-            Organization Orders
-          </CardTitle>
-          <CardDescription>
-            Billed to that organization&apos;s credit account, not collected as
-            cash. Only the owner can confirm one.
-          </CardDescription>
-          <CardAction className="flex items-center gap-2">
-            <Badge variant="info" className="text-xs font-bold">
-              {activeCount} active
-            </Badge>
-            <Button variant="outline" size="sm" onClick={load} disabled={loading}>
-              <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
+    <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-8">
+      <PageHeader
+        title="Organization orders"
+        description={`${activeCount} open · billed to the organization's credit account, not paid in cash. Only the owner can confirm one.`}
+        action={
+          <>
+            <Button variant="outline" onClick={load} disabled={loading}>
+              <RefreshCw className={loading ? "animate-spin" : undefined} />
               Refresh
             </Button>
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="outline" asChild>
               <Link href="/cashier">
-                <ArrowLeft className="size-4" />
-                Queue
+                <ArrowLeft />
+                Till
               </Link>
             </Button>
-          </CardAction>
-        </CardHeader>
-
-        <CardContent className="pt-5 space-y-4">
+          </>
+        }
+      />
+      <Card>
+        <CardContent className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
-            <div className="relative w-full sm:max-w-xs">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Order #, org, or customer…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
-              />
-            </div>
+            <SearchInput
+              placeholder="Order #, organization or customer"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              wrapperClassName="w-full sm:max-w-xs"
+            />
 
             <select
               value={orgFilter}
               onChange={(e) => setOrgFilter(e.target.value)}
-              className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+              className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
             >
               <option value="all">All organizations</option>
               {organizations.map((org) => (
@@ -174,71 +156,65 @@ export default function CashierOrganizationOrdersPage() {
               ))}
             </select>
 
-            <div className="inline-flex gap-1 rounded-lg border bg-muted/40 p-1">
-              {(["active", "paid", "all"] as PaymentFilter[]).map((f) => (
-                <Button
-                  key={f}
-                  variant={paymentFilter === f ? "secondary" : "ghost"}
-                  size="sm"
-                  className="h-7 px-3 text-xs font-bold capitalize"
-                  onClick={() => setPaymentFilter(f)}
-                >
-                  {f}
-                </Button>
-              ))}
-            </div>
+            <Segmented
+              aria-label="Payment status"
+              value={paymentFilter}
+              onChange={(f) => setPaymentFilter(f)}
+              options={(["active", "paid", "all"] as PaymentFilter[]).map((f) => ({
+                value: f,
+                label: f.charAt(0).toUpperCase() + f.slice(1),
+              }))}
+            />
           </div>
 
           {loading ? (
             <div className="space-y-3">
               {[...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-20 w-full rounded-2xl" />
+                <Skeleton key={i} className="h-20 w-full rounded-card" />
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="py-12 text-center text-xs text-muted-foreground">
-              No organization orders match these filters.
-            </div>
+            <p className="py-12 text-center text-sm text-muted-foreground">No organization orders match these filters.</p>
           ) : (
             <div className="space-y-3">
               {filtered.map((order) => (
                 <div
                   key={`${order.__orgId}-${order.id}`}
-                  className="border rounded-2xl p-4 bg-muted/20 space-y-2"
+                  className="border rounded-card p-4 bg-muted/20 space-y-2"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-xs font-extrabold text-foreground">
+                      <p className="text-xs font-semibold text-foreground">
                         #{order.order_number ?? String(order.id).slice(0, 8)}
                         <span className="ml-2 font-medium text-muted-foreground">
                           {order.__orgName}
                         </span>
                       </p>
                       {order.meta?.org_customer_name ? (
-                        <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        <p className="mt-0.5 text-xs text-muted-foreground">
                           For: {order.meta.org_customer_name}
                           {order.meta?.org_customer_phone ? ` • ${order.meta.org_customer_phone}` : ""}
                         </p>
                       ) : null}
                       {order.meta?.org_customer_notes ? (
-                        <p className="mt-0.5 text-[11px] italic text-muted-foreground">
+                        <p className="mt-0.5 text-xs italic text-muted-foreground">
                           {order.meta.org_customer_notes}
                         </p>
                       ) : null}
-                      <p className="mt-0.5 text-[10px] text-muted-foreground">
+                      <p className="mt-0.5 text-xs text-muted-foreground">
                         {clockTime(order.created_at)}
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-1 shrink-0">
-                      <span className="text-sm font-extrabold text-foreground">
+                      <span className="text-sm font-semibold text-foreground">
                         {formatCurrency(order.total_amount)}
                       </span>
                       {isOrderUnpaid(order) ? (
-                        <Badge variant="warning" className="text-[9px] uppercase">
+                        <Badge variant="warning">
                           Awaiting owner
                         </Badge>
                       ) : (
-                        <Badge variant="success" className="text-[9px] uppercase">
+                        <Badge variant="success">
                           Paid
                         </Badge>
                       )}

@@ -226,7 +226,7 @@ const CashierExpenses = () => {
 
       <div className="rounded-lg border">
         <div className="flex flex-col gap-3 border-b px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
-          <h3 className="text-base font-semibold">Saved Expenses</h3>
+          <h3 className="text-base font-semibold">Saved expenses</h3>
           <ExpenseFilters
             savedFilter={savedFilter}
             onSavedFilterChange={setSavedFilter}
@@ -261,7 +261,7 @@ const CashierExpenses = () => {
       <Dialog open={editId != null} onOpenChange={(open) => (!open ? closeEdit() : null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Edit Expense Entry</DialogTitle>
+            <DialogTitle>Edit expense entry</DialogTitle>
           </DialogHeader>
 
           <ExpenseRowEditor

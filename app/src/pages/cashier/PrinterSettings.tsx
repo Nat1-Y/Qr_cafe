@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   Zap,
   Circle,
-  Settings2,
   AlertTriangle,
   Wifi,
   Plus,
@@ -17,7 +16,7 @@ import {
   Layers,
   GripVertical,
   Lock,
-  KeyRound
+  KeyRound,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -26,6 +25,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import BranchBadge from '@/components/common/BranchBadge';
+import PageHeader from '@/components/layout/PageHeader';
 
 import {
   PRINTER_STORAGE_KEY,
@@ -122,7 +122,7 @@ const PrinterSettingsContent: React.FC = () => {
     setSimplePrintModeState(enabled);
     toast.success(
       enabled
-        ? '🖨️ Simple printing fallback on — unrouted tickets go to the active printer'
+        ? 'Simple printing fallback on — unrouted tickets go to the active printer'
         : 'Simple printing fallback off — unrouted departments will not print',
       { duration: 2500 },
     );
@@ -133,7 +133,7 @@ const PrinterSettingsContent: React.FC = () => {
     setTicketShowPricesState(enabled);
     toast.success(
       enabled
-        ? '💵 Prices will be printed on order tickets'
+        ? 'Prices will be printed on order tickets'
         : 'Prices hidden on order tickets',
       { duration: 2500 },
     );
@@ -329,49 +329,26 @@ const PrinterSettingsContent: React.FC = () => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8 space-y-6">
-
-      {/* ── Header ── */}
-      <Card className="shadow-sm border-border/60">
-        <CardContent className="py-4 px-5">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full"
-                onClick={() => navigate(-1)}
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-lg font-extrabold text-foreground">Printer Settings</h1>
-                  <BranchBadge />
-                </div>
-                <p className="text-xs text-muted-foreground font-medium mt-0.5 flex items-center gap-1.5">
-                  <Settings2 className="w-3 h-3" />
-                  Select and test your thermal receipt printer
-                </p>
-              </div>
-            </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 text-xs font-bold"
-              onClick={loadPrinters}
-              disabled={loading}
-            >
-              <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
+    <div className="p-4 md:p-8 space-y-6">
+      <PageHeader
+        title="Printer settings"
+        description="Pick the thermal printer for this till and send a test ticket."
+        actions={
+          <>
+            <BranchBadge />
+            <Button variant="outline" onClick={() => navigate(-1)}>
+              <ArrowLeft /> Back
+            </Button>
+            <Button variant="outline" onClick={loadPrinters} disabled={loading}>
+              <RefreshCw className={loading ? 'animate-spin' : undefined} />
               Refresh
             </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </>
+        }
+      />
 
       {/* ── Simple Printing Mode (fallback) ── */}
-      <Card className="shadow-sm border-border/60">
+      <Card className="border-border/60">
         <CardContent className="py-4 px-5">
           <label className="flex items-start gap-3 cursor-pointer">
             <Checkbox
@@ -380,7 +357,7 @@ const PrinterSettingsContent: React.FC = () => {
               className="mt-0.5"
             />
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-sm text-foreground">Simple printing mode (fallback)</p>
+              <p className="font-semibold text-sm text-foreground">Simple printing mode (fallback)</p>
              
             </div>
           </label>
@@ -388,7 +365,7 @@ const PrinterSettingsContent: React.FC = () => {
       </Card>
 
       {/* ── Prices on tickets ── */}
-      <Card className="shadow-sm border-border/60">
+      <Card className="border-border/60">
         <CardContent className="py-4 px-5">
           <label className="flex items-start gap-3 cursor-pointer">
             <Checkbox
@@ -397,7 +374,7 @@ const PrinterSettingsContent: React.FC = () => {
               className="mt-0.5"
             />
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-sm text-foreground">Show prices on simple-print tickets</p>
+              <p className="font-semibold text-sm text-foreground">Show prices on simple-print tickets</p>
        
             </div>
           </label>
@@ -405,13 +382,13 @@ const PrinterSettingsContent: React.FC = () => {
       </Card>
 
       {/* ── Printer List ── */}
-      <Card className="shadow-sm border-border/60">
+      <Card className="border-border/60">
         <CardHeader className="pb-3 pt-5 px-5">
-          <CardTitle className="text-base font-bold flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2">
             <Wifi className="w-4 h-4 text-primary" />
-            Available Printers
+            Available printers
           </CardTitle>
-          <CardDescription className="text-xs">
+          <CardDescription>
             {loading
               ? 'Scanning for printers via CUPS…'
               : printers.length === 0
@@ -431,18 +408,18 @@ const PrinterSettingsContent: React.FC = () => {
 
           {!loading && printers.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-              <div className="p-4 rounded-2xl bg-muted/40">
+              <div className="p-4 rounded-card bg-muted/40">
                 <Printer className="w-10 h-10 text-muted-foreground" />
               </div>
               <div>
                 <p className="font-semibold text-foreground">No printers found</p>
                 <p className="text-xs text-muted-foreground mt-1 max-w-xs">
                   Ensure CUPS is running and your thermal printer is connected and configured.
-                  <br />Run <code className="bg-muted px-1 rounded text-[10px]">lpstat -p</code> to verify.
+                  <br />Run <code className="bg-muted px-1 rounded text-xs">lpstat -p</code> to verify.
                 </p>
               </div>
               <Button variant="outline" size="sm" onClick={loadPrinters} className="mt-2">
-                <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Try Again
+                <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Try again
               </Button>
             </div>
           )}
@@ -466,7 +443,7 @@ const PrinterSettingsContent: React.FC = () => {
                   {/* Printer details */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-sm text-foreground truncate">
+                      <span className="font-semibold text-sm text-foreground truncate">
                         {printer.name}
                       </span>
                       <Badge
@@ -488,12 +465,12 @@ const PrinterSettingsContent: React.FC = () => {
 
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
                       {printer.interface_type && (
-                        <span className="text-[11px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           <span className="font-medium">Interface:</span> {printer.interface_type}
                         </span>
                       )}
                       {printer.identifier && (
-                        <span className="text-[11px] text-muted-foreground truncate max-w-[240px]">
+                        <span className="text-xs text-muted-foreground truncate max-w-[240px]">
                           <span className="font-medium">ID:</span> {printer.identifier}
                         </span>
                       )}
@@ -507,7 +484,7 @@ const PrinterSettingsContent: React.FC = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 text-[11px] font-bold px-2.5"
+                      className="h-8 px-2.5"
                       disabled={isTesting}
                       onClick={() => handleTestPrint(printer.name)}
                     >
@@ -528,16 +505,16 @@ const PrinterSettingsContent: React.FC = () => {
       </Card>
 
       {/* ── Advanced Department Routing ── */}
-      <Card className="shadow-sm border-border/60">
+      <Card className="border-border/60">
         <CardHeader className="pb-3 pt-5 px-5">
-          <CardTitle className="text-base font-bold flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-primary" />
-            Advanced Department Routing
+            Advanced department routing
           </CardTitle>
-          <CardDescription className="text-xs">
-            Optional. Fan a department's order out to several stations — each its own ticket and printer,
-            all sharing the order number. Built for butchery flows (Butcher → Kitchen → Customer copy).
-            Leave a department untouched to keep its single-ticket behavior above.
+          <CardDescription>
+            Optional. fan a department's order out to several stations — each its own ticket and printer,
+            all sharing the order number. built for butchery flows (butcher → kitchen → customer copy).
+            leave a department untouched to keep its single-ticket behavior above.
           </CardDescription>
         </CardHeader>
 
@@ -560,13 +537,13 @@ const PrinterSettingsContent: React.FC = () => {
                   className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-row-hover transition-colors"
                   onClick={() => setExpandedDept(expanded ? null : dept.slug)}
                 >
-                  <span className="font-bold text-sm text-foreground flex-1 truncate">{dept.name}</span>
+                  <span className="font-semibold text-sm text-foreground flex-1 truncate">{dept.name}</span>
                   {stations.length > 0 ? (
-                    <Badge className="bg-primary/15 text-primary border-none text-[10px] font-bold">
+                    <Badge className="bg-primary/15 text-primary border-none">
                       {stations.length} station{stations.length !== 1 ? 's' : ''}
                     </Badge>
                   ) : (
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {config.printer ? 'Single ticket' : 'Not routed'}
                     </span>
                   )}
@@ -588,7 +565,7 @@ const PrinterSettingsContent: React.FC = () => {
                       >
                         <div className="flex items-center gap-2">
                           <GripVertical className="w-3.5 h-3.5 text-muted-foreground/50 shrink-0" />
-                          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">
+                          <span className="text-xs font-semibold text-muted-foreground">
                             Station {idx + 1}
                           </span>
                           <div className="flex-1" />
@@ -604,24 +581,24 @@ const PrinterSettingsContent: React.FC = () => {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                           <div>
-                            <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                            <Label>
                               Ticket label
                             </Label>
                             <Input
                               value={station.label}
                               placeholder="e.g. BUTCHER"
                               onChange={(e) => handleUpdateStation(dept.slug, station.id, { label: e.target.value })}
-                              className="mt-1 h-9 text-xs"
+                              className="mt-1 h-9"
                             />
                           </div>
                           <div>
-                            <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                            <Label>
                               Printer
                             </Label>
                             <select
                               value={station.printer}
                               onChange={(e) => handleUpdateStation(dept.slug, station.id, { printer: e.target.value })}
-                              className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-xs"
+                              className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 mt-1 w-full"
                             >
                               <option value="">Select printer…</option>
                               {printers.map((p) => (
@@ -636,7 +613,7 @@ const PrinterSettingsContent: React.FC = () => {
 
                         <div className="flex items-center gap-4 flex-wrap">
                           <div className="flex items-center gap-2">
-                            <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                            <Label>
                               Copies
                             </Label>
                             <Input
@@ -649,7 +626,7 @@ const PrinterSettingsContent: React.FC = () => {
                                   copies: Math.max(1, Math.min(10, parseInt(e.target.value || '1', 10))),
                                 })
                               }
-                              className="h-8 w-16 text-xs"
+                              className="h-8 w-16"
                             />
                           </div>
                           <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
@@ -669,7 +646,7 @@ const PrinterSettingsContent: React.FC = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 text-xs font-bold"
+                        className="h-8"
                         onClick={() => handleAddStation(dept.slug)}
                       >
                         <Plus className="w-3.5 h-3.5 mr-1" />
@@ -679,7 +656,7 @@ const PrinterSettingsContent: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 text-xs font-bold text-primary"
+                          className="h-8 text-primary"
                           onClick={() => handleApplyButcheryPreset(dept.slug)}
                         >
                           <Layers className="w-3.5 h-3.5 mr-1" />
@@ -767,33 +744,26 @@ const PrinterSettings: React.FC = () => {
   const unavailable = gate === 'unavailable';
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8 flex items-start justify-center">
-      <Card className="w-full max-w-md mt-16 shadow-sm border-border/60">
-        <CardHeader className="pb-3 pt-6 px-6">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full"
-              onClick={() => navigate(-1)}
-            >
-              <ArrowLeft className="w-4 h-4" />
+    <div className="flex items-start justify-center p-4 md:p-8">
+      <Card className="mt-16 w-full max-w-md">
+        <CardHeader>
+          <div className="flex items-start gap-3">
+            <Button variant="ghost" size="icon-sm" onClick={() => navigate(-1)} aria-label="Back">
+              <ArrowLeft />
             </Button>
-            <div className={`p-2 rounded-lg ${unavailable ? 'bg-warning/15' : 'bg-primary/10'}`}>
-              {unavailable ? (
-                <AlertTriangle className="w-5 h-5 text-warning" />
-              ) : (
-                <Lock className="w-5 h-5 text-primary" />
-              )}
-            </div>
+            {unavailable ? (
+              <AlertTriangle className="mt-1.5 h-5 w-5 shrink-0 text-warning" />
+            ) : (
+              <Lock className="mt-1.5 h-5 w-5 shrink-0 text-muted-foreground" />
+            )}
             <div>
-              <CardTitle className="text-base font-bold">
-                {unavailable ? 'Printer Settings Unavailable' : 'Printer Settings Locked'}
+              <CardTitle>
+                {unavailable ? 'Printer settings unavailable' : 'Printer settings are locked'}
               </CardTitle>
-              <CardDescription className="text-xs">
+              <CardDescription>
                 {unavailable
-                  ? 'Access could not be verified with the server'
-                  : 'Enter the password set by the owner to continue'}
+                  ? 'We couldn’t check access with the server. Try again when online.'
+                  : 'Enter the password the owner set to continue.'}
               </CardDescription>
             </div>
           </div>
@@ -814,7 +784,7 @@ const PrinterSettings: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full font-bold"
+                className="w-full"
                 onClick={checkStatus}
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
@@ -824,7 +794,7 @@ const PrinterSettings: React.FC = () => {
           ) : (
             <form onSubmit={handleUnlock} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="printerSettingsPassword" className="text-xs font-semibold">
+                <Label htmlFor="printerSettingsPassword">
                   Password
                 </Label>
                 <Input
@@ -838,7 +808,7 @@ const PrinterSettings: React.FC = () => {
                   placeholder="Enter printer settings password"
                 />
               </div>
-              <Button type="submit" className="w-full font-bold" disabled={verifying || !password}>
+              <Button type="submit" className="w-full" disabled={verifying || !password}>
                 {verifying ? (
                   <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                 ) : (

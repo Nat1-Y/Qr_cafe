@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowLeftIcon, HouseIcon } from 'lucide-react';
 import BranchBadge from '../../../../components/common/BranchBadge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface CreateOrderHeaderProps {
   waiterName: string;
@@ -11,6 +11,7 @@ interface CreateOrderHeaderProps {
   onNavigateToDashboard: () => void;
 }
 
+/** Slim header row for the order screen: back, who it's for, home. */
 const CreateOrderHeader: React.FC<CreateOrderHeaderProps> = ({
   waiterName,
   deliveryMode = false,
@@ -19,61 +20,31 @@ const CreateOrderHeader: React.FC<CreateOrderHeaderProps> = ({
   onNavigateToDashboard
 }) => {
   return (
-    <Card className="rounded-none border-b shadow-sm bg-card/70 backdrop-blur-md sticky top-0 z-50 transition-all mb-6">
-      <CardContent className="py-3 px-4 sm:px-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <img
-            src="/assets/logo.png?v=8"
-            alt="Logo"
-            className="w-9 h-9 object-contain bg-background rounded-lg p-0.5 shadow-sm"
-          />
-          <div>
-            <h1 className="text-sm font-extrabold text-foreground tracking-wide">Create Order</h1>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <BranchBadge />
-              {!isOnline && (
-                <span className="px-2 py-0.5 text-[9px] font-extrabold bg-destructive/15 text-destructive rounded-lg border border-destructive/30 shadow-sm animate-pulse">
-                  OFFLINE MODE
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+    <header className="flex shrink-0 items-center gap-3 border-b border-border bg-background px-4 py-3 sm:px-6">
+      <Button variant="ghost" size="icon" onClick={onNavigateToWaiters} aria-label={deliveryMode ? 'Change order type' : 'Change waiter'}>
+        <ArrowLeftIcon />
+      </Button>
 
-        <div className="flex items-center gap-1.5 sm:gap-4">
-          <div
-            className={`hidden sm:flex items-center px-4 py-1.5 rounded-full border shadow-inner ${
-              deliveryMode
-                ? 'bg-sky-500/10 border-sky-300'
-                : 'bg-muted/30 border-border/50'
-            }`}
-          >
-            <span className="text-sm font-medium text-muted-foreground mr-2">
-              {deliveryMode ? 'Order type:' : 'Waiter:'}
+      <div className="min-w-0 flex-1">
+        <h1 className="text-section text-foreground">New order</h1>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-meta text-muted-foreground">
+          <span className="truncate">
+            {deliveryMode ? 'Order type' : 'Waiter'}: <span className="font-medium text-foreground">{waiterName}</span>
+          </span>
+          <BranchBadge />
+          {!isOnline && (
+            <span className="rounded-full bg-destructive-soft px-2.5 py-0.5 text-eyebrow text-destructive">
+              Offline
             </span>
-            <span className={`text-sm font-bold ${deliveryMode ? 'text-sky-700' : 'text-foreground'}`}>
-              {waiterName}
-            </span>
-          </div>
-
-          <button
-            onClick={onNavigateToWaiters}
-            className="flex items-center gap-1 px-3 py-2 text-xs sm:text-sm font-semibold text-info hover:bg-info/10 rounded-xl transition-colors duration-200 hover:shadow-sm"
-          >
-            <ArrowLeftIcon className="w-4 h-4" />
-            <span className="hidden sm:inline">{deliveryMode ? 'Change' : 'Change Waiter'}</span>
-          </button>
-
-          <button
-            onClick={onNavigateToDashboard}
-            className="flex items-center gap-1 px-3 py-2 text-xs sm:text-sm font-semibold text-foreground/80 hover:bg-muted rounded-xl transition-colors duration-200 hover:shadow-sm"
-          >
-            <HouseIcon className="w-4 h-4" />
-            <span className="hidden sm:inline">Dashboard</span>
-          </button>
+          )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      <Button variant="ghost" onClick={onNavigateToDashboard}>
+        <HouseIcon />
+        <span className="hidden sm:inline">Dashboard</span>
+      </Button>
+    </header>
   );
 };
 

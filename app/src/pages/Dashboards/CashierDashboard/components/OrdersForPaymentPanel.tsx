@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronUp, MapPin, CheckCircle2, RefreshCw, Search, X } from 'lucide-react';
+import { RefreshCw, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
@@ -13,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { formatOrderNumber, getOrderPlacerLabel, getOrderCreator } from '@/lib/utils';
+import { cn, formatOrderNumber, getOrderPlacerLabel, getOrderCreator } from '@/lib/utils';
 
 interface TableSummary {
   table_number: string;
@@ -44,6 +43,8 @@ interface OrdersForPaymentPanelProps {
   onConfirmPayment: (order: any) => void;
   currentUserId?: string | number | null;
   currentUserRole?: string | null;
+  /** The order open in the charge panel, highlighted in the list. */
+  selectedOrderId?: string | number | null;
 }
 
 // Items can be added to an open order or a served ("done") one, which
@@ -69,7 +70,8 @@ export const OrdersForPaymentPanel: React.FC<OrdersForPaymentPanelProps> = ({
   getItemSubtotalBirr,
   onConfirmPayment,
   currentUserId,
-  currentUserRole
+  currentUserRole,
+  selectedOrderId,
 }) => {
   const navigate = useNavigate();
 
@@ -135,13 +137,13 @@ export const OrdersForPaymentPanel: React.FC<OrdersForPaymentPanelProps> = ({
   };
   if (loading) {
     return (
-      <Card className="flex flex-col min-h-[400px] lg:min-h-[550px] overflow-hidden">
-        <CardHeader className="pb-3 border-b">
-          <Skeleton className="h-6 w-40" />
+      <Card>
+        <CardHeader className="pb-4">
+          <Skeleton className="h-5 w-48" />
         </CardHeader>
-        <CardContent className="pt-6">
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-32 w-full mb-4 rounded-lg" />
+        <CardContent className="space-y-3">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full" />
           ))}
         </CardContent>
       </Card>
@@ -149,32 +151,25 @@ export const OrdersForPaymentPanel: React.FC<OrdersForPaymentPanelProps> = ({
   }
 
   return (
-    <Card className="flex flex-col min-h-[400px] lg:min-h-[550px] overflow-hidden">
-      <CardHeader className="pb-3 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center justify-between gap-2 sm:flex-1 sm:justify-start">
+    <Card className="overflow-hidden">
+      <CardHeader className="space-y-3 border-b border-border pb-4">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <CardTitle className="text-sm">Ready for Payment</CardTitle>
-            <CardDescription>Finalized wait staff services</CardDescription>
+            <CardTitle>Waiting for payment</CardTitle>
+            <CardDescription>Served orders, newest first.</CardDescription>
           </div>
-          <Badge variant="info" className="text-xs font-bold shrink-0 sm:hidden">
-            {orders.length} Orders
-          </Badge>
+          <span className="shrink-0 rounded-full bg-highlight px-2.5 py-0.5 text-eyebrow text-highlight-foreground">
+            {orders.length} {orders.length === 1 ? 'order' : 'orders'}
+          </span>
         </div>
 
-        <Badge variant="info" className="hidden sm:inline-flex text-xs font-bold shrink-0">
-          {orders.length} Orders
-        </Badge>
-      </CardHeader>
-      <CardContent className="pt-6 overflow-y-auto flex-1 space-y-3">
-        {/* Table selector */}
         {tableSummaries.length > 0 && (
-          <div className="flex items-center gap-2">
-            <MapPin className="size-4 text-muted-foreground shrink-0" />
+          <div className="flex flex-wrap items-center gap-2">
             <Select
               value={tableNumberFilter || 'all'}
               onValueChange={(v) => setTableNumberFilter(v === 'all' ? '' : v)}
             >
-              <SelectTrigger className="h-9 w-full sm:w-56 text-xs font-bold">
+              <SelectTrigger className="h-10 w-full rounded-full px-4 sm:w-52">
                 <SelectValue placeholder="All tables" />
               </SelectTrigger>
               <SelectContent>
@@ -186,155 +181,121 @@ export const OrdersForPaymentPanel: React.FC<OrdersForPaymentPanelProps> = ({
                 ))}
               </SelectContent>
             </Select>
-            <div className="relative w-24 sm:w-28 shrink-0">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="text"
-                inputMode="numeric"
-                placeholder="Table #"
-                value={tableSearch}
-                onChange={(e) => handleTableSearchChange(e.target.value)}
-                className="h-9 pl-8 pr-2 text-xs font-bold"
-              />
-            </div>
+            <SearchInput
+              inputMode="numeric"
+              placeholder="Table #"
+              value={tableSearch}
+              onChange={(e) => handleTableSearchChange(e.target.value)}
+              wrapperClassName="w-32"
+            />
           </div>
         )}
+      </CardHeader>
 
-        {/* Aggregate card for the selected table */}
-        {tableNumberFilter && (
-          <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5 text-sm font-extrabold text-foreground">
-                <MapPin className="size-4 text-primary" />
-                Table {tableNumberFilter}
-              </div>
-              <button
-                type="button"
-                onClick={() => setTableNumberFilter('')}
-                className="text-muted-foreground hover:text-foreground"
-                aria-label="Clear table filter"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {orders.length} order{orders.length === 1 ? '' : 's'} attached to this table
+      {/* Totals for the selected table */}
+      {tableNumberFilter && (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-highlight/30 px-6 py-4">
+          <div>
+            <p className="font-semibold text-foreground">Table {tableNumberFilter}</p>
+            <p className="text-meta text-muted-foreground">
+              {orders.length} {orders.length === 1 ? 'order' : 'orders'} · {formatCurrency(visibleOrdersTotal)} due
             </p>
-            <div className="flex items-center justify-between rounded-xl border bg-background px-3 py-2">
-              <span className="text-xs font-semibold text-muted-foreground">Total due</span>
-              <span className="text-lg font-extrabold text-foreground">
-                {formatCurrency(visibleOrdersTotal)}
-              </span>
-            </div>
+          </div>
+          <div className="flex items-center gap-2">
             <Button
-              size="sm"
-              className="w-full h-10 bg-success hover:bg-green-700 text-white font-extrabold"
-              disabled={orders.length === 0 || settlingBatch}
-              onClick={onOpenSettleTable}
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setTableNumberFilter('')}
+              aria-label="Clear table filter"
             >
-              {settlingBatch ? (
-                <RefreshCw className="size-4 animate-spin" />
-              ) : (
-                <CheckCircle2 className="size-4" />
-              )}
-              Confirm all payments for Table {tableNumberFilter}
+              <X />
+            </Button>
+            <Button disabled={orders.length === 0 || settlingBatch} onClick={onOpenSettleTable}>
+              {settlingBatch ? <RefreshCw className="animate-spin" /> : null}
+              Charge all for Table {tableNumberFilter}
             </Button>
           </div>
-        )}
+        </div>
+      )}
 
-        {orders.map((order: any) => (
-          <div key={order.id} className="border rounded-2xl p-4 bg-muted/20 hover:bg-muted/30 transition-colors space-y-3">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <span className="font-extrabold text-md text-foreground">
-                  Order {formatOrderNumber(order)}{order.table_number && ` • Table ${order.table_number}`}
-                </span>
-                <p className="font-extrabold text-md text-foreground">
-                  {getOrderPlacerLabel(order)}: {order.waiter_name || order.employee_name}
-                </p>
-                {(() => {
-                  const creator = getOrderCreator(order);
-                  if (!creator) return null;
-                  return (
-                    <p className="text-[11px] font-semibold text-muted-foreground">
-                      Placed by {creator.label}: <span className="text-foreground font-bold">{creator.name}</span>
-                    </p>
-                  );
-                })()}
-              </div>
+      {orders.length === 0 ? (
+        <p className="px-6 py-12 text-center text-sm text-muted-foreground">Nothing waiting. New orders show up here.</p>
+      ) : (
+        <ul className="divide-y divide-border">
+          {orders.map((order: any) => {
+            const unitSubtotal = getOrderSubtotalForUnitAndMenuItem(order, businessUnit, selectedMenuItemId);
+            const full = parseFloat(order.total_amount) || 0;
+            const showFull = businessUnit !== 'all' && Number.isFinite(full) && Math.abs(full - unitSubtotal) > 0.01;
 
-              {(() => {
-                const unitSubtotal = getOrderSubtotalForUnitAndMenuItem(order, businessUnit, selectedMenuItemId);
-                const full = parseFloat(order.total_amount) || 0;
-                const showFull = businessUnit !== 'all' && Number.isFinite(full) && Math.abs(full - unitSubtotal) > 0.01;
-                return (
-                  <div className="text-right">
-                    <div className="text-sm font-extrabold text-success">{formatCurrency(unitSubtotal)}</div>
-                    {showFull && <div className="text-[9px] text-muted-foreground">of {formatCurrency(full)}</div>}
-                  </div>
-                );
-              })()}
-            </div>
+            const unit = businessUnit === 'all' ? null : businessUnit;
+            const breakdown = getOrderUnitBreakdown(order, unit);
+            const itemsRaw = Array.isArray(breakdown?.items) ? breakdown.items : [];
+            const targetMenuItemId = selectedMenuItemId !== 'all' ? selectedMenuItemId : null;
+            const items = targetMenuItemId !== null
+              ? itemsRaw.filter((it: any) => it?.menu_item_id === targetMenuItemId)
+              : itemsRaw;
+            const summary = items
+              .map((it: any) => `${parseInt(it.quantity, 10) || 1} × ${it.menu_item_name || it.name || 'Item'}`)
+              .join(', ');
 
-            {(() => {
-              const unit = businessUnit === 'all' ? null : businessUnit;
-              const breakdown = getOrderUnitBreakdown(order, unit);
-              const itemsRaw = Array.isArray(breakdown?.items) ? breakdown.items : [];
-              const targetMenuItemId = selectedMenuItemId !== 'all' ? selectedMenuItemId : null;
-              const items = targetMenuItemId !== null
-                ? itemsRaw.filter((it: any) => it?.menu_item_id === targetMenuItemId)
-                : itemsRaw;
-              if (!Array.isArray(items) || items.length === 0) return null;
-              return (
-                <div className="bg-background border rounded-xl p-2.5 space-y-1">
-                  {items.map((it: any, idx: number) => (
-                    <div key={idx} className="flex items-center justify-between text-xs">
-                      <span className="truncate text-muted-foreground">
-                        <span className="font-extrabold text-foreground mr-1">{(parseInt(it.quantity, 10) || 1)}x</span>
-                        {it.menu_item_name || it.name || 'Item'}
-                      </span>
-                      <span className="font-extrabold text-foreground">{formatCurrency(getItemSubtotalBirr(it))}</span>
-                    </div>
-                  ))}
-                </div>
-              );
-            })()}
+            const creator = getOrderCreator(order);
+            const staff = order.waiter_name || order.employee_name;
+            const isSelected = selectedOrderId != null && String(selectedOrderId) === String(order.id);
+            const isProcessingThis = processingOrderIds.has(order.id);
 
-            <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] pt-1.5 border-t">
-              <span className="text-muted-foreground font-semibold">
-                Completed: {new Date(order.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </span>
-
-              <div className="flex items-center gap-2 ml-auto">
-                {canAddItems(order) && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-9 text-[11px] font-bold"
-                    disabled={isBlockingPaymentUi}
-                    onClick={() => goAddItems(order)}
-                  >
-                    Add Items
-                  </Button>
+            return (
+              <li
+                key={order.id}
+                className={cn(
+                  'flex flex-col gap-3 px-6 py-4 transition-colors sm:flex-row sm:items-start',
+                  isSelected ? 'bg-highlight/40' : 'hover:bg-row-hover'
                 )}
-                <Button
-                  size="sm"
-                  className="h-9 text-[11px] bg-success hover:bg-green-700 text-white font-extrabold"
-                  disabled={isBlockingPaymentUi || processingOrderIds.has(order.id)}
-                  onClick={() => onConfirmPayment(order)}
-                >
-                  {processingOrderIds.has(order.id) ? 'Processing...' : 'Confirm'}
-                </Button>
-              </div>
-            </div>
-          </div>
-        ))}
-        {orders.length === 0 && (
-          <div className="p-8 text-center text-xs text-muted-foreground font-bold border border-dashed rounded-xl bg-muted/20">
-            No orders waiting for payment
-          </div>
-        )}
-      </CardContent>
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-foreground">
+                    {formatOrderNumber(order)}
+                    {order.table_number ? ` · Table ${order.table_number}` : ''}
+                  </p>
+                  {summary && <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">{summary}</p>}
+                  <p className="mt-1 text-meta text-muted-foreground">
+                    {staff ? `${getOrderPlacerLabel(order)}: ${staff}` : null}
+                    {creator ? `${staff ? ' · ' : ''}Placed by ${creator.label}: ${creator.name}` : null}
+                    {' · '}
+                    {new Date(order.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+
+                <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end">
+                  <div className="text-right">
+                    <p className="font-semibold text-foreground">{formatCurrency(unitSubtotal)}</p>
+                    {showFull && <p className="text-meta text-muted-foreground">of {formatCurrency(full)}</p>}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {canAddItems(order) && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={isBlockingPaymentUi}
+                        onClick={() => goAddItems(order)}
+                      >
+                        Add items
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant={isSelected ? 'selected' : 'default'}
+                      disabled={isBlockingPaymentUi || isProcessingThis}
+                      onClick={() => onConfirmPayment(order)}
+                    >
+                      {isProcessingThis ? 'Charging…' : 'Charge'}
+                    </Button>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </Card>
   );
 };

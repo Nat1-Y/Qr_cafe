@@ -27,6 +27,8 @@ interface ModalSectionProps {
   onUpdateProfile: () => void;
   // Utilities
   formatCurrency: (val: any) => string;
+  getOrderUnitBreakdown?: (order: any, unit: string | null) => any;
+  getItemSubtotalBirr?: (item: any) => number;
 }
 
 export const ModalSection: React.FC<ModalSectionProps> = ({
@@ -48,7 +50,9 @@ export const ModalSection: React.FC<ModalSectionProps> = ({
   profileData,
   setProfileData,
   onUpdateProfile,
-  formatCurrency
+  formatCurrency,
+  getOrderUnitBreakdown,
+  getItemSubtotalBirr,
 }) => {
   return (
     <>
@@ -62,6 +66,8 @@ export const ModalSection: React.FC<ModalSectionProps> = ({
         setPaymentMethod={setPaymentMethod}
         onConfirm={onConfirmCashPayment}
         formatCurrency={formatCurrency}
+        getOrderUnitBreakdown={getOrderUnitBreakdown}
+        getItemSubtotalBirr={getItemSubtotalBirr}
       />
 
       <PaymentReportsModal

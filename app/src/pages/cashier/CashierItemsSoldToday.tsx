@@ -281,13 +281,13 @@ export const CashierItemsSoldToday: React.FC = () => {
   if (loading) {
     return (
       <div className="p-4 md:p-8 space-y-6">
-        <Skeleton className="h-20 w-full rounded-2xl" />
+        <Skeleton className="h-20 w-full rounded-card" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-24 w-full" />
         </div>
-        <Skeleton className="h-96 w-full rounded-2xl" />
+        <Skeleton className="h-96 w-full rounded-card" />
       </div>
     );
   }
@@ -295,7 +295,7 @@ export const CashierItemsSoldToday: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Items Sold Today"
+        title="Items sold today"
         description="Everything sold today, aggregated by item — ready to print"
         actions={
           <div className="flex items-center gap-2">
@@ -303,7 +303,7 @@ export const CashierItemsSoldToday: React.FC = () => {
               <select
                 value={selectedPrinter}
                 onChange={(e) => handleSelectPrinter(e.target.value)}
-                className="h-9 rounded-md border border-input bg-background px-2 text-xs max-w-[180px]"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 max-w-[180px]"
                 title="Choose which printer to print the report on"
               >
                 {printers.map((name) => (
@@ -327,19 +327,19 @@ export const CashierItemsSoldToday: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatsCard
-          title="Total Food Items Sold"
+          title="Total food items sold"
           value={counts.foodQty}
           icon={<Coffee className="w-5 h-5" />}
           variant="success"
         />
         <StatsCard
-          title="Total Beverages Sold"
+          title="Total beverages sold"
           value={counts.softQty}
           icon={<TrendingUp className="w-5 h-5" />}
           variant="info"
         />
         <StatsCard
-          title="Total Revenue"
+          title="Total revenue"
           value={`${Number(counts.totalRevenue || 0).toLocaleString()} Birr`}
           variant="default"
         />
@@ -348,10 +348,10 @@ export const CashierItemsSoldToday: React.FC = () => {
       <Card>
         <CardHeader className="pb-3 border-b flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-base">Items Sold Today</CardTitle>
+            <CardTitle>Items sold today</CardTitle>
             <CardDescription>{itemsRows.length} distinct item types</CardDescription>
           </div>
-          <Badge variant="secondary" className="text-[10px]">
+          <Badge variant="secondary">
             Orders: {todaysOrders.length} · Settled: {paidCount}
           </Badge>
         </CardHeader>
@@ -359,9 +359,9 @@ export const CashierItemsSoldToday: React.FC = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Business Unit</TableHead>
-                <TableHead>Item Name</TableHead>
-                <TableHead>Quantity Sold</TableHead>
+                <TableHead>Business unit</TableHead>
+                <TableHead>Item name</TableHead>
+                <TableHead>Quantity sold</TableHead>
                 <TableHead className="text-right">Revenue</TableHead>
               </TableRow>
             </TableHeader>
@@ -379,14 +379,14 @@ export const CashierItemsSoldToday: React.FC = () => {
               ) : (
                 itemsRows.map((r, idx) => (
                   <TableRow key={`${r.unit}-${r.item}-${idx}`}>
-                    <TableCell className="capitalize text-xs text-muted-foreground font-semibold">
+                    <TableCell className="capitalize text-muted-foreground font-semibold">
                       {r.unit}
                     </TableCell>
                     <TableCell className="font-semibold text-sm text-foreground">
                       {r.item}
                     </TableCell>
-                    <TableCell className="font-bold text-sm">{r.qtySold}</TableCell>
-                    <TableCell className="text-right font-extrabold text-success">
+                    <TableCell className="font-semibold text-sm">{r.qtySold}</TableCell>
+                    <TableCell className="text-right font-semibold text-success">
                       {Number(r.revenue || 0).toLocaleString()} Birr
                     </TableCell>
                   </TableRow>

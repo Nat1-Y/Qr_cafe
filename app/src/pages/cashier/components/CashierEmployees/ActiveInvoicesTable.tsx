@@ -1,8 +1,7 @@
-import { uuidToDisplayId, formatOrderNumber } from "@/lib/utils";
+import { formatOrderNumber } from "@/lib/utils";
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -11,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CheckCircle2, RefreshCw, MapPin, X } from 'lucide-react';
+import { RefreshCw, X } from 'lucide-react';
 
 interface TableSummary {
   table_number: string;
@@ -50,29 +49,23 @@ export const ActiveInvoicesTable: React.FC<ActiveInvoicesTableProps> = ({
 }) => {
   return (
     <Card className="flex flex-col overflow-hidden">
-      <CardHeader className="flex flex-col gap-4 border-b sm:flex-row sm:items-center sm:justify-between">
+      <CardHeader className="flex flex-row items-start justify-between gap-4 border-b border-border">
         <div>
-          <CardTitle className="text-sm font-semibold text-foreground">
-            Active Table Invoices
-          </CardTitle>
-          <CardDescription className="mt-0.5 text-xs">
-            Collect and complete cash transactions
-          </CardDescription>
+          <CardTitle>Waiting for payment</CardTitle>
+          <CardDescription>This waiter's served orders.</CardDescription>
         </div>
-
-        <Badge variant="secondary" className="shrink-0">
-          {ordersForPaymentSorted.length} Pending
-        </Badge>
+        <span className="shrink-0 rounded-full bg-highlight px-2.5 py-0.5 text-eyebrow text-highlight-foreground">
+          {ordersForPaymentSorted.length} {ordersForPaymentSorted.length === 1 ? 'order' : 'orders'}
+        </span>
       </CardHeader>
 
       {tableSummaries.length > 0 && (
-        <div className="flex items-center gap-2 px-4 pt-3">
-          <MapPin className="size-4 text-muted-foreground shrink-0" />
+        <div className="flex items-center gap-2 px-6 pt-4">
           <Select
             value={selectedTable || 'all'}
             onValueChange={(v) => setSelectedTable(v === 'all' ? '' : v)}
           >
-            <SelectTrigger className="h-9 w-full sm:w-56 text-xs font-bold">
+            <SelectTrigger className="w-full rounded-full px-4 sm:w-56">
               <SelectValue placeholder="All tables" />
             </SelectTrigger>
             <SelectContent>
@@ -88,79 +81,46 @@ export const ActiveInvoicesTable: React.FC<ActiveInvoicesTableProps> = ({
       )}
 
       {selectedTable && (
-        <div className="mx-4 mt-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 text-sm font-extrabold text-foreground">
-              <MapPin className="size-4 text-primary" />
-              Table {selectedTable}
-            </div>
-            <button
-              type="button"
-              onClick={() => setSelectedTable('')}
-              className="text-muted-foreground hover:text-foreground"
-              aria-label="Clear table filter"
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-y border-border bg-highlight/30 px-6 py-4">
+          <div>
+            <p className="font-semibold text-foreground">Table {selectedTable}</p>
+            <p className="text-meta text-muted-foreground">
+              {ordersForPaymentSorted.length} {ordersForPaymentSorted.length === 1 ? 'order' : 'orders'} · {formatCurrency(pendingSettleTotal)} due
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon-sm" onClick={() => setSelectedTable('')} aria-label="Clear table filter">
+              <X />
+            </Button>
+            <Button
+              onClick={openSettleAllConfirm}
+              disabled={settlingAll || ordersForPaymentSorted.length === 0}
             >
-              <X className="size-4" />
-            </button>
+              {settlingAll ? <RefreshCw className="animate-spin" /> : null}
+              Charge all for Table {selectedTable}
+            </Button>
           </div>
-          <p className="text-xs text-muted-foreground">
-            {ordersForPaymentSorted.length} order{ordersForPaymentSorted.length === 1 ? '' : 's'} attached to this table
-          </p>
-          <div className="flex items-center justify-between rounded-xl border bg-background px-3 py-2">
-            <span className="text-xs font-semibold text-muted-foreground">Total due</span>
-            <span className="text-lg font-extrabold text-foreground">
-              {formatCurrency(pendingSettleTotal)}
-            </span>
-          </div>
-          <Button
-            className="w-full gap-1.5"
-            onClick={openSettleAllConfirm}
-            disabled={settlingAll || ordersForPaymentSorted.length === 0}
-          >
-            {settlingAll ? (
-              <RefreshCw className="h-4 w-4 animate-spin" />
-            ) : (
-              <CheckCircle2 className="h-4 w-4" />
-            )}
-            Confirm all payments for Table {selectedTable}
-          </Button>
         </div>
       )}
 
       {!selectedTable && ordersForPaymentSorted.length > 1 && (
-        <div className="border-b px-4 py-3">
-          <Button
-            className="w-full gap-1.5"
-            onClick={openSettleAllConfirm}
-            disabled={settlingAll}
-          >
-            {settlingAll ? (
-              <RefreshCw className="h-4 w-4 animate-spin" />
-            ) : (
-              <CheckCircle2 className="h-4 w-4" />
-            )}
-            Settle all {ordersForPaymentSorted.length} • {formatCurrency(pendingSettleTotal)}
+        <div className="flex justify-end border-b border-border px-6 py-3">
+          <Button onClick={openSettleAllConfirm} disabled={settlingAll}>
+            {settlingAll ? <RefreshCw className="animate-spin" /> : null}
+            Charge all {ordersForPaymentSorted.length} · {formatCurrency(pendingSettleTotal)}
           </Button>
         </div>
       )}
       <CardContent className="flex-1 overflow-x-auto p-0">
         <Table>
           <TableHeader>
-            <TableRow className="border-b bg-muted/40 hover:bg-muted/40">
-              <TableHead className="h-10 text-xs font-medium uppercase text-muted-foreground">
-                Order #
-              </TableHead>
-              <TableHead className="h-10 text-xs font-medium uppercase text-muted-foreground">
-                Table
-              </TableHead>
-              <TableHead className="h-10 text-xs font-medium uppercase text-muted-foreground">
-                Items
-              </TableHead>
-              <TableHead className="h-10 text-xs font-medium uppercase text-muted-foreground">
-                Subtotal
-              </TableHead>
-              <TableHead className="h-10 text-right text-xs font-medium uppercase text-muted-foreground">
-                Actions
+            <TableRow>
+              <TableHead>Order</TableHead>
+              <TableHead>Table</TableHead>
+              <TableHead>Items</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+              <TableHead className="text-right">
+                <span className="sr-only">Actions</span>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -169,28 +129,26 @@ export const ActiveInvoicesTable: React.FC<ActiveInvoicesTableProps> = ({
               ordersForPaymentSorted.map((o) => {
                 const isProcessing = processingOrders.has(o.id);
                 return (
-                  <TableRow key={o.id} className="border-b">
-                    <TableCell className="py-3.5 text-xs font-semibold text-foreground">
+                  <TableRow key={o.id}>
+                    <TableCell className="py-3.5 font-semibold text-foreground">
                       {formatOrderNumber(o)}
                     </TableCell>
-                    <TableCell className="py-3.5 text-xs text-muted-foreground">
-                      {o.order_type_label || (o.table_number ? `Table ${o.table_number}` : 'Take Away')}
+                    <TableCell className="py-3.5 text-muted-foreground">
+                      {o.order_type_label || (o.table_number ? `Table ${o.table_number}` : 'Takeaway')}
                     </TableCell>
                     <TableCell className="min-w-[200px] py-3.5">
                       {(() => {
                         const items = getOrderItemsForRow(o);
                         if (items.length > 0) {
                           return (
-                            <div className="space-y-1 rounded-lg border bg-muted/40 p-2.5 text-[11px]">
+                            <div className="space-y-0.5 text-sm">
                               {items.map((item: any, idx: number) => (
-                                <div
-                                  key={idx}
-                                  className="flex justify-between text-muted-foreground"
-                                >
-                                  <span>
-                                    {item.quantity}x {item.menu_item_name || item.name || 'Item'}
+                                <div key={idx} className="flex justify-between gap-3">
+                                  <span className="text-body">
+                                    <span className="text-muted-foreground">{item.quantity} ×</span>{' '}
+                                    {item.menu_item_name || item.name || 'Item'}
                                   </span>
-                                  <span className="ml-3 font-medium text-foreground">
+                                  <span className="shrink-0 text-muted-foreground">
                                     {formatCurrency(item.subtotal || item.total_price || 0)}
                                   </span>
                                 </div>
@@ -205,7 +163,7 @@ export const ActiveInvoicesTable: React.FC<ActiveInvoicesTableProps> = ({
                             ? loadingOrderIds.has(id)
                             : false;
                         return (
-                          <span className="flex items-center gap-1.5 py-1 text-[11px] text-muted-foreground">
+                          <span className="flex items-center gap-1.5 py-1 text-meta text-muted-foreground">
                             {isLoading ? (
                               <>
                                 <RefreshCw className="h-3 w-3 animate-spin" />
@@ -218,24 +176,23 @@ export const ActiveInvoicesTable: React.FC<ActiveInvoicesTableProps> = ({
                         );
                       })()}
                     </TableCell>
-                    <TableCell className="py-3.5 text-xs font-semibold text-success">
+                    <TableCell className="py-3.5 text-right font-semibold text-foreground">
                       {formatCurrency(o.total_amount)}
                     </TableCell>
                     <TableCell className="py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <Button
                           size="sm"
-                          className="h-8 text-xs"
                           onClick={() => openProcessPaymentConfirm(o)}
                           disabled={isProcessing}
                         >
                           {isProcessing ? (
-                            <span className="flex items-center gap-1">
-                              <RefreshCw className="h-3 w-3 animate-spin" />
-                              Settling...
-                            </span>
+                            <>
+                              <RefreshCw className="animate-spin" />
+                              Charging…
+                            </>
                           ) : (
-                            'Settle Cash'
+                            'Charge'
                           )}
                         </Button>
                       </div>
@@ -247,7 +204,7 @@ export const ActiveInvoicesTable: React.FC<ActiveInvoicesTableProps> = ({
               <TableRow>
                 <TableCell
                   colSpan={5}
-                  className="py-14 text-center text-xs text-muted-foreground"
+                  className="py-14 text-center text-muted-foreground"
                 >
                   No active table invoices waiting for payment
                 </TableCell>

@@ -8,14 +8,6 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { RefreshCw } from 'lucide-react';
 import api from '@/application';
 import toast from 'react-hot-toast';
@@ -90,63 +82,63 @@ const SettleAllPaymentsModal: React.FC<SettleAllPaymentsModalProps> = ({
     <Dialog open={open} onOpenChange={(o) => { if (!isProcessing) onOpenChange(o); }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Settle All Pending Payments</DialogTitle>
+          <p className="eyebrow">Charge all</p>
+          <DialogTitle className="text-[22px] leading-tight">{employeeName || 'Every order shown'}</DialogTitle>
           <DialogDescription>
-            Confirm {count} pending payment{count === 1 ? '' : 's'}
-            {employeeName ? ` for ${employeeName}` : ''}. This cannot be undone.
+            {count} {count === 1 ? 'order' : 'orders'} will be marked paid. This can&apos;t be undone.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 pt-2">
-          <div className="bg-muted/40 p-4 rounded-xl flex items-center justify-between">
-            <span className="text-xs font-bold text-muted-foreground uppercase">Total amount</span>
-            <span className="text-base font-extrabold text-success">
-              {formatCurrency(total)}
-            </span>
+        <div className="space-y-5">
+          <div className="flex items-baseline justify-between border-b border-dashed border-border pb-4">
+            <span className="text-base font-semibold text-foreground">Total</span>
+            <span className="text-kpi text-foreground">{formatCurrency(total)}</span>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-xs font-bold text-muted-foreground uppercase">Payment Method</Label>
+          <div>
+            <p className="mb-2 text-sm font-medium text-foreground">Paid with</p>
             {loadingMethods ? (
-              <div className="h-12 rounded-xl bg-muted/40 animate-pulse" />
+              <div className="flex gap-2">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="h-10 w-24 animate-pulse rounded-full bg-muted" />
+                ))}
+              </div>
+            ) : paymentMethods.length === 0 ? (
+              <p className="text-meta text-muted-foreground">No payment methods are set up yet.</p>
             ) : (
-              <Select
-                value={paymentMethod}
-                onValueChange={setPaymentMethod}
-                disabled={paymentMethods.length === 0 || isProcessing}
-              >
-                <SelectTrigger className="h-12 rounded-xl border">
-                  <SelectValue placeholder="Select payment method" />
-                </SelectTrigger>
-                <SelectContent className="max-h-48">
-                  {paymentMethods.map((method) => (
-                    <SelectItem key={method.id} value={method.name}>
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Payment method">
+                {paymentMethods.map((method) => {
+                  const selected = method.name === paymentMethod;
+                  return (
+                    <Button
+                      key={method.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={selected}
+                      variant={selected ? 'selected' : 'outline'}
+                      disabled={isProcessing}
+                      onClick={() => setPaymentMethod(method.name)}
+                    >
                       {method.display_name}
-                    </SelectItem>
-                  ))}
-                  {paymentMethods.length === 0 && (
-                    <div className="px-2 py-1.5 text-xs text-muted-foreground text-center">
-                      Payment methods are being loaded or none are configured.
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
+                    </Button>
+                  );
+                })}
+              </div>
             )}
+            <p className="mt-2 text-meta text-muted-foreground">
+              Each order is recorded as {selectedMethodLabel} in the payment history.
+            </p>
           </div>
-
-          <p className="text-xs font-bold text-muted-foreground">
-            Every invoice will be recorded as {selectedMethodLabel} and shown in the payment history.
-          </p>
 
           {progress ? (
-            <p className="flex items-center justify-center gap-1.5 text-xs font-semibold text-muted-foreground">
-              <RefreshCw className="h-3 w-3 animate-spin" />
-              Settling {progress.done} / {progress.total}…
+            <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+              Settling {progress.done} of {progress.total}…
             </p>
           ) : null}
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-0 pt-4 border-t">
+        <DialogFooter>
           <Button
             variant="outline"
             disabled={isProcessing}
@@ -159,12 +151,12 @@ const SettleAllPaymentsModal: React.FC<SettleAllPaymentsModalProps> = ({
             onClick={onConfirm}
           >
             {isProcessing ? (
-              <span className="flex items-center gap-1.5">
-                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+              <>
+                <RefreshCw className="animate-spin" />
                 Settling…
-              </span>
+              </>
             ) : (
-              `Confirm ${count} payment${count === 1 ? '' : 's'}`
+              `Charge ${count} ${count === 1 ? 'order' : 'orders'}`
             )}
           </Button>
         </DialogFooter>

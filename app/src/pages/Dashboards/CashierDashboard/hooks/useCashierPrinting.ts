@@ -180,7 +180,7 @@ export const useCashierPrinting = ({
           const tablePart = order.table_number
             ? ` (Table ${order.table_number})`
             : "";
-          toast.success(`🖨️ Order #${tablePart} printed successfully`, {
+          toast.success(`Order #${tablePart} printed successfully`, {
             duration: 2000,
           });
           printed = true;
@@ -241,7 +241,7 @@ export const useCashierPrinting = ({
         try {
           await (api.orders as any).printCancelledOrderNative(order.id);
           recordOrderPrintedHere(registryKey);
-          toast.success(`🖨️ Cancelled order ticket printed`, {
+          toast.success(`Cancelled order ticket printed`, {
             duration: 2000,
           });
         } catch (err) {
@@ -315,7 +315,7 @@ export const useCashierPrinting = ({
           }
 
           setQzStatus({ connected: true, error: null });
-          toast.success(`🖨️ Added items printed`, { duration: 2000 });
+          toast.success(`Added items printed`, { duration: 2000 });
         } catch (err) {
           console.error(
             "[Tauri Print] Auto-print failed for item addition",
@@ -380,7 +380,7 @@ export const useCashierPrinting = ({
 
         setQzStatus({ connected: true, error: null });
         recordPrintSuccess(orderId);
-        toast.success(`🖨️ Order printed successfully`, { duration: 1000 });
+        toast.success(`Order printed successfully`, { duration: 1000 });
       } catch (err: any) {
         console.error(
           `[Immediate Tauri Print] Print failed for order #${orderId}:`,

@@ -1,7 +1,6 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 interface DateFilterBarProps {
   statsRange: string;
@@ -10,6 +9,12 @@ interface DateFilterBarProps {
   setCustomStatsDate: (date: string) => void;
 }
 
+const RANGES: Array<{ value: string; label: string }> = [
+  { value: 'today', label: 'Today' },
+  { value: 'yesterday', label: 'Yesterday' },
+];
+
+/** Segmented Today / Yesterday control for the KPI row. */
 export const DateFilterBar: React.FC<DateFilterBarProps> = ({
   statsRange,
   setStatsRange,
@@ -17,31 +22,35 @@ export const DateFilterBar: React.FC<DateFilterBarProps> = ({
   setCustomStatsDate
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-muted/40 border p-3 rounded-2xl">
-      <div className="flex items-center gap-1 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-hide">
-        {['today', 'yesterday'].map((rng) => (
-          <Button
-            key={rng}
-            variant={statsRange === rng ? 'secondary' : 'ghost'}
-            size="sm"
-            className="h-10 text-base uppercase rounded-lg whitespace-nowrap flex-shrink-0"
-            onClick={() => setStatsRange(rng)}
+    <div className="flex flex-wrap items-center gap-3">
+      <div role="tablist" className="inline-flex h-10 items-center gap-0.5 rounded-full border border-border bg-card p-1">
+        {RANGES.map((r) => (
+          <button
+            key={r.value}
+            type="button"
+            role="tab"
+            aria-selected={statsRange === r.value}
+            onClick={() => setStatsRange(r.value)}
+            className={cn(
+              'h-8 rounded-full px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring',
+              statsRange === r.value
+                ? 'bg-highlight text-highlight-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
           >
-            {rng}
-          </Button>
+            {r.label}
+          </button>
         ))}
       </div>
 
       {statsRange === 'custom' && (
-        <div className="flex items-center gap-2">
-          <Label className="text-xs font-bold text-muted-foreground">Select Date:</Label>
-          <Input
-            type="date"
-            value={customStatsDate}
-            onChange={(e) => setCustomStatsDate(e.target.value)}
-            className="h-8 py-0.5 text-xs font-extrabold w-36 rounded-lg"
-          />
-        </div>
+        <Input
+          type="date"
+          aria-label="Pick a date"
+          value={customStatsDate}
+          onChange={(e) => setCustomStatsDate(e.target.value)}
+          className="w-44"
+        />
       )}
     </div>
   );

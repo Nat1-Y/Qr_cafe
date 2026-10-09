@@ -1,10 +1,9 @@
 import React from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import StatusBadge from '@/components/common/StatusBadge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { displayStatus, statusBadgeVariant, uuidToDisplayId, getOrderPlacerLabel, getOrderCreator } from '@/lib/utils';
+import { uuidToDisplayId, getOrderPlacerLabel, getOrderCreator } from '@/lib/utils';
 
 interface RecentPaymentsPanelProps {
   payments: any[];
@@ -66,13 +65,13 @@ export const RecentPaymentsPanel: React.FC<RecentPaymentsPanelProps> = ({
 
   if (loading) {
     return (
-      <Card className="flex flex-col min-h-[400px] lg:min-h-[550px] overflow-hidden">
-        <CardHeader className="pb-3 border-b">
-          <Skeleton className="h-6 w-40" />
+      <Card>
+        <CardHeader className="pb-4">
+          <Skeleton className="h-5 w-40" />
         </CardHeader>
-        <CardContent className="pt-6">
+        <CardContent className="space-y-3">
           {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-32 w-full mb-4 rounded-lg" />
+            <Skeleton key={i} className="h-12 w-full" />
           ))}
         </CardContent>
       </Card>
@@ -80,142 +79,111 @@ export const RecentPaymentsPanel: React.FC<RecentPaymentsPanelProps> = ({
   }
 
   return (
-    <Card className="flex flex-col min-h-[400px] lg:min-h-[550px] overflow-hidden">
-      <CardHeader className="pb-3 border-b">
-        <CardTitle className="text-sm">Recent Ledger Entries</CardTitle>
-        <CardDescription>Processed payments from active drawer sessions</CardDescription>
+    <Card className="overflow-hidden">
+      <CardHeader className="border-b border-border pb-4">
+        <CardTitle>Recent payments</CardTitle>
+        <CardDescription>What this till has charged so far.</CardDescription>
       </CardHeader>
-      <CardContent className="pt-6 overflow-y-auto flex-1 space-y-3">
-        {payments.map((payment: any) => (
-          <div key={payment.id} className="border rounded-2xl p-4 bg-muted/10 space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge
-                  variant={statusBadgeVariant(payment.status)}
-                  className="text-[8px] uppercase py-0 px-1.5"
-                >
-                  {displayStatus(payment.status)}
-                </Badge>
-                {(() => {
-                  // Local payments don't carry order_number (offline-first), so
-                  // resolve it from the linked order; fall back to a short id.
-                  const orderId = resolvePaymentOrderId(payment);
-                  const order = orderId != null ? getOrderFromIndex(orderId) : null;
-                  const num = payment.order_number ?? order?.order_number;
-                  if (num == null && orderId == null) return null;
-                  const label =
-                    num != null ? `#${num}` : `#${uuidToDisplayId(String(orderId))}`;
-                  return (
-                    <button
-                      type="button"
-                      onClick={() => toggleRecentPaymentDetails(payment)}
-                      className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[9px] font-extrabold text-primary hover:bg-primary/20"
-                    >
-                      {label}
-                    </button>
-                  );
-                })()}
-              </div>
+      {payments.length === 0 ? (
+        <p className="px-6 py-10 text-center text-sm text-muted-foreground">No payments yet today.</p>
+      ) : (
+        <ul className="max-h-[32rem] divide-y divide-border overflow-y-auto">
+          {payments.map((payment: any) => {
+            // Local payments don't carry order_number (offline-first), so
+            // resolve it from the linked order; fall back to a short id.
+            const orderId = resolvePaymentOrderId(payment);
+            const linkedOrder = orderId != null ? getOrderFromIndex(orderId) : null;
+            const num = payment.order_number ?? linkedOrder?.order_number;
+            const orderLabel =
+              num != null ? `#${num}` : orderId != null ? `#${uuidToDisplayId(String(orderId))}` : 'Payment';
+            const unitAmount = getPaymentAmountForSelection(payment, businessUnit, selectedMenuItemId);
+            const needsDetails = !(businessUnit === 'all' && selectedMenuItemId === 'all');
+            const hasDetails = !needsDetails || (orderId == null ? false : !!linkedOrder);
+            const method = String(payment.payment_method || 'unknown').replace('_', ' ');
+            const expanded = expandedPaymentIds.has(payment.id);
 
-              {(() => {
-                const unitAmount = getPaymentAmountForSelection(payment, businessUnit, selectedMenuItemId);
-                const orderId = resolvePaymentOrderId(payment);
-                const needsDetails = !(businessUnit === 'all' && selectedMenuItemId === 'all');
-                const hasDetails = !needsDetails || (orderId == null ? false : !!getOrderFromIndex(orderId));
-                return (
-                  <span className="text-xs font-extrabold text-foreground">
-                    {(needsDetails && !hasDetails) ? '...' : formatCurrency(unitAmount)}
-                  </span>
-                );
-              })()}
-            </div>
-
-            <div className="flex items-center justify-between text-[10px] text-muted-foreground font-semibold">
-              <span className="uppercase tracking-wide">Method</span>
-              <Badge variant="outline" className="text-[9px] uppercase px-1.5 py-0 h-5">
-                {payment.payment_method?.replace('_', ' ') || 'unknown'}
-              </Badge>
-              <span>{new Date(payment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-            </div>
-
-            <div className="pt-1.5 border-t">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 p-0 text-[10px] font-extrabold text-primary hover:bg-transparent"
-                onClick={() => toggleRecentPaymentDetails(payment)}
-              >
-                {expandedPaymentIds.has(payment.id) ? (
-                  <>Hide details <ChevronUp className="w-3 h-3 ml-1" /></>
-                ) : (
-                  <>Show details <ChevronDown className="w-3 h-3 ml-1" /></>
-                )}
-              </Button>
-            </div>
-
-            {expandedPaymentIds.has(payment.id) && (
-              <div className="bg-background border rounded-xl p-2.5 space-y-2 mt-2">
-                {(() => {
-                  const orderId = resolvePaymentOrderId(payment);
-                  if (orderId == null) return <div className="text-[10px] text-muted-foreground font-bold">No order details</div>;
-                  if (loadingOrderIds.has(String(orderId))) return <Skeleton className="h-10 w-full rounded-lg" />;
-
-                  const order = getOrderFromIndex(orderId) || null;
-                  if (!order) return <div className="text-[10px] text-muted-foreground font-bold">Details unavailable</div>;
-
-                  const unit = businessUnit === 'all' ? null : businessUnit;
-                  const breakdown = getOrderUnitBreakdown(order, unit);
-                  const itemsRaw = Array.isArray(breakdown.items) ? breakdown.items : [];
-                  const targetMenuItemId = selectedMenuItemId !== 'all' ? selectedMenuItemId : null;
-                  const items = targetMenuItemId !== null
-                    ? itemsRaw.filter((it: any) => it?.menu_item_id === targetMenuItemId)
-                    : itemsRaw;
-
-                  return (
-                    <div className="space-y-1.5 text-[11px]">
-                      {(order.employee_name || order.waiter_name) && (
-                        <div className="text-[10px] text-muted-foreground font-semibold">
-                          {getOrderPlacerLabel(order)}: <span className="font-extrabold text-foreground">{order.employee_name || order.waiter_name}</span>
-                        </div>
+            return (
+              <li key={payment.id} className="px-6 py-3 transition-colors hover:bg-row-hover">
+                <div className="flex items-start justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => toggleRecentPaymentDetails(payment)}
+                    className="min-w-0 text-left"
+                    aria-expanded={expanded}
+                  >
+                    <p className="flex items-center gap-1 font-semibold text-foreground">
+                      {orderLabel}
+                      <span className="font-normal capitalize text-muted-foreground">· {method}</span>
+                      {expanded ? (
+                        <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                       )}
-                      {(() => {
-                        const creator = getOrderCreator(order);
-                        if (!creator) return null;
-                        return (
-                          <div className="text-[10px] text-muted-foreground font-semibold">
-                            Placed by {creator.label}: <span className="font-extrabold text-foreground">{creator.name}</span>
-                          </div>
-                        );
-                      })()}
-                      {items.length > 0 && (
-                        <div className="space-y-1">
+                    </p>
+                    <p className="text-meta text-muted-foreground">
+                      {new Date(payment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </button>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <span className="font-semibold text-foreground">
+                      {needsDetails && !hasDetails ? '…' : formatCurrency(unitAmount)}
+                    </span>
+                    <StatusBadge kind="payment" status={payment.status} />
+                  </div>
+                </div>
+
+                {expanded && (
+                  <div className="mt-2 space-y-1.5 border-t border-dashed border-border pt-2 text-sm">
+                    {(() => {
+                      if (orderId == null) return <p className="text-meta text-muted-foreground">No order details</p>;
+                      if (loadingOrderIds.has(String(orderId))) return <Skeleton className="h-8 w-full" />;
+
+                      const order = linkedOrder;
+                      if (!order) return <p className="text-meta text-muted-foreground">Details unavailable</p>;
+
+                      const unit = businessUnit === 'all' ? null : businessUnit;
+                      const breakdown = getOrderUnitBreakdown(order, unit);
+                      const itemsRaw = Array.isArray(breakdown.items) ? breakdown.items : [];
+                      const targetMenuItemId = selectedMenuItemId !== 'all' ? selectedMenuItemId : null;
+                      const items = targetMenuItemId !== null
+                        ? itemsRaw.filter((it: any) => it?.menu_item_id === targetMenuItemId)
+                        : itemsRaw;
+                      const creator = getOrderCreator(order);
+
+                      return (
+                        <>
+                          {(order.employee_name || order.waiter_name) && (
+                            <p className="text-meta text-muted-foreground">
+                              {getOrderPlacerLabel(order)}: <span className="text-foreground">{order.employee_name || order.waiter_name}</span>
+                            </p>
+                          )}
+                          {creator && (
+                            <p className="text-meta text-muted-foreground">
+                              Placed by {creator.label}: <span className="text-foreground">{creator.name}</span>
+                            </p>
+                          )}
                           {items.map((it: any) => (
                             <div
                               key={it.id || `${it.menu_item_id}-${it.quantity}`}
-                              className="flex items-center justify-between gap-2 border-b border-muted last:border-b-0 pb-1 last:pb-0"
+                              className="flex items-baseline justify-between gap-3"
                             >
-                              <span className="text-muted-foreground truncate">
-                                <span className="font-extrabold text-foreground mr-1">{(parseInt(it.quantity, 10) || 0)}x</span>
+                              <span className="min-w-0 truncate">
+                                <span className="text-muted-foreground">{parseInt(it.quantity, 10) || 0} ×</span>{' '}
                                 {it.menu_item_name || it.name || 'Item'}
                               </span>
-                              <span className="font-extrabold text-foreground">{formatCurrency(getItemSubtotalBirr(it))}</span>
+                              <span className="shrink-0 text-foreground">{formatCurrency(getItemSubtotalBirr(it))}</span>
                             </div>
                           ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
-          </div>
-        ))}
-        {payments.length === 0 && (
-          <div className="p-8 text-center text-xs text-muted-foreground font-bold border border-dashed rounded-xl bg-muted/20">
-            No recent payments
-          </div>
-        )}
-      </CardContent>
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </Card>
   );
 };

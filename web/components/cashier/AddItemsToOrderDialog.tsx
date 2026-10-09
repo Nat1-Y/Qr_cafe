@@ -152,7 +152,7 @@ export const AddItemsToOrderDialog: React.FC<AddItemsToOrderDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add Items — Order {formatOrderNumber(order)}</DialogTitle>
+          <DialogTitle>Add items — order {formatOrderNumber(order)}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-3">

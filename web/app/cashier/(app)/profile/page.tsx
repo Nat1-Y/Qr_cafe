@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/page-header";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCashierAuth } from "@/components/cashier/auth-context";
@@ -81,21 +82,24 @@ export default function CashierProfilePage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 max-w-2xl mx-auto">
-      <div className="flex items-center gap-3">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/cashier">
-            <ArrowLeft className="size-4" />
-            Back
-          </Link>
-        </Button>
-        <h1 className="text-lg font-extrabold text-foreground">My Profile</h1>
-      </div>
+    <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-8">
+      <PageHeader
+        title="My profile"
+        description="Your name, contact details and password."
+        action={
+          <Button variant="outline" asChild>
+            <Link href="/cashier">
+              <ArrowLeft />
+              Till
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Account */}
       <Card>
         <CardHeader className="pb-3 border-b">
-          <CardTitle className="text-base">Account</CardTitle>
+          <CardTitle>Account</CardTitle>
           <CardDescription>Your sign-in details</CardDescription>
         </CardHeader>
         <CardContent className="pt-6 space-y-4">
@@ -123,7 +127,7 @@ export default function CashierProfilePage() {
       {/* Password */}
       <Card>
         <CardHeader className="pb-3 border-b">
-          <CardTitle className="text-base">Change password</CardTitle>
+          <CardTitle>Change password</CardTitle>
           <CardDescription>Update the password you sign in with</CardDescription>
         </CardHeader>
         <CardContent className="pt-6 space-y-4">

@@ -6,32 +6,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
-  Coffee,
   LogOut,
   RefreshCw,
-  CheckCircle2,
   Clock,
-  Receipt,
   ChevronDown,
   ChevronUp,
-  CreditCard,
-  DollarSign,
-  Clipboard,
-  XCircle,
   UserCog,
   Users,
-  MapPin,
   X,
   Building2,
 } from "lucide-react";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +31,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import StatsCard from "@/components/waiter/StatsCard";
-import { displayStatus } from "@/lib/format";
+import { formatETB } from "@/lib/format";
+import { StatusBadge } from "@/components/status-badge";
 import { useCashierAuth } from "@/components/cashier/auth-context";
 import { cashierServices } from "@/lib/cashier/api";
 import { AddItemsToOrderDialog } from "@/components/cashier/AddItemsToOrderDialog";
@@ -60,10 +46,7 @@ const PAYMENT_METHODS = [
   { value: "mobile", label: "Mobile" },
 ];
 
-function formatCurrency(n: any): string {
-  const v = Number(n) || 0;
-  return `${v.toLocaleString()} Br`;
-}
+const formatCurrency = formatETB;
 
 function prettyDept(slug: string, labels: Record<string, string>): string {
   if (!slug) return "—";
@@ -606,442 +589,338 @@ export default function CashierQueuePage() {
 
   const ItemLines = ({ items }: { items: Item[] }) =>
     items.length > 0 ? (
-      <div className="space-y-1 rounded-xl border bg-background p-2.5">
+      <ul className="space-y-0.5 text-sm">
         {items.map((it, i) => (
-          <div key={it.id || i} className="flex items-center justify-between gap-2 text-xs">
-            <span className="truncate text-muted-foreground">
-              <span className="mr-1 font-extrabold text-foreground">
-                {parseInt(String(it.quantity), 10) || 1}x
-              </span>
+          <li key={it.id || i} className="flex items-baseline justify-between gap-3">
+            <span className="min-w-0 truncate text-body">
+              <span className="text-muted-foreground">{parseInt(String(it.quantity), 10) || 1} ×</span>{" "}
               {it.menu_item_name || it.name || "Item"}
             </span>
-            <span className="font-extrabold text-foreground">
-              {formatCurrency(itemSubtotal(it))}
-            </span>
-          </div>
+            <span className="shrink-0 text-muted-foreground">{formatCurrency(itemSubtotal(it))}</span>
+          </li>
         ))}
-      </div>
+      </ul>
     ) : null;
 
+  const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+
   return (
-    <div className="p-4 sm:p-6 space-y-6">
-      {/* Header banner */}
-      <Card className="border border-primary/20 bg-gradient-to-r from-primary/10 via-background to-background shadow-sm">
-        <CardContent className="pt-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="bg-primary/20 p-2.5 rounded-2xl text-primary shrink-0">
-              <Coffee className="w-7 h-7" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-lg font-extrabold text-foreground truncate">
-                {user?.full_name || user?.username || "Cashier"}
-              </h1>
-              <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                {isAttached ? (
-                  departments.map((d) => (
-                    <Badge key={d} variant="info" className="text-[9px] uppercase">
-                      {prettyDept(d, deptLabels)}
-                    </Badge>
-                  ))
-                ) : (
-                  <Badge variant="muted" className="text-[9px] uppercase">
-                    All departments
-                  </Badge>
-                )}
-              </div>
-            </div>
+    <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-8">
+      {/* Header row: who is on the till, where to go */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0">
+          <p className="eyebrow mb-1">{user?.full_name || user?.username || "Cashier"}</p>
+          <h1 className="text-[26px] leading-tight font-semibold tracking-[-0.02em] text-foreground sm:text-title">Till</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {today} · {orders.length} waiting for payment
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            {isAttached ? (
+              departments.map((d) => (
+                <Badge key={d} variant="default">
+                  {prettyDept(d, deptLabels)}
+                </Badge>
+              ))
+            ) : (
+              <Badge variant="muted">All departments</Badge>
+            )}
           </div>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm" onClick={refreshAll} disabled={refreshing}>
-              <RefreshCw className={`size-4 ${refreshing ? "animate-spin" : ""}`} />
-              Refresh
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/cashier/employees">
-                <Users className="size-4" />
-                Employees
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/cashier/organizations">
-                <Building2 className="size-4" />
-                Organizations
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/cashier/profile">
-                <UserCog className="size-4" />
-                Profile
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" onClick={onLogout}>
-              <LogOut className="size-4" />
-              Sign out
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatsCard
-          title={`${range === "today" ? "Today's" : "Yesterday's"} Payments`}
-          value={stats.count}
-          icon={<CreditCard className="w-5 h-5" />}
-          variant="info"
-        />
-        <StatsCard
-          title={`${range === "today" ? "Today's" : "Yesterday's"} Revenue`}
-          value={formatCurrency(stats.revenue)}
-          icon={<DollarSign className="w-5 h-5" />}
-          variant="success"
-        />
-        <StatsCard
-          title="Pending"
-          value={formatCurrency(stats.pending)}
-          icon={<Clipboard className="w-5 h-5" />}
-          variant="warning"
-        />
-      </div>
-
-      {/* Date filter */}
-      <div className="flex justify-center">
-        <div className="flex bg-muted/50 p-1 rounded-xl border">
-          {rangeOptions.map((r) => (
-            <Button
-              key={r}
-              variant={range === r ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setRange(r)}
-              className="h-8 text-xs font-bold px-4 sm:px-6 uppercase"
-            >
-              {r}
-            </Button>
-          ))}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" onClick={refreshAll} disabled={refreshing}>
+            <RefreshCw className={refreshing ? "animate-spin" : undefined} />
+            Refresh
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/cashier/employees">
+              <Users />
+              Waiters
+            </Link>
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/cashier/organizations">
+              <Building2 />
+              Organizations
+            </Link>
+          </Button>
+          <Button variant="ghost" size="icon" asChild aria-label="Profile">
+            <Link href="/cashier/profile">
+              <UserCog />
+            </Link>
+          </Button>
+          <Button variant="ghost" size="icon" onClick={onLogout} aria-label="Sign out" title="Sign out">
+            <LogOut />
+          </Button>
         </div>
       </div>
 
-      {/* Panels */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Queue */}
-        <Card className="flex flex-col overflow-hidden">
-          <CardHeader className="pb-3 border-b">
-            <CardTitle className="text-base">Ready for Payment</CardTitle>
-            <CardDescription>Orders sent by waiters</CardDescription>
-            <CardAction>
-              <Badge variant="info" className="text-xs font-bold">
-                {orders.length} Orders
-              </Badge>
-            </CardAction>
-          </CardHeader>
-          <CardContent className="pt-6 space-y-3">
-            {/* Table selector */}
-            {tableSummaries.length > 0 ? (
-              <div className="flex items-center gap-2">
-                <MapPin className="size-4 text-muted-foreground shrink-0" />
-                <select
-                  value={selectedTable == null ? "" : String(selectedTable)}
-                  onChange={(e) =>
-                    setSelectedTable(e.target.value ? Number(e.target.value) : null)
-                  }
-                  className="h-9 w-full sm:w-56 rounded-md border border-input bg-transparent px-3 text-xs font-bold shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-                >
-                  <option value="">All tables</option>
-                  {tableSummaries.map((t) => (
-                    <option key={t.table_number} value={t.table_number}>
-                      Table {t.table_number} ({t.count} order{t.count === 1 ? "" : "s"})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : null}
+      {/* KPI row */}
+      <section className="space-y-3">
+        <div
+          role="tablist"
+          aria-label="Day"
+          className="inline-flex h-10 items-center gap-0.5 rounded-full border border-border bg-card p-1">
+          {rangeOptions.map((r) => (
+            <button
+              key={r}
+              type="button"
+              role="tab"
+              aria-selected={range === r}
+              onClick={() => setRange(r)}
+              className={
+                range === r
+                  ? "h-8 rounded-full bg-highlight px-4 text-sm font-semibold capitalize text-highlight-foreground"
+                  : "h-8 rounded-full px-4 text-sm font-semibold capitalize text-muted-foreground hover:text-foreground"
+              }>
+              {r}
+            </button>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <StatsCard title="Payments taken" value={stats.count} />
+          <StatsCard title="Revenue" value={formatCurrency(stats.revenue)} variant="success" />
+          <StatsCard title="Waiting to be paid" value={formatCurrency(stats.pending)} />
+        </div>
+      </section>
 
-            {/* Aggregate card for the selected table */}
-            {selectedTable != null ? (
-              <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 space-y-3">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 text-sm font-extrabold text-foreground">
-                    <MapPin className="size-4 text-primary" />
-                    Table {selectedTable}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedTable(null)}
-                    className="text-muted-foreground hover:text-foreground"
-                    aria-label="Clear table filter"
-                  >
-                    <X className="size-4" />
-                  </button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {filteredOrders.length} order{filteredOrders.length === 1 ? "" : "s"} attached to this
-                  table
+      {/* Live orders (60%) and recent payments (40%) */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start">
+        <Card className="gap-0 overflow-hidden py-0">
+          <div className="space-y-3 border-b border-border px-5 py-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-section text-foreground">Waiting for payment</h2>
+                <p className="text-meta text-muted-foreground">Orders sent by waiters, newest first.</p>
+              </div>
+              <span className="shrink-0 rounded-full bg-highlight px-2.5 py-0.5 text-eyebrow text-highlight-foreground">
+                {orders.length} {orders.length === 1 ? "order" : "orders"}
+              </span>
+            </div>
+            {tableSummaries.length > 0 ? (
+              <select
+                value={selectedTable == null ? "" : String(selectedTable)}
+                onChange={(e) => setSelectedTable(e.target.value ? Number(e.target.value) : null)}
+                aria-label="Filter by table"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full sm:w-56">
+                <option value="">All tables</option>
+                {tableSummaries.map((t) => (
+                  <option key={t.table_number} value={t.table_number}>
+                    Table {t.table_number} ({t.count} {t.count === 1 ? "order" : "orders"})
+                  </option>
+                ))}
+              </select>
+            ) : null}
+          </div>
+
+          {selectedTable != null ? (
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-highlight/30 px-5 py-4">
+              <div>
+                <p className="font-semibold text-foreground">Table {selectedTable}</p>
+                <p className="text-meta text-muted-foreground">
+                  {filteredOrders.length} {filteredOrders.length === 1 ? "order" : "orders"} ·{" "}
+                  {formatCurrency(tableSettleTotal)} due{isAttached ? " for your department" : ""}
                 </p>
-                <div className="flex items-center justify-between rounded-xl border bg-background px-3 py-2">
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    Total due{isAttached ? " (your department)" : ""}
-                  </span>
-                  <span className="text-lg font-extrabold text-foreground">
-                    {formatCurrency(tableSettleTotal)}
-                  </span>
-                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon-sm" onClick={() => setSelectedTable(null)} aria-label="Clear table filter">
+                  <X />
+                </Button>
                 <Button
-                  size="sm"
-                  className="w-full h-10 bg-success hover:bg-success/90 text-white font-extrabold"
                   disabled={tableSettleTasks.length === 0 || settlingTable}
                   onClick={() => {
                     setConfirmMethod("cash");
                     setSettleTableOpen(true);
-                  }}
-                >
-                  <CheckCircle2 className="size-4" />
-                  Confirm all payments for Table {selectedTable}
+                  }}>
+                  Charge all for Table {selectedTable}
                 </Button>
               </div>
-            ) : null}
+            </div>
+          ) : null}
 
-            {loading ? (
-              [...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-28 w-full rounded-2xl" />
-              ))
-            ) : filteredOrders.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed bg-muted/20 py-12 text-center text-muted-foreground">
-                <Receipt className="h-8 w-8" />
-                <p className="text-sm font-bold">
-                  {selectedTable != null
-                    ? `No orders waiting for payment on Table ${selectedTable}`
-                    : "No orders waiting for payment"}
-                </p>
-                <p className="text-xs">New orders appear here automatically.</p>
-              </div>
-            ) : (
-              filteredOrders.map((order) => {
+          {loading ? (
+            <div className="space-y-3 p-5">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          ) : filteredOrders.length === 0 ? (
+            <p className="px-5 py-12 text-center text-sm text-muted-foreground">
+              {selectedTable != null
+                ? `Nothing waiting on Table ${selectedTable}.`
+                : "Nothing waiting. New orders show up here."}
+            </p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {filteredOrders.map((order) => {
                 const dues = order.department_dues ?? [];
                 return (
-                  <div
-                    key={order.id}
-                    className="border rounded-2xl p-4 bg-muted/20 space-y-3"
-                  >
+                  <li key={order.id} className="space-y-3 px-5 py-4 transition-colors hover:bg-row-hover">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="font-extrabold text-sm text-foreground">
-                          Order #{order.order_number ?? "—"}
-                          {order.table_number != null ? (
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              Table {order.table_number}
-                            </span>
-                          ) : null}
+                        <p className="font-semibold text-foreground">
+                          #{order.order_number ?? "—"}
+                          {order.table_number != null ? ` · Table ${order.table_number}` : ""}
                         </p>
-                        <p className="mt-0.5 text-[11px] font-semibold text-muted-foreground flex items-center gap-1 flex-wrap">
+                        <p className="mt-0.5 flex flex-wrap items-center gap-1 text-meta text-muted-foreground">
                           {order.employee_name || "Waiter"}
-                          <span className="inline-flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {timeAgo(order.created_at)}
-                          </span>
+                          <span aria-hidden>·</span>
+                          <Clock className="size-3" />
+                          {timeAgo(order.created_at)}
                         </p>
                       </div>
-                      <span className="text-sm font-extrabold text-success shrink-0">
-                        {formatCurrency(order.total_amount)}
-                      </span>
+                      <span className="shrink-0 font-semibold text-foreground">{formatCurrency(order.total_amount)}</span>
                     </div>
-
-                    {canAddItems(order) && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full h-8 text-xs font-bold gap-1.5"
-                        onClick={() => setAddItemsTarget(order)}
-                      >
-                        Add Items
-                      </Button>
-                    )}
 
                     {isAttached ? (
                       <>
-                      {dues.length === 0 ? (
-                        <p className="py-2 text-center text-xs text-muted-foreground">
-                          Nothing to settle for your department.
-                        </p>
-                      ) : (
-                        dues.map((due) => {
-                          const key = `${order.id}:${due.department}`;
-                          const busy = processing.has(key);
-                          return (
-                            <div key={due.department} className="rounded-xl border bg-background p-3 space-y-2">
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="text-xs font-extrabold uppercase tracking-wide text-foreground">
-                                  {prettyDept(due.department, deptLabels)}
-                                </span>
-                                {due.settled ? (
-                                  <Badge variant="success" className="text-[9px] uppercase">
-                                    Paid
-                                  </Badge>
-                                ) : (
-                                  <span className="text-sm font-extrabold text-foreground">
-                                    {formatCurrency(due.subtotal)}
+                        {dues.length === 0 ? (
+                          <p className="text-meta text-muted-foreground">Nothing to settle for your department.</p>
+                        ) : (
+                          dues.map((due) => {
+                            const key = `${order.id}:${due.department}`;
+                            const busy = processing.has(key);
+                            return (
+                              <div key={due.department} className="space-y-2 border-l-2 border-border pl-3">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-sm font-medium text-foreground">
+                                    {prettyDept(due.department, deptLabels)}
                                   </span>
-                                )}
+                                  {due.settled ? (
+                                    <StatusBadge kind="payment" status="paid" />
+                                  ) : (
+                                    <span className="text-sm font-semibold text-foreground">{formatCurrency(due.subtotal)}</span>
+                                  )}
+                                </div>
+                                <ItemLines items={itemsForDept(order, due.department)} />
+                                {!due.settled ? (
+                                  <Button
+                                    size="sm"
+                                    disabled={busy}
+                                    onClick={() => openConfirm({ kind: "department", order, due })}>
+                                    {busy ? "Charging…" : "Charge"}
+                                  </Button>
+                                ) : null}
                               </div>
-                              <ItemLines items={itemsForDept(order, due.department)} />
-                              {!due.settled ? (
-                                <Button
-                                  size="sm"
-                                  className="w-full h-9 bg-success hover:bg-success/90 text-white font-extrabold"
-                                  disabled={busy}
-                                  onClick={() => openConfirm({ kind: "department", order, due })}
-                                >
-                                  {busy ? "Processing…" : "Confirm payment"}
-                                </Button>
-                              ) : null}
-                            </div>
-                          );
-                        })
-                      )}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full h-9 border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20 font-bold"
-                        disabled={processing.has(`cancel:${order.id}`)}
-                        onClick={() => setCancelTarget(order)}
-                      >
-                        <XCircle className="size-4" />
-                        Cancel order
-                      </Button>
+                            );
+                          })
+                        )}
+                        <div className="flex flex-wrap gap-2">
+                          {canAddItems(order) && (
+                            <Button size="sm" variant="ghost" onClick={() => setAddItemsTarget(order)}>
+                              Add items
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:bg-destructive-soft hover:text-destructive"
+                            disabled={processing.has(`cancel:${order.id}`)}
+                            onClick={() => setCancelTarget(order)}>
+                            Cancel order
+                          </Button>
+                        </div>
                       </>
                     ) : (
                       <>
                         <ItemLines items={order.items ?? []} />
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center justify-end gap-2">
                           <Button
                             size="sm"
-                            className="flex-1 h-10 bg-success hover:bg-success/90 text-white font-extrabold"
-                            disabled={processing.has(order.id)}
-                            onClick={() => openConfirm({ kind: "whole", order })}
-                          >
-                            {processing.has(order.id) ? "Processing…" : "Confirm payment"}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="h-10 font-extrabold"
+                            variant="ghost"
+                            className="text-destructive hover:bg-destructive-soft hover:text-destructive"
                             disabled={processing.has(`cancel:${order.id}`)}
-                            onClick={() => setCancelTarget(order)}
-                          >
-                            <XCircle className="size-4" />
+                            onClick={() => setCancelTarget(order)}>
                             Cancel
+                          </Button>
+                          {canAddItems(order) && (
+                            <Button size="sm" variant="ghost" onClick={() => setAddItemsTarget(order)}>
+                              Add items
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            disabled={processing.has(order.id)}
+                            onClick={() => openConfirm({ kind: "whole", order })}>
+                            {processing.has(order.id) ? "Charging…" : "Charge"}
                           </Button>
                         </div>
                       </>
                     )}
-                  </div>
+                  </li>
                 );
-              })
-            )}
-          </CardContent>
+              })}
+            </ul>
+          )}
         </Card>
 
         {/* Recent payments */}
-        <Card className="flex flex-col overflow-hidden">
-          <CardHeader className="pb-3 border-b">
-            <CardTitle className="text-base">Recent Payments</CardTitle>
-            <CardDescription>Processed {range === "today" ? "today" : "yesterday"}</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6 space-y-3">
-            {payments.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed bg-muted/20 py-12 text-center text-muted-foreground">
-                <Receipt className="h-8 w-8" />
-                <p className="text-sm font-bold">No payments yet</p>
-              </div>
-            ) : (
-              payments.map((p) => {
+        <Card className="gap-0 overflow-hidden py-0 lg:sticky lg:top-6">
+          <div className="border-b border-border px-5 py-4">
+            <h2 className="text-section text-foreground">Recent payments</h2>
+            <p className="text-meta text-muted-foreground">Taken {range === "today" ? "today" : "yesterday"}.</p>
+          </div>
+          {payments.length === 0 ? (
+            <p className="px-5 py-12 text-center text-sm text-muted-foreground">No payments yet.</p>
+          ) : (
+            <ul className="max-h-[36rem] divide-y divide-border overflow-y-auto">
+              {payments.map((p) => {
                 const open = expanded.has(p.id);
                 const dept = String(p?.meta?.department || "").trim().toLowerCase();
-                const status = String(p?.status || "").toLowerCase();
                 return (
-                  <div key={p.id} className="border rounded-2xl p-4 bg-muted/10 space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={
-                            status === "paid"
-                              ? "success"
-                              : status === "deleted"
-                                ? "destructive"
-                                : "warning"
-                          }
-                          className="text-[9px] uppercase"
-                        >
-                          {displayStatus(p.status)}
-                        </Badge>
-                        {p.order_number != null ? (
-                          <button
-                            type="button"
-                            onClick={() => toggleExpand(p.id)}
-                            className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-extrabold text-primary hover:bg-primary/20"
-                          >
-                            #{p.order_number}
-                          </button>
-                        ) : null}
-                      </div>
-                      <span className="text-sm font-extrabold text-foreground">
-                        {formatCurrency(p.amount)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between gap-2 text-[10px] font-semibold text-muted-foreground">
-                      <Badge variant="outline" className="text-[9px] uppercase">
-                        {(p.payment_method || "—").replace("_", " ")}
-                      </Badge>
-                      {dept ? (
-                        <Badge variant="info" className="text-[9px] uppercase">
-                          {prettyDept(dept, deptLabels)}
-                        </Badge>
-                      ) : (
-                        <span />
-                      )}
-                      <span>{clockTime(p.paid_at || p.created_at)}</span>
-                    </div>
-                    <div className="pt-1.5 border-t">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 p-0 text-[10px] font-extrabold text-primary hover:bg-transparent"
+                  <li key={p.id} className="px-5 py-3 transition-colors hover:bg-row-hover">
+                    <div className="flex items-start justify-between gap-3">
+                      <button
+                        type="button"
                         onClick={() => toggleExpand(p.id)}
-                      >
-                        {open ? (
-                          <>Hide details <ChevronUp className="w-3 h-3 ml-1" /></>
-                        ) : (
-                          <>Show details <ChevronDown className="w-3 h-3 ml-1" /></>
-                        )}
-                      </Button>
+                        aria-expanded={open}
+                        className="min-w-0 text-left">
+                        <p className="flex items-center gap-1 font-semibold text-foreground">
+                          {p.order_number != null ? `#${p.order_number}` : "Payment"}
+                          <span className="font-normal capitalize text-muted-foreground">
+                            · {(p.payment_method || "—").replace("_", " ")}
+                          </span>
+                          {open ? (
+                            <ChevronUp className="size-3.5 text-muted-foreground" />
+                          ) : (
+                            <ChevronDown className="size-3.5 text-muted-foreground" />
+                          )}
+                        </p>
+                        <p className="text-meta text-muted-foreground">
+                          {clockTime(p.paid_at || p.created_at)}
+                          {dept ? ` · ${prettyDept(dept, deptLabels)}` : ""}
+                        </p>
+                      </button>
+                      <div className="flex shrink-0 flex-col items-end gap-1">
+                        <span className="font-semibold text-foreground">{formatCurrency(p.amount)}</span>
+                        <StatusBadge kind="payment" status={p.status} />
+                      </div>
                     </div>
                     {open ? (
-                      <div className="rounded-xl border bg-background p-2.5 text-[11px] text-muted-foreground space-y-1">
+                      <dl className="mt-2 space-y-1 border-t border-dashed border-border pt-2 text-meta">
                         <div className="flex justify-between">
-                          <span>Order</span>
-                          <span className="font-extrabold text-foreground">
-                            #{p.order_number ?? p.order_id ?? "—"}
-                          </span>
+                          <dt className="text-muted-foreground">Order</dt>
+                          <dd className="text-foreground">#{p.order_number ?? p.order_id ?? "—"}</dd>
                         </div>
                         {p.table_number != null ? (
                           <div className="flex justify-between">
-                            <span>Table</span>
-                            <span className="font-extrabold text-foreground">{p.table_number}</span>
+                            <dt className="text-muted-foreground">Table</dt>
+                            <dd className="text-foreground">{p.table_number}</dd>
                           </div>
                         ) : null}
                         {p.processed_by_name ? (
                           <div className="flex justify-between">
-                            <span>By</span>
-                            <span className="font-extrabold text-foreground">{p.processed_by_name}</span>
+                            <dt className="text-muted-foreground">By</dt>
+                            <dd className="text-foreground">{p.processed_by_name}</dd>
                           </div>
                         ) : null}
-                      </div>
+                      </dl>
                     ) : null}
-                  </div>
+                  </li>
                 );
-              })
-            )}
-          </CardContent>
+              })}
+            </ul>
+          )}
         </Card>
       </div>
 
@@ -1049,20 +928,30 @@ export default function CashierQueuePage() {
       <Dialog open={!!confirmTarget} onOpenChange={(o) => !o && setConfirmTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm payment</DialogTitle>
-            <DialogDescription>
+            <p className="eyebrow">Current order</p>
+            <DialogTitle className="text-[22px] leading-tight">
               {confirmTarget
-                ? confirmTarget.kind === "department"
-                  ? `Settle ${prettyDept(confirmTarget.due.department, deptLabels)} for order #${confirmTarget.order.order_number ?? ""}.`
-                  : `Settle the full order #${confirmTarget.order.order_number ?? ""}.`
+                ? `#${confirmTarget.order.order_number ?? ""}${confirmTarget.order.table_number != null ? ` · Table ${confirmTarget.order.table_number}` : ""}`
                 : ""}
+            </DialogTitle>
+            <DialogDescription>
+              {confirmTarget?.kind === "department"
+                ? `${prettyDept(confirmTarget.due.department, deptLabels)} only. Pick how the guest paid.`
+                : "Pick how the guest paid, then charge."}
             </DialogDescription>
           </DialogHeader>
           {confirmTarget ? (
-            <div className="space-y-4 py-1">
-              <div className="flex items-center justify-between rounded-xl border bg-muted/30 px-4 py-3">
-                <span className="text-sm font-semibold text-muted-foreground">Amount due</span>
-                <span className="text-xl font-extrabold text-foreground">
+            <div className="space-y-5">
+              <ItemLines
+                items={
+                  confirmTarget.kind === "department"
+                    ? itemsForDept(confirmTarget.order, confirmTarget.due.department)
+                    : confirmTarget.order.items ?? []
+                }
+              />
+              <div className="flex items-baseline justify-between border-t border-dashed border-border pt-4">
+                <span className="text-base font-semibold text-foreground">Total</span>
+                <span className="text-kpi text-foreground">
                   {formatCurrency(
                     confirmTarget.kind === "department"
                       ? confirmTarget.due.subtotal
@@ -1070,19 +959,21 @@ export default function CashierQueuePage() {
                   )}
                 </span>
               </div>
-              <div className="space-y-1.5">
-                <Label>Payment method</Label>
-                <select
-                  value={confirmMethod}
-                  onChange={(e) => setConfirmMethod(e.target.value)}
-                  className="h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-                >
-                  {PAYMENT_METHODS.map((m) => (
-                    <option key={m.value} value={m.value}>
-                      {m.label}
-                    </option>
-                  ))}
-                </select>
+              <div>
+                <p className="mb-2 text-sm font-medium text-foreground">Paid with</p>
+                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Payment method">
+                {PAYMENT_METHODS.map((m) => (
+                  <Button
+                    key={m.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={confirmMethod === m.value}
+                    variant={confirmMethod === m.value ? "selected" : "outline"}
+                    onClick={() => setConfirmMethod(m.value)}>
+                    {m.label}
+                  </Button>
+                ))}
+              </div>
               </div>
             </div>
           ) : null}
@@ -1101,8 +992,7 @@ export default function CashierQueuePage() {
                 )
               }
             >
-              <CheckCircle2 className="size-4" />
-              Confirm payment
+              Charge
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1117,41 +1007,40 @@ export default function CashierQueuePage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm all payments</DialogTitle>
+            <p className="eyebrow">Charge all</p>
+            <DialogTitle className="text-[22px] leading-tight">Table {selectedTable}</DialogTitle>
             <DialogDescription>
-              Settle {tableSettleTasks.length} pending payment{tableSettleTasks.length === 1 ? "" : "s"}{" "}
-              for Table {selectedTable}
-              {isAttached ? " (your department's share)" : ""}. This cannot be undone.
+              {tableSettleTasks.length} {tableSettleTasks.length === 1 ? "payment" : "payments"}
+              {isAttached ? " for your department" : ""} will be recorded. This can&apos;t be undone.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-1">
-            <div className="flex items-center justify-between rounded-xl border bg-muted/30 px-4 py-3">
-              <span className="text-sm font-semibold text-muted-foreground">Total amount</span>
-              <span className="text-xl font-extrabold text-foreground">
-                {formatCurrency(tableSettleTotal)}
-              </span>
+          <div className="space-y-5">
+            <div className="flex items-baseline justify-between border-b border-dashed border-border pb-4">
+              <span className="text-base font-semibold text-foreground">Total</span>
+              <span className="text-kpi text-foreground">{formatCurrency(tableSettleTotal)}</span>
             </div>
-            <div className="space-y-1.5">
-              <Label>Payment method</Label>
-              <select
-                value={confirmMethod}
-                onChange={(e) => setConfirmMethod(e.target.value)}
-                disabled={settlingTable}
-                className="h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-              >
+            <div>
+              <p className="mb-2 text-sm font-medium text-foreground">Paid with</p>
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Payment method">
                 {PAYMENT_METHODS.map((m) => (
-                  <option key={m.value} value={m.value}>
+                  <Button
+                    key={m.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={confirmMethod === m.value}
+                    variant={confirmMethod === m.value ? "selected" : "outline"}
+                    disabled={settlingTable}
+                    onClick={() => setConfirmMethod(m.value)}>
                     {m.label}
-                  </option>
+                  </Button>
                 ))}
-              </select>
-              <p className="text-[11px] text-muted-foreground">
-                Applied to every payment in this batch.
-              </p>
+              </div>
+              <p className="mt-2 text-meta text-muted-foreground">Used for every payment in this batch.</p>
             </div>
             {settleProgress ? (
-              <p className="text-center text-xs font-semibold text-muted-foreground">
-                Settling {settleProgress.done} / {settleProgress.total}…
+              <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <RefreshCw className="size-3.5 animate-spin" />
+                Settling {settleProgress.done} of {settleProgress.total}…
               </p>
             ) : null}
           </div>
@@ -1163,17 +1052,9 @@ export default function CashierQueuePage() {
             >
               Cancel
             </Button>
-            <Button
-              className="bg-success hover:bg-success/90 text-white"
-              onClick={doSettleTable}
-              disabled={settlingTable || tableSettleTasks.length === 0}
-            >
-              {settlingTable ? (
-                <RefreshCw className="size-4 animate-spin" />
-              ) : (
-                <CheckCircle2 className="size-4" />
-              )}
-              {settlingTable ? "Settling…" : `Confirm ${tableSettleTasks.length} payments`}
+            <Button onClick={doSettleTable} disabled={settlingTable || tableSettleTasks.length === 0}>
+              {settlingTable ? <RefreshCw className="animate-spin" /> : null}
+              {settlingTable ? "Settling…" : `Charge ${tableSettleTasks.length} ${tableSettleTasks.length === 1 ? "payment" : "payments"}`}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1225,8 +1106,7 @@ export default function CashierQueuePage() {
               Keep order
             </Button>
             <Button variant="destructive" onClick={doCancel} disabled={verifyingCancel}>
-              <XCircle className="size-4" />
-              {verifyingCancel ? "Verifying…" : "Cancel order"}
+              {verifyingCancel ? "Checking…" : "Cancel order"}
             </Button>
           </DialogFooter>
         </DialogContent>

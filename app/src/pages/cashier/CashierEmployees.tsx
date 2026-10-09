@@ -1,8 +1,9 @@
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-import { User, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import BranchBadge from '@/components/common/BranchBadge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import PageHeader from '@/components/layout/PageHeader';
+import Segmented from '@/components/common/Segmented';
 
 // Custom Hooks & Modular Components
 import { useCashierEmployeesData } from './hooks/useCashierEmployeesData';
@@ -64,80 +65,47 @@ const CashierEmployees = () => {
   // FIRST VIEW: employees select view with built-in search filter
   if (!selectedEmployeeId) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
-          <Card>
-            <CardContent className="flex flex-col gap-4 p-5 sm:p-6 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground">
-                  <User className="h-6 w-6" />
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl font-semibold tracking-tight text-foreground">
-                    Cashier Employees
-                  </h1>
-                  <BranchBadge />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="p-4 md:p-8 space-y-6">
+        <PageHeader
+          title="Waiters"
+          description="Pick a waiter to see their orders and check them out."
+          actions={<BranchBadge />}
+        />
 
-          <EmployeeSelectView
-            employees={employees}
-            onSelectEmployee={setSelectedEmployeeId}
-          />
-        </div>
+        <EmployeeSelectView
+          employees={employees}
+          onSelectEmployee={setSelectedEmployeeId}
+        />
       </div>
     );
   }
 
   // SECOND VIEW: waiter statistics and checkout management dashboard
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-        <Card>
-          <CardContent className="flex flex-col gap-4 p-5 sm:p-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground">
-                <User className="h-6 w-6" />
-              </div>
-              <h1 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
-                {selectedEmployee?.full_name || selectedEmployeeId}
-              </h1>
-            </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => setSelectedEmployeeId('')}
-            >
-              <ArrowLeft className="h-4 w-4" /> Back to Employees
+    <div className="p-4 md:p-8">
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow="Waiter"
+          title={selectedEmployee?.full_name || selectedEmployeeId}
+          description="Orders, payments and checkout for this waiter."
+          actions={
+            <Button variant="outline" onClick={() => setSelectedEmployeeId('')}>
+              <ArrowLeft /> All waiters
             </Button>
-          </CardContent>
-        </Card>
+          }
+        />
 
         <EmployeeStatsGrid stats={employeeStats} formatCurrency={formatCurrency} />
 
-        <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Time Range</p>
-            <p className="text-sm text-foreground">Filter the timeline and cashier activity</p>
-          </div>
-          <div className="inline-flex flex-wrap gap-1 rounded-lg border bg-muted/40 p-1">
-            {['today', 'yesterday', 'week', 'month'].map((range) => (
-              <Button
-                key={range}
-                variant={statsRange === range ? 'secondary' : 'ghost'}
-                size="sm"
-                className="h-8 px-3 text-xs font-medium"
-                onClick={() => setStatsRange(range)}
-              >
-                {RANGE_LABELS[range] ?? range}
-              </Button>
-            ))}
-          </div>
-        </div>
+        <Segmented
+          aria-label="Time range"
+          value={statsRange}
+          onChange={(range) => setStatsRange(range)}
+          options={['today', 'yesterday', 'week', 'month'].map((range) => ({
+            value: range,
+            label: RANGE_LABELS[range] ?? range,
+          }))}
+        />
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Left: Orders Ready for Cashier Checkout Completion */}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input, SearchInput } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -43,16 +43,10 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
 }) => {
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-      <div className="relative flex-1 sm:flex-none sm:w-44">
-        <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="text"
+      <SearchInput
           value={search}
           placeholder="Search item..."
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full pl-8"
-        />
-      </div>
+          onChange={(e) => onSearchChange(e.target.value)} wrapperClassName="flex-1 sm:flex-none sm:w-44" />
 
       <div className="flex flex-wrap items-center gap-2">
         <Select value={savedFilter} onValueChange={onSavedFilterChange}>

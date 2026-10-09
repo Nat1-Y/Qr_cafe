@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import StatsCard from '@/components/common/StatsCard';
 import { useAuth } from '@/context/AuthContext';
-import { CreditCard, DollarSign, Clipboard, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 // Hooks
 import { useCashierData } from './hooks/useCashierData';
@@ -22,6 +22,8 @@ import { RecentPaymentsPanel } from './components/RecentPaymentsPanel';
 import { useEffect } from 'react';
 import { ModalSection } from './components/ModalSection';
 import SettleAllPaymentsModal from './modals/SettleAllPaymentsModal';
+import { ChargeOrderPanel } from './modals/ConfirmCashPaymentModal';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const CashierDashboard = () => {
   const { user } = useAuth() as any;
@@ -256,33 +258,38 @@ const CashierDashboard = () => {
   const HIDDEN_STATS_PLACEHOLDER = '••••••';
   const statsCards = [
     {
-      title: `${statsRangeLabel} Payments`,
+      title: `Payments taken · ${statsRangeLabel.toLowerCase()}`,
       value: showStatsValues ? todayStats.paymentsProcessed : HIDDEN_STATS_PLACEHOLDER,
-      icon: <CreditCard className="w-5 h-5" />,
-      variant: 'info' as const
+      variant: 'default' as const
     },
     {
-      title: `${statsRangeLabel} Revenue`,
+      title: `Revenue · ${statsRangeLabel.toLowerCase()}`,
       value: showStatsValues ? formatCurrency(todayStats.totalRevenue) : HIDDEN_STATS_PLACEHOLDER,
-      icon: <DollarSign className="w-5 h-5" />,
       variant: 'success' as const
     },
     {
-      title: 'Pending Order',
+      title: 'Waiting to be paid',
       value: showStatsValues ? formatCurrency(pendingOrdersTotalBirr || 0) : HIDDEN_STATS_PLACEHOLDER,
-      icon: <Clipboard className="w-5 h-5" />,
       variant: 'default' as const
     },
   ];
 
+  // Wide screens dock the charge panel beside the queue instead of a dialog.
+  const isWide = useMediaQuery('(min-width: 1024px)');
+  const showDockedCharge = isWide && showConfirmProcessPaymentModal && !!confirmProcessPaymentOrder;
+
   if (loading) {
     return (
       <div className="p-4 md:p-8 space-y-6">
-        <Skeleton className="h-24 w-full rounded-2xl" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Skeleton className="h-16 w-72" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[1, 2, 3].map(i => (
-            <Skeleton key={i} className="h-20 w-full rounded-xl" />
+            <Skeleton key={i} className="h-24 w-full rounded-card" />
           ))}
+        </div>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <Skeleton className="h-96 w-full rounded-card" />
+          <Skeleton className="h-72 w-full rounded-card" />
         </div>
       </div>
     );
@@ -290,18 +297,17 @@ const CashierDashboard = () => {
 
   return (
     <div className="p-4 md:p-8 space-y-6">
-      {/* Loading overlay for payment processing */}
+      {/* Blocks the till while a payment is being recorded */}
       {isBlockingPaymentUi && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center" style={{ zIndex: 2147483647 }}>
-          <div className="bg-background rounded-lg p-6 w-full max-w-sm mx-4 flex flex-col items-center space-y-4">
-            <div className="w-12 h-12 border-4 border-border border-t-primary rounded-full animate-spin"></div>
-            <p className="text-foreground/80 font-medium">Processing payment...</p>
+        <div className="fixed inset-0 flex items-center justify-center bg-overlay" style={{ zIndex: 2147483647 }}>
+          <div className="mx-4 flex w-full max-w-xs flex-col items-center gap-4 rounded-card border border-border bg-card p-6 shadow-pop">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
+            <p className="text-sm font-medium text-foreground">Recording payment…</p>
           </div>
         </div>,
         document.body
       )}
 
-      {/* Header */}
       <HeaderBanner
         businessUnit={businessUnit}
         setBusinessUnit={setBusinessUnit}
@@ -313,6 +319,7 @@ const CashierDashboard = () => {
         syncStatus={syncStatus}
         onManualSync={handleManualSync}
         onTestPrint={testQzPrint}
+        waitingCount={visibleOrders.length}
       />
 
       {/* Persistent alert for orders stuck failing to print */}
@@ -321,35 +328,35 @@ const CashierDashboard = () => {
         onRetry={retryStuckPrint}
       />
 
-      {/* Stats Cards */}
-      <div className="flex items-center justify-end">
-        <button
-          type="button"
-          onClick={toggleStatsVisibility}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          aria-label={showStatsValues ? 'Hide stat values' : 'Show stat values'}
-          title={showStatsValues ? 'Hide stat values' : 'Show stat values'}
-        >
-          {showStatsValues ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          <span>{showStatsValues ? 'Hide' : 'Show'}</span>
-        </button>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {statsCards.map((card, index) => (
-          <StatsCard key={index} title={card.title} value={card.value} icon={card.icon} variant={card.variant} />
-        ))}
-      </div>
+      {/* KPI row */}
+      <section className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <DateFilterBar
+            statsRange={statsRange}
+            setStatsRange={setStatsRange}
+            customStatsDate={customStatsDate}
+            setCustomStatsDate={setCustomStatsDate}
+          />
+          <button
+            type="button"
+            onClick={toggleStatsVisibility}
+            className="inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            aria-label={showStatsValues ? 'Hide stat values' : 'Show stat values'}
+            title={showStatsValues ? 'Hide stat values' : 'Show stat values'}
+          >
+            {showStatsValues ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            <span>{showStatsValues ? 'Hide numbers' : 'Show numbers'}</span>
+          </button>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {statsCards.map((card, index) => (
+            <StatsCard key={index} title={card.title} value={card.value} variant={card.variant} />
+          ))}
+        </div>
+      </section>
 
-      {/* Date Filter */}
-      <DateFilterBar
-        statsRange={statsRange}
-        setStatsRange={setStatsRange}
-        customStatsDate={customStatsDate}
-        setCustomStatsDate={setCustomStatsDate}
-      />
-
-      {/* Main Grid - Orders and Payments */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Live orders (60%) and the current order / payment (40%) */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start">
         <OrdersForPaymentPanel
           orders={visibleOrders}
           loading={loading}
@@ -373,39 +380,57 @@ const CashierDashboard = () => {
           onConfirmPayment={openProcessPaymentConfirm}
           currentUserId={user?.id}
           currentUserRole={user?.role}
+          selectedOrderId={showDockedCharge ? confirmProcessPaymentOrder?.id : null}
         />
 
-        <RecentPaymentsPanel
-          payments={filteredRecentPayments}
-          loading={loading}
-          expandedPaymentIds={expandedRecentPaymentIds}
-          loadingOrderIds={loadingRecentPaymentOrderIds}
-          orderDetailsById={orderDetailsById}
-          orderIndex={orderIndex}
-          businessUnit={businessUnit}
-          selectedMenuItemId={selectedMenuItemId}
-          formatCurrency={formatCurrency}
-          getOrderUnitBreakdown={getOrderUnitBreakdown}
-          getItemSubtotalBirr={getItemSubtotalBirr}
-          getPaymentAmountForSelection={getPaymentAmountForSelection}
-          toggleRecentPaymentDetails={toggleRecentPaymentDetails}
-        />
+        <div className="space-y-6 lg:sticky lg:top-6">
+          {isWide && (
+            showDockedCharge ? (
+              <ChargeOrderPanel
+                confirmProcessPaymentOrder={confirmProcessPaymentOrder}
+                isBlockingPaymentUi={isBlockingPaymentUi}
+                isProcessing={processingOrders.has(confirmProcessPaymentOrder?.id)}
+                paymentMethod={paymentMethod}
+                setPaymentMethod={setPaymentMethod}
+                onConfirm={() => confirmCashPayment(confirmProcessPaymentOrder, paymentMethod)}
+                onCancel={() => setShowConfirmProcessPaymentModal(false)}
+                formatCurrency={formatCurrency}
+                getOrderUnitBreakdown={getOrderUnitBreakdown}
+                getItemSubtotalBirr={getItemSubtotalBirr}
+              />
+            ) : (
+              <div className="rounded-card border border-dashed border-border bg-card px-6 py-8">
+                <p className="eyebrow">Current order</p>
+                <p className="mt-1 text-sm text-muted-foreground">Pick an order on the left to charge it.</p>
+              </div>
+            )
+          )}
+
+          <RecentPaymentsPanel
+            payments={filteredRecentPayments}
+            loading={loading}
+            expandedPaymentIds={expandedRecentPaymentIds}
+            loadingOrderIds={loadingRecentPaymentOrderIds}
+            orderDetailsById={orderDetailsById}
+            orderIndex={orderIndex}
+            businessUnit={businessUnit}
+            selectedMenuItemId={selectedMenuItemId}
+            formatCurrency={formatCurrency}
+            getOrderUnitBreakdown={getOrderUnitBreakdown}
+            getItemSubtotalBirr={getItemSubtotalBirr}
+            getPaymentAmountForSelection={getPaymentAmountForSelection}
+            toggleRecentPaymentDetails={toggleRecentPaymentDetails}
+          />
+        </div>
       </div>
 
-      {/* Admin Utilities
-      <AdminUtilitiesBar
-        onProcessPayments={handleQuickProcessPayment}
-        onViewReports={() => setShowReportsModal(true)}
-        onProfile={() => setShowProfileModal(true)}
-      /> */}
-
-      {/* Modals */}
+      {/* Modals — the charge dialog only opens on narrow screens; wide screens use the docked panel */}
       <ModalSection
         isOnline={syncStatus.online}
         user={user}
         paymentMethod={paymentMethod}
         setPaymentMethod={setPaymentMethod}
-        showConfirmProcessPaymentModal={showConfirmProcessPaymentModal}
+        showConfirmProcessPaymentModal={showConfirmProcessPaymentModal && !isWide}
         setShowConfirmProcessPaymentModal={setShowConfirmProcessPaymentModal}
         confirmProcessPaymentOrder={confirmProcessPaymentOrder}
         isBlockingPaymentUi={isBlockingPaymentUi}
@@ -420,6 +445,8 @@ const CashierDashboard = () => {
         setProfileData={setProfileData}
         onUpdateProfile={updateProfile}
         formatCurrency={formatCurrency}
+        getOrderUnitBreakdown={getOrderUnitBreakdown}
+        getItemSubtotalBirr={getItemSubtotalBirr}
       />
 
       <SettleAllPaymentsModal

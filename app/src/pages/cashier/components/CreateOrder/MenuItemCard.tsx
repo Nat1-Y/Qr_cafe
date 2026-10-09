@@ -1,36 +1,31 @@
 import React from 'react';
 import { PlusIcon } from 'lucide-react';
+import { formatETB } from '@/lib/format';
 
 interface MenuItemCardProps {
   item: any;
   onAddToCart: (item: any) => void;
 }
 
+/** Menu tile: name, price and a quick-add pill. The whole tile adds the item. */
 const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
   return (
-    <div
+    <button
+      type="button"
       onClick={() => onAddToCart(item)}
-      className="group relative flex min-h-[100px] cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-border/50 bg-background p-4 text-center shadow-sm sm:min-h-[160px] sm:rounded-3xl"
+      className="group flex min-h-[112px] flex-col justify-between gap-3 rounded-card border border-border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-row-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring active:bg-highlight/40"
     >
-
-      <div className="relative z-10 flex w-full flex-1 flex-col items-center justify-center">
-        <h3 className="text-base font-bold leading-tight text-foreground/90 line-clamp-2 sm:mb-3 sm:text-lg">
-          {item.name}
-        </h3>
-      </div>
-
-      <div className="relative z-10 mt-2 flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="rounded-2xl border border-border bg-muted/50 px-3 py-1.5  transition-colors sm:px-3.5">
-          <span className="text-sm font-extrabold  text-foreground sm:text-sm">
-            {parseFloat(item.price).toFixed(2)} Birr
-          </span>
-        </div>
-        
-        <div className="w-8 h-8 rounded-full bg-muted/30 flex items-center justify-center text-muted-foreground/60 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
-          <PlusIcon className="w-4 h-4" />
-        </div>
-      </div>
-    </div>
+      <span className="line-clamp-2 text-base font-medium leading-snug text-foreground [overflow-wrap:anywhere]">
+        {item.name}
+      </span>
+      <span className="flex items-center justify-between gap-2">
+        <span className="text-sm text-muted-foreground">{formatETB(item.price)}</span>
+        <span className="inline-flex h-9 items-center gap-1 rounded-full bg-highlight px-3 text-sm font-semibold text-highlight-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+          <PlusIcon className="h-4 w-4" />
+          Add
+        </span>
+      </span>
+    </button>
   );
 };
 

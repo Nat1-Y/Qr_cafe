@@ -62,10 +62,10 @@ export const CheckoutTimeline: React.FC<CheckoutTimelineProps> = ({
   return (
     <Card className="flex flex-col overflow-hidden">
       <CardHeader className="border-b">
-        <CardTitle className="text-sm font-semibold text-foreground">
-          Waiter Checkout Timeline
+        <CardTitle className="text-foreground">
+          Waiter checkout timeline
         </CardTitle>
-        <CardDescription className="mt-0.5 text-xs">
+        <CardDescription className="mt-0.5">
           Latest operational transactions
         </CardDescription>
       </CardHeader>
@@ -92,26 +92,26 @@ export const CheckoutTimeline: React.FC<CheckoutTimelineProps> = ({
                         {order.order_type_label || (order.table_number ? `Table ${order.table_number}` : 'Take Away')}
                       </span>
                       {isCanceled ? (
-                        <Badge variant="destructive" className="text-[10px] uppercase">
+                        <Badge variant="destructive">
                           Cancelled
                         </Badge>
                       ) : (
                         <Badge
                           variant={displayStatus === 'paid' ? 'success' : 'secondary'}
-                          className="text-[10px] uppercase"
+                         
                         >
                           {displayStatus}
                         </Badge>
                       )}
                     </div>
-                    <div className="mt-1 text-[10px] text-muted-foreground">
+                    <div className="mt-1 text-xs text-muted-foreground">
                       {new Date(order.created_at).toLocaleString()}{' '}
                       {Array.isArray(order.items)
                         ? ` • ${order.items.length} items`
                         : ''}
                     </div>
                     {Array.isArray(order.items) && order.items.length > 0 && (
-                      <div className="mt-2 rounded-md border bg-muted/40 p-2 text-[10px] text-muted-foreground">
+                      <div className="mt-2 rounded-md border bg-muted/40 p-2 text-xs text-muted-foreground">
                         {formatOrderItemsPreview(order.items)}
                       </div>
                     )}
