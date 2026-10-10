@@ -11,8 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/page-header";
 import { Orders, Payments } from "@/lib/resources";
-import { formatETB, shortDate } from "@/lib/format";
+import { formatETB, shortDate, humanize } from "@/lib/format";
 import { formatOrderNumber } from "@/lib/utils";
+import { StatusBadge } from "@/components/status-badge";
 
 type OrderItem = {
   id: string;
@@ -134,15 +135,14 @@ export default function PaymentDetailPage({
                 <Row label="Amount" value={formatETB(payment.amount)} />
                 <Row
                   label="Method"
-                  value={<span className="capitalize">{payment.payment_method ?? "—"}</span>}
+                  value={humanize(payment.payment_method)}
                 />
                 <Row
                   label="Status"
                   value={
                     <Badge
-                      variant={payment.status === "paid" ? "success" : "muted"}
-                      className="capitalize">
-                      {payment.status ?? "—"}
+                      variant={payment.status === "paid" ? "success" : "muted"}>
+                      {humanize(payment.status)}
                     </Badge>
                   }
                 />
@@ -196,7 +196,7 @@ export default function PaymentDetailPage({
                     <Row label="Order" value={formatOrderNumber(order)} />
                     <Row
                       label="Type"
-                      value={<span className="capitalize">{order.type ?? "—"}</span>}
+                      value={humanize(order.type)}
                     />
                     <Row
                       label="Table"
@@ -212,7 +212,7 @@ export default function PaymentDetailPage({
                     />
                     <Row
                       label="Status"
-                      value={<span className="capitalize">{order.status ?? "—"}</span>}
+                      value={order.status ? <StatusBadge kind="order" status={order.status} /> : "—"}
                     />
                     <Row label="Order total" value={formatETB(order.total_amount)} />
                   </dl>

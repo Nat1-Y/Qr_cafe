@@ -18,7 +18,7 @@ export const StaffAttendancePanel: React.FC<StaffAttendancePanelProps> = ({
           <CardDescription>Shift logs and live active workers</CardDescription>
         </div>
         <Badge variant="info">
-          {attendanceData.length} On duty
+          {attendanceData.length} on duty
         </Badge>
       </CardHeader>
       <CardContent className="pt-6 space-y-3">

@@ -30,7 +30,7 @@ export function StatCard({
   return (
     <div className={cn("min-w-0 rounded-card border border-border bg-card px-5 py-4", className)}>
       <p className="truncate text-meta text-muted-foreground">{title}</p>
-      <p className={cn("mt-1 truncate text-kpi", valueTone[variant])}>{value}</p>
+      <p className={cn("mt-1 text-kpi leading-tight break-words", valueTone[variant])}>{value}</p>
       {subtitle && <p className="mt-0.5 truncate text-meta text-muted-foreground">{subtitle}</p>}
     </div>
   );

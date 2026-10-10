@@ -85,14 +85,14 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
     {
       value: 'set',
       icon: RefreshCw,
-      title: 'Set Exact Quantity',
+      title: 'Set exact quantity',
       description: 'Replace current stock with a specific amount',
       color: 'bg-info/10 border-info/30 hover:bg-info/15'
     },
     {
       value: 'delta',
       icon: Plus,
-      title: 'Add / Subtract',
+      title: 'Add / subtract',
       description: 'Increase or decrease current stock',
       color: 'bg-success/10 border-success/30 hover:bg-success/15'
     }

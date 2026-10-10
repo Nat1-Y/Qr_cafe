@@ -28,7 +28,7 @@ interface PaymentFiltersProps {
 }
 
 const statusOptions = [
-  { id: 'all', label: 'All Statuses' },
+  { id: 'all', label: 'All statuses' },
   { id: 'pending', label: 'Pending' },
   { id: 'paid', label: 'Paid' },
   { id: 'failed', label: 'Failed' },
@@ -60,14 +60,14 @@ export const PaymentFilters: React.FC<PaymentFiltersProps> = ({
   // doesn't.
   const allowPast = lookbackDays == null || lookbackDays >= 1;
   const dateOptions = [
-    { id: 'all', label: lookbackDays == null ? 'All Dates' : 'All Visible' },
+    { id: 'all', label: lookbackDays == null ? 'All dates' : 'All visible' },
     { id: 'today', label: 'Today' },
     ...(allowPast
       ? [
           { id: 'yesterday', label: 'Yesterday' },
-          { id: 'week', label: 'This Week' },
-          { id: 'month', label: 'This Month' },
-          { id: 'custom', label: 'Custom Range' }
+          { id: 'week', label: 'This week' },
+          { id: 'month', label: 'This month' },
+          { id: 'custom', label: 'Custom range' }
         ]
       : [])
   ];
@@ -91,7 +91,7 @@ export const PaymentFilters: React.FC<PaymentFiltersProps> = ({
   };
 
   const paymentMethodOptions = [
-    { id: 'all', label: 'All Methods' },
+    { id: 'all', label: 'All methods' },
     ...paymentMethods.map((pm) => ({
       id: pm.name,
       label: pm.display_name || pm.name

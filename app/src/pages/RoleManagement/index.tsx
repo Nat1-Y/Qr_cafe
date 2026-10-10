@@ -30,7 +30,7 @@ export const RoleManagement: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Role management"
+        title="Roles"
         description="What each role can see and do."
         actions={
           <div className="flex items-center gap-2">

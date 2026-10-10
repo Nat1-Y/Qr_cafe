@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { humanize } from '@/lib/format';
 
 interface FilterCardProps {
   timeFilter: string;
@@ -46,9 +47,8 @@ export const FilterCard: React.FC<FilterCardProps> = ({
               variant={timeFilter === filter ? 'default' : 'outline'}
               size="sm"
               onClick={() => setTimeFilter(filter)}
-              className="capitalize"
             >
-              {filter}
+              {humanize(filter)}
             </Button>
           ))}
         </div>
@@ -124,9 +124,9 @@ export const FilterCard: React.FC<FilterCardProps> = ({
               key={unit}
               onClick={() => setUnitFilter(unit)}
               variant={unitFilter === unit ? 'default' : 'secondary'}
-              className="cursor-pointer capitalize py-1 px-2.5"
+              className="cursor-pointer py-1 px-2.5"
             >
-              {unit}
+              {humanize(unit)}
             </Badge>
           ))}
         </div>

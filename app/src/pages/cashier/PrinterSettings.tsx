@@ -512,9 +512,9 @@ const PrinterSettingsContent: React.FC = () => {
             Advanced department routing
           </CardTitle>
           <CardDescription>
-            Optional. fan a department's order out to several stations — each its own ticket and printer,
-            all sharing the order number. built for butchery flows (butcher → kitchen → customer copy).
-            leave a department untouched to keep its single-ticket behavior above.
+            Optional. Fan a department's order out to several stations — each its own ticket and printer,
+            all sharing the order number. Built for butchery flows (butcher → kitchen → customer copy).
+            Leave a department untouched to keep its single-ticket behavior above.
           </CardDescription>
         </CardHeader>
 

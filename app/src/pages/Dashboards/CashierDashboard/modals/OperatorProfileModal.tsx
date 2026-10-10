@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { WifiOff } from 'lucide-react';
+import { humanize } from '@/lib/format';
 
 interface OperatorProfileModalProps {
   isOnline: boolean;
@@ -60,8 +61,8 @@ const OperatorProfileModal: React.FC<OperatorProfileModalProps> = ({
               </span>
             </div>
             <h4 className="text-base font-semibold text-foreground">{user?.full_name}</h4>
-            <Badge variant="secondary" className="capitalize px-2 mt-0.5">
-              {user?.role?.replace('_', ' ')}
+            <Badge variant="secondary" className="px-2 mt-0.5">
+              {humanize(user?.role)}
             </Badge>
           </div>
 

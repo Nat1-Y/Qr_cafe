@@ -57,7 +57,7 @@ export const AddTableDialog: React.FC<AddTableDialogProps> = ({
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit">Create Table</Button>
+            <Button type="submit">Create table</Button>
           </DialogFooter>
         </form>
       </DialogContent>

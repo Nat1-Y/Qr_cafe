@@ -76,7 +76,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                       {low && (
                         <div className="flex items-center gap-1 text-destructive text-xs mt-0.5">
                           <AlertTriangle className="h-3 w-3" />
-                          <span>Low Stock</span>
+                          <span>Low stock</span>
                         </div>
                       )}
                     </TableCell>

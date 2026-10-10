@@ -38,6 +38,7 @@ import {
   parseStaffFile,
   rowToStaffPayload,
 } from "@/lib/staff-import";
+import { roleLabel } from "@/lib/auth";
 
 export default function BulkStaffImportPage() {
   const router = useRouter();
@@ -360,7 +361,7 @@ function RowView({ row }: { row: ParsedStaffRow }) {
       </TableCell>
       <TableCell className="font-medium">{row.full_name || "—"}</TableCell>
       <TableCell className="text-muted-foreground">{row.username || "—"}</TableCell>
-      <TableCell className="capitalize">{row.role}</TableCell>
+      <TableCell>{roleLabel(row.role)}</TableCell>
       <TableCell className="text-muted-foreground">{auth}</TableCell>
       <TableCell>{row.is_active ? "Yes" : "No"}</TableCell>
       <TableCell>

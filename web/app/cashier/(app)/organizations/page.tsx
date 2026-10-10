@@ -146,7 +146,7 @@ export default function CashierOrganizationOrdersPage() {
             <select
               value={orgFilter}
               onChange={(e) => setOrgFilter(e.target.value)}
-              className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
+              className="h-10 rounded-full border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
             >
               <option value="all">All organizations</option>
               {organizations.map((org) => (

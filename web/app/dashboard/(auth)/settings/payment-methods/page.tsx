@@ -31,7 +31,7 @@ const columns: Column<PM>[] = [
 export default function PaymentMethodsPage() {
   return (
     <ResourceManager<PM>
-      title="Payment Methods"
+      title="Payment methods"
       description="Accepted payment methods for this branch."
       createLabel="New method"
       columns={columns}

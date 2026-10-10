@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, type Column } from "@/components/data-table";
 import { apiFetch } from "@/lib/api";
+import { humanize } from "@/lib/format";
 
 type Log = {
   id: string;
@@ -46,7 +47,7 @@ const columns: Column<Log>[] = [
     render: (l) =>
       l.target_label ? (
         <span>
-          <span className="text-muted-foreground capitalize">{l.target_type}</span>{" "}
+          <span className="text-muted-foreground">{humanize(l.target_type)}</span>{" "}
           <span className="font-medium">{l.target_label}</span>
         </span>
       ) : (

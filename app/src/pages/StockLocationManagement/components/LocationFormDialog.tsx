@@ -61,7 +61,7 @@ export const LocationFormDialog: React.FC<LocationFormDialogProps> = ({
                   slug: selectedLocation ? prev.slug : nameToSlug(value),
                 }));
               }}
-              placeholder="e.g. kitchen Walk-in"
+              placeholder="e.g. Kitchen walk-in"
               required
             />
           </div>

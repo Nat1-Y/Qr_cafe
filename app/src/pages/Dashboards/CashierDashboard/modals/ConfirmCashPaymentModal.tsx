@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { cn, formatOrderNumber } from '@/lib/utils';
 import api from '@/application';
 import toast from 'react-hot-toast';
+import { toInt, type LineRow, type OrderRow } from '@/types/display.types';
 
 interface PaymentMethodOption {
   id: number;
@@ -18,6 +19,11 @@ interface PaymentMethodOption {
   display_name: string;
   icon?: string;
   is_active: boolean;
+}
+
+/** What the charge panel needs from an order breakdown: its lines. */
+export interface OrderBreakdown {
+  items?: LineRow[] | null;
 }
 
 interface ChargeOrderProps {
@@ -29,8 +35,8 @@ interface ChargeOrderProps {
   onConfirm: () => void;
   formatCurrency: (val: any) => string;
   /** When given, the order's line items are listed receipt-style. */
-  getOrderUnitBreakdown?: (order: any, unit: string | null) => any;
-  getItemSubtotalBirr?: (item: any) => number;
+  getOrderUnitBreakdown?: (order: OrderRow, unit: string | null) => OrderBreakdown | null | undefined;
+  getItemSubtotalBirr?: (item: LineRow) => number;
 }
 
 interface ConfirmCashPaymentModalProps extends ChargeOrderProps {
@@ -75,7 +81,7 @@ function usePaymentMethods(
   return { paymentMethods, loadingMethods };
 }
 
-const orderTitle = (order: any) => {
+const orderTitle = (order: OrderRow | null | undefined) => {
   if (!order) return '';
   const where = order.table_number
     ? `Table ${order.table_number}`
@@ -101,7 +107,7 @@ const ChargeOrderBody: React.FC<
   loadingMethods,
 }) => {
   const breakdown = getOrderUnitBreakdown ? getOrderUnitBreakdown(order, null) : null;
-  const items: any[] = Array.isArray(breakdown?.items) ? breakdown.items : [];
+  const items: LineRow[] = breakdown?.items ?? [];
   const total = parseFloat(order?.total_amount) || 0;
   const itemsSum = getItemSubtotalBirr
     ? items.reduce((sum, it) => sum + (getItemSubtotalBirr(it) || 0), 0)
@@ -116,7 +122,7 @@ const ChargeOrderBody: React.FC<
           {items.map((it, idx) => (
             <li key={idx} className="flex items-baseline justify-between gap-4">
               <span className="min-w-0 text-body">
-                <span className="text-muted-foreground">{parseInt(it.quantity, 10) || 1} ×</span>{' '}
+                <span className="text-muted-foreground">{toInt(it.quantity) || 1} ×</span>{' '}
                 {it.menu_item_name || it.name || 'Item'}
               </span>
               <span className="shrink-0 text-foreground">

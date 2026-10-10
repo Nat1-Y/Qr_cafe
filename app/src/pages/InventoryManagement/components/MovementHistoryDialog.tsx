@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { History, RefreshCw } from 'lucide-react';
 import { InventoryMovement } from '../types';
+import { humanize } from '@/lib/format';
 
 interface MovementHistoryDialogProps {
   open: boolean;
@@ -65,8 +66,8 @@ export const MovementHistoryDialog: React.FC<MovementHistoryDialogProps> = ({
                         {m.created_at ? new Date(m.created_at).toLocaleString() : '—'}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className="capitalize">
-                          {m.movement_type?.replace('_', ' ')}
+                        <Badge variant="secondary">
+                          {humanize(m.movement_type)}
                         </Badge>
                       </TableCell>
                       <TableCell className="font-medium">

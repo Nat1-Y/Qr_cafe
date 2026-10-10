@@ -33,8 +33,8 @@ interface IngredientRow {
 
 const STRATEGIES = [
   { value: 'by_menu_category', label: 'By Menu Category (auto)' },
-  { value: 'fixed_location', label: 'Fixed Location' },
-  { value: 'default_location', label: 'Default Location' },
+  { value: 'fixed_location', label: 'Fixed location' },
+  { value: 'default_location', label: 'Default location' },
 ];
 
 let keyCounter = 0;

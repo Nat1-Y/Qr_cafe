@@ -41,6 +41,7 @@ import StatsCard from "@/components/waiter/StatsCard";
 import { useCashierAuth } from "@/components/cashier/auth-context";
 import { cashierServices } from "@/lib/cashier/api";
 import { AddItemsToOrderDialog } from "@/components/cashier/AddItemsToOrderDialog";
+import { roleLabel } from "@/lib/auth";
 
 // Items can be added to an open order or a served ("done") one, which
 // reopens it — mirrors the desktop/waiter portals' canAddItems.
@@ -748,8 +749,8 @@ export default function CashierEmployeesPage() {
                         <span
                           className={`h-1.5 w-1.5 rounded-full ${e.is_active ? "bg-success" : "bg-muted-foreground"}`}
                         />
-                        <span className="truncate text-xs capitalize text-muted-foreground">
-                          {e.role.replace("_", " ")}
+                        <span className="truncate text-xs text-muted-foreground">
+                          {roleLabel(e.role)}
                         </span>
                       </span>
                     </span>
@@ -767,7 +768,7 @@ export default function CashierEmployeesPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-8">
       <PageHeader
-        eyebrow={<span className="capitalize">{(selectedEmployee?.role || "cafe waiter").replace("_", " ")}</span>}
+        eyebrow={<span>{roleLabel(selectedEmployee?.role || "cafe_waiter")}</span>}
         title={selectedEmployee?.full_name || selectedId}
         description={
           isAttached ? departments.map((d) => prettyDept(d, deptLabels)).join(" · ") : "Orders, payments and checkout."
@@ -1059,18 +1060,20 @@ export default function CashierEmployeesPage() {
                 </span>
               </div>
               <div className="space-y-1.5">
-                <Label>Payment method</Label>
-                <select
-                  value={confirmMethod}
-                  onChange={(e) => setConfirmMethod(e.target.value)}
-                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
-                >
+                <p className="text-sm font-medium text-foreground">Paid with</p>
+                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Payment method">
                   {PAYMENT_METHODS.map((m) => (
-                    <option key={m.value} value={m.value}>
+                    <Button
+                      key={m.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={confirmMethod === m.value}
+                      variant={confirmMethod === m.value ? "selected" : "outline"}
+                      onClick={() => setConfirmMethod(m.value)}>
                       {m.label}
-                    </option>
+                    </Button>
                   ))}
-                </select>
+                </div>
               </div>
             </div>
           ) : null}
@@ -1111,19 +1114,21 @@ export default function CashierEmployeesPage() {
               </span>
             </div>
             <div className="space-y-1.5">
-              <Label>Payment method</Label>
-              <select
-                value={confirmMethod}
-                onChange={(e) => setConfirmMethod(e.target.value)}
-                disabled={settlingAll}
-                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
-              >
+              <p className="text-sm font-medium text-foreground">Paid with</p>
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Payment method">
                 {PAYMENT_METHODS.map((m) => (
-                  <option key={m.value} value={m.value}>
+                  <Button
+                    key={m.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={confirmMethod === m.value}
+                    variant={confirmMethod === m.value ? "selected" : "outline"}
+                    disabled={settlingAll}
+                    onClick={() => setConfirmMethod(m.value)}>
                     {m.label}
-                  </option>
+                  </Button>
                 ))}
-              </select>
+              </div>
               <p className="text-xs text-muted-foreground">
                 Applied to every payment in this batch.
               </p>

@@ -46,7 +46,7 @@ export const RoleFormDialog: React.FC<RoleFormDialogProps> = ({
                   name: p.name || val.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
                 }));
               }}
-              placeholder="e.g. restaurant manager"
+              placeholder="e.g. Restaurant manager"
               required
             />
           </div>

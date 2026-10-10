@@ -671,7 +671,7 @@ export default function PreferencesPage() {
     <div className="space-y-6">
       <PageHeader
         title="Order rules"
-        description="Per-branch POS behavior. these apply to the branch selected in the switcher above."
+        description="Per-branch POS behavior. These apply to the branch selected in the switcher above."
       />
 
       <Card className="max-w-2xl">

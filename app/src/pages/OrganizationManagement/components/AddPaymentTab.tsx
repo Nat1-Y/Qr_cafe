@@ -58,7 +58,7 @@ export const AddPaymentTab = ({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Amount (birr) *</Label>
+              <Label>Amount (ETB) *</Label>
               <Input type="number" min={0} value={payAmount} onChange={e => setPayAmount(e.target.value)} placeholder="e.g. 5000" />
             </div>
             <div className="space-y-1.5">

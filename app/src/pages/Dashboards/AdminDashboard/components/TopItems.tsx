@@ -1,17 +1,18 @@
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatETB } from '@/lib/format';
+import { toInt, type LineRow, type OrderRow } from '@/types/display.types';
 
 interface TopItemsProps {
   /** Orders already filtered to the dashboard's range and unit. */
-  orders: any[];
+  orders: OrderRow[];
   limit?: number;
 }
 
-const lineTotal = (it: any) => {
+const lineTotal = (it: LineRow) => {
   const sub = Number(it?.subtotal);
   if (Number.isFinite(sub) && sub > 0) return sub;
-  const qty = parseInt(it?.quantity, 10) || 0;
+  const qty = toInt(it?.quantity) || 0;
   const unit = Number(it?.unit_price ?? it?.price);
   return Number.isFinite(unit) ? unit * qty : 0;
 };
@@ -21,12 +22,12 @@ export const TopItems: React.FC<TopItemsProps> = ({ orders, limit = 6 }) => {
   const items = useMemo(() => {
     const map = new Map<string, { name: string; qty: number; revenue: number }>();
     for (const o of orders) {
-      for (const it of Array.isArray(o?.items) ? o.items : []) {
+      for (const it of o?.items ?? []) {
         const name = String(it?.menu_item_name || it?.name || '').trim();
         if (!name) continue;
         const key = String(it?.menu_item_id ?? name);
         const entry = map.get(key) ?? { name, qty: 0, revenue: 0 };
-        entry.qty += parseInt(it?.quantity, 10) || 0;
+        entry.qty += toInt(it?.quantity) || 0;
         entry.revenue += lineTotal(it);
         map.set(key, entry);
       }

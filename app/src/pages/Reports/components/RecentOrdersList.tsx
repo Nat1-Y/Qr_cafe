@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { RecentOrder } from '../types';
-import { formatETB } from '@/lib/format';
+import { formatETB, humanize } from '@/lib/format';
 
 interface RecentOrdersListProps {
   recentOrders: RecentOrder[];
@@ -28,8 +28,8 @@ export const RecentOrdersList: React.FC<RecentOrdersListProps> = ({ recentOrders
                   <span className="font-semibold text-xs text-foreground">
                     Order {formatOrderNumber(order)}
                   </span>
-                  <Badge variant="secondary" className="capitalize">
-                    {String(order.type || '').trim().toLowerCase() === 'bakery' ? 'cafe' : order.type}
+                  <Badge variant="secondary">
+                    {String(order.type || '').trim().toLowerCase() === 'bakery' ? 'Cafe' : humanize(order.type)}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -50,10 +50,9 @@ export const RecentOrdersList: React.FC<RecentOrdersListProps> = ({ recentOrders
                       : order?.derived_status === 'voided' 
                       ? 'destructive' 
                       : 'warning'
-                  } 
-                  className="capitalize"
+                  }
                 >
-                  {order.derived_status}
+                  {humanize(order.derived_status)}
                 </Badge>
               </div>
             </div>

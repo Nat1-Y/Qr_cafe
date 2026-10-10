@@ -24,6 +24,7 @@ import { Organizations, Orders, Settings, Users } from "@/lib/resources";
 import { getUser } from "@/lib/auth";
 import { isAllAccessRole } from "@/lib/permissions";
 import { formatETB, shortDate } from "@/lib/format";
+import { StatusBadge } from "@/components/status-badge";
 
 type Org = {
   id: string;
@@ -127,8 +128,8 @@ function OrgOrderAccessCard() {
         <CardTitle>Organization order access</CardTitle>
         <CardDescription>
           Only these waiters and cashiers can attach an order to an
-          organization while placing it. everyone else's order screen won't
-          offer the option. owners/admins are never restricted.
+          organization while placing it. Everyone else's order screen won't
+          offer the option. Owners/admins are never restricted.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -437,7 +438,7 @@ function OrganizationOrdersTab() {
                     <TableCell>
                       <OrgCustomerCell order={order} />
                     </TableCell>
-                    <TableCell className="capitalize">{order.status || "—"}</TableCell>
+                    <TableCell>{order.status ? <StatusBadge kind="order" status={order.status} /> : "—"}</TableCell>
                     <TableCell>{order.payment_status || "—"}</TableCell>
                     <TableCell>
                       {formatETB(order.total_amount)}

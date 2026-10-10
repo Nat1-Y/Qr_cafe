@@ -41,8 +41,8 @@ export const RevenuePanel: React.FC<RevenuePanelProps> = ({
             <div>Ref ID</div>
             <div>Order #</div>
             <div>Settled amount</div>
-            <div>Gateway Channel</div>
-            <div className="text-right">Settlement Timeline</div>
+            <div>Gateway channel</div>
+            <div className="text-right">Settlement timeline</div>
           </div>
 
           {payments.length > 0 ? (

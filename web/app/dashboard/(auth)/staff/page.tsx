@@ -13,6 +13,7 @@ import { StaffPenalties } from "@/components/staff/staff-penalties";
 import { CashierDepartmentsAction } from "@/components/staff/cashier-departments-action";
 import { ManageAccessAction } from "@/components/staff/manage-access-action";
 import { Users } from "@/lib/resources";
+import { roleLabel } from "@/lib/auth";
 import { CONFIGURABLE_ROLES } from "@/lib/permissions";
 
 // Selectable roles for staff accounts, sourced from the shared RBAC list so the
@@ -31,7 +32,7 @@ type U = {
 
 const columns: Column<U>[] = [
   { key: "username", label: "Username", className: "text-muted-foreground" },
-  { key: "role", label: "Role", render: (r) => <Badge variant="muted" className="capitalize">{r.role}</Badge> },
+  { key: "role", label: "Role", render: (r) => <Badge variant="muted">{roleLabel(r.role)}</Badge> },
   {
     key: "is_active",
     label: "Status",

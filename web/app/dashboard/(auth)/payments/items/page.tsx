@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/page-header";
 import { Orders, Payments, Menu } from "@/lib/resources";
-import { formatETB } from "@/lib/format";
+import { formatETB, humanize } from "@/lib/format";
 import {
   exportItemsSoldPdf,
   getItemSubtotal,
@@ -294,9 +294,8 @@ export default function PaymentsItemsPage() {
                     key={filter}
                     variant={timeFilter === filter ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setTimeFilter(filter)}
-                    className="capitalize">
-                    {filter}
+                    onClick={() => setTimeFilter(filter)}>
+                    {humanize(filter)}
                   </Button>
                 ))}
               </div>
@@ -355,8 +354,8 @@ export default function PaymentsItemsPage() {
                     key={unit}
                     onClick={() => setUnitFilter(unit)}
                     variant={unitFilter === unit ? "default" : "secondary"}
-                    className="cursor-pointer px-2.5 py-1 capitalize">
-                    {unit}
+                    className="cursor-pointer px-2.5 py-1">
+                    {humanize(unit)}
                   </Badge>
                 ))}
               </div>
@@ -369,7 +368,7 @@ export default function PaymentsItemsPage() {
               <CardContent className="flex items-center justify-between pt-6">
                 <div>
                   <p className="text-muted-foreground text-xs font-semibold">
-                    Total Food Items Sold
+                    Total food items sold
                   </p>
                   <p className="text-2xl font-semibold">{counts.foodQty.toLocaleString()}</p>
                   <p className="text-muted-foreground text-xs">Food category aggregations</p>
@@ -381,7 +380,7 @@ export default function PaymentsItemsPage() {
               <CardContent className="flex items-center justify-between pt-6">
                 <div>
                   <p className="text-muted-foreground text-xs font-semibold">
-                    Total Beverages Sold
+                    Total beverages sold
                   </p>
                   <p className="text-2xl font-semibold">{counts.softQty.toLocaleString()}</p>
                   <p className="text-muted-foreground text-xs">Drink category aggregations</p>
@@ -393,7 +392,7 @@ export default function PaymentsItemsPage() {
               <CardContent className="flex items-center justify-between pt-6">
                 <div>
                   <p className="text-muted-foreground text-xs font-semibold">
-                    Total Cost
+                    Total cost
                   </p>
                   <p className="text-2xl font-semibold">{formatETB(counts.totalRevenue)}</p>
                   <p className="text-muted-foreground text-xs">Accumulated value of items sold</p>
@@ -436,8 +435,8 @@ export default function PaymentsItemsPage() {
                   ) : (
                     itemsRows.map((r, idx) => (
                       <TableRow key={`${r.unit}-${r.item}-${idx}`}>
-                        <TableCell className="text-muted-foreground font-semibold capitalize">
-                          {r.unit}
+                        <TableCell className="text-muted-foreground font-semibold">
+                          {humanize(r.unit)}
                         </TableCell>
                         <TableCell className="text-foreground text-sm font-semibold">
                           {r.item}

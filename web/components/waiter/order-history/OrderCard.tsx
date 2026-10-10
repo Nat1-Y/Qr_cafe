@@ -4,6 +4,7 @@ import React from "react";
 import { Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { humanize } from "@/lib/format";
 
 interface OrderCardProps {
   order: any;
@@ -42,7 +43,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({
           </p>
           <p className="text-meta text-muted-foreground">
             {formatDate(order.created_at)}
-            {order.type ? <span className="capitalize"> · {order.type}</span> : null}
+            {order.type ? <span> · {humanize(order.type)}</span> : null}
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">

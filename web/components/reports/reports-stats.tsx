@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BarChart2, CalendarRange } from "lucide-react";
+import { CalendarRange } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { Segmented } from "@/components/segmented";
 import { cn } from "@/lib/utils";
 import { formatETB } from "@/lib/format";
 import {
@@ -72,47 +73,37 @@ export function ReportsStats({
     <Card>
       <CardContent className="space-y-5 pt-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <BarChart2 className="size-5 text-info" />
-            <h3 className="text-sm font-semibold">
-              {hasRange ? "Selected Range" : PERIOD_LABELS[period]} Performance
+          <div>
+            <p className="eyebrow">Performance</p>
+            <h3 className="text-section font-semibold text-foreground">
+              {hasRange ? "Selected range" : PERIOD_LABELS[period]}
             </h3>
           </div>
           {hasRange ? (
-            <div className="text-muted-foreground bg-muted inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-meta font-medium text-muted-foreground">
               <CalendarRange className="size-3.5" />
               {rangeLabel}
             </div>
           ) : (
-            <div className="bg-muted inline-flex rounded-lg p-1">
-              {PERIODS.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPeriod(p)}
-                  className={cn(
-                    "rounded-md px-3 py-1 text-xs font-medium transition-colors",
-                    period === p
-                      ? "bg-background text-foreground"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}>
-                  {PERIOD_LABELS[p]}
-                </button>
-              ))}
-            </div>
+            <Segmented
+              aria-label="Period"
+              value={period}
+              onChange={setPeriod}
+              options={PERIODS.map((p) => ({ value: p, label: PERIOD_LABELS[p] }))}
+            />
           )}
         </div>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Metric label="Orders" value={stats.totalOrders} subtitle={`${stats.pendingOrders} pending`} />
           <Metric
-            label="Paid Revenue"
+            label="Paid revenue"
             value={formatETB(stats.paidRevenue || 0)}
             subtitle="Paid orders only"
             accent="success"
           />
-          <Metric label="Paid Orders" value={stats.paidOrders} subtitle={`${stats.voidedOrders} voided`} />
-          <Metric label="Avg Paid Order" value={formatETB(stats.avgPaidOrderValue || 0)} />
+          <Metric label="Paid orders" value={stats.paidOrders} subtitle={`${stats.voidedOrders} voided`} />
+          <Metric label="Avg paid order" value={formatETB(stats.avgPaidOrderValue || 0)} />
         </div>
       </CardContent>
     </Card>
@@ -132,15 +123,15 @@ function Metric({
 }) {
   return (
     <div className="min-w-0 space-y-1">
-      <p className="text-muted-foreground text-xs font-medium">{label}</p>
+      <p className="text-meta text-muted-foreground">{label}</p>
       <p
         className={cn(
-          "truncate text-2xl font-semibold",
-          accent === "success" && "text-success",
+          "text-kpi leading-tight break-words text-foreground",
+          accent === "success" && "text-accent",
         )}>
         {value}
       </p>
-      {subtitle && <p className="text-muted-foreground truncate text-xs">{subtitle}</p>}
+      {subtitle && <p className="truncate text-meta text-muted-foreground">{subtitle}</p>}
     </div>
   );
 }

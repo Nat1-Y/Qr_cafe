@@ -20,22 +20,22 @@ export const EmployeeStatsGrid: React.FC<EmployeeStatsGridProps> = ({
 }) => {
   const cards = [
     {
-      title: 'Created Checkouts',
+      title: 'Created checkouts',
       value: stats.ordersCreated,
       icon: Clipboard,
     },
     {
-      title: 'Settled Checkouts',
+      title: 'Settled checkouts',
       value: stats.ordersServed,
       icon: CheckCircle,
     },
     {
-      title: 'Gross Cash Settled',
+      title: 'Gross cash settled',
       value: formatCurrency(stats.totalRevenue),
       icon: Coffee,
     },
     {
-      title: 'Active Pending Debit',
+      title: 'Active pending debit',
       value: formatCurrency(stats.pendingBalance),
       icon: DollarSign,
     }

@@ -39,7 +39,7 @@ const ConfirmOrgPaymentModal: React.FC<ConfirmOrgPaymentModalProps> = ({
           <DialogTitle>Confirm organization order</DialogTitle>
           <DialogDescription>
             Posts this order as a charge against the organization's credit
-            balance. it's never collected as cash and doesn't affect today's
+            balance. It's never collected as cash and doesn't affect today's
             revenue.
           </DialogDescription>
         </DialogHeader>

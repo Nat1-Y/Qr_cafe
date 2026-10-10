@@ -7,7 +7,7 @@ import { printZReport } from '@/utils/receiptPrinter';
 import api from '@/application';
 import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
-import { formatETB } from '@/lib/format';
+import { formatETB, humanize } from '@/lib/format';
 
 import StatsCard from '@/components/common/StatsCard';
 import EmptyState from '@/components/common/EmptyState';
@@ -195,8 +195,8 @@ const ZReport = () => {
                 <TableBody>
                   {zReport.payment_breakdown.map((payment, idx) => (
                     <TableRow key={idx}>
-                      <TableCell className="capitalize text-foreground">
-                        {payment.method}
+                      <TableCell className="text-foreground">
+                        {humanize(payment.method)}
                         <span className="block text-meta text-muted-foreground">{payment.count} payments</span>
                       </TableCell>
                       <TableCell className="text-right">{formatCurrency(payment.amount)}</TableCell>

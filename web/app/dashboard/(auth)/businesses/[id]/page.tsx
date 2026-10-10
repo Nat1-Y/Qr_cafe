@@ -35,8 +35,8 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api";
-import { impersonateOwner } from "@/lib/auth";
-import { formatETB } from "@/lib/format";
+import { impersonateOwner, roleLabel } from "@/lib/auth";
+import { formatETB, humanize } from "@/lib/format";
 
 type Branch = { id: string; name: string; slug: string; is_active: boolean };
 type User = {
@@ -335,7 +335,7 @@ export default function BusinessDetailPage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-muted-foreground">Plan</CardTitle>
           </CardHeader>
-          <CardContent className="text-lg font-medium capitalize">{biz.plan}</CardContent>
+          <CardContent className="text-lg font-medium">{humanize(biz.plan)}</CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
@@ -436,8 +436,8 @@ export default function BusinessDetailPage() {
                       <div className="text-muted-foreground text-xs">{u.name}</div>
                     )}
                   </div>
-                  <Badge variant="muted" className="capitalize">
-                    {u.role.replace("_", " ")}
+                  <Badge variant="muted">
+                    {roleLabel(u.role)}
                   </Badge>
                   <span className="text-muted-foreground hidden text-xs sm:inline">
                     {u.branch_name ?? "Business-wide"}
@@ -478,7 +478,7 @@ export default function BusinessDetailPage() {
               <Input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="e.g. abel tesfaye"
+                placeholder="e.g. Abel Tesfaye"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -552,29 +552,22 @@ export default function BusinessDetailPage() {
   );
 }
 
+// KPI card: muted label, big number. The icon prop is accepted but not shown.
 function StatCard({
   label,
   value,
   sub,
-  icon: Icon,
 }: {
   label: string;
   value: string;
   sub?: string;
-  icon: typeof StoreIcon;
+  icon?: typeof StoreIcon;
 }) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-muted-foreground">
-          {label}
-        </CardTitle>
-        <Icon className="size-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-semibold">{value}</div>
-        {sub && <p className="text-muted-foreground mt-1 text-xs">{sub}</p>}
-      </CardContent>
-    </Card>
+    <div className="min-w-0 rounded-card border border-border bg-card px-5 py-4">
+      <p className="truncate text-meta text-muted-foreground">{label}</p>
+      <p className="mt-1 text-kpi leading-tight break-words text-foreground">{value}</p>
+      {sub && <p className="mt-0.5 truncate text-meta text-muted-foreground">{sub}</p>}
+    </div>
   );
 }

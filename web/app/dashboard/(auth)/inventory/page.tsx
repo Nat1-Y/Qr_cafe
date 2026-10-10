@@ -295,13 +295,13 @@ function LocationCard({
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="rounded-md border bg-background p-2 text-center">
             <span className="block text-xs font-medium text-muted-foreground">
-              In Stock
+              In stock
             </span>
             <span className="text-lg font-semibold">{stats.inStock}</span>
           </div>
           <div className="rounded-md border bg-background p-2 text-center">
             <span className="block text-xs font-medium text-muted-foreground">
-              Tracked Items
+              Tracked items
             </span>
             <span className="text-lg font-semibold">{stats.totalItems}</span>
           </div>
@@ -320,7 +320,7 @@ function LocationCard({
         )}
 
         <div className="flex items-center justify-end pt-1 text-xs font-semibold text-primary transition-transform group-hover:translate-x-1">
-          <span>Explore Inventory</span>
+          <span>Explore inventory</span>
           <ChevronRightIcon className="ml-1 size-3.5" />
         </div>
       </CardContent>
@@ -792,7 +792,7 @@ export default function InventoryPage() {
                   {
                     value: "delta" as const,
                     icon: PlusIcon,
-                    title: "Add / Subtract",
+                    title: "Add / subtract",
                     description: "Increase or decrease",
                   },
                 ]).map((opt) => {

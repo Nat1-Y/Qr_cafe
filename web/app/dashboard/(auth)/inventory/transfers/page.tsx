@@ -30,7 +30,7 @@ import { DataTable, type Column } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
 import { StatCards, type StatCard } from "@/components/stat-cards";
 import { Inventory, StockLocations } from "@/lib/resources";
-import { shortDate } from "@/lib/format";
+import { shortDate, humanize } from "@/lib/format";
 
 type Line = { inventory_item_id: string; quantity: string };
 type TransferItem = {
@@ -202,8 +202,8 @@ export default function TransfersPage() {
       key: "status",
       label: "Status",
       render: (t) => (
-        <Badge variant={STATUS_BADGE[t.status] ?? "muted"} className="capitalize">
-          {STATUS_LABEL[t.status] ?? t.status}
+        <Badge variant={STATUS_BADGE[t.status] ?? "muted"}>
+          {STATUS_LABEL[t.status] ?? humanize(t.status)}
         </Badge>
       ),
     },

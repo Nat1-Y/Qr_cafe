@@ -69,7 +69,7 @@ export default function DataManagementPage() {
               Danger zone
             </CardTitle>
             <CardDescription>
-              These actions are irreversible. please proceed with extreme caution.
+              These actions are irreversible. Please proceed with extreme caution.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -111,7 +111,7 @@ export default function DataManagementPage() {
             <DialogTitle>Delete all orders &amp; payments?</DialogTitle>
             <DialogDescription>
               This permanently deletes every order and payment for the selected
-              branch. this cannot be undone. type <strong>DELETE</strong> to
+              branch. This cannot be undone. Type <strong>DELETE</strong> to
               confirm.
             </DialogDescription>
           </DialogHeader>

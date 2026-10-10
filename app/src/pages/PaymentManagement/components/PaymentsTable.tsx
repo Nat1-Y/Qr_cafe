@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import EmptyState from '@/components/common/EmptyState';
 import { PaymentRecord } from '../types';
-import { formatETB } from '@/lib/format';
+import { formatETB, humanize } from '@/lib/format';
 
 interface PaymentsTableProps {
   loading: boolean;
@@ -75,8 +75,8 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       {p.payment_method ? (
-                        <Badge variant="info">
-                          {p.payment_method.replace('_', ' ')}
+                        <Badge variant="secondary">
+                          {humanize(p.payment_method)}
                         </Badge>
                       ) : (
                         <span className="text-muted-foreground">-</span>

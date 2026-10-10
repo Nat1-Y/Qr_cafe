@@ -56,11 +56,11 @@ export const LocationCard: React.FC<LocationCardProps> = ({ location, stats, onC
       <CardContent className="pt-4 pb-4 space-y-3 bg-muted/[0.05]">
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="p-2 rounded-md bg-background border text-center">
-            <span className="text-xs text-muted-foreground block font-medium">In Stock</span>
+            <span className="text-xs text-muted-foreground block font-medium">In stock</span>
             <span className="text-lg font-semibold">{stats.inStock}</span>
           </div>
           <div className="p-2 rounded-md bg-background border text-center">
-            <span className="text-xs text-muted-foreground block font-medium">Tracked Items</span>
+            <span className="text-xs text-muted-foreground block font-medium">Tracked items</span>
             <span className="text-lg font-semibold">{stats.totalItems}</span>
           </div>
         </div>
@@ -78,7 +78,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({ location, stats, onC
         )}
 
         <div className="flex items-center justify-end text-xs text-primary font-semibold pt-1 group-hover:translate-x-1 transition-transform">
-          <span>Explore Inventory</span>
+          <span>Explore inventory</span>
           <ChevronRight className="h-3.5 w-3.5 ml-1" />
         </div>
       </CardContent>

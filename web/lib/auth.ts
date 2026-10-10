@@ -156,18 +156,16 @@ export function setUser(user: SessionUser) {
 }
 
 const ROLE_LABELS: Record<string, string> = {
-  super_admin: "Platform Admin",
+  ...Object.fromEntries(CONFIGURABLE_ROLES.map((r) => [r.value, r.label])),
+  super_admin: "Platform admin",
   owner: "Owner",
-  business_admin: "Business Admin",
-  fb_manager: "F&B Manager",
-  finance: "Finance",
+  business_admin: "Business admin",
   admin: "Administrator",
-  cashier: "Cashier",
-  kitchen_staff: "Kitchen Staff",
-  cafe_waiter: "Waiter",
+  cafe_cashier: "Cashier",
 };
 
 export function roleLabel(role?: string): string {
   if (!role) return "—";
-  return ROLE_LABELS[role] ?? role.replace(/_/g, " ");
+  const label = ROLE_LABELS[role] ?? role.replace(/_/g, " ");
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }

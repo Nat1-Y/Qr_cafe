@@ -87,7 +87,7 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
               step="0.01"
               value={filters.minAmount}
               onChange={onFilterChange}
-              placeholder="Min birr"
+              placeholder="Min ETB"
             />
           </div>
           <div className="space-y-1.5">
@@ -99,7 +99,7 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
               step="0.01"
               value={filters.maxAmount}
               onChange={onFilterChange}
-              placeholder="Max birr"
+              placeholder="Max ETB"
             />
           </div>
           <Button type="submit" className="sm:col-span-2 md:col-span-4 mt-2">

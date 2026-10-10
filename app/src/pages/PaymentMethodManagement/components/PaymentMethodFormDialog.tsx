@@ -47,7 +47,7 @@ export const PaymentMethodFormDialog: React.FC<PaymentMethodFormDialogProps> = (
               id="display_name"
               value={formData.display_name}
               onChange={e => setFormData(p => ({ ...p, display_name: e.target.value }))}
-              placeholder="e.g. cash payment"
+              placeholder="e.g. Cash payment"
               required
             />
           </div>

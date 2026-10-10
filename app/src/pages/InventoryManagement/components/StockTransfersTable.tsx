@@ -24,7 +24,7 @@ export const StockTransfersTable: React.FC<StockTransfersTableProps> = ({ transf
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle>{showAll ? 'Stock Transfer History' : 'Recent Transfers'}</CardTitle>
+        <CardTitle>{showAll ? 'Transfer history' : 'Recent transfers'}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {visibleTransfers.length > 0 ? visibleTransfers.map(transfer => (

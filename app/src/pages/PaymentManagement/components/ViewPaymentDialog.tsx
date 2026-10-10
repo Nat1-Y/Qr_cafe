@@ -23,7 +23,7 @@ export const ViewPaymentDialog: React.FC<ViewPaymentDialogProps> = ({
 }) => {
   return (
     <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-      <DialogContent className="max-w-lg">
+      <DialogContent side="right">
         <DialogHeader>
           <DialogTitle>Payment details</DialogTitle>
         </DialogHeader>

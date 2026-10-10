@@ -369,7 +369,7 @@ export function StaffPenalties() {
           <DialogHeader>
             <DialogTitle>{editingId ? "Edit penalty" : "Log penalty"}</DialogTitle>
             <DialogDescription>
-              Record a disciplinary action against an employee. amount is optional — only fill
+              Record a disciplinary action against an employee. Amount is optional — only fill
               it in for fines or cost deductions (e.g. cash shortage, breakage).
             </DialogDescription>
           </DialogHeader>

@@ -8,7 +8,7 @@ import { Eye } from 'lucide-react';
 import EmptyState from '@/components/common/EmptyState';
 import { OrderDetailsDialog } from '@/components/common/OrderDetailsDialog';
 import { EmployeeDetailsData } from '../types';
-import { formatETB } from '@/lib/format';
+import { formatETB, humanize } from '@/lib/format';
 
 
 interface EmployeeDetailsProps {
@@ -44,7 +44,7 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ details }) => 
                 <TableRow key={o.id}>
                   <TableCell className="font-semibold">#{uuidToDisplayId(o.id)}</TableCell>
                   <TableCell>{o.employee_name || `Employee #${o.employee_id}`}</TableCell>
-                  <TableCell className="capitalize">{o.type}</TableCell>
+                  <TableCell>{humanize(o.type)}</TableCell>
                   <TableCell>{o.table_number ?? 'N/A'}</TableCell>
                   <TableCell className="text-right font-medium">{formatETB(o.total_amount)}</TableCell>
                   <TableCell>

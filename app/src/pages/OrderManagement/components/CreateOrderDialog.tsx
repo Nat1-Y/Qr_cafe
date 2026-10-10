@@ -219,7 +219,7 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
                 </Label>
                 <Select value={tableNumber} onValueChange={setTableNumber}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select Table" />
+                    <SelectValue placeholder="Select table" />
                   </SelectTrigger>
                   <SelectContent>
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(num => (

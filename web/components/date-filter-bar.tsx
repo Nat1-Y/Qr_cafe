@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { humanize } from "@/lib/format";
 
 export type DateFilterPreset = "all" | "today" | "week" | "month" | "custom";
 export type DateFilterCustomMode = "specific" | "range";
@@ -102,9 +103,8 @@ export function DateFilterBar({
             type="button"
             variant={preset === p ? "selected" : "outline"}
             size="sm"
-            onClick={() => setPreset(p)}
-            className="capitalize">
-            {p === "all" ? allLabel : p}
+            onClick={() => setPreset(p)}>
+            {p === "all" ? allLabel : humanize(p)}
           </Button>
         ))}
       </div>
@@ -117,14 +117,14 @@ export function DateFilterBar({
               variant={customMode === "specific" ? "selected" : "ghost"}
               size="sm"
               onClick={() => setCustomMode("specific")}>
-              Specific Date
+              Specific date
             </Button>
             <Button
               type="button"
               variant={customMode === "range" ? "selected" : "ghost"}
               size="sm"
               onClick={() => setCustomMode("range")}>
-              Date Range
+              Date range
             </Button>
           </div>
           {customMode === "specific" ? (

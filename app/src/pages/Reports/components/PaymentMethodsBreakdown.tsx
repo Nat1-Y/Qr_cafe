@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { humanize } from '@/lib/format';
 
 interface PaymentMethodsBreakdownProps {
   paymentMethods: Record<string, number>;
@@ -21,8 +22,8 @@ export const PaymentMethodsBreakdown: React.FC<PaymentMethodsBreakdownProps> = (
               <div key={method} className="flex items-center justify-between font-semibold">
                 <div className="flex items-center gap-2">
                   <div className="h-2.5 w-2.5 rounded-full bg-chart-3"></div>
-                  <span className="text-xs font-semibold text-foreground capitalize truncate max-w-[120px]">
-                    {method.replace('_', ' ')}
+                  <span className="text-xs font-semibold text-foreground truncate max-w-[120px]">
+                    {humanize(method)}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">

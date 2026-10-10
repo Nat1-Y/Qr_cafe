@@ -114,7 +114,7 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
                       size="icon" 
                       className="h-7 w-7 text-muted-foreground hover:bg-muted" 
                       onClick={() => onHistory(item)}
-                      title="Stock History"
+                      title="Stock history"
                     >
                       <History className="h-3.5 w-3.5" />
                     </Button>
@@ -123,7 +123,7 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
                       size="icon" 
                       className="h-7 w-7 text-muted-foreground hover:bg-muted" 
                       onClick={() => onEdit(item)}
-                      title="Edit Item"
+                      title="Edit item"
                     >
                       <Edit3 className="h-3.5 w-3.5" />
                     </Button>
@@ -132,7 +132,7 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
                       size="icon" 
                       className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10" 
                       onClick={() => onDelete(item)}
-                      title="Delete Item"
+                      title="Delete item"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>

@@ -17,7 +17,7 @@ import { DataTable, type Column, type SortState } from "@/components/data-table"
 import { PageHeader } from "@/components/page-header";
 import { StatCards, type StatCard } from "@/components/stat-cards";
 import { Payments } from "@/lib/resources";
-import { formatETB, shortDate } from "@/lib/format";
+import { formatETB, shortDate, humanize } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 
 type Payment = {
@@ -82,7 +82,7 @@ const columns: Column<Payment>[] = [
         formatETB(r.amount)
       ),
   },
-  { key: "payment_method", label: "Method", render: (r) => <span className="capitalize">{r.payment_method ?? "—"}</span> },
+  { key: "payment_method", label: "Method", render: (r) => humanize(r.payment_method) },
   { key: "status", label: "Status", render: (r) => <StatusBadge kind="payment" status={r.status} /> },
   { key: "paid_at", label: "Date", render: (r) => shortDate(paymentDate(r)) },
 ];

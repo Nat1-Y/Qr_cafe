@@ -40,13 +40,13 @@ export const UserManagement: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="User management"
+        title="Users"
         description="Who can sign in, and with which role."
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={handleManualSync} disabled={syncStatus.syncing || !syncStatus.online}>
               <RefreshCw className={`h-4 w-4 mr-2 ${syncStatus.syncing ? 'animate-spin' : ''}`} />
-              {syncStatus.syncing ? 'Syncing...' : 'Sync Now'}
+              {syncStatus.syncing ? 'Syncing…' : 'Sync now'}
             </Button>
             <Button onClick={openAdd} disabled={!syncStatus.online}>
               <Plus />

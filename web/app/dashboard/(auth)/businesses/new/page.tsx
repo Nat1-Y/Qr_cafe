@@ -93,7 +93,7 @@ export default function NewBusinessPage() {
                 label="Business name"
                 value={form.name}
                 onChange={set("name")}
-                placeholder="Blue Bottle Cafe"
+                placeholder="e.g. Tomoca Bole"
                 required
               />
             </div>
@@ -127,7 +127,7 @@ export default function NewBusinessPage() {
                 label="Full name"
                 value={form.owner_name}
                 onChange={set("owner_name")}
-                placeholder="Sara Owner"
+                placeholder="e.g. Abel Tesfaye"
               />
             </div>
             <Field

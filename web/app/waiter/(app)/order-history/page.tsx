@@ -60,9 +60,9 @@ export default function OrderHistoryPage() {
       />
 
       {orders.length > 0 && (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatsCard title="Orders shown" value={historyStats.ordersCount} />
-          <StatsCard title="Sales" value={formatCurrency(historyStats.revenue)} variant="success" />
+          <StatsCard title="Sales" value={formatCurrency(historyStats.revenue)} variant="success" className="order-last col-span-2 sm:order-none sm:col-span-1" />
           <StatsCard title="Tables still open" value={historyStats.activeTablesCount} />
         </div>
       )}

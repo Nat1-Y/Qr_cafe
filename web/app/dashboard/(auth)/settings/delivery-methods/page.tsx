@@ -143,7 +143,7 @@ export default function DeliveryMethodsPage() {
   return (
     <div className="space-y-6">
       <ResourceManager<DM>
-        title="Delivery Methods"
+        title="Delivery methods"
         description="Delivery channels this branch works with (e.g. a delivery app, an in-house rider)."
         createLabel="New method"
         columns={columns}

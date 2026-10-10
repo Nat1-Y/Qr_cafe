@@ -143,7 +143,7 @@ export const InventoryManagement: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Inventory management"
+        title="Inventory"
         description="Stock on hand, and moves between locations."
         actions={
           <div className="flex gap-2 flex-wrap">

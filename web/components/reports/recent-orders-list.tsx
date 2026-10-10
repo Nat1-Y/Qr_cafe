@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatETB } from "@/lib/format";
+import { formatETB, humanize } from "@/lib/format";
 import { formatOrderNumber } from "@/lib/utils";
 import type { RecentOrder } from "@/lib/reports";
 
@@ -23,10 +23,10 @@ export function RecentOrdersList({ recentOrders }: { recentOrders: RecentOrder[]
                     <span className="text-foreground text-xs font-semibold">
                       Order {formatOrderNumber(order)}
                     </span>
-                    <Badge variant="secondary" className="capitalize">
+                    <Badge variant="secondary">
                       {String(order.type || "").trim().toLowerCase() === "bakery"
-                        ? "cafe"
-                        : order.type}
+                        ? "Cafe"
+                        : humanize(order.type)}
                     </Badge>
                   </div>
                   <p className="text-muted-foreground text-xs">
@@ -49,9 +49,8 @@ export function RecentOrdersList({ recentOrders }: { recentOrders: RecentOrder[]
                         : order?.derived_status === "voided"
                           ? "destructive"
                           : "warning"
-                    }
-                    className="capitalize">
-                    {order.derived_status}
+                    }>
+                    {humanize(order.derived_status)}
                   </Badge>
                 </div>
               </div>

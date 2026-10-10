@@ -66,7 +66,7 @@ const AdminDashboard = () => {
       {
         title:
           dateRange.timeRange === 'today'
-            ? "Today's Orders"
+            ? "Today's orders"
             : dateRange.timeRange === 'all'
               ? 'Total Orders'
               : `${dateRange.timeRangeLabel} Orders`,
@@ -83,7 +83,7 @@ const AdminDashboard = () => {
       {
         title:
           dateRange.timeRange === 'today'
-            ? "Today's Revenue"
+            ? "Today's revenue"
             : dateRange.timeRange === 'all'
               ? 'Total Revenue'
               : `${dateRange.timeRangeLabel} Revenue`,

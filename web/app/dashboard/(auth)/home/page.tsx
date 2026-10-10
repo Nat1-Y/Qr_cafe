@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/page-header";
 import { DateFilterBar } from "@/components/date-filter-bar";
 import { Menu, Inventory, Tables, Orders, Payments } from "@/lib/resources";
-import { formatETB, shortDate } from "@/lib/format";
+import { formatETB, shortDate, humanize } from "@/lib/format";
 import { salesSplit, monthRange, rangeBounds } from "@/lib/profit";
 
 import { StatCards } from "@/components/stat-cards";
@@ -164,7 +164,7 @@ export default function HomePage() {
                       {o.table_number ? ` · Table ${o.table_number}` : ""}
                     </p>
                     <p className="truncate text-sm text-muted-foreground">
-                      {summary || <span className="capitalize">{o.type ?? "Order"}</span>}
+                      {summary || (o.type ? humanize(o.type) : "Order")}
                     </p>
                     <p className="text-meta text-muted-foreground">{shortDate(o.created_at)}</p>
                   </div>

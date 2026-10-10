@@ -53,7 +53,7 @@ const MenuManagement = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title={isAdmin ? 'Menu Management' : 'Café Menu'}
+        title="Menu"
         description={isAdmin ? 'Manage bakery and café menu items' : 'Browse available café menu items'}
         actions={isAdmin ? (
           <div className="flex items-center gap-2">

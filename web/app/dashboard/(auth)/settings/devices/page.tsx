@@ -36,6 +36,7 @@ import {
 import { PageHeader } from "@/components/page-header";
 import { Devices, DataCleanup } from "@/lib/resources";
 import { getBranchId } from "@/lib/api";
+import { humanize } from "@/lib/format";
 
 type EnrolledDevice = {
   id: string;
@@ -219,7 +220,7 @@ export default function DevicesPage() {
           </CardTitle>
           <CardDescription>
             Enter this code on a desktop app's first run to pin that install to this
-            branch. the same code works for every device — rotate it to revoke
+            branch. The same code works for every device — rotate it to revoke
             access for new enrollments (already-enrolled devices stay connected).
           </CardDescription>
         </CardHeader>
@@ -310,8 +311,8 @@ export default function DevicesPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="muted" className="capitalize">
-                      {d.status}
+                    <Badge variant="muted">
+                      {humanize(d.status)}
                     </Badge>
                     <Button
                       variant="outline"
@@ -402,8 +403,8 @@ export default function DevicesPage() {
                       variant={
                         r.status === "approved" ? "default" : "muted"
                       }
-                      className="shrink-0 capitalize">
-                      {r.status}
+                      className="shrink-0">
+                      {humanize(r.status)}
                     </Badge>
                   )}
                 </li>

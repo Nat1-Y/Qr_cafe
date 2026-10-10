@@ -256,19 +256,25 @@ const CashierDashboard = () => {
 
   // Stats cards data
   const HIDDEN_STATS_PLACEHOLDER = '••••••';
+  // "Today's" -> "Today", "This Week's" -> "This week"
+  const rangeText = statsRangeLabel.replace(/'s$/i, '').toLowerCase();
+  const rangeHint = rangeText.charAt(0).toUpperCase() + rangeText.slice(1);
   const statsCards = [
     {
-      title: `Payments taken · ${statsRangeLabel.toLowerCase()}`,
+      title: 'Payments taken',
+      subtitle: rangeHint,
       value: showStatsValues ? todayStats.paymentsProcessed : HIDDEN_STATS_PLACEHOLDER,
       variant: 'default' as const
     },
     {
-      title: `Revenue · ${statsRangeLabel.toLowerCase()}`,
+      title: 'Revenue',
+      subtitle: rangeHint,
       value: showStatsValues ? formatCurrency(todayStats.totalRevenue) : HIDDEN_STATS_PLACEHOLDER,
       variant: 'success' as const
     },
     {
       title: 'Waiting to be paid',
+      subtitle: 'Right now',
       value: showStatsValues ? formatCurrency(pendingOrdersTotalBirr || 0) : HIDDEN_STATS_PLACEHOLDER,
       variant: 'default' as const
     },
@@ -350,7 +356,7 @@ const CashierDashboard = () => {
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {statsCards.map((card, index) => (
-            <StatsCard key={index} title={card.title} value={card.value} variant={card.variant} />
+            <StatsCard key={index} title={card.title} subtitle={card.subtitle} value={card.value} variant={card.variant} />
           ))}
         </div>
       </section>

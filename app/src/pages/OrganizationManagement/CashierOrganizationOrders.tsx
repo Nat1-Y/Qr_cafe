@@ -64,7 +64,7 @@ export const CashierOrganizationOrders: React.FC = () => {
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Organization orders"
-        description="Orders attached to an organization — billed to its credit account, not collected as cash. only the owner can confirm one."
+        description="Orders attached to an organization — billed to its credit account, not collected as cash. Only the owner can confirm one."
         actions={
           canPlaceOrders ? (
             <Button onClick={() => navigate('/dashboard/organizations/place-order')}>

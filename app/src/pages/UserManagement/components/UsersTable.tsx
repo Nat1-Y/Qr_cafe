@@ -60,7 +60,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   </TableCell>
                   <TableCell>
                     <Badge variant={ROLE_BADGE_VARIANT[user.role] || 'secondary'}>
-                      {ROLE_DISPLAY[user.role] || user.role}
+                      {ROLE_DISPLAY[user.role] || humanize(user.role)}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -106,5 +106,6 @@ export const UsersTable: React.FC<UsersTableProps> = ({
 
 // Internal local button import helper to keep UI references intact
 import { Button } from '@/components/ui/button';
+import { humanize } from '@/lib/format';
 
 export default UsersTable;

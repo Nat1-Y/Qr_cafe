@@ -4,24 +4,25 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import StatusBadge from '@/components/common/StatusBadge';
+import type { InventoryRow, StockLevelRow } from '@/types/display.types';
 
 interface InventoryPanelProps {
-  items: any[];
+  items: InventoryRow[];
   /** Short "running low" list for the overview's side column. */
   compact?: boolean;
 }
 
 // Total on-hand and minimum across locations, matching the inventory page.
-function levels(item: any) {
-  const stockByLocation: any[] = Array.isArray(item?.stock_by_location) ? item.stock_by_location : [];
+function levels(item: InventoryRow) {
+  const stockByLocation: StockLevelRow[] = Array.isArray(item?.stock_by_location) ? item.stock_by_location : [];
   const piecesPerUnit = Math.max(1, Number(item?.pieces_per_unit || 1) || 1);
   const totalQty = stockByLocation.length > 0
-    ? stockByLocation.reduce((sum: number, s: any) => sum + Number(s?.quantity || 0), 0)
+    ? stockByLocation.reduce((sum, s) => sum + Number(s?.quantity || 0), 0)
     : Number(item?.quantity || item?.store_quantity || 0) * piecesPerUnit;
   const minQuantity = Number(item?.min_quantity || 0);
   const minMode = String(item?.min_quantity_mode || 'global');
   const totalMinQty = minMode === 'per_location' && stockByLocation.length > 0
-    ? stockByLocation.reduce((sum: number, s: any) => sum + Number(s?.min_quantity || 0), 0)
+    ? stockByLocation.reduce((sum, s) => sum + Number(s?.min_quantity || 0), 0)
     : minQuantity;
   const isLow = totalMinQty > 0 && totalQty < totalMinQty;
   return { totalQty, totalMinQty, isLow };
@@ -29,7 +30,7 @@ function levels(item: any) {
 
 export const InventoryPanel: React.FC<InventoryPanelProps> = ({ items, compact = false }) => {
   const navigate = useNavigate();
-  const rows = items.map((item: any) => ({ item, ...levels(item) }));
+  const rows = items.map((item) => ({ item, ...levels(item) }));
 
   if (compact) {
     const low = rows.filter((r) => r.isLow).slice(0, 8);

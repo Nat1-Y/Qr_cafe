@@ -99,7 +99,7 @@ export const ExpenseReports: React.FC<ExpenseReportsProps> = ({ reports }) => {
               </p>
             </div>
             <div className="rounded-card border border-border bg-card px-4 py-3">
-              <p className="text-xs font-semibold text-muted-foreground">Expense Ratio</p>
+              <p className="text-xs font-semibold text-muted-foreground">Expense ratio</p>
               <p className="mt-1 font-semibold text-base text-foreground">{Number.parseFloat(String(expenseVsSales?.expense_ratio || 0)).toFixed(1)}%</p>
             </div>
           </div>

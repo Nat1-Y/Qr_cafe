@@ -83,42 +83,46 @@ const Reports: React.FC = () => {
         title="Business reports"
         description="Analytics, operational metrics, and complete data exports"
         actions={
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <DatePicker
-                date={fromDate}
-                onSelect={handleFromDateChange}
-                placeholder="From date"
-              />
-              <span className="text-sm text-muted-foreground">to</span>
-              <DatePicker
-                date={toDate}
-                onSelect={handleToDateChange}
-                placeholder="To date"
-              />
-            </div>
-            <Select value={businessUnit} onValueChange={setBusinessUnit}>
-              <SelectTrigger className="h-9 w-40">
-                <SelectValue placeholder="All units" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All units</SelectItem>
-                <SelectItem value="cafe">Cafe</SelectItem>
-                <SelectItem value="restaurant">Restaurant</SelectItem>
-                <SelectItem value="barista">Barista</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="sm" onClick={handleExportReport}>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleExportReport}>
               <Download />
               Export
             </Button>
-            <Button size="sm" onClick={handleGenerateReport}>
+            <Button onClick={handleGenerateReport}>
               <BarChart2 />
               Generate
             </Button>
           </div>
         }
       />
+
+      {/* Filter bar: date range and unit */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2">
+          <DatePicker
+            date={fromDate}
+            onSelect={handleFromDateChange}
+            placeholder="From date"
+          />
+          <span className="text-sm text-muted-foreground">to</span>
+          <DatePicker
+            date={toDate}
+            onSelect={handleToDateChange}
+            placeholder="To date"
+          />
+        </div>
+        <Select value={businessUnit} onValueChange={setBusinessUnit}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="All units" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All units</SelectItem>
+            <SelectItem value="cafe">Cafe</SelectItem>
+            <SelectItem value="restaurant">Restaurant</SelectItem>
+            <SelectItem value="barista">Barista</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       <ReportsStats reportData={reportData} />
 

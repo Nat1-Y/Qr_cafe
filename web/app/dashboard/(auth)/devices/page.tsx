@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, type Column } from "@/components/data-table";
 import { apiFetch } from "@/lib/api";
+import { humanize } from "@/lib/format";
 
 type Device = {
   id: string;
@@ -77,8 +78,8 @@ const columns: Column<Device>[] = [
     key: "status",
     label: "Status",
     render: (d) => (
-      <Badge variant="muted" className="capitalize">
-        {d.status}
+      <Badge variant="muted">
+        {humanize(d.status)}
       </Badge>
     ),
   },

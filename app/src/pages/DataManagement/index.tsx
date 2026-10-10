@@ -405,7 +405,7 @@ const DataManagement = () => {
                         <DialogTitle>Reset device enrollment?</DialogTitle>
                         <DialogDescription>
                             This unlinks the device from its current branch and clears all local data.
-                            you'll need a new enrollment code to set it up again. this cannot be undone.
+                            You'll need a new enrollment code to set it up again. This cannot be undone.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>

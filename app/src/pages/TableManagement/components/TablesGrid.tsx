@@ -78,7 +78,7 @@ export const TablesGrid: React.FC<TablesGridProps> = ({
                 {occupied ? 'Occupied' : 'Free'}
               </p>
               <p className="truncate text-meta text-muted-foreground">
-                {occupied && table.waiter_name ? table.waiter_name : `${table.capacity} seats`}
+                {occupied && table.waiter_name ? table.waiter_name : table.capacity ? `${table.capacity} seats` : null}
               </p>
             </div>
           </div>

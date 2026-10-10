@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import EmptyState from '@/components/common/EmptyState';
 import { AggregatedItemRow } from '../types';
-import { formatETB } from '@/lib/format';
+import { formatETB, humanize } from '@/lib/format';
 
 interface ItemsTableProps {
   ordersCount: number;
@@ -53,8 +53,8 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
             ) : (
               itemsRows.map((r, idx) => (
                 <TableRow key={`${r.unit}-${r.item}-${idx}`}>
-                  <TableCell className="capitalize text-muted-foreground font-semibold">
-                    {r.unit}
+                  <TableCell className="text-muted-foreground font-semibold">
+                    {humanize(r.unit)}
                   </TableCell>
                   <TableCell className="font-semibold text-sm text-foreground">
                     {r.item}

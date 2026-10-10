@@ -30,13 +30,13 @@ const SECTIONS: SettingLink[] = [
     icon: UserIcon,
   },
   {
-    title: "Order Rules",
+    title: "Order rules",
     description: "Per-branch POS behavior for the selected branch.",
     href: "/dashboard/settings/preferences",
     icon: SlidersHorizontalIcon,
   },
   {
-    title: "Payment Methods",
+    title: "Payment methods",
     description: "The payment methods staff can settle orders with.",
     href: "/dashboard/settings/payment-methods",
     icon: WalletCardsIcon,
@@ -54,7 +54,7 @@ const SECTIONS: SettingLink[] = [
     icon: MonitorSmartphoneIcon,
   },
   {
-    title: "Data Management",
+    title: "Data management",
     description: "Permanently delete orders and payments for the selected branch.",
     href: "/dashboard/settings/data-management",
     icon: DatabaseIcon,

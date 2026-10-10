@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Printer, RefreshCw, CalendarRange } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatETB } from "@/lib/format";
+import { formatETB, humanize } from "@/lib/format";
 import { Orders } from "@/lib/resources";
 
 interface ZReportData {
@@ -165,8 +165,8 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
             head={["Method", "Count", "Amount", "%"]}
             align={["left", "right", "right", "right"]}
             rows={zReport.payment_breakdown.map((p) => [
-              <span key="m" className="capitalize">
-                {p.method}
+              <span key="m">
+                {humanize(p.method)}
               </span>,
               p.count,
               formatETB(p.amount),

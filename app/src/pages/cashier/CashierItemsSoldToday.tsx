@@ -30,7 +30,7 @@ import {
 import { printItemsSoldReport, ItemsSoldRow } from '@/utils/receiptPrinter';
 import { isTauriRuntime } from '@/utils/receipt/thermal-printer';
 import { getActivePrinterName } from '@/infrastructure/printing/printer-config';
-import { formatETB } from '@/lib/format';
+import { formatETB, humanize } from '@/lib/format';
 
 const PRINTER_STORAGE_KEY = 'items_sold_selected_printer';
 
@@ -380,8 +380,8 @@ export const CashierItemsSoldToday: React.FC = () => {
               ) : (
                 itemsRows.map((r, idx) => (
                   <TableRow key={`${r.unit}-${r.item}-${idx}`}>
-                    <TableCell className="capitalize text-muted-foreground font-semibold">
-                      {r.unit}
+                    <TableCell className="text-muted-foreground font-semibold">
+                      {humanize(r.unit)}
                     </TableCell>
                     <TableCell className="font-semibold text-sm text-foreground">
                       {r.item}

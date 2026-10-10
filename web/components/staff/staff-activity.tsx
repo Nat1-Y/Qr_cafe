@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { StatCard } from "@/components/stat-card";
 import { DateFilterBar } from "@/components/date-filter-bar";
-import { formatETB } from "@/lib/format";
+import { formatETB, humanize } from "@/lib/format";
 import { formatOrderNumber } from "@/lib/utils";
 import { Orders, Users as UsersResource } from "@/lib/resources";
 
@@ -332,7 +332,7 @@ export function StaffActivity() {
                   detailOrders.map((o) => (
                     <TableRow key={o.id}>
                       <TableCell className="font-semibold">{formatOrderNumber(o)}</TableCell>
-                      <TableCell className="capitalize">{o.type}</TableCell>
+                      <TableCell>{humanize(o.type)}</TableCell>
                       <TableCell>{o.table_number ?? "N/A"}</TableCell>
                       <TableCell className="text-right font-medium">
                         {formatETB(o.total_amount)}
@@ -345,9 +345,8 @@ export function StaffActivity() {
                               : o.status === "pending"
                                 ? "warning"
                                 : "secondary"
-                          }
-                          className="capitalize">
-                          {o.status}
+                          }>
+                          {humanize(o.status)}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -390,7 +389,7 @@ export function StaffActivity() {
       )}
 
       <Dialog open={!!detailOrder} onOpenChange={(open) => !open && setDetailOrder(null)}>
-        <DialogContent>
+        <DialogContent side="right">
           <DialogHeader>
             <DialogTitle>
               Order {detailOrder ? formatOrderNumber(detailOrder) : ""}

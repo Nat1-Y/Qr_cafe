@@ -40,7 +40,7 @@ export const DEFAULT_STOCK_LOCATION_FORM: StockLocationFormData = {
 
 export const LOCATION_TYPE_OPTIONS: Array<{ value: StockLocationType; label: string }> = [
   { value: 'storage', label: 'Storage' },
-  { value: 'prep_station', label: 'Prep Station' },
+  { value: 'prep_station', label: 'Prep station' },
   { value: 'retail', label: 'Retail' },
   { value: 'cold_storage', label: 'Cold Storage' },
 ];

@@ -47,6 +47,7 @@ import {
 import { formatETB } from '@/lib/format';
 import StatsCard from '@/components/common/StatsCard';
 import PageHeader from '@/components/layout/PageHeader';
+import StatusBadge from '@/components/common/StatusBadge';
 
 const birr = formatETB;
 
@@ -60,12 +61,6 @@ const shortDate = (value: string | null | undefined) => {
     hour: '2-digit',
     minute: '2-digit',
   });
-};
-
-const deliveryStatusVariant = (s: string): 'success' | 'warning' | 'destructive' => {
-  if (s === 'delivered') return 'success';
-  if (s === 'cancelled') return 'destructive';
-  return 'warning';
 };
 
 // Small icon+label heading used to separate the Manage dialog's
@@ -221,9 +216,7 @@ function ManageDeliveryDialog({
         <DialogHeader>
           <DialogTitle className="flex flex-wrap items-center gap-2">
             {formatOrderNumber(order)}
-            <Badge variant={deliveryStatusVariant(order.delivery.status)} className="capitalize">
-              {order.delivery.status}
-            </Badge>
+            <StatusBadge kind="delivery" status={order.delivery.status} />
           </DialogTitle>
           <DialogDescription>{order.delivery.method_name || 'Delivery'} order</DialogDescription>
         </DialogHeader>
@@ -693,7 +686,7 @@ const DeliveryManagement: React.FC = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
           >
-            <option value="">Status: all</option>
+            <option value="">Status: All</option>
             <option value="pending">Pending</option>
             <option value="delivered">Delivered</option>
             <option value="cancelled">Cancelled</option>
@@ -703,7 +696,7 @@ const DeliveryManagement: React.FC = () => {
             onChange={(e) => setPaymentFilter(e.target.value)}
             className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
           >
-            <option value="">Payment: all</option>
+            <option value="">Payment: All</option>
             <option value="paid">Paid</option>
             <option value="unpaid">Unpaid</option>
           </select>
@@ -713,7 +706,7 @@ const DeliveryManagement: React.FC = () => {
               onChange={(e) => setMethodFilter(e.target.value)}
               className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
             >
-              <option value="">Method: all</option>
+              <option value="">Method: All</option>
               {methodOptions.map((m) => (
                 <option key={m.value} value={m.value}>{m.label}</option>
               ))}
@@ -725,7 +718,7 @@ const DeliveryManagement: React.FC = () => {
               onChange={(e) => setCourierFilter(e.target.value)}
               className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
             >
-              <option value="">Courier: all</option>
+              <option value="">Courier: All</option>
               {courierOptions.map((c) => (
                 <option key={c.value} value={c.value}>{c.label}</option>
               ))}
@@ -785,7 +778,7 @@ const DeliveryManagement: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={deliveryStatusVariant(o.delivery?.status)}>{o.delivery?.status}</Badge>
+                      <StatusBadge kind="delivery" status={o.delivery?.status} />
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">

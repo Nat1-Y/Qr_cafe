@@ -76,18 +76,14 @@ export const OrdersList: React.FC<OrdersListProps> = ({
             return (
               <TableRow
                 key={order.id}
-                className={`transition-colors ${order.status === 'done' ? 'bg-success-soft' :
-                  order.status === 'pending' ? 'bg-warning-soft' : ''
-                  } hover:bg-muted/50`}
+                className="cursor-pointer"
                 onClick={() => setSelectedOrder(order)}
               >
                 <TableCell className="font-medium">{formatOrderNumber(order)}</TableCell>
 
                 <TableCell>
                   {order.table_number ? (
-                    <Badge className="bg-info-soft text-info border border-info/30 hover:bg-info-soft">
-                      #{order.table_number}
-                    </Badge>
+                    <span className="font-medium text-foreground">Table {order.table_number}</span>
                   ) : (
                     <span className="text-muted-foreground text-sm">None selected</span>
                   )}

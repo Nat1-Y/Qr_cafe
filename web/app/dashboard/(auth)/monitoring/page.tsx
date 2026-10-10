@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/chart";
 import { DateFilterBar } from "@/components/date-filter-bar";
 import { apiFetch } from "@/lib/api";
-import { formatETB } from "@/lib/format";
+import { formatETB, humanize } from "@/lib/format";
 
 type BusinessRow = { id: string; name: string };
 type BranchOption = { id: string; name: string };
@@ -452,7 +452,7 @@ export default function MonitoringPage() {
                           className="size-2.5 rounded-full"
                           style={{ background: statusColor(s.status) }}
                         />
-                        <span className="capitalize">{s.status}</span>
+                        <span>{humanize(s.status)}</span>
                       </span>
                       <span className="text-muted-foreground font-mono tabular-nums">
                         {s.orders.toLocaleString()} ·{" "}
@@ -522,38 +522,31 @@ export default function MonitoringPage() {
   );
 }
 
+// KPI card: muted label, big number. The icon prop is accepted but not shown.
 function StatCard({
   label,
   value,
   sub,
-  icon: Icon,
   loading,
 }: {
   label: string;
   value: string;
   sub?: string;
-  icon: typeof StoreIcon;
+  icon?: typeof StoreIcon;
   loading?: boolean;
 }) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-muted-foreground">
-          {label}
-        </CardTitle>
-        <Icon className="text-muted-foreground size-4" />
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <Skeleton className="h-8 w-24" />
-        ) : (
-          <>
-            <div className="text-2xl font-semibold">{value}</div>
-            {sub && <p className="text-muted-foreground mt-1 text-xs">{sub}</p>}
-          </>
-        )}
-      </CardContent>
-    </Card>
+    <div className="min-w-0 rounded-card border border-border bg-card px-5 py-4">
+      <p className="truncate text-meta text-muted-foreground">{label}</p>
+      {loading ? (
+        <Skeleton className="mt-2 h-8 w-24" />
+      ) : (
+        <>
+          <p className="mt-1 text-kpi leading-tight break-words text-foreground">{value}</p>
+          {sub && <p className="mt-0.5 truncate text-meta text-muted-foreground">{sub}</p>}
+        </>
+      )}
+    </div>
   );
 }
 

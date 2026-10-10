@@ -37,6 +37,7 @@ import { Organizations, Orders } from "@/lib/resources";
 import { getUser } from "@/lib/auth";
 import { isAllAccessRole } from "@/lib/permissions";
 import { formatETB, shortDate } from "@/lib/format";
+import { StatusBadge } from "@/components/status-badge";
 
 /** An order still owes money unless it's cancelled or already paid. */
 function isOrderUnpaid(order: any) {
@@ -234,7 +235,7 @@ export default function OrganizationDetailPage() {
                           <TableCell>
                             <OrgCustomerCell order={o} />
                           </TableCell>
-                          <TableCell className="capitalize">{o.status ?? "—"}</TableCell>
+                          <TableCell>{o.status ? <StatusBadge kind="order" status={o.status} /> : "—"}</TableCell>
                           <TableCell>{formatETB(o.total_amount)}</TableCell>
                           <TableCell className="text-muted-foreground">
                             {shortDate(o.created_at)}

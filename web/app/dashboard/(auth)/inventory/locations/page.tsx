@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { ResourceManager, type Column } from "@/components/resource-manager";
 import { StockLocations } from "@/lib/resources";
+import { humanize } from "@/lib/format";
 
 type Loc = {
   id: string;
@@ -15,7 +16,7 @@ type Loc = {
 const columns: Column<Loc>[] = [
   { key: "name", label: "Name", render: (r) => <span className="font-medium">{r.name}</span> },
   { key: "slug", label: "Slug", className: "text-muted-foreground" },
-  { key: "location_type", label: "Type", render: (r) => <span className="capitalize">{r.location_type}</span> },
+  { key: "location_type", label: "Type", render: (r) => <span>{humanize(r.location_type)}</span> },
   {
     key: "is_default",
     label: "Default",
@@ -26,7 +27,7 @@ const columns: Column<Loc>[] = [
 export default function StockLocationsPage() {
   return (
     <ResourceManager<Loc>
-      title="Stock Locations"
+      title="Stock locations"
       description="Where inventory is held for this branch."
       createLabel="New location"
       columns={columns}

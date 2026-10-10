@@ -9,7 +9,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { formatETB } from "@/lib/format";
+import { formatETB, humanize } from "@/lib/format";
 import type { RevenueTrendPoint } from "@/lib/reports";
 
 const chartConfig = {
@@ -56,7 +56,7 @@ export function RevenueTrend({ points }: { points: RevenueTrendPoint[] }) {
                   <ChartTooltipContent
                     formatter={(value, name) => (
                       <div className="flex w-full items-center justify-between gap-4">
-                        <span className="text-muted-foreground capitalize">{name}</span>
+                        <span className="text-muted-foreground">{humanize(String(name))}</span>
                         <span className="text-foreground font-mono font-medium tabular-nums">
                           {name === "revenue" ? formatETB(Number(value)) : Number(value).toLocaleString()}
                         </span>

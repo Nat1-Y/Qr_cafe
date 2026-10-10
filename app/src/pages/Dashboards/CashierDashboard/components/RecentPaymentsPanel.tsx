@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import StatusBadge from '@/components/common/StatusBadge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { uuidToDisplayId, getOrderPlacerLabel, getOrderCreator } from '@/lib/utils';
+import { humanize } from '@/lib/format';
 
 interface RecentPaymentsPanelProps {
   payments: any[];
@@ -99,7 +100,7 @@ export const RecentPaymentsPanel: React.FC<RecentPaymentsPanelProps> = ({
             const unitAmount = getPaymentAmountForSelection(payment, businessUnit, selectedMenuItemId);
             const needsDetails = !(businessUnit === 'all' && selectedMenuItemId === 'all');
             const hasDetails = !needsDetails || (orderId == null ? false : !!linkedOrder);
-            const method = String(payment.payment_method || 'unknown').replace('_', ' ');
+            const method = String(payment.payment_method || 'unknown');
             const expanded = expandedPaymentIds.has(payment.id);
 
             return (
@@ -113,7 +114,7 @@ export const RecentPaymentsPanel: React.FC<RecentPaymentsPanelProps> = ({
                   >
                     <p className="flex items-center gap-1 font-semibold text-foreground">
                       {orderLabel}
-                      <span className="font-normal capitalize text-muted-foreground">· {method}</span>
+                      <span className="font-normal text-muted-foreground">· {humanize(method)}</span>
                       {expanded ? (
                         <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
                       ) : (

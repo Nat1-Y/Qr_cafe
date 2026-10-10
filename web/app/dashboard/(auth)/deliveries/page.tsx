@@ -40,6 +40,7 @@ import {
 } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
 import { StatCards, type StatCard } from "@/components/stat-cards";
+import { StatusBadge } from "@/components/status-badge";
 import { Deliveries, Settings } from "@/lib/resources";
 import { formatETB, shortDate } from "@/lib/format";
 import { formatOrderNumber } from "@/lib/utils";
@@ -118,12 +119,6 @@ function SectionLabel({
     </div>
   );
 }
-
-const deliveryStatusVariant = (s: string): "success" | "warning" | "destructive" => {
-  if (s === "delivered") return "success";
-  if (s === "cancelled") return "destructive";
-  return "warning";
-};
 
 function ManageDeliveryDialog({
   order,
@@ -243,9 +238,7 @@ function ManageDeliveryDialog({
         <DialogHeader>
           <DialogTitle className="flex flex-wrap items-center gap-2">
             {formatOrderNumber(order)}
-            <Badge variant={deliveryStatusVariant(order.delivery.status)} className="capitalize">
-              {order.delivery.status}
-            </Badge>
+            <StatusBadge kind="delivery" status={order.delivery.status} />
           </DialogTitle>
           <DialogDescription>{order.delivery.method_name || "Delivery"} order</DialogDescription>
         </DialogHeader>
@@ -898,7 +891,7 @@ export default function DeliveriesPage() {
         key: "status",
         label: "Status",
         render: (r) => (
-          <Badge variant={deliveryStatusVariant(r.delivery.status)}>{r.delivery.status}</Badge>
+          <StatusBadge kind="delivery" status={r.delivery.status} />
         ),
       },
       {
@@ -1021,7 +1014,7 @@ export default function DeliveriesPage() {
         description="Orders placed through a delivery method, tracked separately from dine-in/take-away."
       />
 
-      <StatCards cards={statCards} loading={loading} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6" />
+      <StatCards cards={statCards} loading={loading} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6" />
 
       <DataTable<DeliveryOrder>
         columns={columns}

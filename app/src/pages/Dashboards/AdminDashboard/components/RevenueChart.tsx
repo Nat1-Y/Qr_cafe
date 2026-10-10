@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatETB } from '@/lib/format';
+import type { PaymentRow } from '@/types/display.types';
 
 interface RevenueChartProps {
   /** Paid payments already filtered to the dashboard's range and unit. */
-  payments: any[];
-  getPaymentAmount: (payment: any) => number;
+  payments: PaymentRow[];
+  getPaymentAmount: (payment: PaymentRow) => number;
   /** Hourly buckets for a single day, daily buckets otherwise. */
   byHour: boolean;
 }
@@ -19,7 +20,7 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ payments, getPayment
     const map = new Map<string, number>();
     let sum = 0;
     for (const p of payments) {
-      const d = new Date(p?.created_at);
+      const d = new Date(p?.created_at ?? '');
       if (Number.isNaN(d.getTime())) continue;
       const amount = Number(getPaymentAmount(p)) || 0;
       sum += amount;

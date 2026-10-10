@@ -459,7 +459,7 @@ export default function MenuPage() {
                       }
                     }}
                     maxLength={100}
-                    placeholder="e.g. no sugar, extra hot"
+                    placeholder="e.g. No sugar, extra hot"
                   />
                   <Button type="button" variant="outline" onClick={addPredefinedNote}>
                     Add

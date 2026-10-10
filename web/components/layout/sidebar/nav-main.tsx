@@ -103,19 +103,19 @@ const ownerNav: NavGroup[] = [
       { title: "Orders", href: "/dashboard/orders", icon: ReceiptTextIcon, resource: "orders" },
       { title: "Deliveries", href: "/dashboard/deliveries", icon: BikeIcon, resource: "deliveries" },
       { title: "Payments", href: "/dashboard/payments", icon: CreditCardIcon, resource: "payments" },
-      { title: "Items Sold", href: "/dashboard/payments/items", icon: CoffeeIcon, resource: "items_sold" },
+      { title: "Items sold", href: "/dashboard/payments/items", icon: CoffeeIcon, resource: "items_sold" },
       { title: "Tables", href: "/dashboard/tables", icon: ArmchairIcon, resource: "tables" }
     ]
   },
   {
-    title: "Catalog & Inventory",
+    title: "Catalog & inventory",
     items: [
       { title: "Menu", href: "/dashboard/menu", icon: UtensilsCrossedIcon, resource: "menu" },
       { title: "Inventory", href: "/dashboard/inventory", icon: BoxesIcon, resource: "inventory" },
-      { title: "Stock Locations", href: "/dashboard/inventory/locations", icon: WarehouseIcon, resource: "stock_locations" },
+      { title: "Stock locations", href: "/dashboard/inventory/locations", icon: WarehouseIcon, resource: "stock_locations" },
       { title: "Transfers", href: "/dashboard/inventory/transfers", icon: ArrowLeftRightIcon, resource: "transfers" },
       { title: "Ledger", href: "/dashboard/inventory/ledger", icon: ScrollTextIcon, resource: "inventory" },
-      { title: "Item Links", href: "/dashboard/inventory/links", icon: Link2Icon, resource: "inventory" }
+      { title: "Item links", href: "/dashboard/inventory/links", icon: Link2Icon, resource: "inventory" }
     ]
   },
   {
@@ -135,10 +135,10 @@ const ownerNav: NavGroup[] = [
   {
     title: "Settings",
     items: [
-      { title: "All Settings", href: "/dashboard/settings", icon: SettingsIcon, resource: "settings" },
-      { title: "Order Rules", href: "/dashboard/settings/preferences", icon: SlidersHorizontalIcon, resource: "settings" },
-      { title: "Payment Methods", href: "/dashboard/settings/payment-methods", icon: WalletCardsIcon, resource: "payment_methods" },
-      { title: "Delivery Methods", href: "/dashboard/settings/delivery-methods", icon: BikeIcon, resource: "delivery_methods" },
+      { title: "All settings", href: "/dashboard/settings", icon: SettingsIcon, resource: "settings" },
+      { title: "Order rules", href: "/dashboard/settings/preferences", icon: SlidersHorizontalIcon, resource: "settings" },
+      { title: "Payment methods", href: "/dashboard/settings/payment-methods", icon: WalletCardsIcon, resource: "payment_methods" },
+      { title: "Delivery methods", href: "/dashboard/settings/delivery-methods", icon: BikeIcon, resource: "delivery_methods" },
       { title: "Couriers", href: "/dashboard/settings/couriers", icon: ContactIcon, resource: "couriers" },
       { title: "Roles", href: "/dashboard/settings/roles", icon: ShieldIcon, resource: "roles" },
       { title: "Devices", href: "/dashboard/settings/devices", icon: MonitorSmartphoneIcon, resource: "devices" }
@@ -164,7 +164,7 @@ function filterNavByPermissions(groups: NavGroup[]): NavGroup[] {
 // The F&B manager keeps a dedicated overview landing page; it's prepended to the
 // permission-filtered nav when present so they still get their branch snapshot.
 const fbOverviewGroup: NavGroup = {
-  title: "Food & Beverage",
+  title: "Food & beverage",
   items: [{ title: "F&B Overview", href: "/dashboard/fb", icon: GaugeIcon }],
 };
 

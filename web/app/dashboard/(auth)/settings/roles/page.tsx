@@ -181,7 +181,7 @@ export default function RolesPermissionsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Roles & permissions"
-        description="Choose what each role can see and do. owners and platform admins always have full access."
+        description="Choose what each role can see and do. Owners and platform admins always have full access."
         action={
           <Button onClick={save} disabled={saving || loading} size="sm">
             <SaveIcon />

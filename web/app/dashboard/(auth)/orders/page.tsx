@@ -28,9 +28,9 @@ import {
 import { DataTable, type Column, type SortState } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
 import { Orders, Payments, Settings } from "@/lib/resources";
-import { getUser } from "@/lib/auth";
+import { getUser, roleLabel } from "@/lib/auth";
 import { can } from "@/lib/permissions";
-import { formatETB, shortDate } from "@/lib/format";
+import { formatETB, shortDate, humanize } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { formatOrderNumber } from "@/lib/utils";
 
@@ -244,8 +244,7 @@ export default function OrdersPage() {
     {
       key: "type",
       label: "Type",
-      className: "capitalize",
-      render: (o) => o.type ?? "—",
+      render: (o) => humanize(o.type),
     },
     {
       key: "table_number",
@@ -471,7 +470,7 @@ export default function OrdersPage() {
       </Dialog>
 
       <Dialog open={!!viewing} onOpenChange={(v) => !v && setViewing(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent side="right">
           <DialogHeader>
             <DialogTitle>
               Order {viewing ? formatOrderNumber(viewing) : ""}
@@ -484,8 +483,8 @@ export default function OrdersPage() {
                 <dd className="text-right font-medium">
                   {viewing.employee_name ?? "—"}
                   {viewing.employee_role && (
-                    <span className="text-muted-foreground ml-1 capitalize font-normal">
-                      ({viewing.employee_role.replace(/_/g, " ")})
+                    <span className="text-muted-foreground ml-1 font-normal">
+                      ({roleLabel(viewing.employee_role)})
                     </span>
                   )}
                 </dd>
@@ -504,16 +503,16 @@ export default function OrdersPage() {
                     : "—"}
                 </dd>
                 <dt className="text-muted-foreground">Type</dt>
-                <dd className="text-right font-medium capitalize">
-                  {viewing.type ?? "—"}
+                <dd className="text-right font-medium">
+                  {humanize(viewing.type)}
                 </dd>
                 <dt className="text-muted-foreground">Status</dt>
-                <dd className="text-right font-medium capitalize">
-                  {viewing.status}
+                <dd className="text-right font-medium">
+                  <StatusBadge kind="order" status={viewing.status} />
                 </dd>
                 <dt className="text-muted-foreground">Payment</dt>
-                <dd className="text-right font-medium capitalize">
-                  {viewing.payment_status ?? "unpaid"}
+                <dd className="text-right font-medium">
+                  {humanize(viewing.payment_status ?? "unpaid")}
                 </dd>
                 <dt className="text-muted-foreground">Created</dt>
                 <dd className="text-right font-medium">

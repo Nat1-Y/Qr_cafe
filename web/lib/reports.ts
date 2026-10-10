@@ -653,8 +653,8 @@ export interface PeriodStats {
 
 export const PERIOD_LABELS: Record<StatsPeriod, string> = {
   today: "Today",
-  month: "This Month",
-  year: "This Year",
+  month: "This month",
+  year: "This year",
 };
 
 export const getPeriodRange = (period: StatsPeriod, now: Date = new Date()) => {

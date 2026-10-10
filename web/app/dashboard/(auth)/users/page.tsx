@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { DataTable, type Column } from "@/components/data-table";
 import { apiFetch } from "@/lib/api";
+import { roleLabel } from "@/lib/auth";
 
 type User = {
   id: string;
@@ -216,8 +217,8 @@ export default function PlatformUsersPage() {
       key: "role",
       label: "Role",
       render: (r) => (
-        <Badge variant="muted" className="capitalize">
-          {r.role}
+        <Badge variant="muted">
+          {roleLabel(r.role)}
         </Badge>
       ),
     },
@@ -379,7 +380,7 @@ export default function PlatformUsersPage() {
               <Input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="e.g. abel tesfaye"
+                placeholder="e.g. Abel Tesfaye"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">

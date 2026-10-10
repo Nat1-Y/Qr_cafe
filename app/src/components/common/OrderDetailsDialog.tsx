@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import api from '@/application';
 import { formatOrderNumber } from '@/lib/utils';
-import { formatETB } from '@/lib/format';
+import { formatETB, humanize } from '@/lib/format';
 
 export interface OrderDetailsDialogProps {
   order: any | null;
@@ -117,7 +117,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+      <DialogContent side="right">
         <DialogHeader>
           <DialogTitle>Order details {formatOrderNumber(order)}</DialogTitle>
         </DialogHeader>
@@ -133,7 +133,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
             </div>
             {order.created_by_id && order.created_by_id !== (order.waiter_id || order.employee_id) && (
               <div>
-                <span className="text-muted-foreground block text-xs">Cashier / Created By</span>
+                <span className="text-muted-foreground block text-xs">Cashier / created by</span>
                 <span className="font-medium">{usersMap?.[order.created_by_id]?.name || 'Unknown'}</span>
               </div>
             )}
@@ -145,7 +145,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
             )}
             <div>
                 <span className="text-muted-foreground block text-xs">Type</span>
-                <span className="font-medium capitalize">{order.type}</span>
+                <span className="font-medium">{humanize(order.type)}</span>
             </div>
           </div>
           <div className="rounded-md border p-4 space-y-4">
@@ -191,7 +191,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
             ))}
 
             <div className="pt-4 border-t flex justify-between items-center font-semibold">
-              <span>Total Amount</span>
+              <span>Total amount</span>
               <span className="text-primary">{formatETB(parseFloat(order.total_amount || 0))}</span>
             </div>
           </div>

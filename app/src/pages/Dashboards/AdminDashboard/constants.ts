@@ -2,7 +2,7 @@ export const ADMIN_DASHBOARD_CACHE_KEY = "admin_dashboard_v1";
 export const ADMIN_DASHBOARD_CACHE_TTL_MS = 5 * 60 * 1000;
 
 export const BUSINESS_UNITS = [
-  { value: "all", label: "All Units" },
+  { value: "all", label: "All units" },
   { value: "restaurant", label: "Restaurant" },
   { value: "cafe", label: "Cafe" },
   { value: "barista", label: "Barista" },

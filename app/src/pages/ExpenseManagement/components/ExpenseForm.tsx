@@ -37,7 +37,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
     <Card className="lg:col-span-1 h-fit">
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <div>
-          <CardTitle>{isEditMode ? 'Edit Expense Entry' : 'New Expense Entry'}</CardTitle>
+          <CardTitle>{isEditMode ? 'Edit expense' : 'New expense'}</CardTitle>
           <CardDescription>Enter details of the outgoing spend</CardDescription>
         </div>
         {isEditMode && (
@@ -54,7 +54,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
               name="title"
               value={formData.title}
               onChange={onFormChange}
-              placeholder="e.g. monthly electricity bill"
+              placeholder="e.g. Monthly electricity bill"
               required
             />
           </div>
@@ -69,7 +69,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Amount (birr) *</Label>
+              <Label>Amount (ETB) *</Label>
               <Input
                 name="amount"
                 type="number"
@@ -89,7 +89,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 name="paid_to"
                 value={formData.paid_to}
                 onChange={onFormChange}
-                placeholder="e.g. supplier, EEU"
+                placeholder="e.g. Supplier, EEU"
                 required
               />
             </div>

@@ -148,7 +148,7 @@ export default function ItemLinksPage() {
     <div className="space-y-6">
       <PageHeader
         title="Item links"
-        description="One-to-many transfer relations: a linked item is received as its target item, increasing the target's stock at the destination. several items can share one target; unlinked items transfer as themselves."
+        description="One-to-many transfer relations: a linked item is received as its target item, increasing the target's stock at the destination. Several items can share one target; unlinked items transfer as themselves."
         action={
           <Button onClick={() => setOpen(true)}>
             <PlusIcon />

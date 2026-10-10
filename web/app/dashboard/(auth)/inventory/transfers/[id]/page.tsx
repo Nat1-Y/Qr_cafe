@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/page-header";
 import { Inventory } from "@/lib/resources";
-import { shortDate } from "@/lib/format";
+import { shortDate, humanize } from "@/lib/format";
 
 type TransferItem = {
   id: string;
@@ -172,7 +172,7 @@ export default function TransferDetailPage({
                   {transfer.to_location_name ?? "—"}
                 </span>
                 <Badge variant={STATUS_BADGE[transfer.status] ?? "muted"}>
-                  {STATUS_LABEL[transfer.status] ?? transfer.status}
+                  {STATUS_LABEL[transfer.status] ?? humanize(transfer.status)}
                 </Badge>
               </CardTitle>
             </CardHeader>

@@ -174,7 +174,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
 
           {/* ── Add item row ── */}
           <div className="rounded-lg border border-dashed border-muted-foreground/40 bg-muted/20 p-3 space-y-3">
-            <p className="text-xs font-medium text-muted-foreground">Add Items to Transfer</p>
+            <p className="text-xs font-medium text-muted-foreground">Add items to transfer</p>
 
             <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-end">
               {/* Item selector */}

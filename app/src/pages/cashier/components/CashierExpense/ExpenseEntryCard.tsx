@@ -39,7 +39,7 @@ export const ExpenseEntryCard: React.FC<ExpenseEntryCardProps> = ({
         <div className="flex flex-col sm:flex-row gap-3 border-t pt-4">
           <Button type="button" onClick={onSubmit} disabled={saving}>
             <Save />
-            {saving ? 'Saving...' : 'Submit Expenses'}
+            {saving ? 'Saving...' : 'Save expenses'}
           </Button>
         </div>
       </CardContent>

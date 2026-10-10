@@ -32,7 +32,7 @@ export function StatCards({
             <Skeleton className="mt-2 h-8 w-24" />
           ) : (
             <>
-              <p className={cn("mt-1 truncate text-kpi text-foreground", c.valueClass)}>{c.value}</p>
+              <p className={cn("mt-1 text-kpi leading-tight text-foreground break-words", c.valueClass)}>{c.value}</p>
               {c.hint && <p className="mt-0.5 truncate text-meta text-muted-foreground">{c.hint}</p>}
             </>
           )}

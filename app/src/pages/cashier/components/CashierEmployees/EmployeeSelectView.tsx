@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SearchInput } from '@/components/ui/input';
+import { humanize } from '@/lib/format';
 
 interface Employee {
   id: number;
@@ -77,8 +78,8 @@ export const EmployeeSelectView: React.FC<EmployeeSelectViewProps> = ({
                           e.is_active ? 'bg-success' : 'bg-muted-foreground'
                         }`}
                       />
-                      <span className="truncate text-xs capitalize text-muted-foreground">
-                        {e.role.replace('_', ' ')}
+                      <span className="truncate text-xs text-muted-foreground">
+                        {humanize(e.role)}
                       </span>
                     </div>
                   </div>

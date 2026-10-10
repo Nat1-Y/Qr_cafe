@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { NormalizedInventoryItem, StockLocation, StockTransfer, InventoryMovement } from '../types';
 import api from '@/application';
+import { humanize } from '@/lib/format';
 
 interface StockLocationsTabProps {
   items: NormalizedInventoryItem[];
@@ -332,7 +333,7 @@ const TransferHistoryPanel: React.FC<{
                   </TableCell>
                   {row.isFirstItem ? (
                     <TableCell rowSpan={row.itemSpan}>
-                      <Badge variant={statusVariant as any} className="capitalize">{row.transfer.status}</Badge>
+                      <Badge variant={statusVariant as any} >{humanize(row.transfer.status)}</Badge>
                     </TableCell>
                   ) : null}
                   {row.isFirstItem ? (
@@ -653,7 +654,7 @@ export const StockLocationsTab: React.FC<StockLocationsTabProps> = ({
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-2 text-primary mb-1">
               <Package2 className="h-4 w-4" />
-              <span className="text-xs font-medium">Items Tracked</span>
+              <span className="text-xs font-medium">Items tracked</span>
             </div>
             <p className="text-2xl font-semibold">{totalItems}</p>
           </CardContent>
@@ -671,7 +672,7 @@ export const StockLocationsTab: React.FC<StockLocationsTabProps> = ({
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-2 text-warning mb-1">
               <History className="h-4 w-4" />
-              <span className="text-xs font-medium">Pending Transfers</span>
+              <span className="text-xs font-medium">Pending transfers</span>
             </div>
             <p className="text-2xl font-semibold">{pendingTransfers}</p>
           </CardContent>

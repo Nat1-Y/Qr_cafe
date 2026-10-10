@@ -31,7 +31,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import StatsCard from "@/components/waiter/StatsCard";
-import { formatETB } from "@/lib/format";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { formatETB, humanize } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { StatusBadge } from "@/components/status-badge";
 import { useCashierAuth } from "@/components/cashier/auth-context";
 import { cashierServices } from "@/lib/cashier/api";
@@ -166,6 +168,8 @@ export default function CashierQueuePage() {
 
   const [confirmTarget, setConfirmTarget] = useState<ConfirmTarget | null>(null);
   const [confirmMethod, setConfirmMethod] = useState("cash");
+  // On wide screens the charge panel is docked beside the queue; below that it opens as a dialog.
+  const isWide = useMediaQuery("(min-width: 1024px)");
   // True from the instant a confirm is submitted until it settles — blocks a
   // second click from firing a duplicate payment within the same render tick.
   const submittingRef = useRef(false);
@@ -606,6 +610,55 @@ export default function CashierQueuePage() {
 
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
+  const confirmKey = confirmTarget
+    ? confirmTarget.kind === "department"
+      ? `${confirmTarget.order.id}:${confirmTarget.due.department}`
+      : confirmTarget.order.id
+    : null;
+  const confirmTitle = confirmTarget
+    ? `#${confirmTarget.order.order_number ?? ""}${confirmTarget.order.table_number != null ? ` · Table ${confirmTarget.order.table_number}` : ""}`
+    : "";
+  const confirmHint =
+    confirmTarget?.kind === "department"
+      ? `${prettyDept(confirmTarget.due.department, deptLabels)} only. Pick how the guest paid.`
+      : "Pick how the guest paid, then charge.";
+  // Receipt-style body shared by the docked panel and the dialog.
+  const chargeBody = confirmTarget ? (
+    <div className="space-y-5">
+      <ItemLines
+        items={
+          confirmTarget.kind === "department"
+            ? itemsForDept(confirmTarget.order, confirmTarget.due.department)
+            : confirmTarget.order.items ?? []
+        }
+      />
+      <div className="flex items-baseline justify-between border-t border-dashed border-border pt-4">
+        <span className="text-base font-semibold text-foreground">Total</span>
+        <span className="text-kpi text-foreground">
+          {formatCurrency(
+            confirmTarget.kind === "department" ? confirmTarget.due.subtotal : confirmTarget.order.total_amount,
+          )}
+        </span>
+      </div>
+      <div>
+        <p className="mb-2 text-sm font-medium text-foreground">Paid with</p>
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Payment method">
+          {PAYMENT_METHODS.map((m) => (
+            <Button
+              key={m.value}
+              type="button"
+              role="radio"
+              aria-checked={confirmMethod === m.value}
+              variant={confirmMethod === m.value ? "selected" : "outline"}
+              onClick={() => setConfirmMethod(m.value)}>
+              {m.label}
+            </Button>
+          ))}
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-8">
       {/* Header row: who is on the till, where to go */}
@@ -672,10 +725,10 @@ export default function CashierQueuePage() {
               onClick={() => setRange(r)}
               className={
                 range === r
-                  ? "h-8 rounded-full bg-highlight px-4 text-sm font-semibold capitalize text-highlight-foreground"
-                  : "h-8 rounded-full px-4 text-sm font-semibold capitalize text-muted-foreground hover:text-foreground"
+                  ? "h-8 rounded-full bg-highlight px-4 text-sm font-semibold text-highlight-foreground"
+                  : "h-8 rounded-full px-4 text-sm font-semibold text-muted-foreground hover:text-foreground"
               }>
-              {r}
+              {r === "today" ? "Today" : "Yesterday"}
             </button>
           ))}
         </div>
@@ -686,7 +739,7 @@ export default function CashierQueuePage() {
         </div>
       </section>
 
-      {/* Live orders (60%) and recent payments (40%) */}
+      {/* Live orders (60%), current order and recent payments (40%) */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start">
         <Card className="gap-0 overflow-hidden py-0">
           <div className="space-y-3 border-b border-border px-5 py-4">
@@ -704,7 +757,7 @@ export default function CashierQueuePage() {
                 value={selectedTable == null ? "" : String(selectedTable)}
                 onChange={(e) => setSelectedTable(e.target.value ? Number(e.target.value) : null)}
                 aria-label="Filter by table"
-                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full sm:w-56">
+                className="h-10 rounded-full border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full sm:w-56">
                 <option value="">All tables</option>
                 {tableSummaries.map((t) => (
                   <option key={t.table_number} value={t.table_number}>
@@ -757,7 +810,12 @@ export default function CashierQueuePage() {
               {filteredOrders.map((order) => {
                 const dues = order.department_dues ?? [];
                 return (
-                  <li key={order.id} className="space-y-3 px-5 py-4 transition-colors hover:bg-row-hover">
+                  <li
+                    key={order.id}
+                    className={cn(
+                      "space-y-3 px-5 py-4 transition-colors hover:bg-row-hover",
+                      confirmTarget?.order.id === order.id && "bg-highlight/40 hover:bg-highlight/40",
+                    )}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="font-semibold text-foreground">
@@ -856,8 +914,41 @@ export default function CashierQueuePage() {
           )}
         </Card>
 
+        <div className="space-y-6 lg:sticky lg:top-6">
+        {/* Current order: docked on wide screens */}
+        <Card className="hidden gap-0 overflow-hidden py-0 lg:block">
+          <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
+            <div className="min-w-0">
+              <p className="eyebrow">Current order</p>
+              <h2 className="truncate text-section text-foreground">{confirmTarget ? confirmTitle : "No order picked"}</h2>
+              {confirmTarget ? <p className="text-meta text-muted-foreground">{confirmHint}</p> : null}
+            </div>
+            {confirmTarget ? (
+              <Button variant="ghost" size="icon-sm" onClick={() => setConfirmTarget(null)} aria-label="Close current order">
+                <X />
+              </Button>
+            ) : null}
+          </div>
+          {confirmTarget ? (
+            <div className="space-y-5 px-5 py-4">
+              {chargeBody}
+              <Button
+                size="charge"
+                className="w-full"
+                onClick={doConfirm}
+                disabled={!confirmKey || processing.has(confirmKey)}>
+                {confirmKey && processing.has(confirmKey) ? "Charging…" : "Charge"}
+              </Button>
+            </div>
+          ) : (
+            <p className="px-5 py-10 text-center text-sm text-muted-foreground">
+              Tap Charge on an order to settle it here.
+            </p>
+          )}
+        </Card>
+
         {/* Recent payments */}
-        <Card className="gap-0 overflow-hidden py-0 lg:sticky lg:top-6">
+        <Card className="gap-0 overflow-hidden py-0">
           <div className="border-b border-border px-5 py-4">
             <h2 className="text-section text-foreground">Recent payments</h2>
             <p className="text-meta text-muted-foreground">Taken {range === "today" ? "today" : "yesterday"}.</p>
@@ -879,8 +970,8 @@ export default function CashierQueuePage() {
                         className="min-w-0 text-left">
                         <p className="flex items-center gap-1 font-semibold text-foreground">
                           {p.order_number != null ? `#${p.order_number}` : "Payment"}
-                          <span className="font-normal capitalize text-muted-foreground">
-                            · {(p.payment_method || "—").replace("_", " ")}
+                          <span className="font-normal text-muted-foreground">
+                            · {humanize(p.payment_method)}
                           </span>
                           {open ? (
                             <ChevronUp className="size-3.5 text-muted-foreground" />
@@ -924,76 +1015,23 @@ export default function CashierQueuePage() {
             </ul>
           )}
         </Card>
+        </div>
       </div>
 
-      {/* Confirm payment modal */}
-      <Dialog open={!!confirmTarget} onOpenChange={(o) => !o && setConfirmTarget(null)}>
+      {/* Confirm payment modal (narrow screens) */}
+      <Dialog open={!!confirmTarget && !isWide} onOpenChange={(o) => !o && setConfirmTarget(null)}>
         <DialogContent>
           <DialogHeader>
             <p className="eyebrow">Current order</p>
-            <DialogTitle className="text-[22px] leading-tight">
-              {confirmTarget
-                ? `#${confirmTarget.order.order_number ?? ""}${confirmTarget.order.table_number != null ? ` · Table ${confirmTarget.order.table_number}` : ""}`
-                : ""}
-            </DialogTitle>
-            <DialogDescription>
-              {confirmTarget?.kind === "department"
-                ? `${prettyDept(confirmTarget.due.department, deptLabels)} only. Pick how the guest paid.`
-                : "Pick how the guest paid, then charge."}
-            </DialogDescription>
+            <DialogTitle className="text-[22px] leading-tight">{confirmTitle}</DialogTitle>
+            <DialogDescription>{confirmHint}</DialogDescription>
           </DialogHeader>
-          {confirmTarget ? (
-            <div className="space-y-5">
-              <ItemLines
-                items={
-                  confirmTarget.kind === "department"
-                    ? itemsForDept(confirmTarget.order, confirmTarget.due.department)
-                    : confirmTarget.order.items ?? []
-                }
-              />
-              <div className="flex items-baseline justify-between border-t border-dashed border-border pt-4">
-                <span className="text-base font-semibold text-foreground">Total</span>
-                <span className="text-kpi text-foreground">
-                  {formatCurrency(
-                    confirmTarget.kind === "department"
-                      ? confirmTarget.due.subtotal
-                      : confirmTarget.order.total_amount,
-                  )}
-                </span>
-              </div>
-              <div>
-                <p className="mb-2 text-sm font-medium text-foreground">Paid with</p>
-                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Payment method">
-                {PAYMENT_METHODS.map((m) => (
-                  <Button
-                    key={m.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={confirmMethod === m.value}
-                    variant={confirmMethod === m.value ? "selected" : "outline"}
-                    onClick={() => setConfirmMethod(m.value)}>
-                    {m.label}
-                  </Button>
-                ))}
-              </div>
-              </div>
-            </div>
-          ) : null}
+          {chargeBody}
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmTarget(null)}>
               Cancel
             </Button>
-            <Button
-              onClick={doConfirm}
-              disabled={
-                !confirmTarget ||
-                processing.has(
-                  confirmTarget.kind === "department"
-                    ? `${confirmTarget.order.id}:${confirmTarget.due.department}`
-                    : confirmTarget.order.id,
-                )
-              }
-            >
+            <Button onClick={doConfirm} disabled={!confirmKey || processing.has(confirmKey)}>
               Charge
             </Button>
           </DialogFooter>

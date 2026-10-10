@@ -2,6 +2,8 @@ import React from 'react';
 import ConfirmCashPaymentModal from '../modals/ConfirmCashPaymentModal';
 import PaymentReportsModal from '../modals/PaymentReportsModal';
 import OperatorProfileModal from '../modals/OperatorProfileModal';
+import type { LineRow, OrderRow } from '@/types/display.types';
+import type { OrderBreakdown } from '../modals/ConfirmCashPaymentModal';
 
 interface ModalSectionProps {
   isOnline: boolean;
@@ -27,8 +29,8 @@ interface ModalSectionProps {
   onUpdateProfile: () => void;
   // Utilities
   formatCurrency: (val: any) => string;
-  getOrderUnitBreakdown?: (order: any, unit: string | null) => any;
-  getItemSubtotalBirr?: (item: any) => number;
+  getOrderUnitBreakdown?: (order: OrderRow, unit: string | null) => OrderBreakdown | null | undefined;
+  getItemSubtotalBirr?: (item: LineRow) => number;
 }
 
 export const ModalSection: React.FC<ModalSectionProps> = ({

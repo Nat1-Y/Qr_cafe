@@ -19,7 +19,7 @@ export const EmployeeManagement: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Employee management"
+        title="Employees"
         description="Orders each employee has taken."
       />
 

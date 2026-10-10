@@ -39,13 +39,13 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user, getRoleDis
 
         <div className="text-xs text-muted-foreground font-semibold space-y-1 border-t pt-4 text-left">
           <div className="flex justify-between">
-            <span>Account Status</span>
+            <span>Account status</span>
             <span className={`font-semibold ${user?.is_active ? 'text-success' : 'text-destructive'}`}>
               {user?.is_active ? 'Active' : 'Inactive'}
             </span>
           </div>
           <div className="flex justify-between">
-            <span>Member Since</span>
+            <span>Member since</span>
             <span className="font-mono">{new Date(user?.created_at || '').toLocaleDateString()}</span>
           </div>
         </div>
