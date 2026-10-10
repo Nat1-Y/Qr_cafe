@@ -82,7 +82,7 @@ export default function UpdateManager() {
           <p className="text-xs text-destructive">Update failed: {error}</p>
         ) : null}
 
-        <DialogFooter className="gap-2 sm:gap-2">
+        <DialogFooter>
           {!busy ? (
             <Button variant="outline" onClick={dismiss}>
               Later
@@ -91,15 +91,15 @@ export default function UpdateManager() {
           <Button onClick={() => void install()} disabled={busy}>
             {status === 'error' ? (
               <>
-                <RefreshCw className="h-4 w-4" /> Retry
+                <RefreshCw /> Retry
               </>
             ) : busy ? (
               <>
-                <RefreshCw className="h-4 w-4 animate-spin" /> Installing…
+                <RefreshCw className="animate-spin" /> Installing…
               </>
             ) : (
               <>
-                <Download className="h-4 w-4" /> Install &amp; restart
+                <Download /> Install &amp; restart
               </>
             )}
           </Button>

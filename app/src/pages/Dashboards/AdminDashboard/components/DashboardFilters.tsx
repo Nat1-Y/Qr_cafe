@@ -1,10 +1,10 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
+
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CheckCircle } from 'lucide-react';
+import Segmented from '@/components/common/Segmented';
 import { Badge } from '@/components/ui/badge';
 import { BUSINESS_UNITS, TIME_RANGE_OPTIONS } from '../constants';
 
@@ -46,13 +46,12 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   customRangeText
 }) => {
   return (
-    <Card>
-      <CardContent className="pt-6 space-y-4">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3">
+    <div className="space-y-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
             <Select value={businessUnit} onValueChange={setBusinessUnit}>
-              <SelectTrigger className="w-[140px] font-bold">
-                <SelectValue placeholder="All Units" />
+              <SelectTrigger className="w-[150px] rounded-full px-4">
+                <SelectValue placeholder="All units" />
               </SelectTrigger>
               <SelectContent>
                 {BUSINESS_UNITS.map((unit) => (
@@ -68,11 +67,11 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
               onValueChange={setSelectedMenuItemId}
               disabled={businessUnit === 'all'}
             >
-              <SelectTrigger className="w-[180px] font-bold">
-                <SelectValue placeholder="All Foods" />
+              <SelectTrigger className="w-[190px] rounded-full px-4">
+                <SelectValue placeholder="All foods" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Foods</SelectItem>
+                <SelectItem value="all">All foods</SelectItem>
                 {menuItems.map((it: any) => (
                   <SelectItem key={it.id} value={String(it.id)}>
                     {it.name}
@@ -82,46 +81,30 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             </Select>
           </div>
 
-          <div className="flex flex-wrap gap-1.5 border bg-muted/20 p-1 rounded-xl">
-            {TIME_RANGE_OPTIONS.map((opt) => (
-              <Button
-                key={opt.key}
-                variant={timeRange === opt.key ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setTimeRange(opt.key)}
-                className="h-8 text-xs font-bold px-3.5"
-              >
-                {opt.label}
-              </Button>
-            ))}
-          </div>
+          <Segmented
+            aria-label="Time range"
+            value={timeRange}
+            onChange={(v) => setTimeRange(v)}
+            options={TIME_RANGE_OPTIONS.map((opt) => ({ value: opt.key, label: opt.label }))}
+          />
         </div>
 
         {timeRange === 'custom' && (
-          <div className="bg-muted/30 border p-4 rounded-2xl space-y-3">
-            <div className="flex bg-muted p-1 rounded-xl w-fit">
-              <Button
-                variant={customMode === 'single' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setCustomMode('single')}
-                className="h-7 text-xs font-bold"
-              >
-                Specific Date
-              </Button>
-              <Button
-                variant={customMode === 'date_range' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setCustomMode('date_range')}
-                className="h-7 text-xs font-bold"
-              >
-                Date Range
-              </Button>
-            </div>
+          <div className="space-y-3 rounded-card border border-border bg-card p-4">
+            <Segmented
+              aria-label="Custom range"
+              value={customMode}
+              onChange={(v) => setCustomMode(v)}
+              options={[
+                { value: 'single', label: 'One day' },
+                { value: 'date_range', label: 'Date range' },
+              ]}
+            />
 
             <div className="flex flex-wrap gap-4 items-center">
               {customMode === 'single' ? (
                 <div className="space-y-1">
-                  <Label className="text-xs font-bold text-muted-foreground">Select Date</Label>
+                  <Label>Select date</Label>
                   <Input
                     type="date"
                     value={customDate}
@@ -132,7 +115,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
               ) : (
                 <div className="flex items-center gap-3">
                   <div className="space-y-1">
-                    <Label className="text-xs font-bold text-muted-foreground">Start Date</Label>
+                    <Label>Start date</Label>
                     <Input
                       type="date"
                       value={customStartDate}
@@ -140,9 +123,9 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                       className="max-w-[160px]"
                     />
                   </div>
-                  <span className="text-muted-foreground mt-6 font-bold">→</span>
+                  <span className="mt-6 text-muted-foreground">to</span>
                   <div className="space-y-1">
-                    <Label className="text-xs font-bold text-muted-foreground">End Date</Label>
+                    <Label>End date</Label>
                     <Input
                       type="date"
                       value={customEndDate}
@@ -154,15 +137,13 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
               )}
 
               {customRangeText && (
-                <Badge variant="info" className="h-fit mt-6 font-bold">
-                  <CheckCircle className="w-3.5 h-3.5 mr-1" />
-                  Viewing: {customRangeText}
+                <Badge variant="secondary" className="mt-6 h-fit">
+                  Showing {customRangeText}
                 </Badge>
               )}
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+    </div>
   );
 };

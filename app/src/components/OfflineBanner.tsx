@@ -28,14 +28,14 @@ const OfflineBanner = ({ online, message, className }: OfflineBannerProps) => {
     <div
       role="status"
       className={cn(
-        'flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200',
+        'flex items-start gap-3 rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-warning',
         className,
       )}
     >
       <WifiOff className="mt-0.5 h-5 w-5 shrink-0" />
       <div className="text-sm">
         <p className="font-medium">You're offline</p>
-        <p className="text-amber-800/90 dark:text-amber-200/80">
+        <p className="text-warning/90">
           {message ??
             'Admin changes require an internet connection. You can still view existing data — reconnect to make changes.'}
         </p>

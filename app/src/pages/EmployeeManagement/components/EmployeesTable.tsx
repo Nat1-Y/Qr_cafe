@@ -24,7 +24,7 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Employees Summary</CardTitle>
+        <CardTitle>Employees summary</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         {loading ? (
@@ -36,7 +36,7 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
             <TableHeader>
               <TableRow>
                 <TableHead>Employee</TableHead>
-                <TableHead className="text-right">Orders Total</TableHead>
+                <TableHead className="text-right">Orders total</TableHead>
                 <TableHead className="text-right">Paid</TableHead>
                 <TableHead className="text-right">Unpaid</TableHead>
               </TableRow>

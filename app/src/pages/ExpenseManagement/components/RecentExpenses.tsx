@@ -14,7 +14,7 @@ export const RecentExpenses: React.FC<RecentExpensesProps> = ({ recentExpenses }
     <Card>
       <CardHeader className="flex flex-row items-center gap-2 pb-2">
         <Clock className="h-4 w-4 text-primary" />
-        <CardTitle className="text-sm font-semibold">Recent Expenses</CardTitle>
+        <CardTitle>Recent expenses</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
@@ -24,7 +24,7 @@ export const RecentExpenses: React.FC<RecentExpensesProps> = ({ recentExpenses }
             </div>
           ) : (
             recentExpenses.map((expense) => (
-              <div key={expense.id} className="flex items-center justify-between gap-3 p-3 border rounded-xl hover:bg-muted/30 transition-colors">
+              <div key={expense.id} className="flex items-center justify-between gap-3 border-b border-border py-3 last:border-b-0">
                 <div className="min-w-0">
                   <p className="font-semibold text-sm text-foreground truncate">{expense.title}</p>
                   <p className="text-xs text-muted-foreground mt-0.5 truncate">
@@ -32,8 +32,8 @@ export const RecentExpenses: React.FC<RecentExpensesProps> = ({ recentExpenses }
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-extrabold text-sm text-destructive">{formatETB(expense.amount || expense.total)}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">{formatDateTime(expense.created_at)}</p>
+                  <p className="font-semibold text-sm text-destructive">{formatETB(expense.amount || expense.total)}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{formatDateTime(expense.created_at)}</p>
                 </div>
               </div>
             ))

@@ -52,16 +52,16 @@ export const DateFilter: React.FC<DateFilterProps> = ({ selectedDate, onDateChan
     : 'All history';
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+    <div className="rounded-card border border-border bg-card p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="rounded-lg bg-primary/10 p-1.5 text-primary">
             <Calendar className="h-4 w-4" />
           </div>
-          <h3 className="font-semibold text-sm">Date Filter</h3>
+          <h3 className="font-semibold text-sm">Date filter</h3>
         </div>
         <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-          restricted ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-muted text-muted-foreground'
+          restricted ? 'bg-warning-soft text-warning border border-warning/30' : 'bg-muted text-muted-foreground'
         }`}>
           {restricted && <Lock className="h-3 w-3" />}
           {windowLabel}
@@ -76,7 +76,7 @@ export const DateFilter: React.FC<DateFilterProps> = ({ selectedDate, onDateChan
             onClick={() => onDateChange(option.key)}
             className={`text-xs font-medium h-9 px-4 transition-all ${
               selectedDate === option.key
-                ? 'shadow-sm ring-2 ring-primary/20'
+                ? 'ring-2 ring-primary/20'
                 : 'hover:bg-muted hover:text-foreground'
             }`}
           >

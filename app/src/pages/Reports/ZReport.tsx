@@ -9,6 +9,9 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
 import { formatETB } from '@/lib/format';
 
+import StatsCard from '@/components/common/StatsCard';
+import EmptyState from '@/components/common/EmptyState';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 interface ZReportData {
   report_date: string;
   period_start: string;
@@ -99,199 +102,160 @@ const ZReport = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Z-Report</h1>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="eyebrow mb-1">End of day</p>
+          <h2 className="text-section text-foreground">Z-Report</h2>
+          {zReport && (
+            <p className="mt-1 text-sm text-muted-foreground">
+              {formatDate(zReport.period_start)} – {formatDate(zReport.period_end)} · generated {formatDate(zReport.report_date)}
+            </p>
+          )}
+        </div>
+        <div className="flex flex-wrap items-end gap-2">
+          <div className="space-y-1.5">
+            <Label>From</Label>
+            <DatePicker date={startDate} onSelect={setStartDate} placeholder="Start date" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>To</Label>
+            <DatePicker date={endDate} onSelect={setEndDate} placeholder="End date" />
+          </div>
+          <Button onClick={fetchZReport} disabled={loading}>
+            {loading ? 'Building…' : 'Build report'}
+          </Button>
+          {zReport && (
+            <Button onClick={handlePrint} variant="outline">
+              <Printer />
+              Print
+            </Button>
+          )}
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5" />
-            Date Range
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 items-end">
-            <div className="flex-1">
-              <Label>Start Date</Label>
-              <DatePicker
-                date={startDate}
-                onSelect={setStartDate}
-                placeholder="Pick start date"
-              />
-            </div>
-            <div className="flex-1">
-              <Label>End Date</Label>
-              <DatePicker
-                date={endDate}
-                onSelect={setEndDate}
-                placeholder="Pick end date"
-              />
-            </div>
-            <Button onClick={fetchZReport} disabled={loading}>
-              {loading ? 'Generating...' : 'Generate Report'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {error && (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6">
-            <p className="text-red-600">{error}</p>
-          </CardContent>
-        </Card>
+        <p className="rounded-card bg-destructive-soft px-4 py-3 text-sm text-destructive">{error}</p>
+      )}
+
+      {!zReport && !error && (
+        <EmptyState
+          className="rounded-card border border-dashed border-border"
+          title="Pick the dates, then build the report"
+          description="It totals orders, payments and staff sales for the period."
+        />
       )}
 
       {zReport && (
         <>
-          <div className="flex justify-end gap-2">
-            <Button onClick={handlePrint} variant="outline">
-              <Printer className="w-4 h-4 mr-2" />
-              Print Report
-            </Button>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <StatsCard title="Orders" value={zReport.summary.total_orders} />
+            <StatsCard title="Gross sales" value={formatCurrency(zReport.summary.gross_sales)} />
+            <StatsCard title="Refunds" value={formatCurrency(zReport.summary.refunds)} variant="destructive" />
+            <StatsCard title="Net sales" value={formatCurrency(zReport.summary.net_sales)} variant="success" />
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Total Orders</p>
-                  <p className="text-2xl font-bold">{zReport.summary.total_orders}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Gross Sales</p>
-                  <p className="text-2xl font-bold">{formatCurrency(zReport.summary.gross_sales)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Refunds</p>
-                  <p className="text-2xl font-bold text-red-600">{formatCurrency(zReport.summary.refunds)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Net Sales</p>
-                  <p className="text-2xl font-bold text-green-600">{formatCurrency(zReport.summary.net_sales)}</p>
-                </div>
-              </div>
-              <div className="mt-4 text-sm text-gray-500">
-                <p>Period: {formatDate(zReport.period_start)} - {formatDate(zReport.period_end)}</p>
-                <p>Generated: {formatDate(zReport.report_date)}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Payment Breakdown</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-2">Method</th>
-                    <th className="text-right py-2">Count</th>
-                    <th className="text-right py-2">Amount</th>
-                    <th className="text-right py-2">%</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {zReport.payment_breakdown.map((payment, idx) => (
-                    <tr key={idx} className="border-b">
-                      <td className="py-2 capitalize">{payment.method}</td>
-                      <td className="text-right py-2">{payment.count}</td>
-                      <td className="text-right py-2">{formatCurrency(payment.amount)}</td>
-                      <td className="text-right py-2">{payment.percentage.toFixed(1)}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Employee Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-2">Employee</th>
-                    <th className="text-right py-2">Orders</th>
-                    <th className="text-right py-2">Sales</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {zReport.employee_activity.map((employee, idx) => (
-                    <tr key={idx} className="border-b">
-                      <td className="py-2">{employee.employee_name}</td>
-                      <td className="text-right py-2">{employee.orders_count}</td>
-                      <td className="text-right py-2">{formatCurrency(employee.total_sales)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Category Breakdown</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-2">Category</th>
-                    <th className="text-right py-2">Count</th>
-                    <th className="text-right py-2">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {zReport.category_breakdown.map((category, idx) => (
-                    <tr key={idx} className="border-b">
-                      <td className="py-2 capitalize">{category.category}</td>
-                      <td className="text-right py-2">{category.count}</td>
-                      <td className="text-right py-2">{formatCurrency(category.amount)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
-
-          {zReport.voided_transactions.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Voided Transactions</CardTitle>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <Card className="overflow-hidden lg:col-span-2">
+              <CardHeader className="border-b border-border">
+                <CardTitle>Staff sales</CardTitle>
               </CardHeader>
-              <CardContent>
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2">Order ID</th>
-                      <th className="text-left py-2">Employee</th>
-                      <th className="text-right py-2">Amount</th>
-                      <th className="text-left py-2">Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {zReport.voided_transactions.map((txn, idx) => (
-                      <tr key={idx} className="border-b">
-                        <td className="py-2">#{txn.order_id}</td>
-                        <td className="py-2">{txn.employee_name}</td>
-                        <td className="text-right py-2 text-red-600">{formatCurrency(txn.amount)}</td>
-                        <td className="py-2">{formatDate(txn.created_at)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Employee</TableHead>
+                    <TableHead className="text-right">Orders</TableHead>
+                    <TableHead className="text-right">Sales</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {zReport.employee_activity.map((employee, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className="font-medium text-foreground">{employee.employee_name}</TableCell>
+                      <TableCell className="text-right">{employee.orders_count}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(employee.total_sales)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </Card>
-          )}
+
+            <Card className="overflow-hidden">
+              <CardHeader className="border-b border-border">
+                <CardTitle>By payment method</CardTitle>
+              </CardHeader>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Method</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead className="text-right">Share</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {zReport.payment_breakdown.map((payment, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className="capitalize text-foreground">
+                        {payment.method}
+                        <span className="block text-meta text-muted-foreground">{payment.count} payments</span>
+                      </TableCell>
+                      <TableCell className="text-right">{formatCurrency(payment.amount)}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{payment.percentage.toFixed(1)}%</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <Card className="overflow-hidden lg:col-span-2">
+              <CardHeader className="border-b border-border">
+                <CardTitle>By category</CardTitle>
+              </CardHeader>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Category</TableHead>
+                    <TableHead className="text-right">Items</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {zReport.category_breakdown.map((category, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className="capitalize text-foreground">{category.category}</TableCell>
+                      <TableCell className="text-right">{category.count}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(category.amount)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+
+            <Card className="overflow-hidden">
+              <CardHeader className="border-b border-border">
+                <CardTitle>Voided</CardTitle>
+              </CardHeader>
+              {zReport.voided_transactions.length > 0 ? (
+                <ul className="divide-y divide-border">
+                  {zReport.voided_transactions.map((txn, idx) => (
+                    <li key={idx} className="flex items-start justify-between gap-3 px-6 py-3">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-foreground">#{txn.order_id}</p>
+                        <p className="text-meta text-muted-foreground">
+                          {txn.employee_name} · {formatDate(txn.created_at)}
+                        </p>
+                      </div>
+                      <span className="shrink-0 text-sm text-destructive">{formatCurrency(txn.amount)}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="px-6 py-10 text-center text-sm text-muted-foreground">Nothing voided.</p>
+              )}
+            </Card>
+          </div>
         </>
       )}
     </div>

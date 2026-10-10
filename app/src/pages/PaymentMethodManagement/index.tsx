@@ -30,7 +30,7 @@ export const PaymentMethodManagement: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Payment Methods"
+        title="Payment methods"
         description="Manage the payment methods displayed at checkout"
         actions={
           <div className="flex items-center gap-2">
@@ -39,8 +39,8 @@ export const PaymentMethodManagement: React.FC = () => {
               Refresh
             </Button>
             <Button onClick={openAdd} disabled={!online}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Method
+              <Plus />
+              Add method
             </Button>
           </div>
         }

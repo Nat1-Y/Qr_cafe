@@ -123,7 +123,7 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ onEnrolled }) => {
               if (error) setError(null);
             }}
             placeholder="A1B2C3D4E5F6"
-            className="h-12 text-center text-lg font-semibold tracking-[0.2em]"
+            className="h-12 text-center text-lg"
             disabled={!isOnline || submitting}
             aria-invalid={!!error}
           />
@@ -139,7 +139,7 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ onEnrolled }) => {
             autoComplete="off"
             value={deviceName}
             onChange={(e) => setDeviceName(e.target.value)}
-            placeholder="e.g. Front counter"
+            placeholder="e.g. front counter"
             className="h-11"
             disabled={!isOnline || submitting}
           />
@@ -155,7 +155,7 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ onEnrolled }) => {
         >
           {submitting ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="animate-spin" />
               Enrolling…
             </>
           ) : (

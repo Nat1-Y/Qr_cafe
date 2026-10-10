@@ -1,6 +1,7 @@
 import { formatOrderNumber } from "@/lib/utils";
 import React from 'react';
 import { Order } from '@/types/api.types';
+import { formatETB } from '@/lib/format';
 
 interface ReceiptSelectorProps {
   loading: boolean;
@@ -53,7 +54,7 @@ export const ReceiptSelector: React.FC<ReceiptSelectorProps> = ({
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Order {formatOrderNumber(order)}</span>
                     <span className="text-sm text-muted-foreground">
-                      {parseFloat(String(order.total_amount)).toFixed(2)} Birr
+                      {formatETB(parseFloat(String(order.total_amount)))}
                     </span>
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">

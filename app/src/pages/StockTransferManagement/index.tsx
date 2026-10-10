@@ -26,13 +26,13 @@ export const StockTransferManagement: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Stock Transfer"
+        title="Stock transfer"
         description="Move stock between locations and review transfer history."
         actions={
           <div className="flex gap-2">
             <Button onClick={() => openTransfer()} disabled={!syncStatus.online}>
-              <ArrowLeftRight className="h-4 w-4 mr-2" />
-              New Transfer
+              <ArrowLeftRight />
+              New transfer
             </Button>
           </div>
         }

@@ -42,17 +42,17 @@ export const PaymentMethodFormDialog: React.FC<PaymentMethodFormDialogProps> = (
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="display_name">Display Name</Label>
+            <Label htmlFor="display_name">Display name</Label>
             <Input
               id="display_name"
               value={formData.display_name}
               onChange={e => setFormData(p => ({ ...p, display_name: e.target.value }))}
-              placeholder="e.g. Cash Payment"
+              placeholder="e.g. cash payment"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="name">System Key (lowercase, no spaces)</Label>
+            <Label htmlFor="name">System key (lowercase, no spaces)</Label>
             <Input
               id="name"
               value={formData.name}
@@ -70,7 +70,7 @@ export const PaymentMethodFormDialog: React.FC<PaymentMethodFormDialogProps> = (
                   key={item.value}
                   type="button"
                   variant={formData.icon === item.value ? 'default' : 'outline'}
-                  className="h-10 flex items-center gap-1.5 text-[10px] font-bold"
+                  className="h-10 flex items-center gap-1.5"
                   onClick={() => setFormData(p => ({ ...p, icon: item.value }))}
                 >
                   {item.icon}
@@ -100,7 +100,7 @@ export const PaymentMethodFormDialog: React.FC<PaymentMethodFormDialogProps> = (
             <Label htmlFor="is_active" className="cursor-pointer text-sm">Active</Label>
           </div>
 
-          <DialogFooter className="gap-2 pt-2">
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button type="submit" disabled={saving}>{saving ? 'Saving…' : selectedMethod ? 'Update' : 'Create'}</Button>
           </DialogFooter>

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import api from '@/application';
 import { formatOrderNumber } from '@/lib/utils';
+import { formatETB } from '@/lib/format';
 
 export interface OrderDetailsDialogProps {
   order: any | null;
@@ -118,12 +119,12 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Order Details {formatOrderNumber(order)}</DialogTitle>
+          <DialogTitle>Order details {formatOrderNumber(order)}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4 text-sm bg-muted/30 p-3 rounded-md">
             <div>
-              <span className="text-muted-foreground block text-xs uppercase tracking-wider">Waiter</span>
+              <span className="text-muted-foreground block text-xs">Waiter</span>
               <span className="font-medium">
                 {usersMap && (order.waiter_id || order.employee_id)
                   ? (usersMap[order.waiter_id || order.employee_id]?.name || 'N/A')
@@ -132,24 +133,24 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
             </div>
             {order.created_by_id && order.created_by_id !== (order.waiter_id || order.employee_id) && (
               <div>
-                <span className="text-muted-foreground block text-xs uppercase tracking-wider">Cashier / Created By</span>
+                <span className="text-muted-foreground block text-xs">Cashier / Created By</span>
                 <span className="font-medium">{usersMap?.[order.created_by_id]?.name || 'Unknown'}</span>
               </div>
             )}
             {order.table_number && (
               <div>
-                <span className="text-muted-foreground block text-xs uppercase tracking-wider">Table</span>
+                <span className="text-muted-foreground block text-xs">Table</span>
                 <span className="font-medium">#{order.table_number}</span>
               </div>
             )}
             <div>
-                <span className="text-muted-foreground block text-xs uppercase tracking-wider">Type</span>
+                <span className="text-muted-foreground block text-xs">Type</span>
                 <span className="font-medium capitalize">{order.type}</span>
             </div>
           </div>
           <div className="rounded-md border p-4 space-y-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+              <p className="text-xs font-semibold text-muted-foreground mb-2">
                 Order placed{order.created_at ? ` — ${new Date(order.created_at).toLocaleString()}` : ''}
               </p>
               <div className="space-y-3">
@@ -157,10 +158,10 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                   <div key={i} className="flex justify-between items-center text-sm">
                     <div>
                       <p className="font-medium">{item.name || item.menu_item_name || 'Item'}</p>
-                      <p className="text-muted-foreground">{item.quantity} x {parseFloat(item.unit_price || item.price || 0).toLocaleString()} Birr</p>
+                      <p className="text-muted-foreground">{item.quantity} x {formatETB(parseFloat(item.unit_price || item.price || 0))}</p>
                     </div>
                     <p className="font-medium">
-                      {(item.quantity * parseFloat(item.unit_price || item.price || 0)).toLocaleString()} Birr
+                      {formatETB((item.quantity * parseFloat(item.unit_price || item.price || 0)))}
                     </p>
                   </div>
                 ))}
@@ -169,7 +170,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
 
             {chronologicalAdditions.map((addition: any) => (
               <div key={addition.id} className="pt-3 border-t border-dashed">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                <p className="text-xs font-semibold text-muted-foreground mb-2">
                   Added by {addition.added_by_name || 'Unknown'}
                   {addition.added_at ? ` — ${new Date(addition.added_at).toLocaleString()}` : ''}
                 </p>
@@ -178,10 +179,10 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                     <div key={idx} className="flex justify-between items-center text-sm">
                       <div>
                         <p className="font-medium">{item.menu_item_name || item.name || 'Item'}</p>
-                        <p className="text-muted-foreground">{item.quantity} x {parseFloat(item.unit_price || item.price || 0).toLocaleString()} Birr</p>
+                        <p className="text-muted-foreground">{item.quantity} x {formatETB(parseFloat(item.unit_price || item.price || 0))}</p>
                       </div>
                       <p className="font-medium">
-                        {(item.quantity * parseFloat(item.unit_price || item.price || 0)).toLocaleString()} Birr
+                        {formatETB((item.quantity * parseFloat(item.unit_price || item.price || 0)))}
                       </p>
                     </div>
                   ))}
@@ -189,9 +190,9 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
               </div>
             ))}
 
-            <div className="pt-4 border-t flex justify-between items-center font-bold">
+            <div className="pt-4 border-t flex justify-between items-center font-semibold">
               <span>Total Amount</span>
-              <span className="text-primary">{parseFloat(order.total_amount || 0).toLocaleString()} Birr</span>
+              <span className="text-primary">{formatETB(parseFloat(order.total_amount || 0))}</span>
             </div>
           </div>
 
@@ -208,7 +209,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
               className="w-full gap-1.5"
               onClick={() => onAddItems?.(order)}
             >
-              <Plus className="h-4 w-4" /> Add Items
+              <Plus /> Add items
             </Button>
           )}
         </div>

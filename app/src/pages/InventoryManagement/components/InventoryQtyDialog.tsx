@@ -102,7 +102,7 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
     <Dialog open={qtyDialog} onOpenChange={setQtyDialog}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Update Stock Quantity</DialogTitle>
+          <DialogTitle>Update stock quantity</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="bg-muted/50 p-3 rounded-lg">
@@ -163,7 +163,7 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
                   location: '' // Clear legacy location field when using dynamic locations
                 }));
               }}
-              className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+              className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
             >
               <option value="">Select location</option>
               {stockLocations
@@ -178,7 +178,7 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
 
           {qtyData.mode === 'delta' ? (
             <div className="space-y-2">
-              <Label>Quantity to Add/Subtract</Label>
+              <Label>Quantity to add/subtract</Label>
               <div className="flex items-center gap-2">
                 <Input
                   type="number"
@@ -191,7 +191,7 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
                 <select
                   value={currentUnit}
                   onChange={e => handleDeltaChange(qtyData.delta, e.target.value as 'base' | 'purchase')}
-                  className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
                 >
                   <option value="base">{selectedItem?.base_unit || 'piece'}</option>
                   <option value="purchase">{selectedItem?.unit || 'box'}</option>
@@ -222,7 +222,7 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
             </div>
           ) : (
             <div className="space-y-2">
-              <Label>New Total Quantity</Label>
+              <Label>New total quantity</Label>
               <div className="flex items-center gap-2">
                 <Input
                   type="number"
@@ -235,7 +235,7 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
                 <select
                   value={currentUnit}
                   onChange={e => handleQuantityChange(qtyData.quantity, e.target.value as 'base' | 'purchase')}
-                  className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
                 >
                   <option value="base">{selectedItem?.base_unit || 'piece'}</option>
                   <option value="purchase">{selectedItem?.unit || 'box'}</option>
@@ -254,7 +254,7 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
             </div>
           )}
 
-          <DialogFooter className="gap-2">
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setQtyDialog(false)}>Cancel</Button>
             <Button type="submit">
               {qtyData.mode === 'delta' ? 'Update Stock' : 'Set Quantity'}

@@ -104,9 +104,9 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
+          <CardTitle className="flex items-center gap-2">
             <Link2 className="h-4 w-4 text-primary" />
-            Link Items for Transfers
+            Link items for transfers
           </CardTitle>
           <p className="text-sm text-muted-foreground">
             A linked item is received as its target item when transferred: the target's
@@ -117,11 +117,11 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr_auto_auto] gap-3 items-end">
             <div className="space-y-1.5">
-              <Label className="text-xs">When this item is transferred…</Label>
+              <Label>When this item is transferred…</Label>
               <select
                 value={sourceId}
                 onChange={e => setSourceId(e.target.value)}
-                className="w-full h-9 rounded-md border border-input bg-background px-2 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
               >
                 <option value="">Choose source item…</option>
                 {sourceOptions.map(item => (
@@ -135,11 +135,11 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs">…receive it as</Label>
+              <Label>…receive it as</Label>
               <select
                 value={targetId}
                 onChange={e => setTargetId(e.target.value)}
-                className="w-full h-9 rounded-md border border-input bg-background px-2 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
               >
                 <option value="">Choose target item…</option>
                 {targetOptions.map(item => (
@@ -149,14 +149,14 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
             </div>
 
             <div className="space-y-1.5 w-28">
-              <Label className="text-xs">Units per unit</Label>
+              <Label>Units per unit</Label>
               <Input
                 type="number"
                 min="1"
                 step="1"
                 value={factor}
                 onChange={e => setFactor(e.target.value)}
-                className="h-9 text-sm"
+                className="h-9"
               />
             </div>
 
@@ -167,7 +167,7 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
               onClick={handleCreate}
               disabled={saving || !online}
             >
-              <Plus className="h-4 w-4 mr-1" />
+              <Plus />
               {saving ? 'Saving…' : 'Link'}
             </Button>
           </div>
@@ -184,7 +184,7 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Configured Links ({links.length})</CardTitle>
+          <CardTitle>Configured links ({links.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -198,7 +198,7 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
               {Array.from(byTarget.entries()).map(([tId, group]) => (
                 <div key={tId} className="rounded-md border">
                   <div className="flex items-center gap-2 border-b bg-muted/30 px-3 py-2">
-                    <Badge variant="secondary" className="text-xs">Target</Badge>
+                    <Badge variant="secondary">Target</Badge>
                     <span className="text-sm font-medium">
                       {itemName(tId, group[0]?.target_item_name)}
                     </span>
@@ -226,7 +226,7 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
                           onClick={() => handleDelete(link)}
                           disabled={!online}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 />
                         </Button>
                       </div>
                     ))}

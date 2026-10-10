@@ -37,24 +37,24 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
     <Card className="lg:col-span-1 h-fit">
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <div>
-          <CardTitle className="text-base">{isEditMode ? 'Edit Expense Entry' : 'New Expense Entry'}</CardTitle>
+          <CardTitle>{isEditMode ? 'Edit Expense Entry' : 'New Expense Entry'}</CardTitle>
           <CardDescription>Enter details of the outgoing spend</CardDescription>
         </div>
         {isEditMode && (
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onCancel}>
-            <X className="h-4 w-4" />
+            <X />
           </Button>
         )}
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Expense Title *</Label>
+            <Label>Expense title *</Label>
             <Input
               name="title"
               value={formData.title}
               onChange={onFormChange}
-              placeholder="e.g. Monthly electricity bill"
+              placeholder="e.g. monthly electricity bill"
               required
             />
           </div>
@@ -69,7 +69,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Amount (Birr) *</Label>
+              <Label>Amount (birr) *</Label>
               <Input
                 name="amount"
                 type="number"
@@ -84,17 +84,17 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Paid To *</Label>
+              <Label>Paid to *</Label>
               <Input
                 name="paid_to"
                 value={formData.paid_to}
                 onChange={onFormChange}
-                placeholder="e.g. Supplier, EEU"
+                placeholder="e.g. supplier, EEU"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label>Payment Method</Label>
+              <Label>Payment method</Label>
               <Select value={formData.payment_method} onValueChange={onPaymentMethodChange}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -116,7 +116,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
           </div>
           <div className="flex gap-2 pt-2 border-t">
             <Button type="submit" className="flex-1" disabled={submitting}>
-              {isEditMode ? <Edit3 className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+              {isEditMode ? <Edit3 /> : <Plus />}
               {submitting ? 'Saving...' : (isEditMode ? 'Update' : 'Save')}
             </Button>
             {isEditMode && (

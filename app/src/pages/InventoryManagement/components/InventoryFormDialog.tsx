@@ -59,7 +59,7 @@ export const InventoryFormDialog: React.FC<InventoryFormDialogProps> = ({
         </DialogHeader>
         <form onSubmit={submitForm} className="space-y-4">
           <div className="space-y-2">
-            <Label>Item Name *</Label>
+            <Label>Item name *</Label>
             <Input
               value={formData.name}
               onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
@@ -69,7 +69,7 @@ export const InventoryFormDialog: React.FC<InventoryFormDialogProps> = ({
           </div>
 
           <div>
-            <Label>Minimum Stock</Label>
+            <Label>Minimum stock</Label>
             <Input
               type="number"
               step="1"
@@ -81,7 +81,7 @@ export const InventoryFormDialog: React.FC<InventoryFormDialogProps> = ({
 
 
           <div className="space-y-2">
-            <Label>Pieces per Unit</Label>
+            <Label>Pieces per unit</Label>
             <Input
               type="number"
               step="1"
@@ -94,7 +94,7 @@ export const InventoryFormDialog: React.FC<InventoryFormDialogProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Purchase Unit</Label>
+              <Label>Purchase unit</Label>
               <Input
                 value={formData.unit}
                 onChange={e => setFormData(p => ({ ...p, unit: e.target.value }))}
@@ -103,7 +103,7 @@ export const InventoryFormDialog: React.FC<InventoryFormDialogProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label>Base Unit</Label>
+              <Label>Base unit</Label>
               <Input
                 value={formData.base_unit}
                 onChange={e => setFormData(p => ({ ...p, base_unit: e.target.value }))}
@@ -112,7 +112,7 @@ export const InventoryFormDialog: React.FC<InventoryFormDialogProps> = ({
             </div>
           </div>
 
-          <DialogFooter className="gap-2 pt-2">
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setEditDialog(false)} disabled={isSubmitting}>Cancel</Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Saving…' : isAdding ? 'Create' : 'Save'}

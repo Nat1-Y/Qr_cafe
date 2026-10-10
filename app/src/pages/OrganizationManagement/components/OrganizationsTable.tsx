@@ -20,7 +20,7 @@ export const OrganizationsTable = ({ orgs, loading, onEdit, onDeactivate }: Orga
           <TableHead>Name</TableHead>
           <TableHead>Contact</TableHead>
           <TableHead>Phone</TableHead>
-          <TableHead>Credit Balance</TableHead>
+          <TableHead>Credit balance</TableHead>
           <TableHead>Status</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
@@ -43,8 +43,8 @@ export const OrganizationsTable = ({ orgs, loading, onEdit, onDeactivate }: Orga
               <TableCell><CreditBadge balance={balance} /></TableCell>
               <TableCell><Badge variant={active ? 'default' : 'secondary'}>{active ? 'Active' : 'Inactive'}</Badge></TableCell>
               <TableCell className="text-right space-x-1">
-                <Button variant="ghost" size="sm" onClick={() => onEdit(org)}><Pencil className="h-4 w-4" /></Button>
-                {active && <Button variant="ghost" size="sm" onClick={() => onDeactivate(org)}><Ban className="h-4 w-4 text-destructive" /></Button>}
+                <Button variant="ghost" size="sm" onClick={() => onEdit(org)}><Pencil /></Button>
+                {active && <Button variant="ghost" size="sm" onClick={() => onDeactivate(org)}><Ban className="text-destructive" /></Button>}
               </TableCell>
             </TableRow>
           );

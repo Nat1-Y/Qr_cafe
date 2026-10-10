@@ -35,12 +35,12 @@ export const PaymentsItems: React.FC = () => {
   if (loading) {
     return (
       <div className="p-4 md:p-8 space-y-6">
-        <Skeleton className="h-20 w-full rounded-2xl" />
+        <Skeleton className="h-20 w-full rounded-card" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-24 w-full" />
         </div>
-        <Skeleton className="h-96 w-full rounded-2xl" />
+        <Skeleton className="h-96 w-full rounded-card" />
       </div>
     );
   }
@@ -48,7 +48,7 @@ export const PaymentsItems: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Foods &amp; Drinks Sold"
+        title="Foods &amp; drinks sold"
         description="Aggregated breakdown of individual sold items matching paid transactions"
         actions={
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>

@@ -30,6 +30,7 @@ import {
 import { printItemsSoldReport, ItemsSoldRow } from '@/utils/receiptPrinter';
 import { isTauriRuntime } from '@/utils/receipt/thermal-printer';
 import { getActivePrinterName } from '@/infrastructure/printing/printer-config';
+import { formatETB } from '@/lib/format';
 
 const PRINTER_STORAGE_KEY = 'items_sold_selected_printer';
 
@@ -340,7 +341,7 @@ export const CashierItemsSoldToday: React.FC = () => {
         />
         <StatsCard
           title="Total revenue"
-          value={`${Number(counts.totalRevenue || 0).toLocaleString()} Birr`}
+          value={`${formatETB(Number(counts.totalRevenue || 0))}`}
           variant="default"
         />
       </div>
@@ -387,7 +388,7 @@ export const CashierItemsSoldToday: React.FC = () => {
                     </TableCell>
                     <TableCell className="font-semibold text-sm">{r.qtySold}</TableCell>
                     <TableCell className="text-right font-semibold text-success">
-                      {Number(r.revenue || 0).toLocaleString()} Birr
+                      {formatETB(Number(r.revenue || 0))}
                     </TableCell>
                   </TableRow>
                 ))

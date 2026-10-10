@@ -20,12 +20,12 @@ export const TrendChart: React.FC<TrendChartProps> = ({ title, data, colorClass 
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-primary" />
-          <CardTitle className="text-sm font-semibold">{title}</CardTitle>
+          <CardTitle>{title}</CardTitle>
         </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-end min-h-[200px]">
         {normalized.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center border border-dashed rounded-xl bg-muted/40 text-xs text-muted-foreground font-bold p-6">
+          <div className="flex-1 flex items-center justify-center border border-dashed rounded-xl bg-muted/40 text-xs text-muted-foreground font-semibold p-6">
             No trend data available
           </div>
         ) : (
@@ -35,9 +35,9 @@ export const TrendChart: React.FC<TrendChartProps> = ({ title, data, colorClass 
               const height = maxAmount > 0 ? Math.max(12, Math.round((amount / maxAmount) * 110)) : 12;
               return (
                 <div key={item?.label} className="flex min-w-[50px] flex-1 flex-col items-center justify-end gap-1.5 h-full">
-                  <span className="text-[9px] font-bold text-muted-foreground whitespace-nowrap">{formatETB(amount).replace(' Birr', '')}</span>
-                  <div className={`w-full rounded-t-lg ${colorClass}`} style={{ height }} />
-                  <span className="text-center text-[9px] text-muted-foreground truncate w-full font-medium">{item?.label}</span>
+                  <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap">{formatETB(amount).replace(' ETB', '')}</span>
+                  <div className={`w-full rounded-t-[3px] ${colorClass}`} style={{ height }} />
+                  <span className="text-center text-xs text-muted-foreground truncate w-full font-medium">{item?.label}</span>
                 </div>
               );
             })}

@@ -26,11 +26,11 @@ export const AddTableDialog: React.FC<AddTableDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Add New Table</DialogTitle>
+          <DialogTitle>Add new Table</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="number">Table Number</Label>
+            <Label htmlFor="number">Table number</Label>
             <Input
               id="number"
               type="number"
@@ -42,7 +42,7 @@ export const AddTableDialog: React.FC<AddTableDialogProps> = ({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="capacity">Capacity (People)</Label>
+            <Label htmlFor="capacity">Capacity (people)</Label>
             <Input
               id="capacity"
               type="number"
@@ -53,7 +53,7 @@ export const AddTableDialog: React.FC<AddTableDialogProps> = ({
               required
             />
           </div>
-          <DialogFooter className="gap-2">
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>

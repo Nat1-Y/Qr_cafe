@@ -36,7 +36,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({
   return (
     <Card>
       <CardHeader className="pb-3 border-b">
-        <CardTitle className="text-base">Defined Roles</CardTitle>
+        <CardTitle>Defined roles</CardTitle>
         <CardDescription>Roles available for assignment during user account creation</CardDescription>
       </CardHeader>
       <CardContent className="pt-6 space-y-2">
@@ -47,18 +47,18 @@ export const RolesTable: React.FC<RolesTableProps> = ({
               key={role.id}
               className="flex items-center gap-4 p-4 rounded-xl border bg-muted/10 hover:bg-muted/20 transition-colors"
             >
-              <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
+              <div className="shrink-0 text-muted-foreground">
                 {isDefault ? <Shield className="w-5 h-5" /> : <Users className="w-5 h-5" />}
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="font-bold text-sm flex items-center gap-2">
+                <div className="font-semibold text-sm flex items-center gap-2">
                   {role.display_name}
                   {isDefault && (
-                    <Badge variant="outline" className="h-4 text-[8px] font-bold px-1 border-none text-muted-foreground">default</Badge>
+                    <Badge variant="outline" className="border-none text-muted-foreground">default</Badge>
                   )}
                 </div>
-                <div className="text-[10px] text-muted-foreground font-medium">Key: {role.name}</div>
+                <div className="text-xs text-muted-foreground font-medium">Key: {role.name}</div>
                 {role.description && (
                   <div className="text-xs text-muted-foreground mt-0.5">{role.description}</div>
                 )}
@@ -68,8 +68,8 @@ export const RolesTable: React.FC<RolesTableProps> = ({
                 variant={role.is_active ? 'default' : 'outline'}
                 className={
                   role.is_active
-                    ? 'bg-success/15 text-success border-green-500/30 font-bold text-[10px]'
-                    : 'bg-muted/30 text-muted-foreground font-bold text-[10px]'
+                    ? 'bg-success/15 text-success border-success/30 font-semibold text-xs'
+                    : 'bg-muted/30 text-muted-foreground font-semibold text-xs'
                 }
               >
                 {role.is_active ? 'Active' : 'Disabled'}
@@ -84,7 +84,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({
                   disabled={isDefault}
                   title={isDefault ? 'Default roles cannot be edited' : 'Edit role'}
                 >
-                  <Edit3 className="w-4 h-4" />
+                  <Edit3 />
                 </Button>
                 <Button
                   size="sm"
@@ -94,7 +94,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({
                   disabled={isDefault}
                   title={isDefault ? 'Default roles cannot be disabled' : 'Disable role'}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 />
                 </Button>
               </div>
             </div>
@@ -102,7 +102,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({
         })}
 
         {roles.length === 0 && (
-          <div className="p-8 text-center text-xs text-muted-foreground font-bold border border-dashed rounded-xl bg-muted/20">
+          <div className="p-8 text-center text-xs text-muted-foreground font-semibold border border-dashed rounded-xl bg-muted/20">
             No roles configured. Click "Add Role" to create one.
           </div>
         )}

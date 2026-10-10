@@ -33,9 +33,9 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-primary" />
-          <CardTitle className="text-sm font-semibold">Filters</CardTitle>
+          <CardTitle>Filters</CardTitle>
         </div>
-        <Button variant="ghost" size="sm" onClick={onResetFilters} className="text-xs">
+        <Button variant="ghost" size="sm" onClick={onResetFilters}>
           Reset filters
         </Button>
       </CardHeader>
@@ -53,9 +53,9 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
           <div className="space-y-1.5">
             <Label>Category</Label>
             <Select value={filters.category} onValueChange={onCategoryChange}>
-              <SelectTrigger><SelectValue placeholder="All Categories" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="All categories" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all_cats">All Categories</SelectItem>
+                <SelectItem value="all_cats">All categories</SelectItem>
                 {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -63,23 +63,23 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
           <div className="space-y-1.5">
             <Label>Method</Label>
             <Select value={filters.payment_method} onValueChange={onPaymentMethodChange}>
-              <SelectTrigger><SelectValue placeholder="All Methods" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="All methods" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all_methods">All Methods</SelectItem>
+                <SelectItem value="all_methods">All methods</SelectItem>
                 {paymentMethods.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>From Date</Label>
+            <Label>From date</Label>
             <Input name="dateFrom" type="date" value={filters.dateFrom} onChange={onFilterChange} />
           </div>
           <div className="space-y-1.5">
-            <Label>To Date</Label>
+            <Label>To date</Label>
             <Input name="dateTo" type="date" value={filters.dateTo} onChange={onFilterChange} />
           </div>
           <div className="space-y-1.5">
-            <Label>Min Amount</Label>
+            <Label>Min amount</Label>
             <Input
               name="minAmount"
               type="number"
@@ -87,11 +87,11 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
               step="0.01"
               value={filters.minAmount}
               onChange={onFilterChange}
-              placeholder="Min Birr"
+              placeholder="Min birr"
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Max Amount</Label>
+            <Label>Max amount</Label>
             <Input
               name="maxAmount"
               type="number"
@@ -99,12 +99,12 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
               step="0.01"
               value={filters.maxAmount}
               onChange={onFilterChange}
-              placeholder="Max Birr"
+              placeholder="Max birr"
             />
           </div>
           <Button type="submit" className="sm:col-span-2 md:col-span-4 mt-2">
-            <Filter className="h-4 w-4 mr-2" />
-            Apply Filters
+            <Filter />
+            Apply filters
           </Button>
         </form>
       </CardContent>

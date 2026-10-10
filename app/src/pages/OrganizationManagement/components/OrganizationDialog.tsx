@@ -31,7 +31,7 @@ export const OrganizationDialog = ({
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
             <Label htmlFor="org-name">Name *</Label>
-            <Input id="org-name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Acme Corporation" />
+            <Input id="org-name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Acme corporation" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

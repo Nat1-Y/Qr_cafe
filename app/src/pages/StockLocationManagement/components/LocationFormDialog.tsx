@@ -61,7 +61,7 @@ export const LocationFormDialog: React.FC<LocationFormDialogProps> = ({
                   slug: selectedLocation ? prev.slug : nameToSlug(value),
                 }));
               }}
-              placeholder="e.g. Kitchen Walk-in"
+              placeholder="e.g. kitchen Walk-in"
               required
             />
           </div>
@@ -80,10 +80,10 @@ export const LocationFormDialog: React.FC<LocationFormDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location_type">Location Type</Label>
+            <Label htmlFor="location_type">Location type</Label>
             <select
               id="location_type"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
               value={formData.location_type}
               onChange={(e) =>
                 setFormData((prev) => ({
@@ -101,10 +101,10 @@ export const LocationFormDialog: React.FC<LocationFormDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="linked_main_category_slug">Linked Menu Department (optional)</Label>
+            <Label htmlFor="linked_main_category_slug">Linked menu department (optional)</Label>
             <select
               id="linked_main_category_slug"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
               value={formData.linked_main_category_slug}
               onChange={(e) =>
                 setFormData((prev) => ({
@@ -120,7 +120,7 @@ export const LocationFormDialog: React.FC<LocationFormDialogProps> = ({
                 </option>
               ))}
             </select>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Orders from this department will deduct stock from this location by default.
             </p>
           </div>
@@ -151,7 +151,7 @@ export const LocationFormDialog: React.FC<LocationFormDialogProps> = ({
             </Label>
           </div>
 
-          <DialogFooter className="gap-2 pt-2">
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>

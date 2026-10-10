@@ -203,9 +203,9 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
                 variant="outline"
                 onClick={() => setShowPrinterDropdown(!showPrinterDropdown)}
               >
-                <Printer className="w-4 h-4" />
+                <Printer />
                 {selectedPrinter || 'Choose printer'}
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown />
               </Button>
               {showPrinterDropdown && (
                 <div className="absolute right-0 top-full z-50 mt-1 min-w-[200px] rounded-xl border border-border bg-popover p-1 shadow-pop">

@@ -83,7 +83,7 @@ export const SyncProgressBar = () => {
         className="fixed right-3 top-3 z-[100] pointer-events-none transition-opacity duration-300"
         style={{ opacity: done ? 0 : 1 }}
       >
-        <div className="flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur">
+        <div className="flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
           Syncing {percent}%
         </div>

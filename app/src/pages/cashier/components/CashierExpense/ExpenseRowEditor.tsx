@@ -2,6 +2,7 @@ import React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { formatETB } from '@/lib/format';
 
 export interface ExpenseRow {
   item: string;
@@ -68,18 +69,18 @@ export const ExpenseRowEditor: React.FC<ExpenseRowEditorProps> = ({
             className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
             title="Remove"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 />
           </Button>
         </div>
       ))}
 
       <div className="flex items-center justify-between pt-1">
         <Button type="button" variant="outline" size="sm" onClick={addRow} disabled={disabled}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus />
           Add row
         </Button>
         {showTotal && (
-          <span className="text-sm font-semibold">Total: {total.toFixed(2)} Birr</span>
+          <span className="text-sm font-semibold">Total: {formatETB(total)}</span>
         )}
       </div>
     </div>

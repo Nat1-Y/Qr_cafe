@@ -1,7 +1,6 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Users, PieChart, TrendingUp } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface SubReportsQuickActionsProps {
   handleCustomerAnalytics: () => void;
@@ -9,73 +8,42 @@ interface SubReportsQuickActionsProps {
   handlePerformanceMetrics: () => void;
 }
 
+/** More reports, as plain rows. */
 export const SubReportsQuickActions: React.FC<SubReportsQuickActionsProps> = ({
   handleCustomerAnalytics,
   handleInventoryReports,
   handlePerformanceMetrics
 }) => {
+  const rows = [
+    { title: 'Customers', text: 'Who comes back and their average bill.', onClick: handleCustomerAnalytics },
+    { title: 'Stock usage', text: 'Stock levels and how fast ingredients go.', onClick: handleInventoryReports },
+    { title: 'Service speed', text: 'Wait times, waiter speed and orders per hour.', onClick: handlePerformanceMetrics },
+  ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <Card className="text-center hover:shadow-lg transition-all">
-        <CardContent className="pt-6 space-y-3">
-          <Users className="w-10 h-10 text-primary mx-auto" />
-          <div className="space-y-1">
-            <h3 className="text-sm font-bold text-foreground">Customer Analytics</h3>
-            <p className="text-muted-foreground text-[10px] font-semibold">
-              Track customer preferences and average bill size.
-            </p>
-          </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-8 text-xs font-bold" 
-            onClick={handleCustomerAnalytics}
-          >
-            View Details
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card className="text-center hover:shadow-lg transition-all">
-        <CardContent className="pt-6 space-y-3">
-          <PieChart className="w-10 h-10 text-success mx-auto" />
-          <div className="space-y-1">
-            <h3 className="text-sm font-bold text-foreground">Inventory Reports</h3>
-            <p className="text-muted-foreground text-[10px] font-semibold">
-              Monitor stock levels and ingredient usage ratios.
-            </p>
-          </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-8 text-xs font-bold" 
-            onClick={handleInventoryReports}
-          >
-            View Details
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card className="text-center hover:shadow-lg transition-all">
-        <CardContent className="pt-6 space-y-3">
-          <TrendingUp className="w-10 h-10 text-primary mx-auto" />
-          <div className="space-y-1">
-            <h3 className="text-sm font-bold text-foreground">Performance Metrics</h3>
-            <p className="text-muted-foreground text-[10px] font-semibold">
-              Analyze wait times, waiter speeds, and total throughput.
-            </p>
-          </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-8 text-xs font-bold" 
-            onClick={handlePerformanceMetrics}
-          >
-            View Details
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+    <Card className="overflow-hidden">
+      <CardHeader className="border-b border-border">
+        <CardTitle>More reports</CardTitle>
+        <CardDescription>Deeper looks at the business.</CardDescription>
+      </CardHeader>
+      <ul className="divide-y divide-border">
+        {rows.map((r) => (
+          <li key={r.title}>
+            <button
+              type="button"
+              onClick={r.onClick}
+              className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left transition-colors hover:bg-row-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-ring"
+            >
+              <span>
+                <span className="block font-semibold text-foreground">{r.title}</span>
+                <span className="block text-sm text-muted-foreground">{r.text}</span>
+              </span>
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+            </button>
+          </li>
+        ))}
+      </ul>
+    </Card>
   );
 };
 

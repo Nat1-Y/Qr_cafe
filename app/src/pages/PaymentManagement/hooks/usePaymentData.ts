@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useHistoryLookbackDays } from "@/shared/hooks/useHistoryLookbackDays";
 import { getApproximateServerDateString } from "@/shared/utils/serverTime";
 import { PaymentRecord, PendingOrderRecord } from "../types";
+import { formatETB } from '@/lib/format';
 
 const PAGE_SIZE = 25;
 
@@ -295,7 +296,7 @@ export const usePaymentData = () => {
 
     return {
       pendingCount: ordersForPayment.length,
-      todayRevenue: `${todayRevenueVal.toLocaleString()} Birr`,
+      todayRevenue: `${formatETB(todayRevenueVal)}`,
       completedCount: visiblePayments.filter((p) => p.status === "paid").length,
     };
   }, [payments, ordersForPayment, floorDate]);

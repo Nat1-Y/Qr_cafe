@@ -49,7 +49,7 @@ export const Profile: React.FC = () => {
         actions={
           isWaiter && (
             <Button variant="outline" size="sm" onClick={handleLogout} disabled={isLoading}>
-              <LogOut className="w-4 h-4 mr-2" />
+              <LogOut />
               Logout
             </Button>
           )

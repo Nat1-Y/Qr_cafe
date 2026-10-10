@@ -43,7 +43,7 @@ export const PaymentListTab = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-4 w-4 text-emerald-500" />Payment List</CardTitle>
+        <CardTitle className="flex items-center gap-2"><TrendingUp className="h-4 w-4 text-success" />Payment list</CardTitle>
         <CardDescription>View all payments and their linked transactions.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -81,8 +81,8 @@ export const PaymentListTab = ({
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-3">
-                                <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatETB(payment.amount)}</p>
-                                <Badge variant={remaining > 0 ? "default" : "secondary"} className="text-xs">
+                                <p className="text-sm font-semibold text-success">{formatETB(payment.amount)}</p>
+                                <Badge variant={remaining > 0 ? "default" : "secondary"}>
                                   {remaining > 0 ? `${formatETB(remaining)} remaining` : 'Fully used'}
                                 </Badge>
                               </div>
@@ -93,7 +93,7 @@ export const PaymentListTab = ({
                             </div>
                             <div className="flex items-center gap-2">
                               {linkedTxns.length > 0 && (
-                                <Badge variant="outline" className="text-xs">
+                                <Badge variant="outline">
                                   {linkedTxns.length} txn{linkedTxns.length > 1 ? 's' : ''}
                                 </Badge>
                               )}
@@ -111,26 +111,26 @@ export const PaymentListTab = ({
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead className="text-xs">Date</TableHead>
-                                <TableHead className="text-xs">Services</TableHead>
-                                <TableHead className="text-xs text-right">Amount</TableHead>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Services</TableHead>
+                                <TableHead className="text-right">Amount</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {linkedTxns.map(txn => (
                                 <TableRow key={txn.id}>
-                                  <TableCell className="text-xs py-2">
+                                  <TableCell className="py-2">
                                     {new Date(txn.transaction_date).toLocaleDateString()}
                                     {txn.notes && <span className="text-muted-foreground ml-2">· {txn.notes}</span>}
                                   </TableCell>
-                                  <TableCell className="text-xs py-2">
+                                  <TableCell className="py-2">
                                     {Array.isArray(txn.services) && txn.services.map((s, i) => (
                                       <div key={i} className="text-muted-foreground">
                                         {s.description}
                                       </div>
                                     ))}
                                   </TableCell>
-                                  <TableCell className="text-xs py-2 text-right font-semibold text-rose-600 dark:text-rose-400">
+                                  <TableCell className="py-2 text-right font-semibold text-destructive">
                                     -{formatETB(txn.total_amount)}
                                   </TableCell>
                                 </TableRow>

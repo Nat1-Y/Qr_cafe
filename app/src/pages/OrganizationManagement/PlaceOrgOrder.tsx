@@ -4,7 +4,7 @@ import { Building2, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/layout/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Input, SearchInput } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/application';
@@ -69,7 +69,7 @@ export const PlaceOrgOrder: React.FC = () => {
   if (!loading && !allowed) {
     return (
       <div className="p-4 md:p-8 space-y-6">
-        <PageHeader title="Organization Orders" />
+        <PageHeader title="Organization orders" />
         <Card>
           <CardContent className="py-10 text-center text-muted-foreground">
             You're not allowed to place organization orders. Ask the owner to
@@ -83,19 +83,14 @@ export const PlaceOrgOrder: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Organization Orders"
+        title="Organization orders"
         description="Pick which organization this order is for."
       />
 
-      <div className="relative max-w-sm">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
+      <SearchInput
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search organizations..."
-          className="pl-8"
-        />
-      </div>
+          placeholder="Search organizations..." wrapperClassName="max-w-sm" />
 
       <Card>
         <CardContent className="p-0">

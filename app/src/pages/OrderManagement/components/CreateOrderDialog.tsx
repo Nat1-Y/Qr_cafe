@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { formatOrderNumber } from '@/lib/utils';
 import { generateLocalId } from '@/db/localDb';
+import { formatETB } from '@/lib/format';
 
 interface CreateOrderDialogProps {
   open: boolean;
@@ -193,11 +194,11 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
           {/* Order Details */}
           <div className="space-y-4">
-            <h4 className="font-extrabold text-sm border-b pb-2">Order Details</h4>
+            <h4 className="font-semibold text-sm border-b pb-2">Order details</h4>
 
             {!isAddMode && (
               <div className="space-y-2">
-                <Label>Order Type</Label>
+                <Label>Order type</Label>
                 <Select value={orderType} onValueChange={setOrderType}>
                   <SelectTrigger>
                     <SelectValue />
@@ -213,7 +214,7 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
             {!isAddMode && (orderType === 'cafe' || forceTableSelection) && (
               <div className="space-y-2">
                 <Label>
-                  Table Number
+                  Table number
                   {forceTableSelection && <span className="text-destructive ml-0.5">*</span>}
                 </Label>
                 <Select value={tableNumber} onValueChange={setTableNumber}>
@@ -227,19 +228,19 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
                   </SelectContent>
                 </Select>
                 {forceTableSelection && (
-                  <p className="text-[10px] text-muted-foreground">A table is required to create an order.</p>
+                  <p className="text-xs text-muted-foreground">A table is required to create an order.</p>
                 )}
               </div>
             )}
 
             {isAddMode && Array.isArray(existingOrder?.items) && existingOrder.items.length > 0 && (
               <div className="space-y-2">
-                <Label className="font-bold text-sm">Already on this order</Label>
+                <Label className="text-sm">Already on this order</Label>
                 <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1 border rounded-xl p-2.5 bg-muted/20">
                   {existingOrder.items.map((item: any, idx: number) => (
                     <div key={idx} className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground truncate">
-                        <span className="font-bold text-foreground mr-1">{item.quantity}x</span>
+                        <span className="font-semibold text-foreground mr-1">{item.quantity}x</span>
                         {item.menu_item_name || item.name || 'Item'}
                       </span>
                     </div>
@@ -250,7 +251,7 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
 
             {/* Selected Items */}
             <div className="space-y-3 pt-2">
-              <Label className="font-bold text-sm">
+              <Label className="text-sm">
                 {isAddMode ? 'New Items' : 'Selected Items'}
               </Label>
               {selectedItems.length === 0 ? (
@@ -264,14 +265,14 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
                       <div>
                         <p className="font-semibold text-sm">{item.menu_item_name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {parseFloat(item.price).toLocaleString()} Birr × {item.quantity}
+                          {formatETB(parseFloat(item.price))} × {item.quantity}
                         </p>
                       </div>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRemoveItem(item.menu_item_id)}
-                        className="text-destructive h-7 text-xs"
+                        className="text-destructive h-7"
                       >
                         Remove
                       </Button>
@@ -279,7 +280,7 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
                   ))}
                   <div className="border-t pt-3 flex justify-between items-center text-sm font-semibold">
                     <span>Subtotal:</span>
-                    <span className="font-black text-success">{subtotal.toLocaleString()} Birr</span>
+                    <span className="font-semibold text-success">{formatETB(subtotal)}</span>
                   </div>
                 </div>
               )}
@@ -288,22 +289,22 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
 
           {/* Available Items */}
           <div className="space-y-4">
-            <h4 className="font-extrabold text-sm border-b pb-2">Available Items</h4>
+            <h4 className="font-semibold text-sm border-b pb-2">Available items</h4>
             <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto pr-1">
               {menuItems.map((item) => (
                 <div key={item.id} className="border hover:border-primary/50 rounded-xl p-3 flex items-center justify-between transition-colors">
                   <div>
-                    <h5 className="font-bold text-sm">{item.name}</h5>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{item.description}</p>
-                    <span className="text-sm font-black text-success mt-1 block">
-                      {parseFloat(item.price).toLocaleString()} Birr
+                    <h5 className="font-semibold text-sm">{item.name}</h5>
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{item.description}</p>
+                    <span className="text-sm font-semibold text-success mt-1 block">
+                      {formatETB(parseFloat(item.price))}
                     </span>
                   </div>
                   <Button
                     onClick={() => handleAddItem(item)}
                     disabled={!item.is_available}
                     size="sm"
-                    className="h-8 text-xs font-semibold"
+                    className="h-8"
                   >
                     <Plus className="w-3.5 h-3.5 mr-1" />
                     Add
@@ -314,7 +315,7 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="gap-2 border-t pt-4">
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>

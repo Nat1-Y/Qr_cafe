@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import EmptyState from '@/components/common/EmptyState';
 import { AggregatedItemRow } from '../types';
+import { formatETB } from '@/lib/format';
 
 interface ItemsTableProps {
   ordersCount: number;
@@ -21,10 +22,10 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
     <Card>
       <CardHeader className="pb-3 border-b flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-base">Aggregated Items List</CardTitle>
+          <CardTitle>Aggregated items list</CardTitle>
           <CardDescription>Matches {itemsRows.length} distinct item types</CardDescription>
         </div>
-        <Badge variant="secondary" className="text-[10px]">
+        <Badge variant="secondary">
           Orders: {ordersCount} · Settled: {paidCount}
         </Badge>
       </CardHeader>
@@ -32,10 +33,10 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Business Unit</TableHead>
-              <TableHead>Item Name</TableHead>
-              <TableHead>Quantity Sold</TableHead>
-              <TableHead className="text-right">Accumulated Revenue</TableHead>
+              <TableHead>Business unit</TableHead>
+              <TableHead>Item name</TableHead>
+              <TableHead>Quantity sold</TableHead>
+              <TableHead className="text-right">Accumulated revenue</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -52,17 +53,17 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
             ) : (
               itemsRows.map((r, idx) => (
                 <TableRow key={`${r.unit}-${r.item}-${idx}`}>
-                  <TableCell className="capitalize text-xs text-muted-foreground font-semibold">
+                  <TableCell className="capitalize text-muted-foreground font-semibold">
                     {r.unit}
                   </TableCell>
                   <TableCell className="font-semibold text-sm text-foreground">
                     {r.item}
                   </TableCell>
-                  <TableCell className="font-bold text-sm">
+                  <TableCell className="font-semibold text-sm">
                     {r.qtySold}
                   </TableCell>
-                  <TableCell className="text-right font-extrabold text-success">
-                    {Number(r.revenue || 0).toLocaleString()} Birr
+                  <TableCell className="text-right font-semibold text-success">
+                    {formatETB(Number(r.revenue || 0))}
                   </TableCell>
                 </TableRow>
               ))

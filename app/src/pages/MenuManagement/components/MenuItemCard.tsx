@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MenuItem } from '../types';
 import type { LocalRecipe } from '@/db/types';
+import { formatETB } from '@/lib/format';
 
 interface MenuItemCardProps {
   item: MenuItem;
@@ -29,11 +30,11 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({
   const ingredientCount = recipe?.ingredients?.length ?? 0;
 
   return (
-    <Card className="overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+    <Card className="overflow-hidden flex flex-col transition-shadow">
       <CardContent className="p-4 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-sm leading-tight truncate">{item.name}</h3>
+            <h3 className="font-semibold text-sm leading-tight truncate">{item.name}</h3>
             <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
               {item.description || 'No description'}
             </p>
@@ -55,18 +56,18 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({
         <div className="flex items-center gap-1.5 mb-3 flex-wrap">
           <Badge
             variant={normCat(item.category) === 'barista' ? 'info' : 'success'}
-            className="text-[10px]"
+           
           >
             {normCat(item.category)}
           </Badge>
           {(item.sub_category || item.category) && (
-            <Badge variant="secondary" className="text-[10px]">
+            <Badge variant="secondary">
               {item.sub_category || item.category}
             </Badge>
           )}
           <Badge
             variant={item.is_available ? 'success' : 'destructive'}
-            className="text-[10px] ml-auto"
+            className="ml-auto"
           >
             {item.is_available ? 'Available' : 'Unavailable'}
           </Badge>
@@ -76,7 +77,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({
             hasRecipe ? (
               <Badge
                 variant="outline"
-                className="text-[10px] border-emerald-500/50 text-emerald-600 dark:text-emerald-400 gap-1"
+                className="border-success/50 text-success gap-1"
                 title={`Recipe: ${ingredientCount} ingredient(s)`}
               >
                 <ChefHat className="h-2.5 w-2.5" />
@@ -85,7 +86,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({
             ) : (
               <Badge
                 variant="outline"
-                className="text-[10px] border-warning/50 text-warning dark:text-amber-400 gap-1"
+                className="border-warning/50 text-warning gap-1"
                 title="No recipe — stock won't auto-deduct"
               >
                 <ChefHat className="h-2.5 w-2.5" />
@@ -96,7 +97,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({
         </div>
 
         <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
-          <span className="font-bold text-lg">{parseInt(String(item.price), 10)} Birr</span>
+          <span className="font-semibold text-lg">{formatETB(item.price)}</span>
           {isAdmin && (
             <div className="flex gap-1">
               <Button

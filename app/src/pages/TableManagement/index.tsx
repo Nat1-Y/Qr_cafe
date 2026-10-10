@@ -26,15 +26,13 @@ const TableManagement = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Table Management"
-        description="Manage your cafe tables"
+        title="Tables"
+        description={`${tables.length} tables · ${available} free right now`}
         actions={
-          <div className="flex items-center gap-2">
-            <Button onClick={() => setDialogOpen(true)} disabled={!syncStatus.online}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Table
-            </Button>
-          </div>
+          <Button onClick={() => setDialogOpen(true)} disabled={!syncStatus.online}>
+            <Plus />
+            Add table
+          </Button>
         }
       />
 

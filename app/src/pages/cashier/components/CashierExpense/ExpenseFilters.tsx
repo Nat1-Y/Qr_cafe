@@ -108,7 +108,7 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
           title="Refresh"
           className="shrink-0"
         >
-          <RefreshCw className="h-4 w-4" />
+          <RefreshCw />
         </Button>
       </div>
     </div>

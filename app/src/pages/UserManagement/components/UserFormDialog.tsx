@@ -50,7 +50,7 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="full_name">Full Name</Label>
+            <Label htmlFor="full_name">Full name</Label>
             <Input id="full_name" value={formData.full_name} onChange={e => setFormData(p => ({ ...p, full_name: e.target.value }))} required />
           </div>
           <div className="space-y-2">
@@ -60,7 +60,7 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({
 
           {/* Auth Mode Tabs */}
           <div className="space-y-2">
-            <Label>Authentication Method</Label>
+            <Label>Authentication method</Label>
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -97,7 +97,7 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({
 
           {formData.role === 'admin' && authMode === 'password' && (
             <div className="space-y-2">
-              <Label htmlFor="cancel_password">Cancel Password {selectedUser && '(leave blank to keep)'}</Label>
+              <Label htmlFor="cancel_password">Cancel password {selectedUser && '(leave blank to keep)'}</Label>
               <Input
                 id="cancel_password"
                 type="password"
@@ -106,7 +106,7 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({
                 placeholder="Admin override password used for order cancellations"
                 autoComplete="new-password"
               />
-              <p className="text-[10px] text-muted-foreground font-medium">
+              <p className="text-xs text-muted-foreground font-medium">
                 This password is cached locally for cashier cancellation checks.
               </p>
             </div>
@@ -139,10 +139,10 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({
 
           <div className="flex items-center gap-2">
             <input type="checkbox" id="is_active" checked={formData.is_active} onChange={e => setFormData(p => ({ ...p, is_active: e.target.checked }))} className="rounded border-input" />
-            <Label htmlFor="is_active" className="cursor-pointer">Active User</Label>
+            <Label htmlFor="is_active" className="cursor-pointer">Active user</Label>
           </div>
 
-          <DialogFooter className="gap-2 pt-2">
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button type="submit">{selectedUser ? 'Update User' : 'Create User'}</Button>
           </DialogFooter>

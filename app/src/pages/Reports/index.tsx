@@ -65,14 +65,14 @@ const Reports: React.FC = () => {
   if (loading) {
     return (
       <div className="p-4 md:p-8 space-y-6">
-        <Skeleton className="h-20 w-full rounded-2xl" />
+        <Skeleton className="h-20 w-full rounded-card" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-24 w-full" />
         </div>
-        <Skeleton className="h-96 w-full rounded-2xl" />
+        <Skeleton className="h-96 w-full rounded-card" />
       </div>
     );
   }
@@ -80,7 +80,7 @@ const Reports: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Business Reports"
+        title="Business reports"
         description="Analytics, operational metrics, and complete data exports"
         actions={
           <div className="flex flex-wrap items-center gap-3">
@@ -99,21 +99,21 @@ const Reports: React.FC = () => {
             </div>
             <Select value={businessUnit} onValueChange={setBusinessUnit}>
               <SelectTrigger className="h-9 w-40">
-                <SelectValue placeholder="All Units" />
+                <SelectValue placeholder="All units" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Units</SelectItem>
+                <SelectItem value="all">All units</SelectItem>
                 <SelectItem value="cafe">Cafe</SelectItem>
                 <SelectItem value="restaurant">Restaurant</SelectItem>
                 <SelectItem value="barista">Barista</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm" onClick={handleExportReport}>
-              <Download className="w-4 h-4 mr-2" />
+              <Download />
               Export
             </Button>
             <Button size="sm" onClick={handleGenerateReport}>
-              <BarChart2 className="w-4 h-4 mr-2" />
+              <BarChart2 />
               Generate
             </Button>
           </div>
@@ -130,11 +130,11 @@ const Reports: React.FC = () => {
           </TabsTrigger>
           <TabsTrigger value="product-mix" className="gap-2">
             <PackageSearch className="h-4 w-4" />
-            Product Mix
+            Product mix
           </TabsTrigger>
           <TabsTrigger value="sales-breakdown" className="gap-2">
             <PieChart className="h-4 w-4" />
-            Sales Breakdown
+            Sales breakdown
           </TabsTrigger>
           <TabsTrigger value="operations" className="gap-2">
             <BarChart2 className="h-4 w-4" />
@@ -184,13 +184,13 @@ const Reports: React.FC = () => {
           <div className="grid grid-cols-1 xl:grid-cols-[1.1fr_1fr] gap-6">
             <HourlyPerformance items={reportData.hourlyPerformance} />
             <div className="rounded-md border bg-card p-5">
-              <h3 className="text-sm font-bold mb-2">Operational Focus</h3>
+              <h3 className="text-sm font-semibold mb-2">Operational focus</h3>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 Use this view to identify rush hours, staffing pressure, and settlement patterns before adjusting shifts or prep quantities.
               </p>
               <div className="grid grid-cols-1 gap-3">
-                <Button variant="outline" onClick={handlePerformanceMetrics}>Open Performance Metrics</Button>
-                <Button variant="outline" onClick={handleInventoryReports}>Open Inventory Reports</Button>
+                <Button variant="outline" onClick={handlePerformanceMetrics}>Open performance metrics</Button>
+                <Button variant="outline" onClick={handleInventoryReports}>Open inventory reports</Button>
               </div>
             </div>
           </div>

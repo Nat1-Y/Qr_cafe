@@ -13,15 +13,15 @@ export default function AppUpdateSettings() {
   const busy = status === 'downloading' || status === 'ready';
 
   return (
-    <div className="space-y-6 p-5">
+    <div className="space-y-6 p-4 md:p-8">
       <PageHeader
-        title="App Updates"
+        title="App updates"
         description="Check for and install the latest version of the desktop app."
       />
 
       <Card className="max-w-xl">
         <CardHeader>
-          <CardTitle className="text-base">Version</CardTitle>
+          <CardTitle>Version</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="flex items-center justify-between">
@@ -86,7 +86,7 @@ export default function AppUpdateSettings() {
                 </div>
               ) : (
                 <Button onClick={() => void install()}>
-                  <Download className="h-4 w-4" /> Install &amp; restart
+                  <Download /> Install &amp; restart
                 </Button>
               )}
             </div>

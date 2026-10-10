@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input, SearchInput } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -90,22 +90,17 @@ const StockByLocationGrid: React.FC<{
   return (
     <div className="space-y-3">
       {/* Search */}
-      <div className="relative max-w-xs">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
+      <SearchInput
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Search items…"
-          className="pl-9 h-9"
-        />
-      </div>
+          placeholder="Search items…" wrapperClassName="max-w-xs" />
 
       <div className="rounded-lg border overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/40">
-              <TableHead className="w-48 font-semibold">Item</TableHead>
-              <TableHead className="text-xs text-muted-foreground">Unit</TableHead>
+            <TableRow>
+              <TableHead className="w-48">Item</TableHead>
+              <TableHead>Unit</TableHead>
               {locations.map(loc => (
                 <TableHead key={loc.id} className="text-center min-w-[100px]">
                   <div className="flex flex-col items-center gap-0.5">
@@ -114,7 +109,7 @@ const StockByLocationGrid: React.FC<{
                   </div>
                 </TableHead>
               ))}
-              <TableHead className="text-center font-semibold">Total</TableHead>
+              <TableHead className="text-center">Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -143,7 +138,7 @@ const StockByLocationGrid: React.FC<{
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{item.base_unit || 'pcs'}</TableCell>
+                    <TableCell className="text-muted-foreground">{item.base_unit || 'pcs'}</TableCell>
                     {locations.map(loc => {
                       const qty = stockAt(item, loc.id);
                       const locMin = minAt(item, loc.id);
@@ -160,13 +155,13 @@ const StockByLocationGrid: React.FC<{
                             {qty}
                           </span>
                           {locMin != null && locMin > 0 && (
-                            <div className="text-[10px] text-muted-foreground mt-0.5">min {locMin}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">min {locMin}</div>
                           )}
                         </TableCell>
                       );
                     })}
                     <TableCell className="text-center">
-                      <span className={`font-bold text-sm ${isLow ? 'text-destructive' : 'text-foreground'}`}>
+                      <span className={`font-semibold text-sm ${isLow ? 'text-destructive' : 'text-foreground'}`}>
                         {total}
                       </span>
                     </TableCell>
@@ -282,15 +277,15 @@ const TransferHistoryPanel: React.FC<{
       <div className="rounded-lg border overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/40">
-              <TableHead className="font-semibold">Date</TableHead>
-              <TableHead className="font-semibold">From → To</TableHead>
-              <TableHead className="font-semibold">Item</TableHead>
-              <TableHead className="font-semibold text-right">Transferred</TableHead>
-              <TableHead className="font-semibold text-right">Source Qty After</TableHead>
-              <TableHead className="font-semibold text-right">Dest Qty After</TableHead>
-              <TableHead className="font-semibold">Status</TableHead>
-              <TableHead className="font-semibold">Actions</TableHead>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead>From → to</TableHead>
+              <TableHead>Item</TableHead>
+              <TableHead className="text-right">Transferred</TableHead>
+              <TableHead className="text-right">Source qty after</TableHead>
+              <TableHead className="text-right">Dest qty after</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -304,7 +299,7 @@ const TransferHistoryPanel: React.FC<{
               return (
                 <TableRow key={`${row.transfer.id}-${idx}`}>
                   {row.isFirstItem ? (
-                    <TableCell rowSpan={row.itemSpan} className="text-xs text-muted-foreground whitespace-nowrap">
+                    <TableCell rowSpan={row.itemSpan} className="text-muted-foreground whitespace-nowrap">
                       {row.transfer.created_at ? new Date(row.transfer.created_at).toLocaleString() : 'Local'}
                     </TableCell>
                   ) : null}
@@ -345,13 +340,13 @@ const TransferHistoryPanel: React.FC<{
                     <TableCell rowSpan={row.itemSpan}>
                       <div className="flex items-center gap-1">
                         {onReceive && row.transfer.status !== 'received' && (
-                          <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => onReceive(row.transfer)}>
+                          <Button variant="outline" size="sm" className="h-7" onClick={() => onReceive(row.transfer)}>
                             <CheckCircle2 className="h-3 w-3 mr-1" />
                             Receive
                           </Button>
                         )}
                         {onPrintReceipts && (
-                          <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => onPrintReceipts(row.transfer)}>
+                          <Button variant="ghost" size="sm" className="h-7" onClick={() => onPrintReceipts(row.transfer)}>
                             Print
                           </Button>
                         )}
@@ -400,7 +395,7 @@ const TransferHistoryPanel: React.FC<{
               onPageSizeChange(Number(e.target.value));
               onPageChange(1);
             }}
-            className="h-8 rounded-md border border-input bg-background px-3 py-1 text-sm"
+            className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
           >
             <option value={5}>5 per page</option>
             <option value={10}>10 per page</option>
@@ -507,7 +502,7 @@ const OrderDeductionPanel: React.FC<{
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">{totalCount} total deductions</p>
-        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5" onClick={loadMovements}>
+        <Button variant="ghost" size="sm" className="h-7 gap-1.5" onClick={loadMovements}>
           <RefreshCw className="h-3.5 w-3.5" /> Refresh
         </Button>
       </div>
@@ -515,21 +510,21 @@ const OrderDeductionPanel: React.FC<{
       <div className="rounded-lg border overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/40">
-              <TableHead className="font-semibold">Date & Time</TableHead>
-              <TableHead className="font-semibold">Inventory Item</TableHead>
-              <TableHead className="font-semibold">Menu Item</TableHead>
-              <TableHead className="font-semibold">Location</TableHead>
-              <TableHead className="font-semibold text-right">Deducted (Base/Purchase)</TableHead>
-              <TableHead className="font-semibold text-right">Remaining (Base/Purchase)</TableHead>
-              <TableHead className="font-semibold">Order ID</TableHead>
-              <TableHead className="font-semibold">By</TableHead>
+            <TableRow>
+              <TableHead>Date & time</TableHead>
+              <TableHead>Inventory item</TableHead>
+              <TableHead>Menu item</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead className="text-right">Deducted (base/purchase)</TableHead>
+              <TableHead className="text-right">Remaining (base/purchase)</TableHead>
+              <TableHead>Order ID</TableHead>
+              <TableHead>By</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {movements.map((m, idx) => (
               <TableRow key={`${m.id}-${idx}`}>
-                <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                <TableCell className="text-muted-foreground whitespace-nowrap">
                   {m.created_at ? new Date(m.created_at).toLocaleString() : '—'}
                 </TableCell>
                 <TableCell className="font-medium text-sm">{m.item_name}</TableCell>
@@ -566,7 +561,7 @@ const OrderDeductionPanel: React.FC<{
                 <TableCell className="text-sm text-muted-foreground">
                   {m.order_id ? `#${m.order_id}` : '—'}
                 </TableCell>
-                <TableCell className="text-xs text-muted-foreground">
+                <TableCell className="text-muted-foreground">
                   {m.user_name ?? '—'}
                 </TableCell>
               </TableRow>
@@ -617,7 +612,7 @@ const OrderDeductionPanel: React.FC<{
               setPage(1);
               loadMovements();
             }}
-            className="h-8 rounded-md border border-input bg-background px-3 py-1 text-sm"
+            className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
           >
             <option value={10}>10 per page</option>
             <option value={20}>20 per page</option>
@@ -655,31 +650,31 @@ export const StockLocationsTab: React.FC<StockLocationsTabProps> = ({
     <div className="space-y-4">
       {/* Summary cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+        <Card className="bg-primary/10 border-primary/20">
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-2 text-primary mb-1">
               <Package2 className="h-4 w-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Items Tracked</span>
+              <span className="text-xs font-medium">Items Tracked</span>
             </div>
-            <p className="text-2xl font-bold">{totalItems}</p>
+            <p className="text-2xl font-semibold">{totalItems}</p>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
+        <Card className="bg-info/10 border-info/20">
           <CardContent className="pt-4 pb-3">
-            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 mb-1">
+            <div className="flex items-center gap-2 text-info mb-1">
               <MapPin className="h-4 w-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Locations</span>
+              <span className="text-xs font-medium">Locations</span>
             </div>
-            <p className="text-2xl font-bold">{totalLocations}</p>
+            <p className="text-2xl font-semibold">{totalLocations}</p>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-amber-500/10 to-amber-500/5 border-amber-500/20 col-span-2 sm:col-span-1">
+        <Card className="bg-warning/10 border-warning/20 col-span-2 sm:col-span-1">
           <CardContent className="pt-4 pb-3">
-            <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-1">
+            <div className="flex items-center gap-2 text-warning mb-1">
               <History className="h-4 w-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Pending Transfers</span>
+              <span className="text-xs font-medium">Pending Transfers</span>
             </div>
-            <p className="text-2xl font-bold">{pendingTransfers}</p>
+            <p className="text-2xl font-semibold">{pendingTransfers}</p>
           </CardContent>
         </Card>
       </div>
@@ -689,21 +684,21 @@ export const StockLocationsTab: React.FC<StockLocationsTabProps> = ({
         <TabsList className="w-full sm:w-auto">
           <TabsTrigger value="transfers" className="flex items-center gap-1.5">
             <History className="h-3.5 w-3.5" />
-            Transfer History
+            Transfer history
             {pendingTransfers > 0 && (
-              <Badge variant="secondary" className="ml-1 h-4 text-[10px] px-1">{pendingTransfers}</Badge>
+              <Badge variant="secondary" className="ml-1">{pendingTransfers}</Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="deductions" className="flex items-center gap-1.5">
             <ShoppingCart className="h-3.5 w-3.5" />
-            Order Deductions
+            Order deductions
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="transfers" className="mt-4">
           <Card>
             <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <CardTitle className="text-base">Transfer History</CardTitle>
+              <CardTitle>Transfer history</CardTitle>
               <span className="text-xs text-muted-foreground">{transferTotalCount} total</span>
             </CardHeader>
             <CardContent>
@@ -726,7 +721,7 @@ export const StockLocationsTab: React.FC<StockLocationsTabProps> = ({
         <TabsContent value="deductions" className="mt-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Order Deduction History</CardTitle>
+              <CardTitle>Order deduction history</CardTitle>
               <p className="text-xs text-muted-foreground mt-1">
                 Inventory quantities deducted when orders were fulfilled.
               </p>

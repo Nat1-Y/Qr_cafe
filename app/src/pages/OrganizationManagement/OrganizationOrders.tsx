@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { RefreshCw, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input, SearchInput } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -210,15 +210,10 @@ export const OrganizationOrders: React.FC<OrganizationOrdersProps> = ({
 
           <div className="space-y-1">
             <label className="text-xs text-muted-foreground">Search</label>
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
+            <SearchInput
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Order # or org"
-                className="w-48 pl-8"
-              />
-            </div>
+                placeholder="Order # or org" />
           </div>
         </div>
 

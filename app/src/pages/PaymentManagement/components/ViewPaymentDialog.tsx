@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getOrderPlacerLabel } from '@/lib/utils';
+import { formatETB } from '@/lib/format';
 
 interface ViewPaymentDialogProps {
   viewOpen: boolean;
@@ -24,7 +25,7 @@ export const ViewPaymentDialog: React.FC<ViewPaymentDialogProps> = ({
     <Dialog open={viewOpen} onOpenChange={setViewOpen}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Payment Details</DialogTitle>
+          <DialogTitle>Payment details</DialogTitle>
         </DialogHeader>
         {viewLoading ? (
           <div className="space-y-3 py-4">
@@ -42,14 +43,14 @@ export const ViewPaymentDialog: React.FC<ViewPaymentDialogProps> = ({
                       </p>
                     )}
                     {viewPayment?.payment_method && (
-                      <Badge variant="info" className="mt-1 text-[10px]">
+                      <Badge variant="info" className="mt-1">
                         {viewPayment.payment_method.replace('_', ' ')}
                       </Badge>
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="text-xl font-bold">
-                      {(parseFloat(String(viewPayment?.amount)) || 0).toLocaleString()} Birr
+                    <p className="text-xl font-semibold">
+                      {formatETB((parseFloat(String(viewPayment?.amount)) || 0))}
                     </p>
                     {viewPayment?.created_at && (
                       <p className="text-xs text-muted-foreground mt-1">
@@ -63,17 +64,17 @@ export const ViewPaymentDialog: React.FC<ViewPaymentDialogProps> = ({
             {Array.isArray(viewOrder?.items) && viewOrder.items.length > 0 ? (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm">Order Items</CardTitle>
+                  <CardTitle>Order items</CardTitle>
                 </CardHeader>
                 <CardContent className="max-h-48 overflow-y-auto space-y-2">
                   {viewOrder.items.map((it: any, i: number) => (
                     <div key={i} className="flex items-center justify-between text-sm">
                       <span>
-                        <span className="font-bold text-primary">{parseInt(String(it.quantity), 10) || 1}x</span>{' '}
+                        <span className="font-semibold text-primary">{parseInt(String(it.quantity), 10) || 1}x</span>{' '}
                         {it.menu_item_name || it.name}
                       </span>
                       <span className="font-medium">
-                        {(parseFloat(String(it.subtotal)) || 0).toLocaleString()} Birr
+                        {formatETB((parseFloat(String(it.subtotal)) || 0))}
                       </span>
                     </div>
                   ))}

@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { TopItem } from '../types';
+import { formatETB } from '@/lib/format';
 
 interface PopularMenuItemsProps {
   topItems: TopItem[];
@@ -16,14 +17,14 @@ export const PopularMenuItems: React.FC<PopularMenuItemsProps> = ({
   setTopItemsPeriod
 }) => {
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="transition-shadow">
       <CardHeader className="pb-3 border-b flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-base">Popular Menu Items</CardTitle>
+          <CardTitle>Popular menu items</CardTitle>
           <CardDescription>Most frequently bought dishes</CardDescription>
         </div>
         <Select value={topItemsPeriod} onValueChange={setTopItemsPeriod}>
-          <SelectTrigger className="h-8 text-xs w-[130px]">
+          <SelectTrigger className="h-8 w-[130px]">
             <SelectValue placeholder="Period" />
           </SelectTrigger>
           <SelectContent>
@@ -40,28 +41,28 @@ export const PopularMenuItems: React.FC<PopularMenuItemsProps> = ({
             topItems.map((item, index) => (
               <div 
                 key={item.name} 
-                className="flex items-center justify-between p-3 border rounded-xl hover:bg-muted/10 transition-colors font-semibold"
+                className="flex items-center justify-between border-b border-border py-3 last:border-b-0"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 bg-primary/10 text-primary rounded-full flex items-center justify-center text-xs font-black">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
                     {index + 1}
                   </div>
                   <div>
-                    <p className="font-extrabold text-xs text-foreground">{item.name}</p>
-                    <p className="text-[10px] text-muted-foreground font-bold">
-                      {(item.revenue || 0).toLocaleString()} Birr
+                    <p className="font-semibold text-xs text-foreground">{item.name}</p>
+                    <p className="text-xs text-muted-foreground font-semibold">
+                      {formatETB((item.revenue || 0))}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <Badge variant="secondary" className="text-xs font-black">
+                  <Badge variant="secondary">
                     {item.sold} sold
                   </Badge>
                 </div>
               </div>
             ))
           ) : (
-            <div className="p-8 text-center text-xs text-muted-foreground font-bold border border-dashed rounded-xl bg-muted/20">
+            <div className="p-8 text-center text-xs text-muted-foreground font-semibold border border-dashed rounded-xl bg-muted/20">
               No item summary found for the selected filters and period.
             </div>
           )}

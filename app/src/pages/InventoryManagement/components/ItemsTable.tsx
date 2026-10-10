@@ -30,13 +30,13 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
   return (
     <Table>
       <TableHeader>
-        <TableRow className="bg-muted/40">
-          <TableHead className="font-semibold text-foreground">Item</TableHead>
-          <TableHead className="font-semibold text-center text-foreground">Stock (Purchase Unit)</TableHead>
-          <TableHead className="font-semibold text-center text-foreground">Stock (Base Unit)</TableHead>
-          <TableHead className="font-semibold text-center text-foreground">Unit Configuration</TableHead>
-          <TableHead className="font-semibold text-center text-foreground">Limit &amp; Status</TableHead>
-          <TableHead className="text-right font-semibold text-foreground pr-4">Actions</TableHead>
+        <TableRow>
+          <TableHead className="text-foreground">Item</TableHead>
+          <TableHead className="text-center text-foreground">Stock (purchase unit)</TableHead>
+          <TableHead className="text-center text-foreground">Stock (base unit)</TableHead>
+          <TableHead className="text-center text-foreground">Unit configuration</TableHead>
+          <TableHead className="text-center text-foreground">Limit &amp; Status</TableHead>
+          <TableHead className="text-right text-foreground pr-4">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -65,13 +65,13 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
             return (
               <TableRow key={item.id} className={isLow ? 'bg-destructive/[0.03] hover:bg-destructive/[0.06]' : 'hover:bg-muted/50'}>
                 <TableCell className="font-medium text-sm pl-4">
-                  <div className="font-bold text-foreground">{item.name}</div>
+                  <div className="font-semibold text-foreground">{item.name}</div>
                   {item.notes && (
                     <div className="text-xs text-muted-foreground max-w-[240px] truncate mt-0.5">{item.notes}</div>
                   )}
                 </TableCell>
                 <TableCell className="text-center font-mono">
-                  <div className="font-bold text-sm text-primary">
+                  <div className="font-semibold text-sm text-primary">
                     {piecesPerUnit > 1 ? formatted.fractional : '—'}
                   </div>
                 </TableCell>
@@ -80,7 +80,7 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
                 </TableCell>
                 <TableCell className="text-center">
                   {piecesPerUnit > 1 ? (
-                    <span className="inline-block bg-muted/60 px-2 py-0.5 rounded border text-[11px] font-mono font-medium">
+                    <span className="inline-block bg-muted/60 px-2 py-0.5 rounded border text-xs font-mono font-medium">
                       1 {item.unit || 'Box'} = {piecesPerUnit} {item.base_unit || 'pcs'}
                     </span>
                   ) : (
@@ -90,11 +90,11 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
                 <TableCell className="text-center">
                   <div className="flex flex-col items-center gap-0.5">
                     {qty === 0 ? (
-                      <Badge variant="destructive" className="text-[10px] py-0 px-2 font-medium">Out of Stock</Badge>
+                      <Badge variant="destructive" className="px-2">Out of stock</Badge>
                     ) : isLow ? (
-                      <Badge variant="warning" className="text-[10px] py-0 px-2 font-medium bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/20">Low Stock</Badge>
+                      <Badge variant="warning" className="px-2 bg-warning/15 text-warning border-warning/20">Low stock</Badge>
                     ) : (
-                      <Badge variant="outline" className="text-[10px] py-0 px-2 font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20">Healthy</Badge>
+                      <Badge variant="outline" className="px-2 bg-success/10 text-success border-success/20">Healthy</Badge>
                     )}
                   
                   </div>
@@ -104,10 +104,10 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="h-7 text-xs bg-background hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all font-medium" 
+                      className="h-7 bg-background hover:bg-primary/10 hover:text-primary hover:border-primary/30" 
                       onClick={() => onUpdateQty(item)}
                     >
-                      Update Qty
+                      Update qty
                     </Button>
                     <Button 
                       variant="ghost" 

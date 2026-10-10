@@ -277,7 +277,7 @@ const CashierExpenses = () => {
               Cancel
             </Button>
             <Button type="button" onClick={saveEdit} disabled={savingEdit}>
-              <Save className="h-4 w-4 mr-2" />
+              <Save />
               {savingEdit ? 'Saving...' : 'Save changes'}
             </Button>
           </DialogFooter>

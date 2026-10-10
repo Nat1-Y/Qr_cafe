@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { RecentOrder } from '../types';
+import { formatETB } from '@/lib/format';
 
 interface RecentOrdersListProps {
   recentOrders: RecentOrder[];
@@ -10,9 +11,9 @@ interface RecentOrdersListProps {
 
 export const RecentOrdersList: React.FC<RecentOrdersListProps> = ({ recentOrders }) => {
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="transition-shadow">
       <CardHeader className="pb-3 border-b">
-        <CardTitle className="text-base">Recent Orders</CardTitle>
+        <CardTitle>Recent orders</CardTitle>
         <CardDescription>Latest order status logs</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
@@ -20,27 +21,27 @@ export const RecentOrdersList: React.FC<RecentOrdersListProps> = ({ recentOrders
           {recentOrders.slice(0, 5).map((order) => (
             <div 
               key={order.id} 
-              className="flex items-center justify-between p-3 border rounded-xl hover:bg-muted/10 transition-colors font-semibold"
+              className="flex items-center justify-between border-b border-border py-3 last:border-b-0"
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="font-extrabold text-xs text-foreground">
+                  <span className="font-semibold text-xs text-foreground">
                     Order {formatOrderNumber(order)}
                   </span>
-                  <Badge variant="secondary" className="text-[9px] capitalize py-0 px-1.5">
+                  <Badge variant="secondary" className="capitalize">
                     {String(order.type || '').trim().toLowerCase() === 'bakery' ? 'cafe' : order.type}
                   </Badge>
                 </div>
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {new Date(order.created_at).toLocaleString()}
                 </p>
-                <p className="text-[10px] text-muted-foreground font-bold">
+                <p className="text-xs text-muted-foreground font-semibold">
                   Waiter: {String(order?.waiter_name || order?.employee_name || '').trim() || (order?.employee_id != null ? `#${order.employee_id}` : '—')}
                 </p>
               </div>
               <div className="text-right space-y-1">
-                <p className="font-extrabold text-xs text-foreground">
-                  {parseFloat(String(order.total_amount)).toLocaleString()} Birr
+                <p className="font-semibold text-xs text-foreground">
+                  {formatETB(parseFloat(String(order.total_amount)))}
                 </p>
                 <Badge 
                   variant={
@@ -50,7 +51,7 @@ export const RecentOrdersList: React.FC<RecentOrdersListProps> = ({ recentOrders
                       ? 'destructive' 
                       : 'warning'
                   } 
-                  className="capitalize text-[9px] py-0 px-1.5"
+                  className="capitalize"
                 >
                   {order.derived_status}
                 </Badge>

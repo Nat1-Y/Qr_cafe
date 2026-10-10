@@ -50,7 +50,7 @@ const ExpenseManagement = () => {
   if (loading) {
     return (
       <div className="p-4 md:p-8 space-y-6">
-        <Skeleton className="h-20 w-full rounded-2xl" />
+        <Skeleton className="h-20 w-full rounded-card" />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}
         </div>
@@ -65,13 +65,13 @@ const ExpenseManagement = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Expense Management"
+        title="Expense management"
         description="Track operating costs, review spending patterns, and compare expenses against sales"
         actions={
           <div className="flex items-center gap-3">
             <div className="hidden sm:block text-right">
-              <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Visible Expenses</p>
-              <p className="text-sm font-extrabold text-primary">{formatETB(totalVisibleAmount)}</p>
+              <p className="text-xs font-semibold text-muted-foreground">Visible Expenses</p>
+              <p className="text-sm font-semibold text-primary">{formatETB(totalVisibleAmount)}</p>
             </div>
             <Button variant="outline" onClick={() => loadExpenseData(filters)} disabled={refreshing}>
               <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
@@ -102,8 +102,8 @@ const ExpenseManagement = () => {
         {/* Trends & Recents */}
         <div className="lg:col-span-2 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <TrendChart title="Daily Expense Trend" data={dashboard?.trends?.daily} colorClass="bg-destructive/80" />
-            <TrendChart title="Monthly Expense Trend" data={dashboard?.trends?.monthly} colorClass="bg-info/80" />
+            <TrendChart title="Daily Expense Trend" data={dashboard?.trends?.daily} colorClass="bg-chart-1" />
+            <TrendChart title="Monthly Expense Trend" data={dashboard?.trends?.monthly} colorClass="bg-chart-4" />
           </div>
 
           <RecentExpenses recentExpenses={dashboard?.recent_expenses} />

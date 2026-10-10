@@ -122,7 +122,7 @@ export const PaymentFilters: React.FC<PaymentFiltersProps> = ({
           </div>
           <Select value={filterDate} onValueChange={setFilterDate}>
             <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="All Dates" />
+              <SelectValue placeholder="All dates" />
             </SelectTrigger>
             <SelectContent>
               {dateOptions.map((option) => (
@@ -134,7 +134,7 @@ export const PaymentFilters: React.FC<PaymentFiltersProps> = ({
           </Select>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="All Statuses" />
+              <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
               {statusOptions.map((option) => (
@@ -146,7 +146,7 @@ export const PaymentFilters: React.FC<PaymentFiltersProps> = ({
           </Select>
           <Select value={filterMethod} onValueChange={setFilterMethod}>
             <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="All Methods" />
+              <SelectValue placeholder="All methods" />
             </SelectTrigger>
             <SelectContent>
               {paymentMethodOptions.map((option) => (

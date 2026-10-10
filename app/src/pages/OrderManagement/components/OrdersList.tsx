@@ -1,4 +1,5 @@
-import { uuidToDisplayId, formatOrderNumber, getOrderSource, displayStatus, statusBadgeVariant } from "@/lib/utils";
+import { uuidToDisplayId, formatOrderNumber, getOrderSource, displayStatus } from "@/lib/utils";
+import StatusBadge from '@/components/common/StatusBadge';
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { OrderDetailsDialog } from '@/components/common/OrderDetailsDialog';
+import { formatETB } from '@/lib/format';
 
 interface OrdersListProps {
   orders: any[];
@@ -52,16 +54,16 @@ export const OrdersList: React.FC<OrdersListProps> = ({
     <div className="rounded-xl border border-border bg-card">
       <Table>
         <TableHeader>
-          <TableRow className="bg-muted/50 hover:bg-muted/50">
-            <TableHead className="font-bold">Order ID</TableHead>
-            <TableHead className="font-bold">Table</TableHead>
-            <TableHead className="font-bold">Waiter</TableHead>
-            <TableHead className="font-bold">Placed By</TableHead>
-            <TableHead className="font-bold">Date & Time</TableHead>
-            <TableHead className="font-bold">Items</TableHead>
-            <TableHead className="font-bold">Total</TableHead>
-            <TableHead className="font-bold">Payment</TableHead>
-            <TableHead className="font-bold text-center">Details</TableHead>
+          <TableRow>
+            <TableHead>Order</TableHead>
+            <TableHead>Table</TableHead>
+            <TableHead>Waiter</TableHead>
+            <TableHead>Placed by</TableHead>
+            <TableHead>Date & time</TableHead>
+            <TableHead>Items</TableHead>
+            <TableHead className="text-right">Total</TableHead>
+            <TableHead>Payment</TableHead>
+            <TableHead className="text-center">Details</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -74,8 +76,8 @@ export const OrdersList: React.FC<OrdersListProps> = ({
             return (
               <TableRow
                 key={order.id}
-                className={`transition-colors ${order.status === 'done' ? 'bg-green-50/30' :
-                  order.status === 'pending' ? 'bg-amber-50/30' : ''
+                className={`transition-colors ${order.status === 'done' ? 'bg-success-soft' :
+                  order.status === 'pending' ? 'bg-warning-soft' : ''
                   } hover:bg-muted/50`}
                 onClick={() => setSelectedOrder(order)}
               >
@@ -83,7 +85,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({
 
                 <TableCell>
                   {order.table_number ? (
-                    <Badge className="bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-50 text-[10px] font-bold">
+                    <Badge className="bg-info-soft text-info border border-info/30 hover:bg-info-soft">
                       #{order.table_number}
                     </Badge>
                   ) : (
@@ -96,22 +98,16 @@ export const OrdersList: React.FC<OrdersListProps> = ({
                     const source = getOrderSource(order);
                     if (source === 'cashier') {
                       return (
-                        <Badge className="bg-violet-50 text-violet-700 border border-violet-200 hover:bg-violet-50 text-[10px] font-bold">
-                          Cashier
-                        </Badge>
+                        <Badge variant="secondary">Cashier</Badge>
                       );
                     }
                     if (source === 'owner') {
                       return (
-                        <Badge className="bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-50 text-[10px] font-bold">
-                          Owner
-                        </Badge>
+                        <Badge variant="secondary">Owner</Badge>
                       );
                     }
                     return (
-                      <Badge className="bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-50 text-[10px] font-bold">
-                        Waiter
-                      </Badge>
+                      <Badge variant="secondary">Waiter</Badge>
                     );
                   })()}
                 </TableCell>
@@ -127,8 +123,8 @@ export const OrdersList: React.FC<OrdersListProps> = ({
                     {totalItemsCount}
                   </div>
                 </TableCell>
-                <TableCell className="font-bold">
-                  {parseFloat(order.total_amount).toLocaleString()} <span className="text-xs text-warning font-normal">Birr</span>
+                <TableCell className="text-right font-semibold text-foreground">
+                  {formatETB(order.total_amount)}
                 </TableCell>
                 <TableCell>
                   {(() => {
@@ -141,15 +137,13 @@ export const OrdersList: React.FC<OrdersListProps> = ({
                           ? 'paid'
                           : 'pending';
                     return (
-                      <Badge variant={statusBadgeVariant(state)} className="text-[10px] font-bold px-2 py-0.5 capitalize">
-                        {state}
-                      </Badge>
+                      <StatusBadge kind="order" status={state === 'deleted' ? 'cancelled' : state} />
                     );
                   })()}
                 </TableCell>
                 <TableCell className="text-center">
                   <Button variant="ghost" size="icon" onClick={() => setSelectedOrder(order)} className="h-8 w-8 hover:bg-muted hover:text-foreground">
-                    <Eye className="h-4 w-4" />
+                    <Eye />
                   </Button>
                 </TableCell>
 

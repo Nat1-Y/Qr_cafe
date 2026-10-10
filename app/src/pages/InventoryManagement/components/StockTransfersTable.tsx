@@ -24,7 +24,7 @@ export const StockTransfersTable: React.FC<StockTransfersTableProps> = ({ transf
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">{showAll ? 'Stock Transfer History' : 'Recent Transfers'}</CardTitle>
+        <CardTitle>{showAll ? 'Stock Transfer History' : 'Recent Transfers'}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {visibleTransfers.length > 0 ? visibleTransfers.map(transfer => (
@@ -59,12 +59,12 @@ export const StockTransfersTable: React.FC<StockTransfersTableProps> = ({ transf
                 {transfer.status}
               </Badge>
               {onReceive && transfer.status !== 'received' && (
-                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => onReceive(transfer)}>
+                <Button variant="outline" size="sm" className="h-7" onClick={() => onReceive(transfer)}>
                   Receive
                 </Button>
               )}
               {onPrintReceipts && (
-                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => onPrintReceipts(transfer)}>
+                <Button variant="outline" size="sm" className="h-7" onClick={() => onPrintReceipts(transfer)}>
                   Receipts
                 </Button>
               )}

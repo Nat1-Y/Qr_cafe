@@ -62,12 +62,12 @@ const MenuManagement = () => {
               onClick={() => navigate('/dashboard/menu/bulk-import')}
               disabled={!syncStatus.online}
             >
-              <Upload className="h-4 w-4 mr-2" />
-              Bulk Import
+              <Upload />
+              Bulk import
             </Button>
             <Button onClick={openAdd} disabled={!syncStatus.online}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Menu Item
+              <Plus />
+              Add menu item
             </Button>
           </div>
         ) : undefined}

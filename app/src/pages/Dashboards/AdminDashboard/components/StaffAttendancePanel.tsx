@@ -14,11 +14,11 @@ export const StaffAttendancePanel: React.FC<StaffAttendancePanelProps> = ({
     <Card>
       <CardHeader className="pb-3 border-b flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-base">Active Floor Staff</CardTitle>
+          <CardTitle>Active floor staff</CardTitle>
           <CardDescription>Shift logs and live active workers</CardDescription>
         </div>
-        <Badge variant="info" className="text-xs font-bold">
-          {attendanceData.length} On Duty
+        <Badge variant="info">
+          {attendanceData.length} On duty
         </Badge>
       </CardHeader>
       <CardContent className="pt-6 space-y-3">
@@ -26,11 +26,11 @@ export const StaffAttendancePanel: React.FC<StaffAttendancePanelProps> = ({
           attendanceData.map((attendance: any) => (
             <div
               key={attendance.id}
-              className="flex items-center justify-between p-3 border rounded-xl hover:bg-muted/10 transition-colors"
+              className="flex items-center justify-between border-b border-border py-3 last:border-b-0"
             >
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black text-sm uppercase">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-highlight text-sm font-semibold text-highlight-foreground">
                     {attendance.full_name?.charAt(0)}
                   </div>
                   {!attendance.clock_out_time && (
@@ -38,17 +38,17 @@ export const StaffAttendancePanel: React.FC<StaffAttendancePanelProps> = ({
                   )}
                 </div>
                 <div>
-                  <p className="font-extrabold text-xs text-foreground">
+                  <p className="font-semibold text-xs text-foreground">
                     {attendance.full_name}
                   </p>
-                  <p className="text-[9px] uppercase font-bold text-muted-foreground">
+                  <p className="text-xs font-semibold text-muted-foreground">
                     {attendance.role?.replace('_', ' ')}
                   </p>
                 </div>
               </div>
 
               <div className="text-right space-y-0.5">
-                <div className="flex items-center justify-end text-[10px] font-bold text-foreground">
+                <div className="flex items-center justify-end text-xs font-semibold text-foreground">
                   <Clock className="w-3.5 h-3.5 mr-1 text-muted-foreground" />
                   {new Date(attendance.clock_in_time).toLocaleTimeString([], {
                     hour: '2-digit',
@@ -57,7 +57,7 @@ export const StaffAttendancePanel: React.FC<StaffAttendancePanelProps> = ({
                 </div>
                 <Badge
                   variant={attendance.clock_out_time ? 'secondary' : 'success'}
-                  className="text-[8px] uppercase py-0 px-1 font-bold"
+                 
                 >
                   {attendance.clock_out_time ? 'Shift Ended' : 'Live'}
                 </Badge>
@@ -65,7 +65,7 @@ export const StaffAttendancePanel: React.FC<StaffAttendancePanelProps> = ({
             </div>
           ))
         ) : (
-          <div className="p-8 text-center text-xs text-muted-foreground font-bold border border-dashed rounded-xl bg-muted/20">
+          <div className="p-8 text-center text-xs text-muted-foreground font-semibold border border-dashed rounded-xl bg-muted/20">
             Team not clocked in today
           </div>
         )}

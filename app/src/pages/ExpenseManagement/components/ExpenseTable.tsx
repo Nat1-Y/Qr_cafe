@@ -25,7 +25,7 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Expense Records</CardTitle>
+        <CardTitle>Expense records</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <Table>
@@ -33,8 +33,8 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
             <TableRow>
               <TableHead>Title</TableHead>
               <TableHead className="hidden sm:table-cell">Category</TableHead>
-              <TableHead className="hidden md:table-cell">Paid To</TableHead>
-              <TableHead className="hidden sm:table-cell">Payment Method</TableHead>
+              <TableHead className="hidden md:table-cell">Paid to</TableHead>
+              <TableHead className="hidden sm:table-cell">Payment method</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead className="hidden md:table-cell">Created</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -61,19 +61,19 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
                       {expense.title || (isBatch ? `${items.length} item${items.length > 1 ? 's' : ''}` : '—')}
                     </div>
                     {isBatch && itemSummary && (
-                      <p className="text-[10px] text-muted-foreground mt-0.5 max-w-sm line-clamp-2">{itemSummary}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 max-w-sm line-clamp-2">{itemSummary}</p>
                     )}
-                    {expense.notes && <p className="text-[10px] text-muted-foreground mt-0.5 max-w-sm line-clamp-1">{expense.notes}</p>}
+                    {expense.notes && <p className="text-xs text-muted-foreground mt-0.5 max-w-sm line-clamp-1">{expense.notes}</p>}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    <Badge variant="secondary" className="text-[10px]">{expense.category || (isBatch ? 'cashier' : '—')}</Badge>
+                    <Badge variant="secondary">{expense.category || (isBatch ? 'cashier' : '—')}</Badge>
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{expense.paid_to || '—'}</TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    <Badge variant="info" className="text-[10px]">{expense.payment_method || '—'}</Badge>
+                    <Badge variant="info">{expense.payment_method || '—'}</Badge>
                   </TableCell>
-                  <TableCell className="text-right font-bold text-destructive">{formatETB(expense.amount || expense.total)}</TableCell>
-                  <TableCell className="hidden md:table-cell text-xs text-muted-foreground">{formatDateTime(expense.created_at)}</TableCell>
+                  <TableCell className="text-right font-semibold text-destructive">{formatETB(expense.amount || expense.total)}</TableCell>
+                  <TableCell className="hidden md:table-cell text-muted-foreground">{formatDateTime(expense.created_at)}</TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(expense)}>

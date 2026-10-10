@@ -27,7 +27,7 @@ export const MovementHistoryDialog: React.FC<MovementHistoryDialogProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <History className="h-5 w-5 text-primary" />
-            <span>Stock Movement History</span>
+            <span>Stock movement history</span>
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             Recent movements for <span className="font-semibold text-foreground">{itemName}</span>
@@ -46,33 +46,33 @@ export const MovementHistoryDialog: React.FC<MovementHistoryDialogProps> = ({
           <div className="rounded-lg border overflow-hidden mt-2">
             <Table>
               <TableHeader>
-                <TableRow className="bg-muted/40 text-xs">
-                  <TableHead className="font-semibold">Date</TableHead>
-                  <TableHead className="font-semibold">Type</TableHead>
-                  <TableHead className="font-semibold">Location</TableHead>
-                  <TableHead className="font-semibold text-right">Change</TableHead>
-                  <TableHead className="font-semibold text-right">After</TableHead>
-                  <TableHead className="font-semibold">User</TableHead>
-                  <TableHead className="font-semibold max-w-[200px]">Notes</TableHead>
+                <TableRow className="text-xs">
+                  <TableHead>Date</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead className="text-right">Change</TableHead>
+                  <TableHead className="text-right">After</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead className="max-w-[200px]">Notes</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {movements.map((m) => {
                   const isPositive = Number(m.quantity_delta || 0) > 0;
                   return (
-                    <TableRow key={m.id} className="text-xs hover:bg-muted/50">
+                    <TableRow key={m.id} className="text-xs">
                       <TableCell className="whitespace-nowrap text-muted-foreground font-mono">
                         {m.created_at ? new Date(m.created_at).toLocaleString() : '—'}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className="capitalize text-[10px] px-1.5 py-0 font-medium">
+                        <Badge variant="secondary" className="capitalize">
                           {m.movement_type?.replace('_', ' ')}
                         </Badge>
                       </TableCell>
                       <TableCell className="font-medium">
                         {m.location_name || `Location #${m.location_id}`}
                       </TableCell>
-                      <TableCell className={`text-right font-bold font-mono ${isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                      <TableCell className={`text-right font-semibold font-mono ${isPositive ? 'text-success' : 'text-destructive'}`}>
                         {isPositive ? '+' : ''}{m.quantity_delta}
                       </TableCell>
                       <TableCell className="text-right font-mono text-muted-foreground font-semibold">
@@ -91,8 +91,8 @@ export const MovementHistoryDialog: React.FC<MovementHistoryDialogProps> = ({
             </Table>
           </div>
         )}
-        <DialogFooter className="mt-4">
-          <Button onClick={() => onOpenChange(false)}>Close History</Button>
+        <DialogFooter>
+          <Button onClick={() => onOpenChange(false)}>Close history</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

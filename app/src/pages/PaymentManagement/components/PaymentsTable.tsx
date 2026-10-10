@@ -1,4 +1,5 @@
-import { uuidToDisplayId, displayStatus, statusBadgeVariant } from "@/lib/utils";
+import { uuidToDisplayId } from "@/lib/utils";
+import StatusBadge from '@/components/common/StatusBadge';
 import React from 'react';
 import { CreditCard, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import EmptyState from '@/components/common/EmptyState';
 import { PaymentRecord } from '../types';
+import { formatETB } from '@/lib/format';
 
 interface PaymentsTableProps {
   loading: boolean;
@@ -68,12 +70,12 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
                         <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-right font-bold">
-                      {parseFloat(String(p.amount || 0)).toLocaleString()} Birr
+                    <TableCell className="text-right font-semibold">
+                      {formatETB(parseFloat(String(p.amount || 0)))}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       {p.payment_method ? (
-                        <Badge variant="info" className="text-[10px]">
+                        <Badge variant="info">
                           {p.payment_method.replace('_', ' ')}
                         </Badge>
                       ) : (
@@ -81,7 +83,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={statusBadgeVariant(p.status)}>{displayStatus(p.status)}</Badge>
+                      <StatusBadge kind="payment" status={p.status} />
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
                       {(() => {
@@ -132,7 +134,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
                 disabled={page <= 1}
                 onClick={() => setPage(Math.max(1, page - 1))}
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft />
                 Prev
               </Button>
               <span className="text-sm text-muted-foreground">
@@ -146,7 +148,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
               >
                 Next
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight />
               </Button>
             </div>
           </div>

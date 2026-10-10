@@ -32,7 +32,7 @@ export const TransactionHistoryTab = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Transaction History</CardTitle>
+        <CardTitle>Transaction history</CardTitle>
         <CardDescription>View all service transactions with backend pagination.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -64,7 +64,7 @@ export const TransactionHistoryTab = ({
                       <TableHead>Date</TableHead>
                       <TableHead>Services</TableHead>
                       <TableHead>Total</TableHead>
-                      <TableHead>Linked Payment</TableHead>
+                      <TableHead>Linked payment</TableHead>
                       <TableHead>Notes</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -85,7 +85,7 @@ export const TransactionHistoryTab = ({
                             </div>
                           ))}
                         </TableCell>
-                        <TableCell className="font-semibold text-rose-600 dark:text-rose-400">
+                        <TableCell className="font-semibold text-destructive">
                           -{formatETB(txn.total_amount)}
                         </TableCell>
                         <TableCell>

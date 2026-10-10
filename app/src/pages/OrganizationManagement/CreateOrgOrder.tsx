@@ -4,7 +4,7 @@ import { ArrowLeft, Minus, Plus, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input, SearchInput } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/application';
+import { formatETB } from '@/lib/format';
 
 interface CartItem {
   menu_item_id: string;
@@ -242,10 +243,10 @@ export const CreateOrgOrder: React.FC = () => {
     return (
       <div className="p-4 md:p-8 space-y-6">
         <PageHeader
-          title="Create Organization Order"
+          title="Create organization order"
           actions={
             <Button variant="outline" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft />
               Back
             </Button>
           }
@@ -263,7 +264,7 @@ export const CreateOrgOrder: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Create Organization Order"
+        title="Create organization order"
         description={
           organization?.name
             ? `Bulk order for ${organization.name}`
@@ -274,7 +275,7 @@ export const CreateOrgOrder: React.FC = () => {
             variant="outline"
             onClick={() => navigate(`/dashboard/organizations/${id}`)}
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft />
             Back
           </Button>
         }
@@ -284,16 +285,11 @@ export const CreateOrgOrder: React.FC = () => {
         {/* Menu */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base">Menu</CardTitle>
-            <div className="relative mt-2">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
+            <CardTitle>Menu</CardTitle>
+            <SearchInput
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search items..."
-                className="pl-8"
-              />
-            </div>
+                placeholder="Search items..." wrapperClassName="mt-2" />
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -310,7 +306,7 @@ export const CreateOrgOrder: React.FC = () => {
                   >
                     <p className="font-medium text-sm truncate">{item.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {Number(item.price || 0).toLocaleString()} Birr
+                      {formatETB(Number(item.price || 0))}
                     </p>
                   </button>
                 ))}
@@ -327,7 +323,7 @@ export const CreateOrgOrder: React.FC = () => {
         {/* Cart */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Order</CardTitle>
+            <CardTitle>Order</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
@@ -381,7 +377,7 @@ export const CreateOrgOrder: React.FC = () => {
                         {c.menu_item_name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {(c.price * c.quantity).toLocaleString()} Birr
+                        {formatETB((c.price * c.quantity))}
                       </p>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -413,7 +409,7 @@ export const CreateOrgOrder: React.FC = () => {
             <div className="border-t pt-3 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Items subtotal</span>
-                <span>{computedTotal.toLocaleString()} Birr</span>
+                <span>{formatETB(computedTotal)}</span>
               </div>
 
               {isAdmin && (
@@ -438,7 +434,7 @@ export const CreateOrgOrder: React.FC = () => {
               <div className="flex justify-between font-semibold">
                 <span>Order total</span>
                 <span>
-                  {effectiveTotal.toLocaleString()} Birr
+                  {formatETB(effectiveTotal)}
                   {hasOverride && (
                     <span className="ml-1 text-xs font-normal text-primary">
                       (custom)

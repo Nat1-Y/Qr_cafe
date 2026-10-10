@@ -36,7 +36,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
             <TableHeader>
               <TableRow>
                 <TableHead>Item</TableHead>
-                <TableHead>Stock by Location</TableHead>
+                <TableHead>Stock by location</TableHead>
                 <TableHead className="hidden sm:table-cell">Min</TableHead>
                 <TableHead className="hidden sm:table-cell">Unit</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -90,7 +90,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                             return (
                               <div key={s.location_id} className="text-sm">
                                 <span className="text-muted-foreground text-xs mr-1">{s.location_name}:</span>
-                                <span className={`font-bold ${isLocLow ? 'text-destructive' : ''}`}>
+                                <span className={`font-semibold ${isLocLow ? 'text-destructive' : ''}`}>
                                   {s.quantity}
                                 </span>
                                 {minMode === 'per_location' && locMin > 0 && (
@@ -103,7 +103,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                           })}
                         </div>
                       ) : (
-                        <span className={`font-bold text-base ${low ? 'text-destructive' : ''}`}>
+                        <span className={`font-semibold text-base ${low ? 'text-destructive' : ''}`}>
                           {totalQty}
                         </span>
                       )}
@@ -115,8 +115,8 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => openQty(it)}>
-                          Update Qty
+                        <Button variant="outline" size="sm" className="h-7" onClick={() => openQty(it)}>
+                          Update qty
                         </Button>
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openHistory(it)}>
                           <History className="h-3.5 w-3.5" />

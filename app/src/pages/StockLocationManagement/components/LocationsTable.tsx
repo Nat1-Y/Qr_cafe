@@ -37,7 +37,7 @@ export const LocationsTable: React.FC<LocationsTableProps> = ({
   return (
     <Card>
       <CardHeader className="pb-3 border-b">
-        <CardTitle className="text-base">Stock Locations</CardTitle>
+        <CardTitle>Stock locations</CardTitle>
         <CardDescription>
           Physical and prep locations where inventory is stored and deducted from
         </CardDescription>
@@ -48,27 +48,27 @@ export const LocationsTable: React.FC<LocationsTableProps> = ({
             key={location.id}
             className="flex items-center gap-4 p-4 rounded-xl border bg-muted/10 hover:bg-muted/20 transition-colors"
           >
-            <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
+            <div className="shrink-0 text-muted-foreground">
               <MapPin className="w-5 h-5" />
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="font-bold text-sm flex items-center gap-2 flex-wrap">
+              <div className="font-semibold text-sm flex items-center gap-2 flex-wrap">
                 {location.name}
                 {location.is_default && (
-                  <Badge variant="outline" className="h-4 text-[8px] font-bold px-1">
+                  <Badge variant="outline">
                     default
                   </Badge>
                 )}
               </div>
-              <div className="text-[10px] text-muted-foreground font-medium">
+              <div className="text-xs text-muted-foreground font-medium">
                 Slug: {location.slug} · {typeLabel(location.location_type)}
               </div>
               {location.description && (
                 <div className="text-xs text-muted-foreground mt-0.5">{location.description}</div>
               )}
               {location.linked_main_category_slug && (
-                <div className="text-[10px] text-muted-foreground mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                   Linked department: {location.linked_main_category_slug}
                 </div>
               )}
@@ -78,8 +78,8 @@ export const LocationsTable: React.FC<LocationsTableProps> = ({
               variant={location.is_active ? 'default' : 'outline'}
               className={
                 location.is_active
-                  ? 'bg-success/15 text-success border-green-500/30 font-bold text-[10px]'
-                  : 'bg-muted/30 text-muted-foreground font-bold text-[10px]'
+                  ? 'bg-success/15 text-success border-success/30 font-semibold text-xs'
+                  : 'bg-muted/30 text-muted-foreground font-semibold text-xs'
               }
             >
               {location.is_active ? 'Active' : 'Inactive'}
@@ -94,7 +94,7 @@ export const LocationsTable: React.FC<LocationsTableProps> = ({
                 disabled={!location.is_active}
                 title="Edit location"
               >
-                <Edit3 className="w-4 h-4" />
+                <Edit3 />
               </Button>
               <Button
                 size="sm"
@@ -108,14 +108,14 @@ export const LocationsTable: React.FC<LocationsTableProps> = ({
                     : 'Deactivate location'
                 }
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 />
               </Button>
             </div>
           </div>
         ))}
 
         {locations.length === 0 && (
-          <div className="p-8 text-center text-xs text-muted-foreground font-bold border border-dashed rounded-xl bg-muted/20">
+          <div className="p-8 text-center text-xs text-muted-foreground font-semibold border border-dashed rounded-xl bg-muted/20">
             No stock locations configured. Click &quot;Add Location&quot; to create one.
           </div>
         )}

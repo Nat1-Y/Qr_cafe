@@ -143,21 +143,21 @@ export const InventoryManagement: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Inventory Management"
+        title="Inventory management"
         description="Manage stock levels and track transfers between locations."
         actions={
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={fetchAll}>
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <RefreshCw />
               Refresh
             </Button>
             <Button variant="outline" onClick={openTransfer} disabled={!syncStatus.online}>
-              <ArrowLeftRight className="h-4 w-4 mr-2" />
-              Transfer Stock
+              <ArrowLeftRight />
+              Transfer stock
             </Button>
             <Button onClick={() => openAdd(selectedLocationId)} disabled={!syncStatus.online}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Item
+              <Plus />
+              Add item
             </Button>
           </div>
         }
@@ -171,7 +171,7 @@ export const InventoryManagement: React.FC = () => {
           <TabsTrigger value="stock-history">
             Stock &amp; History
           </TabsTrigger>
-          <TabsTrigger value="item-links">Item Links</TabsTrigger>
+          <TabsTrigger value="item-links">Item links</TabsTrigger>
         </TabsList>
 
         {/* ── Tab 1: Inventory ── */}
@@ -185,7 +185,7 @@ export const InventoryManagement: React.FC = () => {
               />
 
               <div>
-                <h3 className="text-lg font-semibold mb-1">Select an Inventory Location</h3>
+                <h3 className="text-lg font-semibold mb-1">Select an inventory location</h3>
                 <p className="text-sm text-muted-foreground">Click a location to explore, adjust quantities, and manage configured items.</p>
               </div>
 

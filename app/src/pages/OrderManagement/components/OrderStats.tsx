@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { DollarSign, ShoppingCart, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import StatsCard from '@/components/common/StatsCard';
+import { formatETB } from '@/lib/format';
 
 interface OrderStatsProps {
   orders: any[];
@@ -32,72 +32,14 @@ export const OrderStats: React.FC<OrderStatsProps> = ({ orders, paidOrderIdSet }
     };
   }, [orders, paidOrderIdSet]);
 
-  const StatCard = ({ 
-    title, 
-    value, 
-    icon: Icon, 
-    trend, 
-    color = 'default' 
-  }: { 
-    title: string; 
-    value: string | number; 
-    icon: any; 
-    trend?: string;
-    color?: 'default' | 'success' | 'warning' | 'danger';
-  }) => {
-    const colorClasses = {
-      default: 'bg-primary/10 text-primary',
-      success: 'bg-emerald-50 text-emerald-600',
-      warning: 'bg-amber-50 text-amber-600',
-      danger: 'bg-rose-50 text-rose-600',
-    };
-
-    return (
-      <Card className="border-border/50 hover:shadow-md transition-shadow">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
-              <p className="text-2xl font-bold text-foreground">{value}</p>
-              {trend && (
-                <p className="text-xs text-muted-foreground">{trend}</p>
-              )}
-            </div>
-            <div className={`rounded-full p-3 ${colorClasses[color]}`}>
-              <Icon className="h-5 w-5" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <StatCard
-        title="Total Orders"
-        value={stats.totalOrders}
-        icon={ShoppingCart}
-        color="default"
-      />
-      <StatCard
-        title="Total Revenue"
-        value={`${stats.totalRevenue.toLocaleString()} Birr`}
-        icon={DollarSign}
-        color="success"
-      />
-      <StatCard
-        title="Pending Orders"
-        value={stats.pendingOrders}
-        icon={Clock}
-        color="warning"
-      />
-      <StatCard
-        title="Unpaid Amount"
-        value={`${stats.unpaidAmount.toLocaleString()} Birr`}
-        icon={AlertCircle}
-        color="danger"
-      />
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <StatsCard title="Orders" value={stats.totalOrders} />
+      <StatsCard title="Revenue" value={formatETB(stats.totalRevenue)} variant="success" />
+      <StatsCard title="Pending" value={stats.pendingOrders} variant="warning" />
+      <StatsCard title="Not paid yet" value={formatETB(stats.unpaidAmount)} variant="destructive" />
     </div>
   );
 };
+
+

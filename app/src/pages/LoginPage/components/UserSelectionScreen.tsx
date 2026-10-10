@@ -59,8 +59,8 @@ export const UserSelectionScreen: React.FC<UserSelectionScreenProps> = ({
               onClick={onAdminLogin}
               disabled={isLoading || isOffline}
             >
-              <Settings className="w-4 h-4" />
-              Staff Sign In
+              <Settings />
+              Staff sign in
             </Button>
           </div>
         </CardContent>

@@ -10,6 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { getApproximateServerIsoString } from '@/shared/utils/serverTime';
+import { formatETB } from '@/lib/format';
 
 export interface ExpenseEntry {
   id: string;
@@ -35,7 +36,7 @@ const ItemList: React.FC<{ items: ExpenseEntry['items'] }> = ({ items }) => (
       <div key={i} className="flex justify-between gap-4">
         <span className="truncate">{it.item}</span>
         <span className="text-muted-foreground whitespace-nowrap">
-          {Number(it.cost || 0).toFixed(2)} Birr
+          {formatETB(Number(it.cost || 0))}
         </span>
       </div>
     ))}
@@ -84,7 +85,7 @@ export const ExpenseLog: React.FC<ExpenseLogProps> = ({
         onClick={() => onEdit(entry)}
         title="Edit"
       >
-        <Pencil className="h-4 w-4" />
+        <Pencil />
       </Button>
       <Button
         type="button"
@@ -95,7 +96,7 @@ export const ExpenseLog: React.FC<ExpenseLogProps> = ({
         disabled={deletingId === entry.id}
         title="Delete"
       >
-        <Trash2 className="h-4 w-4" />
+        <Trash2 />
       </Button>
     </div>
   );
@@ -106,7 +107,7 @@ export const ExpenseLog: React.FC<ExpenseLogProps> = ({
         <span className="text-muted-foreground">
           {entries.length} {entries.length === 1 ? 'entry' : 'entries'}
         </span>
-        <span className="font-semibold">Total: {grandTotal.toFixed(2)} Birr</span>
+        <span className="font-semibold">Total: {formatETB(grandTotal)}</span>
       </div>
 
       {/* Mobile: stacked cards */}
@@ -123,7 +124,7 @@ export const ExpenseLog: React.FC<ExpenseLogProps> = ({
             <ItemList items={entry.items} />
             <div className="flex justify-between border-t pt-2 text-sm font-semibold">
               <span>Total</span>
-              <span>{Number(entry.total || 0).toFixed(2)} Birr</span>
+              <span>{formatETB(Number(entry.total || 0))}</span>
             </div>
           </div>
         ))}
@@ -153,7 +154,7 @@ export const ExpenseLog: React.FC<ExpenseLogProps> = ({
                   <ItemSummary items={entry.items} />
                 </TableCell>
                 <TableCell className="text-right font-semibold align-top">
-                  {Number(entry.total || 0).toFixed(2)} Birr
+                  {formatETB(Number(entry.total || 0))}
                 </TableCell>
                 <TableCell className="text-right align-top">
                   <Actions entry={entry} />

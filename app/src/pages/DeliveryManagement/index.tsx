@@ -6,7 +6,7 @@ import EmptyState from '@/components/common/EmptyState';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Input, SearchInput } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -45,8 +45,11 @@ import {
   Loader2,
   type LucideIcon,
 } from 'lucide-react';
+import { formatETB } from '@/lib/format';
+import StatsCard from '@/components/common/StatsCard';
+import PageHeader from '@/components/layout/PageHeader';
 
-const birr = (n: any) => `${(Number(n) || 0).toLocaleString()} Birr`;
+const birr = formatETB;
 
 // Short-format timestamp for payment rows — mirrors web/lib/format.ts's
 // shortDate so the two apps read the same way.
@@ -74,7 +77,7 @@ const SectionLabel: React.FC<{ icon: LucideIcon; children: React.ReactNode; clas
   children,
   className,
 }) => (
-  <div className={`flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground ${className ?? 'mb-2'}`}>
+  <div className={`flex items-center gap-1.5 text-xs font-semibold text-muted-foreground ${className ?? 'mb-2'}`}>
     <Icon className="h-3.5 w-3.5" />
     {children}
   </div>
@@ -94,27 +97,10 @@ const StatTile = ({
   icon: any;
   color?: 'default' | 'success' | 'warning' | 'danger';
 }) => {
-  const colorClasses: Record<string, string> = {
-    default: 'bg-primary/10 text-primary',
-    success: 'bg-emerald-50 text-emerald-600',
-    warning: 'bg-amber-50 text-amber-600',
-    danger: 'bg-rose-50 text-rose-600',
-  };
-  return (
-    <Card className="border-border/50 transition-shadow hover:shadow-md">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold text-foreground">{value}</p>
-          </div>
-          <div className={`rounded-full p-3 ${colorClasses[color]}`}>
-            <Icon className="h-5 w-5" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  // KPI tile: muted label, big number; olive only when it means good.
+  const variant = color === 'danger' ? 'destructive' : color;
+  void Icon;
+  return <StatsCard title={title} value={value} variant={variant} />;
 };
 
 function ManageDeliveryDialog({
@@ -247,19 +233,19 @@ function ManageDeliveryDialog({
           {/* Total / collected / due at a glance, before anything else. */}
           <div className="grid grid-cols-3 divide-x rounded-lg border bg-muted/30 text-center">
             <div className="px-2 py-2.5">
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Total</div>
-              <div className="text-sm font-bold">{birr(order.total_amount)}</div>
+              <div className="text-xs font-semibold text-muted-foreground">Total</div>
+              <div className="text-sm font-semibold">{birr(order.total_amount)}</div>
             </div>
             <div className="px-2 py-2.5">
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Collected</div>
-              <div className="text-sm font-bold text-emerald-600 dark:text-emerald-500">
+              <div className="text-xs font-semibold text-muted-foreground">Collected</div>
+              <div className="text-sm font-semibold text-success">
                 {birr((order.delivery_payment_summary?.paid_cents ?? 0) / 100)}
               </div>
             </div>
             <div className="px-2 py-2.5">
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Due</div>
+              <div className="text-xs font-semibold text-muted-foreground">Due</div>
               <div
-                className={`text-sm font-bold ${remainingDueCents > 0 ? 'text-amber-600 dark:text-amber-500' : 'text-emerald-600 dark:text-emerald-500'}`}
+                className={`text-sm font-semibold ${remainingDueCents > 0 ? 'text-warning' : 'text-success'}`}
               >
                 {birr(remainingDueCents / 100)}
               </div>
@@ -329,7 +315,7 @@ function ManageDeliveryDialog({
               <select
                 value={matchedCourierId}
                 onChange={(e) => selectCourier(e.target.value)}
-                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
               >
                 <option value="">
                   {couriers.length ? 'Choose a saved courier…' : 'No saved couriers — enter details below'}
@@ -372,7 +358,7 @@ function ManageDeliveryDialog({
             </div>
             <div className="flex justify-end">
               <Button size="sm" onClick={saveDetails} disabled={busy}>
-                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {busy ? <Loader2 className="animate-spin" /> : null}
                 Save details
               </Button>
             </div>
@@ -410,7 +396,7 @@ function ManageDeliveryDialog({
                         {p.status}
                       </Badge>
                       {shortDate(p.paid_at) && (
-                        <span className="text-[10px] text-muted-foreground">{shortDate(p.paid_at)}</span>
+                        <span className="text-xs text-muted-foreground">{shortDate(p.paid_at)}</span>
                       )}
                     </div>
                   </div>
@@ -419,15 +405,15 @@ function ManageDeliveryDialog({
             )}
 
             {remainingDueCents > 0 ? (
-              <div className="mt-3 space-y-2 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/40">
+              <div className="mt-3 space-y-2 rounded-lg border border-warning/30 bg-warning-soft p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-amber-800 dark:text-amber-400">Amount due</span>
-                  <span className="text-sm font-bold text-amber-900 dark:text-amber-300">{birr(remainingDueCents / 100)}</span>
+                  <span className="text-xs font-medium text-warning">Amount due</span>
+                  <span className="text-sm font-semibold text-warning">{birr(remainingDueCents / 100)}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <Input placeholder="Source (e.g. courier cash)" value={payMethod} onChange={(e) => setPayMethod(e.target.value)} />
                   <Button size="sm" onClick={recordPayment} disabled={payBusy}>
-                    {payBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                    {payBusy ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
                     Confirm payment
                   </Button>
                 </div>
@@ -438,7 +424,7 @@ function ManageDeliveryDialog({
                 />
               </div>
             ) : (
-              <div className="mt-3 flex items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 py-2.5 text-xs font-semibold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-400">
+              <div className="mt-3 flex items-center justify-center gap-1.5 rounded-lg border border-success/30 bg-success-soft py-2.5 text-xs font-semibold text-success">
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Fully paid
               </div>
@@ -502,7 +488,7 @@ function DeliveryPaymentsPopover({ order, onChanged }: { order: any; onChanged: 
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="sm">
-          <CreditCard className="h-4 w-4" />
+          <CreditCard />
           Payments
           {payments.length > 0 && (
             <Badge variant="outline" className="ml-1">
@@ -544,7 +530,7 @@ function DeliveryPaymentsPopover({ order, onChanged }: { order: any; onChanged: 
           <>
             <div className="mb-2 flex items-center justify-between rounded-md border bg-muted/20 px-2 py-1.5 text-xs">
               <span className="font-medium text-muted-foreground">Amount due</span>
-              <span className="font-bold">{birr(remainingDueCents / 100)}</span>
+              <span className="font-semibold">{birr(remainingDueCents / 100)}</span>
             </div>
             <div className="flex gap-1.5">
               <Input
@@ -554,12 +540,12 @@ function DeliveryPaymentsPopover({ order, onChanged }: { order: any; onChanged: 
                 className="h-8"
               />
               <Button size="sm" className="h-8 shrink-0" onClick={recordPayment} disabled={busy}>
-                <Plus className="h-4 w-4" />
+                <Plus />
               </Button>
             </div>
           </>
         ) : (
-          <p className="py-1 text-center text-xs font-medium text-emerald-600">Fully paid</p>
+          <p className="py-1 text-center text-xs font-medium text-success">Fully paid</p>
         )}
       </PopoverContent>
     </Popover>
@@ -682,16 +668,14 @@ const DeliveryManagement: React.FC = () => {
   if (loading && orders.length === 0) return <LoadingSpinner text="Loading deliveries..." />;
 
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Deliveries</h1>
-        <p className="text-sm text-muted-foreground">
-          Orders placed through a delivery method, tracked separately from dine-in/take-away.
-        </p>
-      </div>
+    <div className="space-y-6 p-4 md:p-8">
+      <PageHeader
+        title="Deliveries"
+        description="Orders placed through a delivery method, kept apart from dine-in and takeaway."
+      />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <StatTile title="Total Deliveries" value={stats.total} icon={Bike} color="default" />
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
+        <StatTile title="Deliveries" value={stats.total} icon={Bike} color="default" />
         <StatTile title="Pending" value={stats.pending} icon={Hourglass} color="warning" />
         <StatTile title="Delivered" value={stats.delivered} icon={PackageCheck} color="success" />
         <StatTile title="Cancelled" value={stats.cancelled} icon={XCircle} color="danger" />
@@ -701,21 +685,16 @@ const DeliveryManagement: React.FC = () => {
 
       <Card>
         <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
-          <div className="relative w-full sm:max-w-xs">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+          <SearchInput
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search order #..."
-              className="pl-8"
-            />
-          </div>
+              placeholder="Search order #..." wrapperClassName="w-full sm:max-w-xs" />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
           >
-            <option value="">Status: All</option>
+            <option value="">Status: all</option>
             <option value="pending">Pending</option>
             <option value="delivered">Delivered</option>
             <option value="cancelled">Cancelled</option>
@@ -723,9 +702,9 @@ const DeliveryManagement: React.FC = () => {
           <select
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
           >
-            <option value="">Payment: All</option>
+            <option value="">Payment: all</option>
             <option value="paid">Paid</option>
             <option value="unpaid">Unpaid</option>
           </select>
@@ -733,9 +712,9 @@ const DeliveryManagement: React.FC = () => {
             <select
               value={methodFilter}
               onChange={(e) => setMethodFilter(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+              className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
             >
-              <option value="">Method: All</option>
+              <option value="">Method: all</option>
               {methodOptions.map((m) => (
                 <option key={m.value} value={m.value}>{m.label}</option>
               ))}
@@ -745,9 +724,9 @@ const DeliveryManagement: React.FC = () => {
             <select
               value={courierFilter}
               onChange={(e) => setCourierFilter(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+              className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
             >
-              <option value="">Courier: All</option>
+              <option value="">Courier: all</option>
               {courierOptions.map((c) => (
                 <option key={c.value} value={c.value}>{c.label}</option>
               ))}
@@ -835,7 +814,7 @@ const DeliveryManagement: React.FC = () => {
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft />
                   Prev
                 </Button>
                 <span className="text-sm text-muted-foreground">
@@ -849,7 +828,7 @@ const DeliveryManagement: React.FC = () => {
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 >
                   Next
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight />
                 </Button>
               </div>
             </div>

@@ -11,14 +11,14 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ counts }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <StatsCard
-        title="Total Food Items Sold"
+        title="Total food items sold"
         value={counts.foodQty}
         subtitle="Cafe & Restaurant aggregations"
         icon={<Coffee className="w-5 h-5" />}
         variant="success"
       />
       <StatsCard
-        title="Total Beverages Sold"
+        title="Total beverages sold"
         value={counts.softQty}
         subtitle="Barista beverage orders count"
         icon={<TrendingUp className="w-5 h-5" />}

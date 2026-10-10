@@ -12,21 +12,21 @@ export const EmployeeStats: React.FC<EmployeeStatsProps> = ({ activeSummary }) =
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <StatsCard
-        title="Orders Total"
+        title="Orders total"
         value={`${formatETB(activeSummary?.orders_total)}`}
         subtitle={`${activeSummary?.orders_count ?? 0} orders`}
         icon={<Users className="h-5 w-5" />}
         variant="default"
       />
       <StatsCard
-        title="Paid Total"
+        title="Paid total"
         value={`${formatETB(activeSummary?.paid_total)}`}
         subtitle={`${activeSummary?.payments_count ?? 0} payments`}
         icon={<DollarSign className="h-5 w-5" />}
         variant="success"
       />
       <StatsCard
-        title="Unpaid Total"
+        title="Unpaid total"
         value={`${formatETB(activeSummary?.unpaid_total)}`}
         subtitle="Unpaid balance"
         icon={<TrendingDown className="h-5 w-5" />}

@@ -123,7 +123,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
       </div>
 
       <div className="space-y-2">
-        <Label>Price (Birr)</Label>
+        <Label>Price (birr)</Label>
         <Input
           value={formData.price}
           onChange={(e) => setFormData((p) => ({ ...p, price: e.target.value.replace(/[^\d]/g, '') }))}
@@ -133,7 +133,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
       </div>
 
       <div className="space-y-2">
-        <Label>Main Category (Printing Dept)</Label>
+        <Label>Main category (printing dept)</Label>
         <Select
           value={formData.main_category || mainCategories[0]?.slug || 'barista'}
           onValueChange={(value) => setFormData((p) => ({ ...p, main_category: value }))}
@@ -149,7 +149,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
             ))}
           </SelectContent>
         </Select>
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Determines which printer/receipt this item belongs to.
         </p>
 
@@ -174,17 +174,17 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
         <div className="flex items-center justify-between gap-3">
           <Label htmlFor="main_category">Category</Label>
           {suggestedCategories.length > 0 && (
-            <span className="text-[10px] font-medium text-muted-foreground">
+            <span className="text-xs font-medium text-muted-foreground">
               Pick existing or type a new value
             </span>
           )}
         </div>
-        <div className="flex gap-2 rounded-2xl bg-muted/40 p-1">
+        <div className="flex gap-2 rounded-card bg-muted/40 p-1">
           <button
             type="button"
             onClick={() => setCategoryMode('existing')}
             className={`flex-1 rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${categoryMode === 'existing'
-                ? 'bg-background text-foreground shadow-sm'
+                ? 'bg-background text-foreground'
                 : 'text-muted-foreground hover:text-foreground'
               }`}
           >
@@ -194,7 +194,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
             type="button"
             onClick={() => setCategoryMode('custom')}
             className={`flex-1 rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${categoryMode === 'custom'
-                ? 'bg-background text-foreground shadow-sm'
+                ? 'bg-background text-foreground'
                 : 'text-muted-foreground hover:text-foreground'
               }`}
           >
@@ -238,7 +238,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
         <Input
           value={formData.tags}
           onChange={(e) => setFormData((p) => ({ ...p, tags: e.target.value }))}
-          placeholder="Cold Drinks, Popular, Seasonal"
+          placeholder="Cold drinks, popular, seasonal"
         />
         <p className="text-xs text-muted-foreground">
           Separate multiple category tags with commas.
@@ -258,7 +258,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
               }
             }}
             maxLength={100}
-            placeholder="e.g. No sugar, Extra hot"
+            placeholder="e.g. no sugar, extra hot"
           />
           <Button type="button" variant="outline" onClick={addPredefinedNote}>
             Add
@@ -302,7 +302,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
         </Label>
       </div>
 
-      <DialogFooter className="gap-2 pt-2">
+      <DialogFooter>
         <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
           Cancel
         </Button>
@@ -325,7 +325,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
               <TabsTrigger value="recipe" className="relative">
                 Recipe / BOM
                 {!existingRecipe && (
-                  <span className="ml-1.5 h-1.5 w-1.5 rounded-full bg-amber-500 inline-block" />
+                  <span className="ml-1.5 h-1.5 w-1.5 rounded-full bg-warning inline-block" />
                 )}
               </TabsTrigger>
             </TabsList>

@@ -16,25 +16,25 @@ export const ExpenseStats: React.FC<ExpenseStatsProps> = ({ dashboard, summary }
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
       <StatsCard
-        title="Expenses Today"
+        title="Expenses today"
         value={formatETB(dashboard?.cards?.today_total || summary?.today_total || 0)}
         icon={<DollarSign className="h-5 w-5" />}
         variant="destructive"
       />
       <StatsCard
-        title="Expenses This Week"
+        title="Expenses this week"
         value={formatETB(dashboard?.cards?.week_total || summary?.week_total || 0)}
         icon={<Calendar className="h-5 w-5" />}
         variant="warning"
       />
       <StatsCard
-        title="Expenses This Month"
+        title="Expenses this month"
         value={formatETB(dashboard?.cards?.month_total || summary?.month_total || 0)}
         icon={<BarChart3 className="h-5 w-5" />}
         variant="info"
       />
       <StatsCard
-        title="Top Category"
+        title="Top category"
         value={topCategory?.category || '—'}
         subtitle={topCategory ? formatETB(topCategory.total) : 'No category data'}
         icon={<PieChart className="h-5 w-5" />}

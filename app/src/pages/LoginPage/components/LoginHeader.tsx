@@ -31,7 +31,7 @@ export const LoginHeader: React.FC<LoginHeaderProps> = ({
           onClick={onBack}
           className="-ml-3 text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft />
           Back
         </Button>
       )}

@@ -36,16 +36,16 @@ const ConfirmOrgPaymentModal: React.FC<ConfirmOrgPaymentModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Confirm Organization Order</DialogTitle>
+          <DialogTitle>Confirm organization order</DialogTitle>
           <DialogDescription>
             Posts this order as a charge against the organization's credit
-            balance. It's never collected as cash and doesn't affect today's
+            balance. it's never collected as cash and doesn't affect today's
             revenue.
           </DialogDescription>
         </DialogHeader>
 
         <div className="bg-muted/40 p-4 rounded-xl space-y-1.5">
-          <div className="font-extrabold text-sm">Order #{order?.id}</div>
+          <div className="font-semibold text-sm">Order #{order?.id}</div>
           <p className="text-xs text-muted-foreground font-semibold">
             {order?.__orgName ? `${order.__orgName} • ` : ''}
             {order?.type === 'cafe' ? 'Café' : 'Bakery'} Order
@@ -65,12 +65,12 @@ const ConfirmOrgPaymentModal: React.FC<ConfirmOrgPaymentModalProps> = ({
               {order.meta.org_customer_notes}
             </p>
           )}
-          <p className="text-base font-extrabold text-success pt-1">
+          <p className="text-base font-semibold text-success pt-1">
             {formatETB(order?.total_amount || 0)}
           </p>
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-0 pt-4 border-t">
+        <DialogFooter>
           <Button
             variant="outline"
             disabled={isProcessing}

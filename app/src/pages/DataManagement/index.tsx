@@ -155,9 +155,9 @@ const DataManagement = () => {
                 {/* Inventory Settings */}
                 <Card>
                     <CardHeader className="pb-3 border-b">
-                        <CardTitle className="flex items-center gap-2 text-base">
+                        <CardTitle className="flex items-center gap-2">
                             <Package className="h-5 w-5 text-primary" />
-                            Inventory Settings
+                            Inventory settings
                         </CardTitle>
                         <CardDescription>
                             Configure how the system handles low stock situations.
@@ -183,7 +183,7 @@ const DataManagement = () => {
                                     disabled={savingInventorySettings || !online}
                                     onClick={() => handleToggleLowStock(!allowLowStock)}
                                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 ${
-                                        allowLowStock ? 'bg-amber-500' : 'bg-muted'
+                                        allowLowStock ? 'bg-warning' : 'bg-muted'
                                     }`}
                                 >
                                     <span
@@ -206,9 +206,9 @@ const DataManagement = () => {
                 {/* Dining Settings */}
                 <Card>
                     <CardHeader className="pb-3 border-b">
-                        <CardTitle className="flex items-center gap-2 text-base">
+                        <CardTitle className="flex items-center gap-2">
                             <MapPin className="h-5 w-5 text-primary" />
-                            Dining Settings
+                            Dining settings
                         </CardTitle>
                         <CardDescription>
                             Configure table selection requirement rules for orders.
@@ -233,7 +233,7 @@ const DataManagement = () => {
                                     disabled={savingDiningSettings || !online}
                                     onClick={() => handleToggleForceTableSelection(!forceTableSelection)}
                                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 ${
-                                        forceTableSelection ? 'bg-amber-500' : 'bg-muted'
+                                        forceTableSelection ? 'bg-warning' : 'bg-muted'
                                     }`}
                                 >
                                     <span
@@ -250,9 +250,9 @@ const DataManagement = () => {
                 {/* Receipt Settings */}
                 <Card>
                     <CardHeader className="pb-3 border-b">
-                        <CardTitle className="flex items-center gap-2 text-base">
+                        <CardTitle className="flex items-center gap-2">
                             <Receipt className="h-5 w-5 text-primary" />
-                            Receipt Settings
+                            Receipt settings
                         </CardTitle>
                         <CardDescription>
                             Control cashier access to the receipt generation page.
@@ -277,7 +277,7 @@ const DataManagement = () => {
                                     disabled={savingReceiptSettings || !online}
                                     onClick={() => handleToggleCashierReceipt(!enableCashierReceipt)}
                                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 ${
-                                        enableCashierReceipt ? 'bg-green-500' : 'bg-muted'
+                                        enableCashierReceipt ? 'bg-success' : 'bg-muted'
                                     }`}
                                 >
                                     <span
@@ -294,9 +294,9 @@ const DataManagement = () => {
                 {/* Request Data Cleanup */}
                 <Card>
                     <CardHeader className="pb-3 border-b">
-                        <CardTitle className="flex items-center gap-2 text-base">
+                        <CardTitle className="flex items-center gap-2">
                             <Eraser className="h-5 w-5 text-primary" />
-                            Request Data Cleanup
+                            Request data cleanup
                         </CardTitle>
                         <CardDescription>
                             Ask the owner to approve clearing this device's local data. Once approved, all local tables are wiped and this branch's orders &amp; payments are deleted.
@@ -344,9 +344,9 @@ const DataManagement = () => {
                 {/* Device Enrollment */}
                 <Card>
                     <CardHeader className="pb-3 border-b">
-                        <CardTitle className="flex items-center gap-2 text-base">
+                        <CardTitle className="flex items-center gap-2">
                             <MonitorSmartphone className="h-5 w-5 text-primary" />
-                            Device Enrollment
+                            Device enrollment
                         </CardTitle>
                         <CardDescription>
                             This device is linked to a branch via a device token sent on every request.
@@ -388,7 +388,7 @@ const DataManagement = () => {
                             are permanently deleted. The device stays enrolled. This cannot be undone.
                         </DialogDescription>
                     </DialogHeader>
-                    <DialogFooter className="gap-2 sm:gap-0">
+                    <DialogFooter>
                         <Button variant="outline" onClick={() => setIsRequestCleanupOpen(false)} disabled={requestingCleanup}>
                             Cancel
                         </Button>
@@ -405,10 +405,10 @@ const DataManagement = () => {
                         <DialogTitle>Reset device enrollment?</DialogTitle>
                         <DialogDescription>
                             This unlinks the device from its current branch and clears all local data.
-                            You'll need a new enrollment code to set it up again. This cannot be undone.
+                            you'll need a new enrollment code to set it up again. this cannot be undone.
                         </DialogDescription>
                     </DialogHeader>
-                    <DialogFooter className="gap-2 sm:gap-0">
+                    <DialogFooter>
                         <Button variant="outline" onClick={() => setIsResetDeviceOpen(false)} disabled={resettingDevice}>
                             Cancel
                         </Button>

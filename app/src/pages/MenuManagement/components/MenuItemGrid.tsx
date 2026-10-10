@@ -57,8 +57,8 @@ export const MenuItemGrid: React.FC<MenuItemGridProps> = ({
         action={
           isAdmin ? (
             <Button onClick={onOpenAdd}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add First Item
+              <Plus />
+              Add first item
             </Button>
           ) : undefined
         }
@@ -91,7 +91,7 @@ export const MenuItemGrid: React.FC<MenuItemGridProps> = ({
             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft />
             Previous
           </Button>
           <span className="text-sm text-muted-foreground">
@@ -104,7 +104,7 @@ export const MenuItemGrid: React.FC<MenuItemGridProps> = ({
             disabled={currentPage === totalPages}
           >
             Next
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight />
           </Button>
         </div>
       )}

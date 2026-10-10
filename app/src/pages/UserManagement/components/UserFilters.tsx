@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Input, SearchInput } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface UserFiltersProps {
@@ -27,31 +27,26 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
     <Card>
       <CardContent className="pt-6">
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
+          <SearchInput
               placeholder="Search users..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="pl-9"
-            />
-          </div>
+              onChange={e => setSearchTerm(e.target.value)} wrapperClassName="flex-1" />
           <Select value={filterRole} onValueChange={setFilterRole}>
             <SelectTrigger className="w-full sm:w-44">
-              <SelectValue placeholder="All Roles" />
+              <SelectValue placeholder="All roles" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="all">All roles</SelectItem>
               <SelectItem value="admin">Administrator</SelectItem>
               <SelectItem value="cashier">Cashier</SelectItem>
             </SelectContent>
           </Select>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="All Status" />
+              <SelectValue placeholder="All status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="all">All status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="inactive">Inactive</SelectItem>
             </SelectContent>

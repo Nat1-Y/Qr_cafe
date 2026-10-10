@@ -15,7 +15,7 @@ export const UserStats: React.FC<UserStatsProps> = ({ users }) => {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      <StatsCard title="Total Users" value={total} icon={<User className="h-5 w-5" />} />
+      <StatsCard title="Total users" value={total} icon={<User className="h-5 w-5" />} />
       <StatsCard title="Active" value={active} icon={<User className="h-5 w-5" />} variant="success" />
       <StatsCard title="Admins" value={admins} icon={<Shield className="h-5 w-5" />} variant="default" />
       <StatsCard title="Staff" value={staff} icon={<User className="h-5 w-5" />} variant="info" />

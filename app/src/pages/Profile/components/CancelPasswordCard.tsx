@@ -28,20 +28,20 @@ const CancelPasswordCard: React.FC<CancelPasswordCardProps> = ({
 }) => {
   const disabled = isLoading || !isOnline;
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="transition-shadow">
       <CardHeader className="pb-3 border-b">
-        <CardTitle className="text-sm font-bold">Cancel Order Password</CardTitle>
+        <CardTitle>Cancel order password</CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
         {!isOnline && (
-          <p className="mb-3 text-xs text-amber-600 dark:text-amber-400 font-medium">
+          <p className="mb-3 text-xs text-warning font-medium">
             You're offline. The cancel password can only be changed with an
             internet connection.
           </p>
         )}
         <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2 md:col-span-1">
-            <Label htmlFor="newCancelPassword">New Cancel Password</Label>
+            <Label htmlFor="newCancelPassword">New cancel password</Label>
             <Input
               id="newCancelPassword"
               name="newCancelPassword"
@@ -58,7 +58,7 @@ const CancelPasswordCard: React.FC<CancelPasswordCardProps> = ({
           </div>
 
           <div className="space-y-2 md:col-span-1">
-            <Label htmlFor="confirmCancelPassword">Confirm Cancel Password</Label>
+            <Label htmlFor="confirmCancelPassword">Confirm cancel password</Label>
             <Input
               id="confirmCancelPassword"
               name="confirmCancelPassword"

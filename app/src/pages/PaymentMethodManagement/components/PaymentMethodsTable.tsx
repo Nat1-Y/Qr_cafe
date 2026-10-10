@@ -41,7 +41,7 @@ export const PaymentMethodsTable: React.FC<PaymentMethodsTableProps> = ({
   return (
     <Card>
       <CardHeader className="pb-3 border-b">
-        <CardTitle className="text-base">Configured Methods</CardTitle>
+        <CardTitle>Configured methods</CardTitle>
         <CardDescription>Payment options available at the cashier checkout</CardDescription>
       </CardHeader>
       <CardContent className="pt-6 space-y-2">
@@ -52,13 +52,13 @@ export const PaymentMethodsTable: React.FC<PaymentMethodsTableProps> = ({
               key={method.id}
               className="flex items-center gap-4 p-4 rounded-xl border bg-muted/10 hover:bg-muted/20 transition-colors"
             >
-              <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
+              <div className="shrink-0 text-muted-foreground">
                 <Icon className="w-5 h-5" />
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="font-bold text-sm">{method.display_name}</div>
-                <div className="text-[10px] text-muted-foreground font-medium">Key: {method.name}</div>
+                <div className="font-semibold text-sm">{method.display_name}</div>
+                <div className="text-xs text-muted-foreground font-medium">Key: {method.name}</div>
                 {method.description && (
                   <div className="text-xs text-muted-foreground mt-0.5">{method.description}</div>
                 )}
@@ -68,8 +68,8 @@ export const PaymentMethodsTable: React.FC<PaymentMethodsTableProps> = ({
                 variant={method.is_active ? 'default' : 'outline'}
                 className={
                   method.is_active
-                    ? 'bg-success/15 text-success border-green-500/30 font-bold text-[10px]'
-                    : 'bg-muted/30 text-muted-foreground font-bold text-[10px]'
+                    ? 'bg-success/15 text-success border-success/30 font-semibold text-xs'
+                    : 'bg-muted/30 text-muted-foreground font-semibold text-xs'
                 }
               >
                 {method.is_active ? 'Active' : 'Disabled'}
@@ -82,7 +82,7 @@ export const PaymentMethodsTable: React.FC<PaymentMethodsTableProps> = ({
                   className="h-8 w-8 p-0"
                   onClick={() => onEdit(method)}
                 >
-                  <Edit3 className="w-4 h-4" />
+                  <Edit3 />
                 </Button>
                 <Button
                   size="sm"
@@ -90,7 +90,7 @@ export const PaymentMethodsTable: React.FC<PaymentMethodsTableProps> = ({
                   className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                   onClick={() => onDelete(method)}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 />
                 </Button>
               </div>
             </div>
@@ -98,7 +98,7 @@ export const PaymentMethodsTable: React.FC<PaymentMethodsTableProps> = ({
         })}
 
         {methods.length === 0 && (
-          <div className="p-8 text-center text-xs text-muted-foreground font-bold border border-dashed rounded-xl bg-muted/20">
+          <div className="p-8 text-center text-xs text-muted-foreground font-semibold border border-dashed rounded-xl bg-muted/20">
             No payment methods configured. Click "Add Method" to create one.
           </div>
         )}

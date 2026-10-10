@@ -111,11 +111,11 @@ export const OrganizationDetail: React.FC = () => {
               variant="outline"
               onClick={() => navigate('/dashboard/organizations')}
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft />
               Back
             </Button>
             <Button variant="outline" onClick={load}>
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <RefreshCw />
               Refresh
             </Button>
             {isAdmin && (
@@ -124,8 +124,8 @@ export const OrganizationDetail: React.FC = () => {
                   navigate(`/dashboard/organizations/${id}/create-order`)
                 }
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Create Order
+                <Plus />
+                Create order
               </Button>
             )}
           </div>
@@ -135,7 +135,7 @@ export const OrganizationDetail: React.FC = () => {
       {organization && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Details</CardTitle>
+            <CardTitle>Details</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
             <div>

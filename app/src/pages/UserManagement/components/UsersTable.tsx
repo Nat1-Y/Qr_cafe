@@ -48,7 +48,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
-                        <AvatarFallback className={`text-xs font-bold ${ROLE_AVATAR_BG[user.role] || 'bg-muted text-muted-foreground'}`}>
+                        <AvatarFallback className={`text-xs font-semibold ${ROLE_AVATAR_BG[user.role] || 'bg-muted text-muted-foreground'}`}>
                           {(user.full_name || 'U').charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
@@ -74,13 +74,13 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
                       <Button variant="ghost" size="icon" onClick={() => toggleStatus(user.id)} title={user.is_active ? 'Deactivate' : 'Activate'}>
-                        {user.is_active ? <ToggleRight className="h-4 w-4 text-success" /> : <ToggleLeft className="h-4 w-4 text-muted-foreground" />}
+                        {user.is_active ? <ToggleRight className="text-success" /> : <ToggleLeft className="text-muted-foreground" />}
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => openEdit(user)}>
-                        <Edit3 className="h-4 w-4" />
+                        <Edit3 />
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => deleteUser(user.id)} className="text-destructive hover:text-destructive">
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 />
                       </Button>
                     </div>
                   </TableCell>

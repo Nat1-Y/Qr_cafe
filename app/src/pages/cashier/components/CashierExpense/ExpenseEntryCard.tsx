@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import ExpenseRowEditor, { ExpenseRow } from './ExpenseRowEditor';
+import { formatETB } from '@/lib/format';
 
 interface ExpenseEntryCardProps {
   rows: ExpenseRow[];
@@ -29,7 +30,7 @@ export const ExpenseEntryCard: React.FC<ExpenseEntryCardProps> = ({
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle>New expense entry</CardTitle>
         <div className="text-sm font-semibold rounded-md border bg-muted/50 px-3 py-1.5">
-          Total: {total.toFixed(2)} Birr
+          Total: {formatETB(total)}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -37,7 +38,7 @@ export const ExpenseEntryCard: React.FC<ExpenseEntryCardProps> = ({
 
         <div className="flex flex-col sm:flex-row gap-3 border-t pt-4">
           <Button type="button" onClick={onSubmit} disabled={saving}>
-            <Save className="h-4 w-4 mr-2" />
+            <Save />
             {saving ? 'Saving...' : 'Submit Expenses'}
           </Button>
         </div>

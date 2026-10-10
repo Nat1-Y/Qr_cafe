@@ -60,7 +60,7 @@ export const RecordTransactionTab = ({
       {/* Left: Transaction form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2"><TrendingDown className="h-4 w-4 text-rose-500" />Record Service Transaction</CardTitle>
+          <CardTitle className="flex items-center gap-2"><TrendingDown className="h-4 w-4 text-destructive" />Record service transaction</CardTitle>
           <CardDescription>Deduct services used from the organization's credit balance.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -86,13 +86,13 @@ export const RecordTransactionTab = ({
           )}
 
           <div className="space-y-1.5">
-            <Label>Transaction Date</Label>
+            <Label>Transaction date</Label>
             <Input type="date" value={txDate} onChange={e => setTxDate(e.target.value)} />
           </div>
 
           {/* Services list */}
           <div className="space-y-2">
-            <Label>Services Used *</Label>
+            <Label>Services used *</Label>
             <div className="space-y-2">
               {txServices.map((svc, i) => (
                 <div key={i} className="flex gap-2 items-center">
@@ -128,7 +128,7 @@ export const RecordTransactionTab = ({
 
           <div className="flex items-center justify-between border-t pt-3">
             <span className="text-sm text-muted-foreground">Total deduction</span>
-            <span className="font-bold text-rose-600 dark:text-rose-400">{formatETB(txTotal)}</span>
+            <span className="font-semibold text-destructive">{formatETB(txTotal)}</span>
           </div>
 
           <Button className="w-full" onClick={onSubmit} disabled={txSubmitting || !txOrgId}>
@@ -139,7 +139,7 @@ export const RecordTransactionTab = ({
 
       {/* Right: Payment detail dropdown */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Payment History</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground">Payment history</h3>
         {!txOrgId ? (
           <p className="text-sm text-muted-foreground italic">Select an organization to see payment history.</p>
         ) : txOrgPayments.length === 0 ? (
@@ -153,11 +153,11 @@ export const RecordTransactionTab = ({
                 <button className="w-full text-left rounded-lg border bg-card px-4 py-3 hover:bg-muted/50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatETB(payment.amount)}</p>
+                      <p className="text-sm font-semibold text-success">{formatETB(payment.amount)}</p>
                       <p className="text-xs text-muted-foreground">{new Date(payment.payment_date).toLocaleDateString()}{payment.notes ? ` · ${payment.notes}` : ''}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      {linkedTxns.length > 0 && <Badge variant="secondary" className="text-xs">{linkedTxns.length} txn{linkedTxns.length > 1 ? 's' : ''}</Badge>}
+                      {linkedTxns.length > 0 && <Badge variant="secondary">{linkedTxns.length} txn{linkedTxns.length > 1 ? 's' : ''}</Badge>}
                       <span className="text-muted-foreground text-xs">{isOpen ? '▲' : '▼'}</span>
                     </div>
                   </div>
@@ -170,7 +170,7 @@ export const RecordTransactionTab = ({
                   <div key={txn.id} className="space-y-1">
                     <div className="flex justify-between text-xs">
                       <span className="text-muted-foreground">{new Date(txn.transaction_date).toLocaleDateString()}{txn.notes ? ` · ${txn.notes}` : ''}</span>
-                      <span className="font-semibold text-rose-600 dark:text-rose-400">−{formatETB(txn.total_amount)}</span>
+                      <span className="font-semibold text-destructive">−{formatETB(txn.total_amount)}</span>
                     </div>
                     {Array.isArray(txn.services) && txn.services.map((s: any, si: number) => (
                       <div key={si} className="flex justify-between text-xs pl-2 border-l border-muted-foreground/20">

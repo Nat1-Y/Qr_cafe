@@ -34,7 +34,7 @@ export const RoleFormDialog: React.FC<RoleFormDialogProps> = ({
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="display_name">Display Name</Label>
+            <Label htmlFor="display_name">Display name</Label>
             <Input
               id="display_name"
               value={formData.display_name}
@@ -46,12 +46,12 @@ export const RoleFormDialog: React.FC<RoleFormDialogProps> = ({
                   name: p.name || val.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
                 }));
               }}
-              placeholder="e.g. Restaurant Manager"
+              placeholder="e.g. restaurant manager"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="name">System Key</Label>
+            <Label htmlFor="name">System key</Label>
             <Input
               id="name"
               value={formData.name}
@@ -59,7 +59,7 @@ export const RoleFormDialog: React.FC<RoleFormDialogProps> = ({
               placeholder="e.g. restaurant_manager"
               required
             />
-            <p className="text-[10px] text-muted-foreground font-medium">Lowercase with underscores only. Used internally to check permissions.</p>
+            <p className="text-xs text-muted-foreground font-medium">Lowercase with underscores only. Used internally to check permissions.</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
@@ -79,7 +79,7 @@ export const RoleFormDialog: React.FC<RoleFormDialogProps> = ({
             />
             <Label htmlFor="is_active" className="cursor-pointer text-sm">Active</Label>
           </div>
-          <DialogFooter className="gap-2 pt-2">
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button type="submit" disabled={saving}>{saving ? 'Saving…' : selectedRole ? 'Update' : 'Create'}</Button>
           </DialogFooter>

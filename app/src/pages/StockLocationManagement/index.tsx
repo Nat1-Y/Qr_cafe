@@ -29,13 +29,13 @@ export const StockLocationManagement: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Stock Locations"
+        title="Stock locations"
         description="Define where inventory is stored — kitchen, barista station, freezer, and more."
         actions={
           <div className="flex items-center gap-2">
             <Button onClick={openAdd} disabled={!syncStatus.online}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Location
+              <Plus />
+              Add location
             </Button>
           </div>
         }

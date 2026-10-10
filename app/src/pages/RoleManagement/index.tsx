@@ -31,7 +31,7 @@ export const RoleManagement: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Role Management"
+        title="Role management"
         description="Create and manage custom roles for assigning to users"
         actions={
           <div className="flex items-center gap-2">
@@ -40,8 +40,8 @@ export const RoleManagement: React.FC = () => {
               Refresh
             </Button>
             <Button onClick={openAdd} disabled={!online}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Role
+              <Plus />
+              Add role
             </Button>
           </div>
         }

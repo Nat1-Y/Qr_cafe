@@ -65,7 +65,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ initialFilterStatus =
   if (loading) {
     return (
       <div className="p-4 md:p-8 space-y-6">
-        <Skeleton className="h-20 w-full rounded-2xl" />
+        <Skeleton className="h-20 w-full rounded-card" />
         <Skeleton className="h-14 w-full" />
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
@@ -79,25 +79,25 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ initialFilterStatus =
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Order Management"
+        title="Order management"
         description="Manage orders and track progress"
       />
 
       <OrderStats orders={filteredOrders} paidOrderIdSet={paidOrderIdSet} />
 
       {inventoryShortage && inventoryShortage.length > 0 && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50/90 p-4 shadow-sm">
+        <div className="rounded-card border border-destructive/30 bg-destructive-soft p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-start gap-3">
-              <div className="rounded-full bg-rose-100 p-2 text-rose-700">
+              <div className="rounded-full bg-destructive-soft p-2 text-destructive">
                 <AlertTriangle className="h-4 w-4" />
               </div>
               <div className="space-y-1">
-                <p className="font-bold text-rose-900">Inventory shortage blocked order creation</p>
-                <p className="text-sm text-rose-800">
+                <p className="font-semibold text-destructive">Inventory shortage blocked order creation</p>
+                <p className="text-sm text-destructive">
                   The order was not created because one or more ingredients are below the required quantity.
                 </p>
-                <ul className="space-y-1 text-sm text-rose-800">
+                <ul className="space-y-1 text-sm text-destructive">
                   {inventoryShortage.slice(0, 3).map((item, index) => (
                     <li key={`${item.inventory_item_id}-${item.location_id}-${index}`}>
                       {item.inventory_item_name} at {item.location_name}: needs {item.required}, has {item.available} {item.unit}
@@ -109,8 +109,8 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ initialFilterStatus =
                 </ul>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => setInventoryShortage(null)} className="text-rose-700 hover:bg-rose-100 hover:text-rose-800">
-              <X className="h-4 w-4 mr-1" />
+            <Button variant="ghost" size="sm" onClick={() => setInventoryShortage(null)} className="text-destructive hover:bg-destructive-soft hover:text-destructive">
+              <X />
               Dismiss
             </Button>
           </div>

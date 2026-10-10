@@ -17,7 +17,7 @@ export const PaymentStats: React.FC<PaymentStatsProps> = ({ stats }) => {
         variant="warning"
       />
       <StatsCard
-        title="Today's Revenue"
+        title="Today's revenue"
         value={stats.todayRevenue}
         icon={<DollarSign className="h-5 w-5" />}
         variant="success"

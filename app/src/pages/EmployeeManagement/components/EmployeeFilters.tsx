@@ -17,15 +17,15 @@ export const EmployeeFilters: React.FC<EmployeeFiltersProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Filter by Employee</CardTitle>
+        <CardTitle>Filter by employee</CardTitle>
       </CardHeader>
       <CardContent>
         <Select value={selectedEmployeeId} onValueChange={setSelectedEmployeeId}>
           <SelectTrigger className="w-full sm:w-72">
-            <SelectValue placeholder="All Employees" />
+            <SelectValue placeholder="All employees" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Employees</SelectItem>
+            <SelectItem value="all">All employees</SelectItem>
             {employees.map(e => (
               <SelectItem key={e.employee_id} value={String(e.employee_id)}>
                 {e.employee_name}

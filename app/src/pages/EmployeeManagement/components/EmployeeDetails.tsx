@@ -22,14 +22,14 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ details }) => 
     <div className="grid grid-cols-1 gap-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Live Orders</CardTitle>
+          <CardTitle>Live orders</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Order #</TableHead>
-                <TableHead>Created By</TableHead>
+                <TableHead>Created by</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Table</TableHead>
                 <TableHead className="text-right">Total</TableHead>
@@ -42,7 +42,7 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ details }) => 
             <TableBody>
               {(details?.orders || []).length > 0 ? details?.orders?.map((o: any) => (
                 <TableRow key={o.id}>
-                  <TableCell className="font-bold">#{uuidToDisplayId(o.id)}</TableCell>
+                  <TableCell className="font-semibold">#{uuidToDisplayId(o.id)}</TableCell>
                   <TableCell>{o.employee_name || `Employee #${o.employee_id}`}</TableCell>
                   <TableCell className="capitalize">{o.type}</TableCell>
                   <TableCell>{o.table_number ?? 'N/A'}</TableCell>
@@ -64,7 +64,7 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ details }) => 
                   <TableCell>{o.created_at ? new Date(o.created_at).toLocaleString() : 'N/A'}</TableCell>
                   <TableCell className="text-center">
                     <Button variant="ghost" size="icon" onClick={() => setSelectedOrder(o)} className="h-8 w-8 hover:bg-muted hover:text-foreground">
-                      <Eye className="h-4 w-4" />
+                      <Eye />
                     </Button>
                   </TableCell>
                 </TableRow>

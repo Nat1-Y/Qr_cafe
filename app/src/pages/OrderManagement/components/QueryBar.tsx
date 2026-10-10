@@ -1,6 +1,6 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
+import { Input, SearchInput } from '@/components/ui/input';
 import { Search, Filter } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 
@@ -36,26 +36,21 @@ export const QueryBar: React.FC<QueryBarProps> = ({
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="md:col-span-2">
-          <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">Search Orders</Label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
+          <Label className="mb-1.5 block">Search orders</Label>
+          <SearchInput
               placeholder="Search by order ID, table, or waiter..."
               value={searchTerm}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-9 h-10"
-            />
-          </div>
+              onChange={(e) => onSearchChange(e.target.value)} />
         </div>
 
         <div>
-          <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">Status</Label>
+          <Label className="mb-1.5 block">Status</Label>
           <Select value={filterStatus} onValueChange={onStatusChange}>
             <SelectTrigger className="h-10">
-              <SelectValue placeholder="All Statuses" />
+              <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="all">All statuses</SelectItem>
               {useDerivedStatus ? (
                 <>
                   <SelectItem value="pending">Pending</SelectItem>
@@ -77,13 +72,13 @@ export const QueryBar: React.FC<QueryBarProps> = ({
         </div>
 
         <div>
-          <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">Type</Label>
+          <Label className="mb-1.5 block">Type</Label>
           <Select value={filterType} onValueChange={onTypeChange}>
             <SelectTrigger className="h-10">
-              <SelectValue placeholder="All Types" />
+              <SelectValue placeholder="All types" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="all">All types</SelectItem>
               {!useDerivedStatus && <SelectItem value="bakery">Bakery</SelectItem>}
               <SelectItem value="cafe">Café</SelectItem>
               <SelectItem value="restaurant">Restaurant</SelectItem>

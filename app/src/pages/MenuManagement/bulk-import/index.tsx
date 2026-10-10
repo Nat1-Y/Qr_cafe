@@ -193,7 +193,7 @@ const BulkMenuImport = () => {
     return (
       <div className="p-6">
         <PageHeader
-          title="Bulk Menu Import"
+          title="Bulk menu import"
           description="You don't have permission to import menu items."
         />
       </div>
@@ -203,15 +203,15 @@ const BulkMenuImport = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Bulk Menu Import"
+        title="Bulk menu import"
         description="Add many menu items at once from a CSV or JSON file."
         actions={
           <Button
             variant="outline"
             onClick={() => navigate("/dashboard/menu")}
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Menu
+            <ArrowLeft />
+            Back to menu
           </Button>
         }
       />
@@ -221,7 +221,7 @@ const BulkMenuImport = () => {
       {/* Step 1 — template + upload */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">1. Get a template & upload your file</CardTitle>
+          <CardTitle>1. Get a template & upload your file</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-2">
@@ -232,7 +232,7 @@ const BulkMenuImport = () => {
                 downloadFile("menu-template.csv", CSV_TEMPLATE, "text/csv")
               }
             >
-              <Download className="h-4 w-4 mr-2" />
+              <Download />
               CSV template
             </Button>
             <Button
@@ -246,7 +246,7 @@ const BulkMenuImport = () => {
                 )
               }
             >
-              <Download className="h-4 w-4 mr-2" />
+              <Download />
               JSON template
             </Button>
           </div>
@@ -277,7 +277,7 @@ const BulkMenuImport = () => {
               size="sm"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Upload className="h-4 w-4 mr-2" />
+              <Upload />
               Choose file
             </Button>
             <input
@@ -330,15 +330,15 @@ const BulkMenuImport = () => {
       {result && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-            <CardTitle className="text-base">2. Review & confirm</CardTitle>
+            <CardTitle>2. Review & confirm</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="gap-1">
-                <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                <CheckCircle2 className="h-3 w-3 text-success" />
                 {validRows.length} ready
               </Badge>
               {warningCount > 0 && (
                 <Badge variant="secondary" className="gap-1">
-                  <AlertTriangle className="h-3 w-3 text-amber-500" />
+                  <AlertTriangle className="h-3 w-3 text-warning" />
                   {warningCount} warning{warningCount === 1 ? "" : "s"}
                 </Badge>
               )}
@@ -366,7 +366,7 @@ const BulkMenuImport = () => {
                 )}
                 <div className="max-h-[460px] overflow-auto rounded-md border">
                   <Table>
-                    <TableHeader className="sticky top-0 bg-card">
+                    <TableHeader className="sticky top-0">
                       <TableRow>
                         <TableHead className="w-10">#</TableHead>
                         <TableHead>Name</TableHead>
@@ -402,9 +402,9 @@ const BulkMenuImport = () => {
             disabled={submitting || validRows.length === 0 || !online}
           >
             {submitting ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="animate-spin" />
             ) : (
-              <Upload className="h-4 w-4 mr-2" />
+              <Upload />
             )}
             Import {validRows.length} item{validRows.length === 1 ? "" : "s"}
           </Button>
@@ -419,7 +419,7 @@ const RowView = ({ row }: { row: ParsedMenuRow }) => {
   const hasWarning = row.warnings.length > 0;
   return (
     <TableRow className={hasError ? "bg-destructive/5" : undefined}>
-      <TableCell className="text-xs text-muted-foreground">
+      <TableCell className="text-muted-foreground">
         {row.rowNumber}
       </TableCell>
       <TableCell className="font-medium">{row.name || "—"}</TableCell>
@@ -428,7 +428,7 @@ const RowView = ({ row }: { row: ParsedMenuRow }) => {
       </TableCell>
       <TableCell>{row.category || "—"}</TableCell>
       <TableCell>{row.main_category || "—"}</TableCell>
-      <TableCell className="max-w-[160px] truncate text-xs text-muted-foreground">
+      <TableCell className="max-w-[160px] truncate text-muted-foreground">
         {row.tags.join(", ") || "—"}
       </TableCell>
       <TableCell>{row.is_available ? "Yes" : "No"}</TableCell>
@@ -439,12 +439,12 @@ const RowView = ({ row }: { row: ParsedMenuRow }) => {
             {row.errors.join("; ")}
           </span>
         ) : hasWarning ? (
-          <span className="flex items-center gap-1 text-xs text-amber-600">
+          <span className="flex items-center gap-1 text-xs text-warning">
             <AlertTriangle className="h-3.5 w-3.5" />
             {row.warnings.join("; ")}
           </span>
         ) : (
-          <span className="flex items-center gap-1 text-xs text-emerald-600">
+          <span className="flex items-center gap-1 text-xs text-success">
             <CheckCircle2 className="h-3.5 w-3.5" />
             Ready
           </span>

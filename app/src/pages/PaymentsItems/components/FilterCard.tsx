@@ -46,7 +46,7 @@ export const FilterCard: React.FC<FilterCardProps> = ({
               variant={timeFilter === filter ? 'default' : 'outline'}
               size="sm"
               onClick={() => setTimeFilter(filter)}
-              className="capitalize text-xs font-bold"
+              className="capitalize"
             >
               {filter}
             </Button>
@@ -60,19 +60,19 @@ export const FilterCard: React.FC<FilterCardProps> = ({
                 variant={customMode === 'specific' ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setCustomMode('specific')}
-                className="text-xs font-semibold"
+               
               >
                 <Calendar className="w-3.5 h-3.5 mr-1.5 text-primary" />
-                Specific Date
+                Specific date
               </Button>
               <Button
                 variant={customMode === 'range' ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setCustomMode('range')}
-                className="text-xs font-semibold"
+               
               >
-                <BarChart3 className="w-3.5 h-3.5 mr-1.5 text-emerald-500" />
-                Date Range
+                <BarChart3 className="w-3.5 h-3.5 mr-1.5 text-success" />
+                Date range
               </Button>
             </div>
 
@@ -83,35 +83,35 @@ export const FilterCard: React.FC<FilterCardProps> = ({
                     type="date"
                     value={customDate}
                     onChange={(e) => setCustomDate(e.target.value)}
-                    className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-sm font-semibold"
+                    className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                 </div>
               ) : (
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex items-center gap-3 bg-background border rounded-xl px-3 py-1.5">
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">From</span>
+                    <span className="text-xs font-semibold text-muted-foreground">From</span>
                     <Input
                       type="date"
                       value={customFrom}
                       onChange={(e) => setCustomFrom(e.target.value)}
-                      className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-sm font-semibold"
+                      className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
                     />
                   </div>
                   <div className="flex items-center gap-3 bg-background border rounded-xl px-3 py-1.5">
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">To</span>
+                    <span className="text-xs font-semibold text-muted-foreground">To</span>
                     <Input
                       type="date"
                       value={customTo}
                       onChange={(e) => setCustomTo(e.target.value)}
-                      className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-sm font-semibold"
+                      className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
                     />
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="inline-flex bg-amber-50 border border-amber-100 text-amber-800 rounded-xl px-3 py-1.5 text-xs font-semibold items-center gap-2">
+            <div className="inline-flex bg-warning-soft border border-warning/30 text-warning rounded-xl px-3 py-1.5 text-xs font-semibold items-center gap-2">
               <CheckCircle className="w-4 h-4 text-warning" />
               Viewing ledger for: {viewingLabel}
             </div>
@@ -124,7 +124,7 @@ export const FilterCard: React.FC<FilterCardProps> = ({
               key={unit}
               onClick={() => setUnitFilter(unit)}
               variant={unitFilter === unit ? 'default' : 'secondary'}
-              className="cursor-pointer capitalize text-[10px] py-1 px-2.5 font-bold"
+              className="cursor-pointer capitalize py-1 px-2.5"
             >
               {unit}
             </Badge>

@@ -15,15 +15,15 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({
 }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <StatsCard title="Total Items" value={totalItems} icon={<Package className="h-5 w-5" />} />
+      <StatsCard title="Total items" value={totalItems} icon={<Package className="h-5 w-5" />} />
       <StatsCard
-        title="Low Stock Alerts"
+        title="Low stock alerts"
         value={lowStockCount}
         icon={<AlertTriangle className="h-5 w-5" />}
         variant={lowStockCount > 0 ? 'destructive' : 'success'}
       />
       <StatsCard
-        title="At Barista"
+        title="At barista"
         value={baristaItemsCount}
         icon={<Coffee className="h-5 w-5" />}
         variant="info"

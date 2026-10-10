@@ -40,12 +40,12 @@ const getLocationIcon = (name: string, slug: string) => {
     return <Warehouse className="h-5 w-5 text-primary" />;
   }
   if (term.includes('barista') || term.includes('bar') || term.includes('coffee') || term.includes('cafe')) {
-    return <Coffee className="h-5 w-5 text-amber-500" />;
+    return <Coffee className="h-5 w-5 text-warning" />;
   }
   if (term.includes('kitchen') || term.includes('chef') || term.includes('food')) {
-    return <ChefHat className="h-5 w-5 text-emerald-500" />;
+    return <ChefHat className="h-5 w-5 text-success" />;
   }
-  return <MapPin className="h-5 w-5 text-blue-500" />;
+  return <MapPin className="h-5 w-5 text-info" />;
 };
 
 export const LocationItemsView: React.FC<LocationItemsViewProps> = ({
@@ -73,7 +73,7 @@ export const LocationItemsView: React.FC<LocationItemsViewProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-muted/40 p-4 rounded-xl border shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-muted/40 p-4 rounded-xl border">
         <div className="flex items-center gap-3">
           <Button 
             variant="outline" 
@@ -81,30 +81,30 @@ export const LocationItemsView: React.FC<LocationItemsViewProps> = ({
             onClick={onBack}
             className="h-9 px-3 bg-background hover:bg-muted"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Locations
+            <ArrowLeft />
+            Back to locations
           </Button>
           <div className="h-5 w-px bg-border hidden sm:block" />
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-background border shadow-xs">
+            <div className="text-muted-foreground">
               {getLocationIcon(selectedLocation?.name || '', selectedLocation?.slug || '')}
             </div>
             <div>
-              <h3 className="text-base font-bold text-foreground">{selectedLocation?.name}</h3>
+              <h3 className="text-base font-semibold text-foreground">{selectedLocation?.name}</h3>
               <p className="text-xs text-muted-foreground">Showing items available inside this location.</p>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer bg-background px-3 py-2 rounded-md border shadow-sm hover:bg-muted/50 transition-colors">
+          <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer bg-background px-3 py-2 rounded-md border hover:bg-muted/50 transition-colors">
             <input 
               type="checkbox" 
               checked={showOnlyInStock} 
               onChange={e => setShowOnlyInStock(e.target.checked)} 
               className="rounded border-border text-primary focus:ring-primary h-3.5 w-3.5" 
             />
-            <span>Show Only In Stock</span>
+            <span>Show only in stock</span>
           </label>
           <Button 
             variant="outline" 
@@ -112,8 +112,8 @@ export const LocationItemsView: React.FC<LocationItemsViewProps> = ({
             onClick={onPrint}
             className="h-9 px-3 bg-background hover:bg-muted"
           >
-            <Printer className="h-4 w-4 mr-2" />
-            Print Inventory
+            <Printer />
+            Print inventory
           </Button>
         </div>
       </div>
@@ -123,7 +123,7 @@ export const LocationItemsView: React.FC<LocationItemsViewProps> = ({
         setSearchTerm={setSearchTerm}
       />
 
-      <Card className="shadow-xs overflow-hidden border">
+      <Card className="overflow-hidden border">
         <CardContent className="p-0">
           {loading ? (
             <div className="p-6 text-center text-muted-foreground">Loading...</div>
@@ -155,7 +155,7 @@ export const LocationItemsView: React.FC<LocationItemsViewProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <Select value={String(limit)} onValueChange={(value) => setLimit(Number(value))}>
-                    <SelectTrigger className="h-8 w-[100px] text-xs">
+                    <SelectTrigger className="h-8 w-[100px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -173,7 +173,7 @@ export const LocationItemsView: React.FC<LocationItemsViewProps> = ({
                       onClick={() => setPage(Math.max(1, page - 1))}
                       disabled={page === 1}
                     >
-                      <ChevronLeft className="h-4 w-4" />
+                      <ChevronLeft />
                     </Button>
                     <span className="text-xs font-medium px-2">
                       Page {page} of {totalPages}
@@ -185,7 +185,7 @@ export const LocationItemsView: React.FC<LocationItemsViewProps> = ({
                       onClick={() => setPage(Math.min(totalPages, page + 1))}
                       disabled={page === totalPages}
                     >
-                      <ChevronRight className="h-4 w-4" />
+                      <ChevronRight />
                     </Button>
                   </div>
                 </div>

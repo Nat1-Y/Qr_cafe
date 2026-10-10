@@ -54,7 +54,7 @@ const OperatorProfileModal: React.FC<OperatorProfileModalProps> = ({
           )}
 
           <div className="text-center mb-4">
-            <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-2 text-primary">
+            <div className="w-16 h-16 bg-highlight rounded-full flex items-center justify-center mx-auto mb-2 text-highlight-foreground">
               <span className="text-xl font-semibold">
                 {user?.full_name?.charAt(0)?.toUpperCase()}
               </span>

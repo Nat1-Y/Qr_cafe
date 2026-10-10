@@ -1,10 +1,9 @@
-import { uuidToDisplayId, formatOrderNumber } from "@/lib/utils";
+import { formatOrderNumber } from "@/lib/utils";
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { formatDate } from '../utils';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import StatusBadge from '@/components/common/StatusBadge';
 import { formatETB } from '@/lib/format';
 
 interface OrderStreamPanelProps {
@@ -12,6 +11,12 @@ interface OrderStreamPanelProps {
   getOrderSubtotal: (order: any) => number;
 }
 
+const itemSummary = (order: any) =>
+  (Array.isArray(order?.items) ? order.items : [])
+    .map((it: any) => `${parseInt(it?.quantity, 10) || 1} × ${it?.menu_item_name || it?.name || 'Item'}`)
+    .join(', ');
+
+/** Recent orders as list rows: number and table, item summary, amount, status. */
 export const OrderStreamPanel: React.FC<OrderStreamPanelProps> = ({
   orders,
   getOrderSubtotal
@@ -19,66 +24,46 @@ export const OrderStreamPanel: React.FC<OrderStreamPanelProps> = ({
   const navigate = useNavigate();
 
   return (
-    <Card>
-      <CardHeader className="pb-3 border-b flex flex-row items-center justify-between">
+    <Card className="overflow-hidden">
+      <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 border-b border-border">
         <div>
-          <CardTitle className="text-base">Live Order Stream</CardTitle>
-          <CardDescription>Ongoing active orders and statuses</CardDescription>
+          <CardTitle>Recent orders</CardTitle>
+          <CardDescription>Newest first, in this range.</CardDescription>
         </div>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => navigate('/dashboard/orders')}
-          className="text-xs font-bold"
-        >
-          View All
+        <Button size="sm" variant="ghost" onClick={() => navigate('/dashboard/orders')}>
+          All orders
         </Button>
       </CardHeader>
-      <CardContent className="pt-6 space-y-3">
-        {orders.length > 0 ? (
-          orders.map((order: any) => (
-            <div
-              key={order.id}
-              className="flex items-center justify-between p-3 border rounded-xl hover:bg-muted/10 transition-colors"
-            >
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-extrabold text-xs text-foreground">
+      {orders.length > 0 ? (
+        <ul className="divide-y divide-border">
+          {orders.map((order: any) => {
+            const summary = itemSummary(order);
+            const paid = String(order?.payment_status || '').toLowerCase() === 'paid';
+            return (
+              <li key={order.id} className="flex items-start justify-between gap-4 px-6 py-3.5 transition-colors hover:bg-row-hover">
+                <div className="min-w-0">
+                  <p className="font-semibold text-foreground">
                     {formatOrderNumber(order)}
-                  </span>
-                  <Badge
-                    variant={
-                      order.status === 'done' ||
-                      order.payment_status === 'paid'
-                        ? 'success'
-                        : 'warning'
-                    }
-                    className="text-[9px] capitalize py-0 px-1.5"
-                  >
-                    {order.status}
-                  </Badge>
+                    {order.table_number ? ` · Table ${order.table_number}` : ''}
+                  </p>
+                  <p className="truncate text-sm text-muted-foreground">
+                    {summary || <span className="capitalize">{order.type}</span>}
+                  </p>
+                  <p className="text-meta text-muted-foreground">
+                    {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
                 </div>
-                <p className="text-[10px] text-muted-foreground">
-                  {order.type === 'cafe' && order.table_number && `Table ${order.table_number} • `}
-                  {formatDate(order.created_at)}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="font-extrabold text-xs text-foreground">
-                  {formatETB(getOrderSubtotal(order))}
-                </p>
-                <Badge variant="secondary" className="text-[8px] uppercase py-0 px-1 font-bold">
-                  {order.type}
-                </Badge>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="p-8 text-center text-xs text-muted-foreground font-bold border border-dashed rounded-xl bg-muted/20">
-            No active orders in this range
-          </div>
-        )}
-      </CardContent>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <span className="font-semibold text-foreground">{formatETB(getOrderSubtotal(order))}</span>
+                  <StatusBadge kind="order" status={paid ? 'paid' : order.status} />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p className="px-6 py-12 text-center text-sm text-muted-foreground">No orders in this range yet.</p>
+      )}
     </Card>
   );
 };

@@ -787,7 +787,7 @@ const PrinterSettings: React.FC = () => {
                 className="w-full"
                 onClick={checkStatus}
               >
-                <RefreshCw className="w-4 h-4 mr-2" />
+                <RefreshCw />
                 Retry
               </Button>
             </div>
@@ -810,9 +810,9 @@ const PrinterSettings: React.FC = () => {
               </div>
               <Button type="submit" className="w-full" disabled={verifying || !password}>
                 {verifying ? (
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  <RefreshCw className="animate-spin" />
                 ) : (
-                  <KeyRound className="w-4 h-4 mr-2" />
+                  <KeyRound />
                 )}
                 {verifying ? 'Verifying…' : 'Unlock'}
               </Button>

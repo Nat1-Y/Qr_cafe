@@ -138,15 +138,15 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
     <div className="space-y-5">
       {/* Header status */}
       {existingRecipe ? (
-        <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" />
-          <span className="text-emerald-600 dark:text-emerald-400 font-medium">Recipe configured</span>
+        <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm">
+          <span className="h-2 w-2 rounded-full bg-success" />
+          <span className="text-success font-medium">Recipe configured</span>
           <span className="ml-auto text-xs text-muted-foreground">{existingRecipe.ingredients?.length ?? 0} ingredient(s)</span>
         </div>
       ) : (
-        <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-warning/10 px-3 py-2 text-sm">
-          <span className="h-2 w-2 rounded-full bg-amber-500" />
-          <span className="text-warning dark:text-amber-400 font-medium">No recipe yet — stock won't auto-deduct</span>
+        <div className="flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm">
+          <span className="h-2 w-2 rounded-full bg-warning" />
+          <span className="text-warning font-medium">No recipe yet — stock won't auto-deduct</span>
         </div>
       )}
 
@@ -154,31 +154,31 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
         {/* Recipe metadata */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label className="text-xs">Recipe Name</Label>
+            <Label>Recipe name</Label>
             <Input
               value={recipeName}
               onChange={(e) => setRecipeName(e.target.value)}
               placeholder={menuItemName}
-              className="h-8 text-sm"
+              className="h-8"
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Yield (servings)</Label>
+            <Label>Yield (servings)</Label>
             <Input
               type="number"
               min="1"
               value={yieldQty}
               onChange={(e) => setYieldQty(e.target.value)}
-              className="h-8 text-sm"
+              className="h-8"
             />
           </div>
         </div>
 
         {/* Deduction strategy */}
         <div className="space-y-1.5">
-          <Label className="text-xs">Stock Deduction Strategy</Label>
+          <Label>Stock deduction strategy</Label>
           <Select value={strategy} onValueChange={setStrategy}>
-            <SelectTrigger className="h-8 text-sm">
+            <SelectTrigger className="h-8">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -192,9 +192,9 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
         {/* Fixed location picker */}
         {strategy === 'fixed_location' && (
           <div className="space-y-1.5">
-            <Label className="text-xs">Deduct From Location</Label>
+            <Label>Deduct from location</Label>
             <Select value={fixedLocationId} onValueChange={setFixedLocationId}>
-              <SelectTrigger className="h-8 text-sm">
+              <SelectTrigger className="h-8">
                 <SelectValue placeholder="Select location…" />
               </SelectTrigger>
               <SelectContent>
@@ -215,14 +215,14 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
             onChange={(e) => setIsActive(e.target.checked)}
             className="rounded"
           />
-          <Label htmlFor="recipe-active" className="text-xs cursor-pointer">Active (deduct on sale)</Label>
+          <Label htmlFor="recipe-active" className="cursor-pointer">Active (deduct on sale)</Label>
         </div>
 
         {/* Ingredients list */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label className="text-xs font-semibold">Ingredients</Label>
-            <Button type="button" variant="outline" size="sm" onClick={addIngredient} className="h-7 text-xs px-2">
+            <Label>Ingredients</Label>
+            <Button type="button" variant="outline" size="sm" onClick={addIngredient} className="h-7 px-2">
               + Add
             </Button>
           </div>
@@ -237,7 +237,7 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
             {ingredients.map((ing, idx) => (
               <div key={ing.key} className="rounded-lg border bg-muted/30 p-2.5 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-medium text-muted-foreground">#{idx + 1}</span>
+                  <span className="text-xs font-medium text-muted-foreground">#{idx + 1}</span>
                   <button
                     type="button"
                     onClick={() => removeIngredient(ing.key)}
@@ -248,12 +248,12 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="col-span-2 space-y-1">
-                    <Label className="text-[10px]">Inventory Item</Label>
+                    <Label>Inventory item</Label>
                     <Select
                       value={ing.inventory_item_id !== '' ? String(ing.inventory_item_id) : ''}
                       onValueChange={(v) => updateIngredient(ing.key, 'inventory_item_id', Number(v))}
                     >
-                      <SelectTrigger className="h-7 text-xs">
+                      <SelectTrigger className="h-7">
                         <SelectValue placeholder="Select item…" />
                       </SelectTrigger>
                       <SelectContent>
@@ -262,7 +262,7 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
                             placeholder="Search…"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="h-6 text-xs mb-1"
+                            className="h-6 mb-1"
                             onClick={(e) => e.stopPropagation()}
                           />
                         </div>
@@ -275,18 +275,18 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
                     </Select>
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-[10px]">Qty (base units)</Label>
+                    <Label>Qty (base units)</Label>
                     <Input
                       type="number"
                       min="1"
                       placeholder="e.g. 250"
                       value={ing.quantity}
                       onChange={(e) => updateIngredient(ing.key, 'quantity', e.target.value)}
-                      className="h-7 text-xs"
+                      className="h-7"
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-[10px]">Waste factor</Label>
+                    <Label>Waste factor</Label>
                     <Input
                       type="number"
                       min="1"
@@ -294,7 +294,7 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
                       placeholder="1.000"
                       value={ing.waste_factor}
                       onChange={(e) => updateIngredient(ing.key, 'waste_factor', e.target.value)}
-                      className="h-7 text-xs"
+                      className="h-7"
                     />
                   </div>
                 </div>
@@ -306,7 +306,7 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
                     onChange={(e) => updateIngredient(ing.key, 'is_optional', e.target.checked)}
                     className="rounded"
                   />
-                  <Label htmlFor={`opt-${ing.key}`} className="text-[10px] cursor-pointer text-muted-foreground">Optional</Label>
+                  <Label htmlFor={`opt-${ing.key}`} className="cursor-pointer">Optional</Label>
                 </div>
               </div>
             ))}

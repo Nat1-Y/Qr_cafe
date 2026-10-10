@@ -9,24 +9,24 @@ interface QuickActionsCardProps {
 
 export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ isOnline, setShowChangePassword }) => {
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="transition-shadow">
       <CardHeader className="pb-3 border-b">
-        <CardTitle className="text-sm font-bold">Quick Actions</CardTitle>
+        <CardTitle>Quick actions</CardTitle>
       </CardHeader>
       <CardContent className="pt-4 space-y-2">
         <Button
-          className="w-full justify-start text-xs font-bold"
+          className="w-full justify-start"
           variant="outline"
           onClick={() => setShowChangePassword(true)}
           disabled={!isOnline}
         >
-          Change Password {!isOnline && ' (Unavailable Offline)'}
+          Change password {!isOnline && ' (Unavailable Offline)'}
         </Button>
-        <Button className="w-full justify-start text-xs font-bold" variant="outline">
-          Download Data
+        <Button className="w-full justify-start" variant="outline">
+          Download data
         </Button>
-        <Button className="w-full justify-start text-xs font-bold" variant="outline">
-          Privacy Settings
+        <Button className="w-full justify-start" variant="outline">
+          Privacy settings
         </Button>
       </CardContent>
     </Card>

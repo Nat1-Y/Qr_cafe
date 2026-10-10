@@ -49,7 +49,7 @@ export const OrganizationManagement: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader title="Organizations" description="Manage organizations and their credit balances." actions={
-        <Button onClick={load} variant="outline" size="sm"><RefreshCw className="h-4 w-4 mr-2" />Refresh</Button>
+        <Button onClick={load} variant="outline" size="sm"><RefreshCw />Refresh</Button>
       } />
 
       <Tabs defaultValue="organizations" className="space-y-5">
@@ -62,16 +62,16 @@ export const OrganizationManagement: React.FC = () => {
               <ClipboardCheck className="h-4 w-4" />Orders
             </TabsTrigger>
             <TabsTrigger value="add-payment" className="gap-2 rounded-md px-4 py-2.5 text-xs">
-              Add Payment
+              Add payment
             </TabsTrigger>
             <TabsTrigger value="transactions" className="gap-2 rounded-md px-4 py-2.5 text-xs">
-              Record Transaction
+              Record transaction
             </TabsTrigger>
             <TabsTrigger value="payment-list" className="gap-2 rounded-md px-4 py-2.5 text-xs">
-              <List className="h-4 w-4" />Payment List
+              <List className="h-4 w-4" />Payment list
             </TabsTrigger>
             <TabsTrigger value="transaction-history" className="gap-2 rounded-md px-4 py-2.5 text-xs">
-              <RefreshCw className="h-4 w-4" />Transaction History
+              <RefreshCw className="h-4 w-4" />Transaction history
             </TabsTrigger>
           </TabsList>
         </div>
@@ -79,7 +79,7 @@ export const OrganizationManagement: React.FC = () => {
         {/* ── TAB 1: Organizations ── */}
         <TabsContent value="organizations" className="space-y-4">
           <div className="flex justify-end">
-            <Button onClick={openAdd}><Plus className="h-4 w-4 mr-2" />Add Organization</Button>
+            <Button onClick={openAdd}><Plus />Add organization</Button>
           </div>
           <Card>
             <CardContent className="p-0">

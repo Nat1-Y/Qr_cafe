@@ -63,12 +63,12 @@ export const CashierOrganizationOrders: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Organization Orders"
-        description="Orders attached to an organization — billed to its credit account, not collected as cash. Only the owner can confirm one."
+        title="Organization orders"
+        description="Orders attached to an organization — billed to its credit account, not collected as cash. only the owner can confirm one."
         actions={
           canPlaceOrders ? (
             <Button onClick={() => navigate('/dashboard/organizations/place-order')}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus />
               New order
             </Button>
           ) : undefined
