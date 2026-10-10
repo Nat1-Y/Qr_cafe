@@ -16,13 +16,13 @@ export function PopularMenuItems({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between border-b pb-3">
         <div>
-          <CardTitle className="text-base">Popular Menu Items</CardTitle>
+          <CardTitle>Popular menu items</CardTitle>
           <CardDescription>Most frequently bought dishes</CardDescription>
         </div>
         <select
           value={topItemsPeriod}
           onChange={(e) => setTopItemsPeriod(e.target.value)}
-          className="border-input bg-background h-8 rounded-md border px-2 text-xs">
+          className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50">
           <option value="selected_range">Selected range</option>
           <option value="this_week">This week</option>
           <option value="this_month">This month</option>
@@ -30,30 +30,30 @@ export function PopularMenuItems({
         </select>
       </CardHeader>
       <CardContent className="pt-6">
-        <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
+        <div className="max-h-[420px] overflow-y-auto pr-1">
           {topItems.length > 0 ? (
             topItems.map((item, index) => (
               <div
                 key={item.name}
-                className="hover:bg-muted/10 flex items-center justify-between rounded-xl border p-3 font-semibold transition-colors">
+                className="flex items-center justify-between border-b border-border py-3 last:border-b-0">
                 <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 text-primary flex size-7 items-center justify-center rounded-full text-xs font-black">
+                  <div className="bg-muted text-muted-foreground flex size-7 items-center justify-center rounded-full text-xs font-semibold">
                     {index + 1}
                   </div>
                   <div>
-                    <p className="text-foreground text-xs font-extrabold">{item.name}</p>
-                    <p className="text-muted-foreground text-[10px] font-bold">
+                    <p className="text-foreground text-xs font-semibold">{item.name}</p>
+                    <p className="text-muted-foreground text-xs font-semibold">
                       {formatETB(item.revenue || 0)}
                     </p>
                   </div>
                 </div>
-                <Badge variant="secondary" className="text-xs font-black">
+                <Badge variant="secondary">
                   {item.sold} sold
                 </Badge>
               </div>
             ))
           ) : (
-            <div className="bg-muted/20 text-muted-foreground rounded-xl border border-dashed p-8 text-center text-xs font-bold">
+            <div className="bg-muted/20 text-muted-foreground rounded-xl border border-dashed p-8 text-center text-xs font-semibold">
               No item summary found for the selected filters and period.
             </div>
           )}

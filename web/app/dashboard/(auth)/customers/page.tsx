@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRightIcon, Loader2, RefreshCwIcon, SearchIcon } from "lucide-react";
+import { ArrowUpRightIcon, Loader2, RefreshCwIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Table,
@@ -127,8 +127,8 @@ function OrgOrderAccessCard() {
         <CardTitle>Organization order access</CardTitle>
         <CardDescription>
           Only these waiters and cashiers can attach an order to an
-          organization while placing it. Everyone else's order screen won't
-          offer the option. Owners/admins are never restricted.
+          organization while placing it. everyone else's order screen won't
+          offer the option. owners/admins are never restricted.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -167,7 +167,7 @@ function OrgOrderAccessCard() {
         )}
         <div className="flex justify-end">
           <Button onClick={save} disabled={saving || loading}>
-            {saving ? <Loader2 className="size-4 animate-spin" /> : null}
+            {saving ? <Loader2 className="animate-spin" /> : null}
             Save access
           </Button>
         </div>
@@ -212,7 +212,7 @@ function OrganizationsTab() {
         rowActions={(r) => (
           <Button variant="ghost" size="icon" asChild title="Open account">
             <Link href={`/dashboard/customers/${r.id}`}>
-              <ArrowUpRightIcon className="size-4" />
+              <ArrowUpRightIcon />
             </Link>
           </Button>
         )}
@@ -334,7 +334,7 @@ function OrganizationOrdersTab() {
           <div className="space-y-1">
             <label className="text-muted-foreground text-xs">Organization</label>
             <select
-              className="border-input h-9 w-48 rounded-md border bg-transparent px-3 text-sm"
+              className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-48"
               value={orgFilter}
               onChange={(e) => setOrgFilter(e.target.value)}
             >
@@ -350,7 +350,7 @@ function OrganizationOrdersTab() {
           <div className="space-y-1">
             <label className="text-muted-foreground text-xs">Payment</label>
             <select
-              className="border-input h-9 w-36 rounded-md border bg-transparent px-3 text-sm"
+              className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-36"
               value={paymentFilter}
               onChange={(e) => setPaymentFilter(e.target.value as PaymentFilter)}
             >
@@ -363,7 +363,7 @@ function OrganizationOrdersTab() {
           <div className="space-y-1">
             <label className="text-muted-foreground text-xs">Status</label>
             <select
-              className="border-input h-9 w-36 rounded-md border bg-transparent px-3 text-sm"
+              className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-36"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -378,15 +378,10 @@ function OrganizationOrdersTab() {
 
           <div className="space-y-1">
             <label className="text-muted-foreground text-xs">Search</label>
-            <div className="relative">
-              <SearchIcon className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2" />
-              <Input
+            <SearchInput
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Order #, org, or customer"
-                className="w-52 pl-8"
-              />
-            </div>
+                placeholder="Order #, org, or customer" />
           </div>
         </div>
 

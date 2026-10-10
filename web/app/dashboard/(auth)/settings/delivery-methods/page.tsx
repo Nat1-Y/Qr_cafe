@@ -94,7 +94,7 @@ function WaiterAccessCard() {
         <CardTitle>Waiter access</CardTitle>
         <CardDescription>
           Only these waiters see the delivery option on their own order screen.
-          Cashiers and orders placed from the dashboard are never restricted.
+          cashiers and orders placed from the dashboard are never restricted.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -130,7 +130,7 @@ function WaiterAccessCard() {
         )}
         <div className="flex justify-end">
           <Button onClick={save} disabled={saving || loading}>
-            {saving ? <Loader2 className="size-4 animate-spin" /> : null}
+            {saving ? <Loader2 className="animate-spin" /> : null}
             Save access
           </Button>
         </div>

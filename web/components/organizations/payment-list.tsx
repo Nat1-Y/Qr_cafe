@@ -67,7 +67,7 @@ export function PaymentList({
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-3">
-                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                      <span className="font-semibold text-success">
                         {formatETB(payment.amount)}
                       </span>
                       <Badge variant={remaining > 0 ? "default" : "secondary"}>
@@ -120,7 +120,7 @@ export function PaymentList({
                             .map((s) => s.description)
                             .join(", ") || "—"}
                         </TableCell>
-                        <TableCell className="text-right font-medium text-rose-600 dark:text-rose-400">
+                        <TableCell className="text-right font-medium text-destructive">
                           -{formatETB(t.total_amount)}
                         </TableCell>
                       </TableRow>

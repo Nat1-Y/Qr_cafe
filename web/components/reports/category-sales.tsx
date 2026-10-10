@@ -13,7 +13,7 @@ import { formatETB } from "@/lib/format";
 import type { CategorySalesItem } from "@/lib/reports";
 
 const chartConfig = {
-  revenue: { label: "Revenue", color: "var(--primary)" },
+  revenue: { label: "Revenue", color: "var(--chart-1)" },
 } satisfies ChartConfig;
 
 const compact = (value: number) =>
@@ -28,7 +28,7 @@ export function CategorySales({ items }: { items: CategorySalesItem[] }) {
   return (
     <Card>
       <CardHeader className="border-b pb-3">
-        <CardTitle className="text-base">Category Sales</CardTitle>
+        <CardTitle>Category sales</CardTitle>
         <CardDescription>Revenue and quantity by menu category</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
@@ -43,14 +43,14 @@ export function CategorySales({ items }: { items: CategorySalesItem[] }) {
                 type="number"
                 dataKey="revenue"
                 tickLine={false}
-                axisLine={false}
+                axisLine={{ stroke: "var(--border)" }}
                 tickFormatter={(v) => compact(Number(v))}
               />
               <YAxis
                 type="category"
                 dataKey="name"
                 tickLine={false}
-                axisLine={false}
+                axisLine={{ stroke: "var(--border)" }}
                 width={96}
                 tickMargin={4}
               />

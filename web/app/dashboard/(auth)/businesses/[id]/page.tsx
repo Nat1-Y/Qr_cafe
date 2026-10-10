@@ -270,7 +270,7 @@ export default function BusinessDetailPage() {
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/dashboard/businesses">
-              <ArrowLeftIcon className="size-4" />
+              <ArrowLeftIcon />
             </Link>
           </Button>
           <div>
@@ -284,7 +284,7 @@ export default function BusinessDetailPage() {
             onClick={loginAsOwner}
             disabled={busy || !biz.owner}
             title={!biz.owner ? "This business has no owner account yet" : undefined}>
-            <LogInIcon className="size-4" />
+            <LogInIcon />
             Log in as owner
           </Button>
           <Button
@@ -294,7 +294,7 @@ export default function BusinessDetailPage() {
             {biz.is_active ? "Suspend" : "Activate"}
           </Button>
           <Button variant="destructive" onClick={deleteBusiness} disabled={busy}>
-            <Trash2Icon className="size-4" />
+            <Trash2Icon />
             Delete
           </Button>
         </div>
@@ -333,13 +333,13 @@ export default function BusinessDetailPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Plan</CardTitle>
+            <CardTitle className="text-muted-foreground">Plan</CardTitle>
           </CardHeader>
           <CardContent className="text-lg font-medium capitalize">{biz.plan}</CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Owner</CardTitle>
+            <CardTitle className="text-muted-foreground">Owner</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="font-medium">{biz.owner?.name ?? "—"}</div>
@@ -363,7 +363,7 @@ export default function BusinessDetailPage() {
               placeholder="New branch name"
             />
             <Button type="submit" disabled={busy}>
-              <PlusIcon className="size-4" />
+              <PlusIcon />
               Add
             </Button>
           </form>
@@ -392,7 +392,7 @@ export default function BusinessDetailPage() {
                     className="text-muted-foreground hover:text-destructive"
                     disabled={busy}
                     onClick={() => deleteBranch(br.id, br.name)}>
-                    <Trash2Icon className="size-4" />
+                    <Trash2Icon />
                   </Button>
                 </div>
               ))
@@ -417,7 +417,7 @@ export default function BusinessDetailPage() {
                 ? "Add a branch before creating staff"
                 : undefined
             }>
-            <UserPlusIcon className="size-4" />
+            <UserPlusIcon />
             Add user
           </Button>
         </CardHeader>
@@ -458,7 +458,7 @@ export default function BusinessDetailPage() {
                     className="text-muted-foreground hover:text-destructive"
                     disabled={busy}
                     onClick={() => deleteUser(u)}>
-                    <Trash2Icon className="size-4" />
+                    <Trash2Icon />
                   </Button>
                 </div>
               ))
@@ -478,7 +478,7 @@ export default function BusinessDetailPage() {
               <Input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="e.g. Abel Tesfaye"
+                placeholder="e.g. abel tesfaye"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -506,7 +506,7 @@ export default function BusinessDetailPage() {
               <div className="space-y-1.5">
                 <label className="text-sm font-medium">Role</label>
                 <select
-                  className="border-input bg-background h-9 w-full rounded-md border px-3 text-sm"
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                   value={form.role}
                   onChange={(e) => setForm({ ...form, role: e.target.value })}>
                   {ROLE_OPTIONS.map((r) => (
@@ -521,7 +521,7 @@ export default function BusinessDetailPage() {
                   Branch{roleNeedsBranch ? "" : " (n/a)"}
                 </label>
                 <select
-                  className="border-input bg-background h-9 w-full rounded-md border px-3 text-sm disabled:opacity-50"
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                   disabled={!roleNeedsBranch}
                   value={form.branch_id}
                   onChange={(e) => setForm({ ...form, branch_id: e.target.value })}>
@@ -566,7 +566,7 @@ function StatCard({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className="text-muted-foreground">
           {label}
         </CardTitle>
         <Icon className="size-4 text-muted-foreground" />

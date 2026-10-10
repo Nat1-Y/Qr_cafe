@@ -239,11 +239,11 @@ export default function MenuPage() {
             <Button
               variant="outline"
               onClick={() => router.push("/dashboard/menu/bulk-import")}>
-              <UploadIcon className="size-4" />
+              <UploadIcon />
               Bulk import
             </Button>
             <Button onClick={openNew}>
-              <PlusIcon className="size-4" />
+              <PlusIcon />
               New item
             </Button>
           </div>
@@ -296,7 +296,7 @@ export default function MenuPage() {
                   size="icon"
                   title="Recipe"
                   onClick={() => setRecipeItem(it)}>
-                  <UtensilsCrossedIcon className="size-4" />
+                  <UtensilsCrossedIcon />
                 </Button>
                 <Button
                   variant="ghost"
@@ -306,10 +306,10 @@ export default function MenuPage() {
                     setNoteInput("");
                     setOpen(true);
                   }}>
-                  <PencilIcon className="size-4" />
+                  <PencilIcon />
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => remove(it.id)}>
-                  <Trash2Icon className="size-4 text-destructive" />
+                  <Trash2Icon className="text-destructive" />
                 </Button>
               </>
             )}
@@ -330,7 +330,7 @@ export default function MenuPage() {
                   onChange={(e) => setCatName(e.target.value)}
                 />
                 <Button onClick={addCategory}>
-                  <PlusIcon className="size-4" />
+                  <PlusIcon />
                   Add
                 </Button>
               </div>
@@ -345,7 +345,7 @@ export default function MenuPage() {
             emptyMessage="No categories yet."
             rowActions={(c) => (
               <Button variant="ghost" size="icon" onClick={() => removeCategory(c.id)}>
-                <Trash2Icon className="size-4 text-destructive" />
+                <Trash2Icon className="text-destructive" />
               </Button>
             )}
           />
@@ -365,7 +365,7 @@ export default function MenuPage() {
                   onChange={(e) => setDeptName(e.target.value)}
                 />
                 <Button onClick={addDepartment}>
-                  <PlusIcon className="size-4" />
+                  <PlusIcon />
                   Add
                 </Button>
               </div>
@@ -408,7 +408,7 @@ export default function MenuPage() {
                 <div className="space-y-2">
                   <Label>Department (printing)</Label>
                   <select
-                    className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                    className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                     value={editing.main_category ?? ""}
                     onChange={(e) =>
                       setEditing({ ...editing, main_category: e.target.value })
@@ -425,7 +425,7 @@ export default function MenuPage() {
               <div className="space-y-2">
                 <Label>Category</Label>
                 <select
-                  className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                   value={editing.category ?? ""}
                   onChange={(e) =>
                     setEditing({ ...editing, category: e.target.value })
@@ -459,7 +459,7 @@ export default function MenuPage() {
                       }
                     }}
                     maxLength={100}
-                    placeholder="e.g. No sugar, Extra hot"
+                    placeholder="e.g. no sugar, extra hot"
                   />
                   <Button type="button" variant="outline" onClick={addPredefinedNote}>
                     Add

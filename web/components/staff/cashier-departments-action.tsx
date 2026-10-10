@@ -95,7 +95,7 @@ export function CashierDepartmentsAction({
   return (
     <>
       <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
-        <Layers className="size-4" />
+        <Layers />
         Departments
       </Button>
 
@@ -150,7 +150,7 @@ export function CashierDepartmentsAction({
               Cancel
             </Button>
             <Button onClick={save} disabled={saving || loading}>
-              {saving ? <Loader2 className="size-4 animate-spin" /> : null}
+              {saving ? <Loader2 className="animate-spin" /> : null}
               Save
             </Button>
           </DialogFooter>

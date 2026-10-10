@@ -6,7 +6,6 @@ import {
   ClockIcon,
   ReceiptTextIcon,
   WalletIcon,
-  CoffeeIcon,
   RefreshCwIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -27,6 +26,8 @@ import { PageHeader } from "@/components/page-header";
 import { Orders, Payments, Menu } from "@/lib/resources";
 import { formatETB } from "@/lib/format";
 import { salesSplit } from "@/lib/profit";
+import { StatCards } from "@/components/stat-cards";
+import { Segmented } from "@/components/segmented";
 import {
   getItemSubtotal,
   isVoidedOrderStatus,
@@ -207,14 +208,14 @@ export default function FbOverviewPage() {
       value: sales.paid,
       hint: "Collected",
       icon: TrendingUpIcon,
-      valueClass: "text-emerald-600 dark:text-emerald-500",
+      valueClass: "text-success",
     },
     {
       label: "Unpaid sales",
       value: sales.unpaid,
       hint: "Outstanding",
       icon: ClockIcon,
-      valueClass: "text-amber-600 dark:text-amber-500",
+      valueClass: "text-warning",
     },
     {
       label: "Avg. order",
@@ -228,7 +229,7 @@ export default function FbOverviewPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="F&B Overview"
+        title="F&B overview"
         description="Food & beverage performance for your branch."
         action={
           <Button
@@ -244,49 +245,28 @@ export default function FbOverviewPage() {
         }
       />
 
-      <div className="flex flex-wrap gap-2">
-        {PERIODS.map((p) => (
-          <Button
-            key={p.value}
-            size="sm"
-            variant={period === p.value ? "default" : "outline"}
-            onClick={() => setPeriod(p.value)}>
-            {p.label}
-          </Button>
-        ))}
-      </div>
+      <Segmented
+        aria-label="Period"
+        value={period}
+        onChange={(v) => setPeriod(v)}
+        options={PERIODS.map((p) => ({ value: p.value, label: p.label }))}
+      />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {kpis.map((c) => (
-          <Card key={c.label}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-muted-foreground text-sm font-medium">
-                {c.label}
-              </CardTitle>
-              <c.icon className="text-muted-foreground size-4" />
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <Skeleton className="h-8 w-28" />
-              ) : (
-                <>
-                  <div className={`text-2xl font-semibold ${c.valueClass}`}>
-                    {formatETB(c.value)}
-                  </div>
-                  <p className="text-muted-foreground text-xs">{c.hint}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <StatCards
+        loading={loading}
+        className="grid gap-3 sm:grid-cols-3"
+        cards={kpis.map((c) => ({
+          label: c.label,
+          value: formatETB(c.value),
+          hint: c.hint,
+          valueClass: c.valueClass === "text-success" ? "text-accent" : c.valueClass,
+        }))}
+      />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CoffeeIcon className="size-4" /> Top selling items
-            </CardTitle>
+            <CardTitle>Top selling items</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Table>

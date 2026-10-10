@@ -142,7 +142,7 @@ export default function OrganizationDetailPage() {
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/dashboard/customers">
-            <ArrowLeftIcon className="size-4" />
+            <ArrowLeftIcon />
           </Link>
         </Button>
         <PageHeader
@@ -151,12 +151,12 @@ export default function OrganizationDetailPage() {
           action={
             <div className="flex gap-2">
               <Button variant="outline" onClick={openEdit} disabled={!org}>
-                <PencilIcon className="size-4" />
+                <PencilIcon />
                 Edit
               </Button>
               <Button asChild>
                 <Link href={`/dashboard/orders/new?org=${id}`}>
-                  <PlusIcon className="size-4" />
+                  <PlusIcon />
                   Create order
                 </Link>
               </Button>
@@ -186,7 +186,7 @@ export default function OrganizationDetailPage() {
             />
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Details</CardTitle>
+                <CardTitle>Details</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-3 text-sm sm:grid-cols-2">
                 <Detail label="Contact" value={org?.contact_name} />

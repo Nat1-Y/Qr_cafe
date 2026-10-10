@@ -221,7 +221,7 @@ export default function WaiterProfilePage() {
                 size="sm"
                 disabled={loading}
                 onClick={() => setEditing(true)}>
-                <Pencil className="size-4" />
+                <Pencil />
                 Edit
               </Button>
             ) : (
@@ -231,11 +231,11 @@ export default function WaiterProfilePage() {
                   size="sm"
                   disabled={savingProfile}
                   onClick={cancelEdit}>
-                  <X className="size-4" />
+                  <X />
                   Cancel
                 </Button>
                 <Button size="sm" disabled={savingProfile} onClick={saveProfile}>
-                  <Save className="size-4" />
+                  <Save />
                   Save
                 </Button>
               </div>
@@ -339,7 +339,7 @@ export default function WaiterProfilePage() {
           </div>
           <div className="flex justify-end">
             <Button disabled={savingPin} onClick={savePin}>
-              <KeyRound className="size-4" />
+              <KeyRound />
               Update PIN
             </Button>
           </div>

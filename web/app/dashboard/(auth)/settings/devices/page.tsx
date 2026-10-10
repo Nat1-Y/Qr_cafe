@@ -219,7 +219,7 @@ export default function DevicesPage() {
           </CardTitle>
           <CardDescription>
             Enter this code on a desktop app's first run to pin that install to this
-            branch. The same code works for every device — rotate it to revoke
+            branch. the same code works for every device — rotate it to revoke
             access for new enrollments (already-enrolled devices stay connected).
           </CardDescription>
         </CardHeader>
@@ -227,7 +227,7 @@ export default function DevicesPage() {
           <div className="bg-muted flex items-center justify-between rounded-md border p-4">
             <div>
               <div className="text-muted-foreground text-xs">Enrollment code</div>
-              <div className="font-mono text-2xl tracking-widest">
+              <div className="font-mono text-2xl">
                 {loading ? "…" : code || "Not set"}
               </div>
             </div>
@@ -239,14 +239,14 @@ export default function DevicesPage() {
                   navigator.clipboard.writeText(code);
                   toast.success("Copied");
                 }}>
-                <CopyIcon className="size-4" />
+                <CopyIcon />
               </Button>
             )}
           </div>
 
           {code && (
-            <div className="flex flex-col items-center gap-2 rounded-md border p-4">
-              <div className="rounded-md bg-white p-3">
+            <div className="flex flex-col items-center gap-2 rounded-card border border-border p-4">
+              <div className="rounded-md bg-paper p-3">
                 <QRCodeSVG value={code} size={176} marginSize={0} level="M" />
               </div>
               <p className="text-muted-foreground text-center text-xs">
@@ -258,7 +258,7 @@ export default function DevicesPage() {
           )}
 
           <Button onClick={rotate} disabled={rotating || loading}>
-            <RefreshCwIcon className="size-4" />
+            <RefreshCwIcon />
             {rotating
               ? "Generating…"
               : code
@@ -296,7 +296,7 @@ export default function DevicesPage() {
                   <div className="flex items-center gap-3">
                     <span
                       className={`size-2.5 shrink-0 rounded-full ${
-                        d.online ? "bg-green-500" : "bg-muted-foreground/40"
+                        d.online ? "bg-success" : "bg-muted-foreground/40"
                       }`}
                       title={d.online ? "Online" : "Offline"}
                     />
@@ -323,14 +323,14 @@ export default function DevicesPage() {
                       }
                       disabled={devicesWithActiveCleanup.has(d.id)}
                       onClick={() => setToWipe(d)}>
-                      <EraserIcon className="size-4" />
+                      <EraserIcon />
                     </Button>
                     <Button
                       variant="destructive"
                       size="icon"
                       title="Kick out this device"
                       onClick={() => setToKick(d)}>
-                      <Trash2Icon className="size-4" />
+                      <Trash2Icon />
                     </Button>
                   </div>
                 </li>
@@ -382,7 +382,7 @@ export default function DevicesPage() {
                         size="sm"
                         disabled={reviewingId === r.id}
                         onClick={() => review(r.id, "reject")}>
-                        <XIcon className="size-4" />
+                        <XIcon />
                         Reject
                       </Button>
                       <Button
@@ -390,9 +390,9 @@ export default function DevicesPage() {
                         disabled={reviewingId === r.id}
                         onClick={() => review(r.id, "approve")}>
                         {reviewingId === r.id ? (
-                          <Loader2Icon className="size-4 animate-spin" />
+                          <Loader2Icon className="animate-spin" />
                         ) : (
-                          <CheckIcon className="size-4" />
+                          <CheckIcon />
                         )}
                         Approve
                       </Button>
@@ -436,12 +436,12 @@ export default function DevicesPage() {
             <Button variant="destructive" onClick={wipe} disabled={wiping}>
               {wiping ? (
                 <>
-                  <Loader2Icon className="size-4 animate-spin" />
+                  <Loader2Icon className="animate-spin" />
                   Queuing…
                 </>
               ) : (
                 <>
-                  <EraserIcon className="size-4" />
+                  <EraserIcon />
                   Wipe device data
                 </>
               )}
@@ -472,12 +472,12 @@ export default function DevicesPage() {
             <Button variant="destructive" onClick={kick} disabled={kicking}>
               {kicking ? (
                 <>
-                  <Loader2Icon className="size-4 animate-spin" />
+                  <Loader2Icon className="animate-spin" />
                   Kicking out…
                 </>
               ) : (
                 <>
-                  <Trash2Icon className="size-4" />
+                  <Trash2Icon />
                   Kick out
                 </>
               )}

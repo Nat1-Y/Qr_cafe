@@ -73,7 +73,7 @@ export function ReportsStats({
       <CardContent className="space-y-5 pt-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <BarChart2 className="size-5 text-blue-600 dark:text-blue-400" />
+            <BarChart2 className="size-5 text-info" />
             <h3 className="text-sm font-semibold">
               {hasRange ? "Selected Range" : PERIOD_LABELS[period]} Performance
             </h3>
@@ -93,7 +93,7 @@ export function ReportsStats({
                   className={cn(
                     "rounded-md px-3 py-1 text-xs font-medium transition-colors",
                     period === p
-                      ? "bg-background text-foreground shadow-sm"
+                      ? "bg-background text-foreground"
                       : "text-muted-foreground hover:text-foreground",
                   )}>
                   {PERIOD_LABELS[p]}
@@ -136,7 +136,7 @@ function Metric({
       <p
         className={cn(
           "truncate text-2xl font-semibold",
-          accent === "success" && "text-green-600 dark:text-green-400",
+          accent === "success" && "text-success",
         )}>
         {value}
       </p>

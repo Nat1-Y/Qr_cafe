@@ -111,7 +111,7 @@ function SectionLabel({
 }) {
   return (
     <div
-      className={`flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase ${className ?? "mb-2"}`}
+      className={`flex items-center gap-1.5 text-xs font-semibold text-muted-foreground ${className ?? "mb-2"}`}
     >
       <Icon className="size-3.5" />
       {children}
@@ -254,25 +254,25 @@ function ManageDeliveryDialog({
           {/* Total / collected / due at a glance, before anything else. */}
           <div className="grid grid-cols-3 divide-x rounded-lg border bg-muted/30 text-center">
             <div className="px-2 py-2.5">
-              <div className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+              <div className="text-xs font-semibold text-muted-foreground">
                 Total
               </div>
-              <div className="text-sm font-bold">{formatETB(order.total_amount)}</div>
+              <div className="text-sm font-semibold">{formatETB(order.total_amount)}</div>
             </div>
             <div className="px-2 py-2.5">
-              <div className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+              <div className="text-xs font-semibold text-muted-foreground">
                 Collected
               </div>
-              <div className="text-sm font-bold text-emerald-600 dark:text-emerald-500">
+              <div className="text-sm font-semibold text-success">
                 {formatETB(order.delivery_payment_summary.paid_cents / 100)}
               </div>
             </div>
             <div className="px-2 py-2.5">
-              <div className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+              <div className="text-xs font-semibold text-muted-foreground">
                 Due
               </div>
               <div
-                className={`text-sm font-bold ${remainingDueCents > 0 ? "text-amber-600 dark:text-amber-500" : "text-emerald-600 dark:text-emerald-500"}`}
+                className={`text-sm font-semibold ${remainingDueCents > 0 ? "text-warning" : "text-success"}`}
               >
                 {formatETB(remainingDueCents / 100)}
               </div>
@@ -347,7 +347,7 @@ function ManageDeliveryDialog({
               <select
                 value={matchedCourierId}
                 onChange={(e) => selectCourier(e.target.value)}
-                className="border-input bg-background h-9 w-full rounded-md border px-3 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
               >
                 <option value="">
                   {couriers.length ? "Choose a saved courier…" : "No saved couriers — enter details below"}
@@ -390,7 +390,7 @@ function ManageDeliveryDialog({
             </div>
             <div className="flex justify-end">
               <Button size="sm" onClick={saveDetails} disabled={busy}>
-                {busy ? <Loader2 className="size-4 animate-spin" /> : null}
+                {busy ? <Loader2 className="animate-spin" /> : null}
                 Save details
               </Button>
             </div>
@@ -442,7 +442,7 @@ function ManageDeliveryDialog({
                         {p.status}
                       </Badge>
                       {p.paid_at && (
-                        <span className="text-[10px] text-muted-foreground">{shortDate(p.paid_at)}</span>
+                        <span className="text-xs text-muted-foreground">{shortDate(p.paid_at)}</span>
                       )}
                     </div>
                   </div>
@@ -451,12 +451,12 @@ function ManageDeliveryDialog({
             )}
 
             {remainingDueCents > 0 ? (
-              <div className="mt-3 space-y-2 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/40">
+              <div className="mt-3 space-y-2 rounded-lg border border-warning/30 bg-warning-soft p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-amber-800 dark:text-amber-400">
+                  <span className="text-xs font-medium text-warning">
                     Amount due
                   </span>
-                  <span className="text-sm font-bold text-amber-900 dark:text-amber-300">
+                  <span className="text-sm font-semibold text-warning">
                     {formatETB(remainingDueCents / 100)}
                   </span>
                 </div>
@@ -468,9 +468,9 @@ function ManageDeliveryDialog({
                   />
                   <Button size="sm" onClick={recordPayment} disabled={payBusy}>
                     {payBusy ? (
-                      <Loader2 className="size-4 animate-spin" />
+                      <Loader2 className="animate-spin" />
                     ) : (
-                      <CheckCircle2Icon className="size-4" />
+                      <CheckCircle2Icon />
                     )}
                     Confirm payment
                   </Button>
@@ -482,7 +482,7 @@ function ManageDeliveryDialog({
                 />
               </div>
             ) : (
-              <div className="mt-3 flex items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 py-2.5 text-xs font-semibold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-400">
+              <div className="mt-3 flex items-center justify-center gap-1.5 rounded-lg border border-success/30 bg-success-soft py-2.5 text-xs font-semibold text-success">
                 <CheckCircle2Icon className="size-3.5" />
                 Fully paid
               </div>
@@ -551,7 +551,7 @@ function DeliveryPaymentsPopover({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="sm">
-          <CreditCardIcon className="size-4" />
+          <CreditCardIcon />
           Payments
           {order.delivery_payments.length > 0 && (
             <Badge variant="outline" className="ml-1">
@@ -596,7 +596,7 @@ function DeliveryPaymentsPopover({
           <>
             <div className="mb-2 flex items-center justify-between rounded-md border bg-muted/20 px-2 py-1.5 text-xs">
               <span className="font-medium text-muted-foreground">Amount due</span>
-              <span className="font-bold">{formatETB(remainingDueCents / 100)}</span>
+              <span className="font-semibold">{formatETB(remainingDueCents / 100)}</span>
             </div>
             <div className="flex gap-1.5">
               <Input
@@ -606,12 +606,12 @@ function DeliveryPaymentsPopover({
                 className="h-8"
               />
               <Button size="sm" className="h-8 shrink-0" onClick={recordPayment} disabled={busy}>
-                {busy ? <Loader2 className="size-4 animate-spin" /> : <PlusIcon className="size-4" />}
+                {busy ? <Loader2 className="animate-spin" /> : <PlusIcon />}
               </Button>
             </div>
           </>
         ) : (
-          <p className="py-1 text-center text-xs font-medium text-emerald-600">Fully paid</p>
+          <p className="py-1 text-center text-xs font-medium text-success">Fully paid</p>
         )}
       </PopoverContent>
     </Popover>
@@ -665,10 +665,10 @@ function BulkConfirmDeliveryPaymentsDialog({
 
         <div className="space-y-4">
           <div className="flex items-center justify-between rounded-xl bg-muted/40 p-4">
-            <span className="text-xs font-bold uppercase text-muted-foreground">
+            <span className="text-xs font-semibold text-muted-foreground">
               Total amount
             </span>
-            <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-500">
+            <span className="text-base font-semibold text-success">
               {formatETB(totalDueCents / 100)}
             </span>
           </div>
@@ -712,7 +712,7 @@ function BulkConfirmDeliveryPaymentsDialog({
           )}
         </div>
 
-        <DialogFooter className="gap-2 border-t pt-4 sm:gap-0">
+        <DialogFooter>
           <Button variant="outline" disabled={busy} onClick={onClose}>
             Cancel
           </Button>
@@ -1007,11 +1007,11 @@ export default function DeliveriesPage() {
 
   const statCards: StatCard[] = [
     { label: "Total deliveries", value: stats.total, icon: BikeIcon },
-    { label: "Pending", value: stats.pending, icon: HourglassIcon, valueClass: "text-amber-600 dark:text-amber-500" },
-    { label: "Delivered", value: stats.delivered, icon: PackageCheckIcon, valueClass: "text-emerald-600 dark:text-emerald-500" },
+    { label: "Pending", value: stats.pending, icon: HourglassIcon, valueClass: "text-warning" },
+    { label: "Delivered", value: stats.delivered, icon: PackageCheckIcon, valueClass: "text-success" },
     { label: "Cancelled", value: stats.cancelled, icon: XCircleIcon, valueClass: "text-destructive" },
-    { label: "Collected", value: formatETB(stats.collectedCents / 100), icon: CreditCardIcon, valueClass: "text-emerald-600 dark:text-emerald-500" },
-    { label: "Outstanding", value: formatETB(stats.outstanding), icon: WalletIcon, valueClass: "text-amber-600 dark:text-amber-500" },
+    { label: "Collected", value: formatETB(stats.collectedCents / 100), icon: CreditCardIcon, valueClass: "text-success" },
+    { label: "Outstanding", value: formatETB(stats.outstanding), icon: WalletIcon, valueClass: "text-warning" },
   ];
 
   return (
@@ -1043,7 +1043,7 @@ export default function DeliveriesPage() {
         toolbar={
           selectedOrders.length > 0 ? (
             <Button size="sm" onClick={() => setBulkOpen(true)}>
-              <CheckCircle2Icon className="size-4" />
+              <CheckCircle2Icon />
               Confirm {selectedOrders.length} payment{selectedOrders.length === 1 ? "" : "s"}
             </Button>
           ) : undefined

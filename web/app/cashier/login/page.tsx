@@ -225,7 +225,7 @@ export default function CashierLoginPage() {
           <Button type="submit" size="charge" className="w-full" disabled={submitting || !password}>
             {submitting ? (
               <>
-                <Loader2 className="size-4 animate-spin" />
+                <Loader2 className="animate-spin" />
                 Signing in…
               </>
             ) : (

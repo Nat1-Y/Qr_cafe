@@ -169,7 +169,7 @@ export default function ProfilePage() {
                 size="sm"
                 disabled={loading}
                 onClick={() => setEditing(true)}>
-                <PencilIcon className="size-4" />
+                <PencilIcon />
                 Edit
               </Button>
             ) : (
@@ -179,11 +179,11 @@ export default function ProfilePage() {
                   size="sm"
                   disabled={savingProfile}
                   onClick={cancelEdit}>
-                  <XIcon className="size-4" />
+                  <XIcon />
                   Cancel
                 </Button>
                 <Button size="sm" disabled={savingProfile} onClick={saveProfile}>
-                  <SaveIcon className="size-4" />
+                  <SaveIcon />
                   Save
                 </Button>
               </div>
@@ -225,7 +225,7 @@ export default function ProfilePage() {
               <div className="relative">
                 <ShieldIcon className="text-muted-foreground absolute top-2.5 left-3 size-4" />
                 <Input
-                  className="bg-muted pl-9"
+                  className="pl-9"
                   value={roleLabel(user?.role)}
                   disabled
                 />
@@ -287,7 +287,7 @@ export default function ProfilePage() {
           </div>
           <div className="flex justify-end">
             <Button disabled={savingPassword} onClick={savePassword}>
-              <KeyRoundIcon className="size-4" />
+              <KeyRoundIcon />
               Update password
             </Button>
           </div>

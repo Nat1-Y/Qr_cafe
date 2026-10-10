@@ -105,7 +105,7 @@ export default function PaymentDetailPage({
         action={
           <Button asChild variant="outline">
             <Link href="/dashboard/payments">
-              <ArrowLeftIcon className="size-4" />
+              <ArrowLeftIcon />
               Back to payments
             </Link>
           </Button>
@@ -154,11 +154,11 @@ export default function PaymentDetailPage({
               </dl>
 
               {payment.meta?.amount_mismatch && (
-                <div className="mt-4 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300">
+                <div className="mt-4 flex items-start gap-2 rounded-md border border-warning/30 bg-warning-soft p-3 text-sm text-warning">
                   <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" />
                   <div>
                     <p className="font-medium">Amount mismatch flagged</p>
-                    <p className="text-amber-700 dark:text-amber-400">
+                    <p className="text-warning">
                       The till sent {formatETB(payment.meta.client_sent_amount ?? null)}, but the
                       order total was {formatETB(payment.meta.order_total_at_payment ?? null)}.
                       The recorded amount was corrected to the order total.
@@ -176,7 +176,7 @@ export default function PaymentDetailPage({
                 <Button asChild variant="ghost" size="sm">
                   <Link href="/dashboard/orders">
                     Orders
-                    <ExternalLinkIcon className="size-4" />
+                    <ExternalLinkIcon />
                   </Link>
                 </Button>
               )}

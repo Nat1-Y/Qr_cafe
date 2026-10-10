@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+
 import {
   Table,
   TableBody,
@@ -29,6 +29,11 @@ import { Menu, Inventory, Tables, Orders, Payments } from "@/lib/resources";
 import { formatETB, shortDate } from "@/lib/format";
 import { salesSplit, monthRange, rangeBounds } from "@/lib/profit";
 
+import { StatCards } from "@/components/stat-cards";
+import { RevenueTrend } from "@/components/reports/revenue-trend";
+import { TopItems } from "@/components/top-items";
+import { StatusBadge } from "@/components/status-badge";
+import { formatOrderNumber } from "@/lib/utils";
 const withinRange = (value: any, fromDt: Date | null, toDt: Date | null) => {
   if (!fromDt && !toDt) return true;
   const dt = new Date(value);
@@ -79,141 +84,116 @@ export default function HomePage() {
     };
   }, [orders, payments, dateFrom, dateTo]);
 
-  const todayCards = [
-    {
-      label: "Revenue",
-      value: sales.paid,
-      hint: "Collected",
-      icon: TrendingUpIcon,
-      valueClass: "text-emerald-600 dark:text-emerald-500",
-    },
-    {
-      label: "Unpaid sales",
-      value: sales.unpaid,
-      hint: "Outstanding",
-      icon: ClockIcon,
-      valueClass: "text-amber-600 dark:text-amber-500",
-    },
-    {
-      label: "Total sales",
-      value: sales.total,
-      hint: "Paid + unpaid",
-      icon: WalletIcon,
-      valueClass: "",
-    },
-  ];
+  // Paid revenue per day in range, for the trend chart (display only).
+  const trend = useMemo(() => {
+    const { fromDt, toDt } = rangeBounds(dateFrom, dateTo);
+    const byDay = new Map<string, { revenue: number; orders: number }>();
+    for (const p of payments) {
+      const status = String(p?.status || "").toLowerCase();
+      if (status && status !== "paid" && status !== "completed") continue;
+      const when = p?.paid_at || p?.created_at;
+      if (!withinRange(when, fromDt, toDt)) continue;
+      const d = new Date(when);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const entry = byDay.get(key) ?? { revenue: 0, orders: 0 };
+      entry.revenue += Number(p?.amount) || 0;
+      entry.orders += 1;
+      byDay.set(key, entry);
+    }
+    return Array.from(byDay.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, v]) => ({
+        label: new Date(`${key}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
+        revenue: v.revenue,
+        orders: v.orders,
+      }));
+  }, [payments, dateFrom, dateTo]);
 
-  const cards = [
-    { label: "Menu items", value: stats.menu, icon: UtensilsCrossedIcon },
-    { label: "Inventory items", value: stats.inventory, icon: BoxesIcon },
-    { label: "Orders", value: stats.orders, icon: ReceiptTextIcon },
-    { label: "Tables", value: stats.tables, icon: ArmchairIcon },
-  ];
+  const inRange = useMemo(() => {
+    const { fromDt, toDt } = rangeBounds(dateFrom, dateTo);
+    return orders.filter((o) => withinRange(o?.created_at, fromDt, toDt));
+  }, [orders, dateFrom, dateTo]);
+
+  const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Dashboard"
-        description="A snapshot of the selected branch."
+        title="Overview"
+        description={
+          loading
+            ? today
+            : `${today} · ${stats.menu} menu items · ${stats.tables} tables · ${stats.inventory} stock items`
+        }
       />
 
-      <Card>
-        <CardContent className="pt-6">
-          <DateFilterBar
-            defaultPreset="month"
-            allLabel="All time"
-            viewingPrefix="Viewing:"
-            onChange={(range) => {
-              setDateFrom(range.from ?? "");
-              setDateTo(range.to ?? "");
-            }}
-          />
-        </CardContent>
-      </Card>
+      <DateFilterBar
+        defaultPreset="month"
+        allLabel="All time"
+        viewingPrefix="Showing"
+        onChange={(range) => {
+          setDateFrom(range.from ?? "");
+          setDateTo(range.to ?? "");
+        }}
+      />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {todayCards.map((c) => (
-          <Card key={c.label}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {c.label}
-              </CardTitle>
-              <c.icon className="size-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <Skeleton className="h-8 w-28" />
-              ) : (
-                <>
-                  <div className={`text-2xl font-semibold ${c.valueClass}`}>
-                    {formatETB(c.value)}
+      <StatCards
+        loading={loading}
+        cards={[
+          { label: "Revenue", value: formatETB(sales.paid), hint: "Collected", valueClass: "text-accent" },
+          { label: "Not paid yet", value: formatETB(sales.unpaid), hint: "Outstanding", valueClass: "text-warning" },
+          { label: "Total sales", value: formatETB(sales.total), hint: "Paid and unpaid" },
+          { label: "Orders", value: inRange.length, hint: `${stats.orders} all time` },
+        ]}
+      />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <RevenueTrend points={trend} />
+        </div>
+        <TopItems orders={inRange} />
+      </div>
+
+      <Card className="gap-0 overflow-hidden py-0">
+        <div className="border-b border-border px-5 py-4">
+          <h2 className="text-section text-foreground">Recent orders</h2>
+          <p className="text-meta text-muted-foreground">Newest first, in this range.</p>
+        </div>
+        {loading ? (
+          <div className="space-y-3 p-5">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
+          </div>
+        ) : recent.length === 0 ? (
+          <p className="px-5 py-12 text-center text-sm text-muted-foreground">No orders in this range.</p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {recent.map((o) => {
+              const summary = (Array.isArray(o?.items) ? o.items : [])
+                .map((it: any) => `${parseInt(it?.quantity, 10) || 1} × ${it?.menu_item_name || it?.name || "Item"}`)
+                .join(", ");
+              return (
+                <li key={o.id} className="flex items-start justify-between gap-4 px-5 py-3.5 transition-colors hover:bg-row-hover">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-foreground">
+                      {formatOrderNumber(o)}
+                      {o.table_number ? ` · Table ${o.table_number}` : ""}
+                    </p>
+                    <p className="truncate text-sm text-muted-foreground">
+                      {summary || <span className="capitalize">{o.type ?? "Order"}</span>}
+                    </p>
+                    <p className="text-meta text-muted-foreground">{shortDate(o.created_at)}</p>
                   </div>
-                  <p className="text-muted-foreground text-xs">{c.hint}</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map((c) => (
-          <Card key={c.label}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {c.label}
-              </CardTitle>
-              <c.icon className="size-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <Skeleton className="h-8 w-12" />
-              ) : (
-                <div className="text-3xl font-semibold">{c.value}</div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent orders</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Created</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recent.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-muted-foreground py-8 text-center">
-                    No orders in this range.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                recent.map((o) => (
-                  <TableRow key={o.id}>
-                    <TableCell className="font-mono text-xs">{o.id?.slice(0, 8)}</TableCell>
-                    <TableCell className="capitalize">{o.type ?? "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant="muted" className="capitalize">{o.status}</Badge>
-                    </TableCell>
-                    <TableCell>{formatETB(o.total_amount)}</TableCell>
-                    <TableCell className="text-muted-foreground">{shortDate(o.created_at)}</TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <span className="font-semibold text-foreground">{formatETB(o.total_amount)}</span>
+                    <StatusBadge kind="order" status={String(o?.payment_status).toLowerCase() === "paid" ? "paid" : o.status} />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </Card>
     </div>
   );

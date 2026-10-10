@@ -61,7 +61,7 @@ export function BranchSwitcher() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
-          <StoreIcon className="size-4" />
+          <StoreIcon />
           <span className="max-w-40 truncate">
             {currentBranch?.name ?? "Select branch"}
           </span>

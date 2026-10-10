@@ -446,7 +446,7 @@ export function DataTable<T>({
               aria-label="Previous page"
               disabled={current === 0}
               onClick={() => goToPage(current - 1)}>
-              <ChevronLeftIcon className="size-4" />
+              <ChevronLeftIcon />
             </Button>
             <Button
               variant="outline"
@@ -454,7 +454,7 @@ export function DataTable<T>({
               aria-label="Next page"
               disabled={current >= pageCount - 1}
               onClick={() => goToPage(current + 1)}>
-              <ChevronRightIcon className="size-4" />
+              <ChevronRightIcon />
             </Button>
           </div>
         </div>

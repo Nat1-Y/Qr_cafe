@@ -98,8 +98,8 @@ function BalanceCell({
   const delta = after - (before ?? after);
   const deltaClass =
     tone === "down"
-      ? "text-red-600 dark:text-red-500"
-      : "text-emerald-600 dark:text-emerald-500";
+      ? "text-destructive"
+      : "text-success";
   return (
     <div>
       <div className="tabular-nums">
@@ -147,7 +147,7 @@ export default function TransferDetailPage({
         action={
           <Button asChild variant="outline">
             <Link href="/dashboard/inventory/transfers">
-              <ArrowLeftIcon className="size-4" />
+              <ArrowLeftIcon />
               Back to transfers
             </Link>
           </Button>
@@ -234,7 +234,7 @@ export default function TransferDetailPage({
 
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
+              <CardTitle className="flex items-center gap-2">
                 <PackageIcon className="size-4" />
                 Items transferred
               </CardTitle>

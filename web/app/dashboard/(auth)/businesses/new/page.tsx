@@ -75,10 +75,10 @@ export default function NewBusinessPage() {
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/dashboard/businesses">
-            <ArrowLeftIcon className="size-4" />
+            <ArrowLeftIcon />
           </Link>
         </Button>
-        <h1 className="text-2xl font-semibold tracking-tight">New Business</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">New business</h1>
       </div>
 
       <form onSubmit={onSubmit} className="space-y-6">

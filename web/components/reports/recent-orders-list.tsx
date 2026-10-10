@@ -8,7 +8,7 @@ export function RecentOrdersList({ recentOrders }: { recentOrders: RecentOrder[]
   return (
     <Card>
       <CardHeader className="border-b pb-3">
-        <CardTitle className="text-base">Recent Orders</CardTitle>
+        <CardTitle>Recent orders</CardTitle>
         <CardDescription>Latest order status logs</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
@@ -20,26 +20,26 @@ export function RecentOrdersList({ recentOrders }: { recentOrders: RecentOrder[]
                 className="hover:bg-muted/10 flex items-center justify-between rounded-xl border p-3 font-semibold transition-colors">
                 <div className="space-y-1">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-foreground text-xs font-extrabold">
+                    <span className="text-foreground text-xs font-semibold">
                       Order {formatOrderNumber(order)}
                     </span>
-                    <Badge variant="secondary" className="px-1.5 py-0 text-[9px] capitalize">
+                    <Badge variant="secondary" className="capitalize">
                       {String(order.type || "").trim().toLowerCase() === "bakery"
                         ? "cafe"
                         : order.type}
                     </Badge>
                   </div>
-                  <p className="text-muted-foreground text-[10px]">
+                  <p className="text-muted-foreground text-xs">
                     {new Date(order.created_at).toLocaleString()}
                   </p>
-                  <p className="text-muted-foreground text-[10px] font-bold">
+                  <p className="text-muted-foreground text-xs font-semibold">
                     Waiter:{" "}
                     {String(order?.waiter_name || order?.employee_name || "").trim() ||
                       (order?.employee_id != null ? `#${order.employee_id}` : "—")}
                   </p>
                 </div>
                 <div className="space-y-1 text-right">
-                  <p className="text-foreground text-xs font-extrabold">
+                  <p className="text-foreground text-xs font-semibold">
                     {formatETB(parseFloat(String(order.total_amount)))}
                   </p>
                   <Badge
@@ -50,14 +50,14 @@ export function RecentOrdersList({ recentOrders }: { recentOrders: RecentOrder[]
                           ? "destructive"
                           : "warning"
                     }
-                    className="px-1.5 py-0 text-[9px] capitalize">
+                    className="capitalize">
                     {order.derived_status}
                   </Badge>
                 </div>
               </div>
             ))
           ) : (
-            <p className="text-muted-foreground py-12 text-center text-xs font-bold">
+            <p className="text-muted-foreground py-12 text-center text-xs font-semibold">
               No recent orders for the selected filters.
             </p>
           )}

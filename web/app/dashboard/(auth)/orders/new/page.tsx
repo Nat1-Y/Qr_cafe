@@ -170,11 +170,11 @@ export default function NewOrderPage() {
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/dashboard/orders">
-            <ArrowLeftIcon className="size-4" />
+            <ArrowLeftIcon />
           </Link>
         </Button>
         <PageHeader
-          title="New Order"
+          title="New order"
           description={
             orgName
               ? `Order on the account of ${orgName}.`
@@ -281,7 +281,7 @@ export default function NewOrderPage() {
             <div className="space-y-2">
               <Label>Waiter</Label>
               <select
-                className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={waiterId}
                 onChange={(e) => setWaiterId(e.target.value)}>
                 <option value="">Select a waiter…</option>
@@ -300,7 +300,7 @@ export default function NewOrderPage() {
             <div className="space-y-2">
               <Label>Table (optional)</Label>
               <select
-                className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm disabled:opacity-50"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={tableNumber}
                 disabled={!!deliveryMethodId}
                 onChange={(e) => setTableNumber(e.target.value)}>
@@ -314,7 +314,7 @@ export default function NewOrderPage() {
               <div className="space-y-2">
                 <Label>Delivery (optional)</Label>
                 <select
-                  className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                   value={deliveryMethodId}
                   onChange={(e) => {
                     setDeliveryMethodId(e.target.value);

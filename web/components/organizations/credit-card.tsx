@@ -19,7 +19,7 @@ export function CreditSummary({
       tone:
         creditBalance < 0
           ? "text-destructive"
-          : "text-emerald-600 dark:text-emerald-400",
+          : "text-success",
     },
     { label: "Total paid", value: totalPaid, tone: "" },
     { label: "Total used", value: totalDeducted, tone: "" },
@@ -29,7 +29,7 @@ export function CreditSummary({
       {stats.map((s) => (
         <Card key={s.label}>
           <CardContent className="pt-6">
-            <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+            <p className="text-muted-foreground text-xs font-medium">
               {s.label}
             </p>
             <p className={`mt-1 text-2xl font-semibold ${s.tone}`}>{formatETB(s.value)}</p>

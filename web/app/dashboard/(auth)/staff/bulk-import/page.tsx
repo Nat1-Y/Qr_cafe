@@ -144,14 +144,14 @@ export default function BulkStaffImportPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Bulk Staff Import"
+        title="Bulk staff import"
         description="Add many staff accounts at once from a CSV or JSON file."
         action={
           <Button
             variant="outline"
             onClick={() => router.push("/dashboard/staff")}>
-            <ArrowLeftIcon className="size-4" />
-            Back to Staff
+            <ArrowLeftIcon />
+            Back to staff
           </Button>
         }
       />
@@ -159,7 +159,7 @@ export default function BulkStaffImportPage() {
       {/* Step 1 — template + upload */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">
+          <CardTitle>
             1. Get a template &amp; upload your file
           </CardTitle>
         </CardHeader>
@@ -171,7 +171,7 @@ export default function BulkStaffImportPage() {
               onClick={() =>
                 downloadFile("staff-template.csv", CSV_TEMPLATE, "text/csv")
               }>
-              <DownloadIcon className="size-4" />
+              <DownloadIcon />
               CSV template
             </Button>
             <Button
@@ -184,7 +184,7 @@ export default function BulkStaffImportPage() {
                   "application/json",
                 )
               }>
-              <DownloadIcon className="size-4" />
+              <DownloadIcon />
               JSON template
             </Button>
           </div>
@@ -215,7 +215,7 @@ export default function BulkStaffImportPage() {
               variant="outline"
               size="sm"
               onClick={() => fileInputRef.current?.click()}>
-              <UploadIcon className="size-4" />
+              <UploadIcon />
               Choose file
             </Button>
             <input
@@ -256,7 +256,7 @@ export default function BulkStaffImportPage() {
                 onChange={(e) => handleTextChange(e.target.value)}
                 placeholder={format === "csv" ? CSV_TEMPLATE : JSON_TEMPLATE}
                 rows={6}
-                className="font-mono text-xs"
+                className="font-mono"
               />
             </div>
           </details>
@@ -267,15 +267,15 @@ export default function BulkStaffImportPage() {
       {result && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-            <CardTitle className="text-base">2. Review &amp; confirm</CardTitle>
+            <CardTitle>2. Review &amp; confirm</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="gap-1">
-                <CheckCircle2Icon className="size-3 text-emerald-600" />
+                <CheckCircle2Icon className="size-3 text-success" />
                 {validRows.length} ready
               </Badge>
               {warningCount > 0 && (
                 <Badge variant="secondary" className="gap-1">
-                  <AlertTriangleIcon className="size-3 text-amber-500" />
+                  <AlertTriangleIcon className="size-3 text-warning" />
                   {warningCount} warning{warningCount === 1 ? "" : "s"}
                 </Badge>
               )}
@@ -303,7 +303,7 @@ export default function BulkStaffImportPage() {
                 )}
                 <div className="max-h-[460px] overflow-auto rounded-md border">
                   <Table>
-                    <TableHeader className="bg-card sticky top-0">
+                    <TableHeader className="sticky top-0">
                       <TableRow>
                         <TableHead className="w-10">#</TableHead>
                         <TableHead>Full name</TableHead>
@@ -337,9 +337,9 @@ export default function BulkStaffImportPage() {
             onClick={handleImport}
             disabled={submitting || validRows.length === 0}>
             {submitting ? (
-              <Loader2Icon className="size-4 animate-spin" />
+              <Loader2Icon className="animate-spin" />
             ) : (
-              <UploadIcon className="size-4" />
+              <UploadIcon />
             )}
             Import {validRows.length} staff
           </Button>
@@ -355,13 +355,13 @@ function RowView({ row }: { row: ParsedStaffRow }) {
   const auth = row.pin ? "PIN" : row.password ? "Password" : "Default";
   return (
     <TableRow className={hasError ? "bg-destructive/5" : undefined}>
-      <TableCell className="text-muted-foreground text-xs">
+      <TableCell className="text-muted-foreground">
         {row.rowNumber}
       </TableCell>
       <TableCell className="font-medium">{row.full_name || "—"}</TableCell>
       <TableCell className="text-muted-foreground">{row.username || "—"}</TableCell>
       <TableCell className="capitalize">{row.role}</TableCell>
-      <TableCell className="text-muted-foreground text-xs">{auth}</TableCell>
+      <TableCell className="text-muted-foreground">{auth}</TableCell>
       <TableCell>{row.is_active ? "Yes" : "No"}</TableCell>
       <TableCell>
         {hasError ? (
@@ -370,12 +370,12 @@ function RowView({ row }: { row: ParsedStaffRow }) {
             {row.errors.join("; ")}
           </span>
         ) : hasWarning ? (
-          <span className="flex items-center gap-1 text-xs text-amber-600">
+          <span className="flex items-center gap-1 text-xs text-warning">
             <AlertTriangleIcon className="size-3.5" />
             {row.warnings.join("; ")}
           </span>
         ) : (
-          <span className="flex items-center gap-1 text-xs text-emerald-600">
+          <span className="flex items-center gap-1 text-xs text-success">
             <CheckCircle2Icon className="size-3.5" />
             Ready
           </span>

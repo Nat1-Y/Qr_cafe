@@ -74,21 +74,21 @@ export function RecordTransactionForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Record service usage</CardTitle>
+        <CardTitle>Record service usage</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
           {services.map((r) => (
             <div key={r.key} className="flex items-end gap-2">
               <div className="flex-1 space-y-1">
-                <Label className="text-xs">Description</Label>
+                <Label>Description</Label>
                 <Input
                   value={r.description}
                   onChange={(e) => update(r.key, "description", e.target.value)}
                 />
               </div>
               <div className="w-32 space-y-1">
-                <Label className="text-xs">Cost (ETB)</Label>
+                <Label>Cost (ETB)</Label>
                 <Input
                   type="number"
                   min="0"
@@ -102,12 +102,12 @@ export function RecordTransactionForm({
                 size="icon"
                 onClick={() => removeRow(r.key)}
                 disabled={services.length === 1}>
-                <Trash2Icon className="text-destructive size-4" />
+                <Trash2Icon className="text-destructive" />
               </Button>
             </div>
           ))}
           <Button type="button" variant="outline" size="sm" onClick={addRow}>
-            <PlusIcon className="size-4" />
+            <PlusIcon />
             Add service
           </Button>
         </div>

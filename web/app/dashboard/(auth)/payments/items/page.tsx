@@ -258,12 +258,12 @@ export default function PaymentsItemsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Foods & Drinks Sold"
+        title="Foods & drinks sold"
         description="Aggregated breakdown of individual sold items matching paid transactions."
         action={
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleExportPdf}>
-              <Download className="mr-2 size-4" />
+              <Download />
               Export PDF
             </Button>
             <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
@@ -276,12 +276,12 @@ export default function PaymentsItemsPage() {
 
       {loading ? (
         <div className="space-y-6">
-          <Skeleton className="h-24 w-full rounded-2xl" />
+          <Skeleton className="h-24 w-full rounded-card" />
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Skeleton className="h-24 w-full" />
             <Skeleton className="h-24 w-full" />
           </div>
-          <Skeleton className="h-96 w-full rounded-2xl" />
+          <Skeleton className="h-96 w-full rounded-card" />
         </div>
       ) : (
         <>
@@ -295,7 +295,7 @@ export default function PaymentsItemsPage() {
                     variant={timeFilter === filter ? "default" : "outline"}
                     size="sm"
                     onClick={() => setTimeFilter(filter)}
-                    className="text-xs font-bold capitalize">
+                    className="capitalize">
                     {filter}
                   </Button>
                 ))}
@@ -308,15 +308,15 @@ export default function PaymentsItemsPage() {
                       variant={customMode === "specific" ? "secondary" : "ghost"}
                       size="sm"
                       onClick={() => setCustomMode("specific")}
-                      className="text-xs font-semibold">
-                      Specific Date
+                     >
+                      Specific date
                     </Button>
                     <Button
                       variant={customMode === "range" ? "secondary" : "ghost"}
                       size="sm"
                       onClick={() => setCustomMode("range")}
-                      className="text-xs font-semibold">
-                      Date Range 
+                     >
+                      Date range 
                     </Button>
                   </div>
                   {customMode === "specific" ? (
@@ -343,7 +343,7 @@ export default function PaymentsItemsPage() {
                       />
                     </div>
                   )}
-                  <Badge variant="muted" className="text-xs font-semibold">
+                  <Badge variant="muted">
                     Viewing ledger for: {viewingLabel}
                   </Badge>
                 </div>
@@ -355,7 +355,7 @@ export default function PaymentsItemsPage() {
                     key={unit}
                     onClick={() => setUnitFilter(unit)}
                     variant={unitFilter === unit ? "default" : "secondary"}
-                    className="cursor-pointer px-2.5 py-1 text-[10px] font-bold capitalize">
+                    className="cursor-pointer px-2.5 py-1 capitalize">
                     {unit}
                   </Badge>
                 ))}
@@ -368,10 +368,10 @@ export default function PaymentsItemsPage() {
             <Card>
               <CardContent className="flex items-center justify-between pt-6">
                 <div>
-                  <p className="text-muted-foreground text-xs font-bold uppercase tracking-wide">
+                  <p className="text-muted-foreground text-xs font-semibold">
                     Total Food Items Sold
                   </p>
-                  <p className="text-2xl font-extrabold">{counts.foodQty.toLocaleString()}</p>
+                  <p className="text-2xl font-semibold">{counts.foodQty.toLocaleString()}</p>
                   <p className="text-muted-foreground text-xs">Food category aggregations</p>
                 </div>
                 <Coffee className="text-success size-6" />
@@ -380,10 +380,10 @@ export default function PaymentsItemsPage() {
             <Card>
               <CardContent className="flex items-center justify-between pt-6">
                 <div>
-                  <p className="text-muted-foreground text-xs font-bold uppercase tracking-wide">
+                  <p className="text-muted-foreground text-xs font-semibold">
                     Total Beverages Sold
                   </p>
-                  <p className="text-2xl font-extrabold">{counts.softQty.toLocaleString()}</p>
+                  <p className="text-2xl font-semibold">{counts.softQty.toLocaleString()}</p>
                   <p className="text-muted-foreground text-xs">Drink category aggregations</p>
                 </div>
                 <TrendingUp className="text-primary size-6" />
@@ -392,10 +392,10 @@ export default function PaymentsItemsPage() {
             <Card>
               <CardContent className="flex items-center justify-between pt-6">
                 <div>
-                  <p className="text-muted-foreground text-xs font-bold uppercase tracking-wide">
+                  <p className="text-muted-foreground text-xs font-semibold">
                     Total Cost
                   </p>
-                  <p className="text-2xl font-extrabold">{formatETB(counts.totalRevenue)}</p>
+                  <p className="text-2xl font-semibold">{formatETB(counts.totalRevenue)}</p>
                   <p className="text-muted-foreground text-xs">Accumulated value of items sold</p>
                 </div>
                 <Coins className="text-warning size-6" />
@@ -407,12 +407,12 @@ export default function PaymentsItemsPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between border-b pb-3">
               <div>
-                <CardTitle className="text-base">Aggregated Items List</CardTitle>
+                <CardTitle>Aggregated items list</CardTitle>
                 <CardDescription>
                   Matches {itemsRows.length} distinct item types
                 </CardDescription>
               </div>
-              <Badge variant="secondary" className="text-[10px]">
+              <Badge variant="secondary">
                 Orders: {filteredOrders.length} · Settled: {paidPayments.length}
               </Badge>
             </CardHeader>
@@ -420,10 +420,10 @@ export default function PaymentsItemsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Business Unit</TableHead>
-                    <TableHead>Item Name</TableHead>
-                    <TableHead>Quantity Sold</TableHead>
-                    <TableHead className="text-right">Accumulated Revenue</TableHead>
+                    <TableHead>Business unit</TableHead>
+                    <TableHead>Item name</TableHead>
+                    <TableHead>Quantity sold</TableHead>
+                    <TableHead className="text-right">Accumulated revenue</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -436,14 +436,14 @@ export default function PaymentsItemsPage() {
                   ) : (
                     itemsRows.map((r, idx) => (
                       <TableRow key={`${r.unit}-${r.item}-${idx}`}>
-                        <TableCell className="text-muted-foreground text-xs font-semibold capitalize">
+                        <TableCell className="text-muted-foreground font-semibold capitalize">
                           {r.unit}
                         </TableCell>
                         <TableCell className="text-foreground text-sm font-semibold">
                           {r.item}
                         </TableCell>
-                        <TableCell className="text-sm font-bold">{r.qtySold}</TableCell>
-                        <TableCell className="text-success text-right font-extrabold">
+                        <TableCell className="text-sm font-semibold">{r.qtySold}</TableCell>
+                        <TableCell className="text-success text-right font-semibold">
                           {formatETB(r.revenue)}
                         </TableCell>
                       </TableRow>

@@ -185,7 +185,7 @@ export default function ExpensesPage() {
         description="Record house expenses and track profit (paid sales − expenses)."
         action={
           <Button onClick={openCreate}>
-            <PlusIcon className="size-4" />
+            <PlusIcon />
             New expense
           </Button>
         }
@@ -212,10 +212,10 @@ export default function ExpensesPage() {
         rowActions={(row) => (
           <>
             <Button variant="ghost" size="icon" onClick={() => openEdit(row)}>
-              <PencilIcon className="size-4" />
+              <PencilIcon />
             </Button>
             <Button variant="ghost" size="icon" onClick={() => onDelete(row.id)}>
-              <Trash2Icon className="text-destructive size-4" />
+              <Trash2Icon className="text-destructive" />
             </Button>
           </>
         )}
@@ -230,7 +230,7 @@ export default function ExpensesPage() {
             <div className="space-y-2">
               <Label>Category</Label>
               <select
-                className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={form.category ?? ""}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}>
                 <option value="">—</option>

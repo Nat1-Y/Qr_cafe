@@ -13,7 +13,7 @@ import { formatETB } from "@/lib/format";
 import type { RevenueTrendPoint } from "@/lib/reports";
 
 const chartConfig = {
-  revenue: { label: "Revenue", color: "var(--primary)" },
+  revenue: { label: "Revenue", color: "var(--chart-1)" },
   orders: { label: "Orders", color: "var(--chart-2)" },
 } satisfies ChartConfig;
 
@@ -26,7 +26,7 @@ export function RevenueTrend({ points }: { points: RevenueTrendPoint[] }) {
   return (
     <Card>
       <CardHeader className="border-b pb-3">
-        <CardTitle className="text-base">Revenue Trend</CardTitle>
+        <CardTitle>Revenue trend</CardTitle>
         <CardDescription>
           Paid sales by business day · {formatETB(total)} total
         </CardDescription>
@@ -35,23 +35,17 @@ export function RevenueTrend({ points }: { points: RevenueTrendPoint[] }) {
         {points.length > 0 ? (
           <ChartContainer config={chartConfig} className="aspect-auto h-64 w-full">
             <AreaChart data={points} margin={{ left: 4, right: 8, top: 8 }}>
-              <defs>
-                <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--color-revenue)" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="var(--color-revenue)" stopOpacity={0.03} />
-                </linearGradient>
-              </defs>
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis
                 dataKey="label"
                 tickLine={false}
-                axisLine={false}
+                axisLine={{ stroke: "var(--border)" }}
                 tickMargin={8}
                 minTickGap={16}
               />
               <YAxis
                 tickLine={false}
-                axisLine={false}
+                axisLine={{ stroke: "var(--border)" }}
                 width={44}
                 tickMargin={4}
                 tickFormatter={(v) => compact(Number(v))}
@@ -74,7 +68,8 @@ export function RevenueTrend({ points }: { points: RevenueTrendPoint[] }) {
               <Area
                 dataKey="revenue"
                 type="monotone"
-                fill="url(#fillRevenue)"
+                fill="var(--color-revenue)"
+                fillOpacity={0.12}
                 stroke="var(--color-revenue)"
                 strokeWidth={2}
               />

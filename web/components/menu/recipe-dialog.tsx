@@ -204,8 +204,8 @@ export function RecipeDialog({
             <div
               className={`rounded-lg border px-3 py-2 text-sm ${
                 recipeId
-                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
-                  : "border-amber-500/30 bg-amber-500/10 text-amber-600"
+                  ? "border-success/30 bg-success/10 text-success"
+                  : "border-warning/30 bg-warning/10 text-warning"
               }`}>
               {recipeId
                 ? `Recipe configured — ${ingredients.length} ingredient(s)`
@@ -235,7 +235,7 @@ export function RecipeDialog({
             <div className="space-y-2">
               <Label>Stock deduction strategy</Label>
               <select
-                className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={strategy}
                 onChange={(e) => setStrategy(e.target.value)}>
                 {STRATEGIES.map((s) => (
@@ -250,7 +250,7 @@ export function RecipeDialog({
               <div className="space-y-2">
                 <Label>Deduct from location</Label>
                 <select
-                  className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                   value={fixedLocationId}
                   onChange={(e) => setFixedLocationId(e.target.value)}>
                   <option value="">Select location…</option>
@@ -270,9 +270,9 @@ export function RecipeDialog({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="font-semibold">Ingredients</Label>
+                <Label>Ingredients</Label>
                 <Button type="button" variant="outline" size="sm" onClick={addIngredient}>
-                  <PlusIcon className="size-4" />
+                  <PlusIcon />
                   Add
                 </Button>
               </div>
@@ -300,9 +300,9 @@ export function RecipeDialog({
                       </Button>
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Inventory item</Label>
+                      <Label>Inventory item</Label>
                       <select
-                        className="border-input h-8 w-full rounded-md border bg-transparent px-2 text-sm"
+                        className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                         value={ing.inventory_item_id}
                         onChange={(e) =>
                           updateIngredient(ing.key, "inventory_item_id", e.target.value)
@@ -320,7 +320,7 @@ export function RecipeDialog({
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-1">
-                        <Label className="text-xs">Qty (base units)</Label>
+                        <Label>Qty (base units)</Label>
                         <Input
                           type="number"
                           min="0"
@@ -334,7 +334,7 @@ export function RecipeDialog({
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">Waste factor</Label>
+                        <Label>Waste factor</Label>
                         <Input
                           type="number"
                           min="1"
@@ -366,7 +366,7 @@ export function RecipeDialog({
           </div>
         )}
 
-        <DialogFooter className="gap-2 sm:justify-between">
+        <DialogFooter className="sm:justify-between">
           {recipeId ? (
             <Button variant="destructive" onClick={deleteRecipe} disabled={saving}>
               Delete

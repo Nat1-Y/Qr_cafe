@@ -826,9 +826,9 @@ export default function CashierEmployeesPage() {
                 }}
               >
                 {settlingAll ? (
-                  <RefreshCw className="size-4 animate-spin" />
+                  <RefreshCw className="animate-spin" />
                 ) : (
-                  <CheckCircle2 className="size-4" />
+                  <CheckCircle2 />
                 )}
                 Settle all {pendingSettleTasks.length} • {formatCurrency(pendingSettleTotal)}
               </Button>
@@ -922,7 +922,7 @@ export default function CashierEmployeesPage() {
                         disabled={processing.has(order.id)}
                         onClick={() => setCancelOrder(order)}
                       >
-                        <XCircle className="size-4" />
+                        <XCircle />
                         Cancel order
                       </Button>
                       </>
@@ -949,7 +949,7 @@ export default function CashierEmployeesPage() {
                             disabled={processing.has(order.id)}
                             onClick={() => setCancelOrder(order)}
                           >
-                            <XCircle className="size-4" />
+                            <XCircle />
                             Cancel
                           </Button>
                         </div>
@@ -1079,7 +1079,7 @@ export default function CashierEmployeesPage() {
               Cancel
             </Button>
             <Button onClick={doConfirm}>
-              <CheckCircle2 className="size-4" />
+              <CheckCircle2 />
               Confirm payment
             </Button>
           </DialogFooter>
@@ -1148,9 +1148,9 @@ export default function CashierEmployeesPage() {
               disabled={settlingAll || pendingSettleTasks.length === 0}
             >
               {settlingAll ? (
-                <RefreshCw className="size-4 animate-spin" />
+                <RefreshCw className="animate-spin" />
               ) : (
-                <CheckCircle2 className="size-4" />
+                <CheckCircle2 />
               )}
               {settlingAll ? "Settling…" : `Confirm ${pendingSettleTasks.length} payments`}
             </Button>
@@ -1204,7 +1204,7 @@ export default function CashierEmployeesPage() {
               Keep order
             </Button>
             <Button variant="destructive" onClick={doCancel} disabled={verifyingCancel}>
-              <XCircle className="size-4" />
+              <XCircle />
               {verifyingCancel ? "Verifying…" : "Cancel order"}
             </Button>
           </DialogFooter>

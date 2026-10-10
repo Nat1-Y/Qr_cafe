@@ -157,7 +157,7 @@ export function ResourceManager<T extends { id: string }>({
         action={
           create && fields ? (
             <Button onClick={openCreate}>
-              <PlusIcon className="size-4" />
+              <PlusIcon />
               {createLabel}
             </Button>
           ) : undefined
@@ -182,12 +182,12 @@ export function ResourceManager<T extends { id: string }>({
                   {rowActions?.(row, reload)}
                   {canEdit && (
                     <Button variant="ghost" size="icon" onClick={() => openEdit(row)}>
-                      <PencilIcon className="size-4" />
+                      <PencilIcon />
                     </Button>
                   )}
                   {remove && (
                     <Button variant="ghost" size="icon" onClick={() => onDelete(row.id)}>
-                      <Trash2Icon className="text-destructive size-4" />
+                      <Trash2Icon className="text-destructive" />
                     </Button>
                   )}
                 </>
@@ -267,7 +267,7 @@ export function ResourceManager<T extends { id: string }>({
                     <>
                       <Label>{f.label}</Label>
                       <select
-                        className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                        className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                         value={form[f.key] ?? ""}
                         onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}>
                         <option value="">—</option>

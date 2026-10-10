@@ -12,13 +12,13 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type Column, type SortState } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
 import { StatCards, type StatCard } from "@/components/stat-cards";
 import { Payments } from "@/lib/resources";
-import { formatETB, shortDate, displayStatus, statusBadgeVariant } from "@/lib/format";
+import { formatETB, shortDate } from "@/lib/format";
+import { StatusBadge } from "@/components/status-badge";
 
 type Payment = {
   id: string;
@@ -70,7 +70,7 @@ const columns: Column<Payment>[] = [
     render: (r) =>
       r.meta?.amount_mismatch ? (
         <span
-          className="inline-flex items-center gap-1.5 text-amber-600 dark:text-amber-500"
+          className="inline-flex items-center gap-1.5 text-warning"
           title={`Till sent ${formatETB(r.meta.client_sent_amount ?? null)}; order total was ${formatETB(
             r.meta.order_total_at_payment ?? null,
           )}. Recorded amount was corrected to the order total.`}
@@ -83,7 +83,7 @@ const columns: Column<Payment>[] = [
       ),
   },
   { key: "payment_method", label: "Method", render: (r) => <span className="capitalize">{r.payment_method ?? "—"}</span> },
-  { key: "status", label: "Status", render: (r) => <Badge variant={statusBadgeVariant(r.status)} className="capitalize">{displayStatus(r.status)}</Badge> },
+  { key: "status", label: "Status", render: (r) => <StatusBadge kind="payment" status={r.status} /> },
   { key: "paid_at", label: "Date", render: (r) => shortDate(paymentDate(r)) },
 ];
 
@@ -149,14 +149,14 @@ export default function PaymentsPage() {
         value: formatETB(collected),
         hint: `${paidCount} paid`,
         icon: BanknoteIcon,
-        valueClass: "text-emerald-600 dark:text-emerald-500",
+        valueClass: "text-success",
       },
       {
         label: "Pending",
         value: serverStats.pending ?? 0,
         hint: "Awaiting confirmation",
         icon: ClockIcon,
-        valueClass: "text-amber-600 dark:text-amber-500",
+        valueClass: "text-warning",
       },
       {
         label: "Avg payment",
@@ -171,7 +171,7 @@ export default function PaymentsPage() {
         icon: TriangleAlertIcon,
         valueClass:
           (serverStats.mismatch_count ?? 0) > 0
-            ? "text-amber-600 dark:text-amber-500"
+            ? "text-warning"
             : undefined,
       },
     ];
@@ -230,7 +230,7 @@ export default function PaymentsPage() {
         rowActions={(r) => (
           <Button asChild variant="outline" size="sm">
             <Link href={`/dashboard/payments/${r.id}`}>
-              <EyeIcon className="size-4" />
+              <EyeIcon />
               View
             </Link>
           </Button>

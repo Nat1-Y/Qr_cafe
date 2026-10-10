@@ -147,11 +147,11 @@ export default function ItemLinksPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Item Links"
-        description="One-to-many transfer relations: a linked item is received as its target item, increasing the target's stock at the destination. Several items can share one target; unlinked items transfer as themselves."
+        title="Item links"
+        description="One-to-many transfer relations: a linked item is received as its target item, increasing the target's stock at the destination. several items can share one target; unlinked items transfer as themselves."
         action={
           <Button onClick={() => setOpen(true)}>
-            <PlusIcon className="size-4" />
+            <PlusIcon />
             New link
           </Button>
         }
@@ -187,7 +187,7 @@ export default function ItemLinksPage() {
             <div className="space-y-2">
               <Label>When this item is transferred…</Label>
               <select
-                className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={sourceId}
                 onChange={(e) => setSourceId(e.target.value)}>
                 <option value="">Select source item…</option>
@@ -199,7 +199,7 @@ export default function ItemLinksPage() {
             <div className="space-y-2">
               <Label>…receive it as</Label>
               <select
-                className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={targetId}
                 onChange={(e) => setTargetId(e.target.value)}>
                 <option value="">Select target item…</option>

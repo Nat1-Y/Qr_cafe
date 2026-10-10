@@ -45,7 +45,7 @@ export function PaymentMethodsBreakdown({
   return (
     <Card>
       <CardHeader className="border-b pb-3">
-        <CardTitle className="text-base">Payment Channel Breakdown</CardTitle>
+        <CardTitle>Payment channel breakdown</CardTitle>
         <CardDescription>Share of settled transactions by method</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
@@ -78,7 +78,7 @@ export function PaymentMethodsBreakdown({
                       if (!viewBox || !("cx" in viewBox)) return null;
                       return (
                         <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                          <tspan x={viewBox.cx} y={viewBox.cy} className="fill-foreground text-2xl font-semibold">
+                          <tspan x={viewBox.cx} y={viewBox.cy} className="fill-foreground text-2xl">
                             {total.toLocaleString()}
                           </tspan>
                           <tspan x={viewBox.cx} y={(viewBox.cy ?? 0) + 20} className="fill-muted-foreground text-xs">

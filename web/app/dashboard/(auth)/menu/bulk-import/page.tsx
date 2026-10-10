@@ -162,12 +162,12 @@ export default function BulkMenuImportPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Bulk Menu Import"
+        title="Bulk menu import"
         description="Add many menu items at once from a CSV or JSON file."
         action={
           <Button variant="outline" onClick={() => router.push("/dashboard/menu")}>
-            <ArrowLeftIcon className="size-4" />
-            Back to Menu
+            <ArrowLeftIcon />
+            Back to menu
           </Button>
         }
       />
@@ -175,7 +175,7 @@ export default function BulkMenuImportPage() {
       {/* Step 1 — template + upload */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">
+          <CardTitle>
             1. Get a template &amp; upload your file
           </CardTitle>
         </CardHeader>
@@ -185,7 +185,7 @@ export default function BulkMenuImportPage() {
               variant="outline"
               size="sm"
               onClick={() => downloadFile("menu-template.csv", CSV_TEMPLATE, "text/csv")}>
-              <DownloadIcon className="size-4" />
+              <DownloadIcon />
               CSV template
             </Button>
             <Button
@@ -194,7 +194,7 @@ export default function BulkMenuImportPage() {
               onClick={() =>
                 downloadFile("menu-template.json", JSON_TEMPLATE, "application/json")
               }>
-              <DownloadIcon className="size-4" />
+              <DownloadIcon />
               JSON template
             </Button>
           </div>
@@ -223,7 +223,7 @@ export default function BulkMenuImportPage() {
               variant="outline"
               size="sm"
               onClick={() => fileInputRef.current?.click()}>
-              <UploadIcon className="size-4" />
+              <UploadIcon />
               Choose file
             </Button>
             <input
@@ -264,7 +264,7 @@ export default function BulkMenuImportPage() {
                 onChange={(e) => handleTextChange(e.target.value)}
                 placeholder={format === "csv" ? CSV_TEMPLATE : JSON_TEMPLATE}
                 rows={6}
-                className="font-mono text-xs"
+                className="font-mono"
               />
             </div>
           </details>
@@ -275,15 +275,15 @@ export default function BulkMenuImportPage() {
       {result && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-            <CardTitle className="text-base">2. Review &amp; confirm</CardTitle>
+            <CardTitle>2. Review &amp; confirm</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="gap-1">
-                <CheckCircle2Icon className="size-3 text-emerald-600" />
+                <CheckCircle2Icon className="size-3 text-success" />
                 {validRows.length} ready
               </Badge>
               {warningCount > 0 && (
                 <Badge variant="secondary" className="gap-1">
-                  <AlertTriangleIcon className="size-3 text-amber-500" />
+                  <AlertTriangleIcon className="size-3 text-warning" />
                   {warningCount} warning{warningCount === 1 ? "" : "s"}
                 </Badge>
               )}
@@ -311,7 +311,7 @@ export default function BulkMenuImportPage() {
                 )}
                 <div className="max-h-[460px] overflow-auto rounded-md border">
                   <Table>
-                    <TableHeader className="bg-card sticky top-0">
+                    <TableHeader className="sticky top-0">
                       <TableRow>
                         <TableHead className="w-10">#</TableHead>
                         <TableHead>Name</TableHead>
@@ -344,9 +344,9 @@ export default function BulkMenuImportPage() {
           </Button>
           <Button onClick={handleImport} disabled={submitting || validRows.length === 0}>
             {submitting ? (
-              <Loader2Icon className="size-4 animate-spin" />
+              <Loader2Icon className="animate-spin" />
             ) : (
-              <UploadIcon className="size-4" />
+              <UploadIcon />
             )}
             Import {validRows.length} item{validRows.length === 1 ? "" : "s"}
           </Button>
@@ -361,7 +361,7 @@ function RowView({ row }: { row: ParsedMenuRow }) {
   const hasWarning = row.warnings.length > 0;
   return (
     <TableRow className={hasError ? "bg-destructive/5" : undefined}>
-      <TableCell className="text-muted-foreground text-xs">
+      <TableCell className="text-muted-foreground">
         {row.rowNumber}
       </TableCell>
       <TableCell className="font-medium">{row.name || "—"}</TableCell>
@@ -370,7 +370,7 @@ function RowView({ row }: { row: ParsedMenuRow }) {
       </TableCell>
       <TableCell>{row.category || "—"}</TableCell>
       <TableCell>{row.main_category || "—"}</TableCell>
-      <TableCell className="text-muted-foreground max-w-[160px] truncate text-xs">
+      <TableCell className="text-muted-foreground max-w-[160px] truncate">
         {row.tags.join(", ") || "—"}
       </TableCell>
       <TableCell>{row.is_available ? "Yes" : "No"}</TableCell>
@@ -381,12 +381,12 @@ function RowView({ row }: { row: ParsedMenuRow }) {
             {row.errors.join("; ")}
           </span>
         ) : hasWarning ? (
-          <span className="flex items-center gap-1 text-xs text-amber-600">
+          <span className="flex items-center gap-1 text-xs text-warning">
             <AlertTriangleIcon className="size-3.5" />
             {row.warnings.join("; ")}
           </span>
         ) : (
-          <span className="flex items-center gap-1 text-xs text-emerald-600">
+          <span className="flex items-center gap-1 text-xs text-success">
             <CheckCircle2Icon className="size-3.5" />
             Ready
           </span>

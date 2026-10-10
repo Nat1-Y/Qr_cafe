@@ -6,7 +6,6 @@ import {
   BarChart2,
   Download,
   FileText,
-  ListOrdered,
   PackageSearch,
   PieChart,
   TrendingUp,
@@ -28,13 +27,13 @@ import {
 } from "@/lib/reports";
 
 import { ReportsStats } from "@/components/reports/reports-stats";
-import { ProfitSummary } from "@/components/reports/profit-summary";
+
 import { RevenueTrend } from "@/components/reports/revenue-trend";
 import { PaymentMethodsBreakdown } from "@/components/reports/payment-methods-breakdown";
 import { CategorySales } from "@/components/reports/category-sales";
 import { HourlyPerformance } from "@/components/reports/hourly-performance";
 import { PopularMenuItems } from "@/components/reports/popular-menu-items";
-import { RecentOrdersList } from "@/components/reports/recent-orders-list";
+
 import { ZReport } from "@/components/reports/z-report";
 
 const inputCls = "border-input bg-background h-9 rounded-md border px-3 text-sm";
@@ -115,7 +114,7 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Business Reports"
+        title="Business reports"
         description="Analytics, operational metrics, and complete data exports."
         action={
           <div className="flex flex-wrap items-center gap-2">
@@ -124,17 +123,17 @@ export default function ReportsPage() {
               onChange={(e) => setBusinessUnit(e.target.value)}
               className={inputCls}
               aria-label="Business unit">
-              <option value="all">All Units</option>
+              <option value="all">All units</option>
               <option value="cafe">Cafe</option>
               <option value="restaurant">Restaurant</option>
               <option value="barista">Barista</option>
             </select>
             <Button variant="outline" size="sm" onClick={handleExport}>
-              <Download className="mr-2 size-4" />
+              <Download />
               Export
             </Button>
             <Button size="sm" onClick={handleGenerate}>
-              <BarChart2 className="mr-2 size-4" />
+              <BarChart2 />
               Generate
             </Button>
           </div>
@@ -162,7 +161,7 @@ export default function ReportsPage() {
               <Skeleton key={i} className="h-24 w-full" />
             ))}
           </div>
-          <Skeleton className="h-96 w-full rounded-2xl" />
+          <Skeleton className="h-96 w-full rounded-card" />
         </div>
       ) : (
         <>
@@ -180,11 +179,11 @@ export default function ReportsPage() {
               </TabsTrigger>
               <TabsTrigger value="product-mix" className="gap-2">
                 <PackageSearch className="size-4" />
-                <span className="hidden sm:inline">Product Mix</span>
+                <span className="hidden sm:inline">Product mix</span>
               </TabsTrigger>
               <TabsTrigger value="sales-breakdown" className="gap-2">
                 <PieChart className="size-4" />
-                <span className="hidden sm:inline">Sales Breakdown</span>
+                <span className="hidden sm:inline">Sales breakdown</span>
               </TabsTrigger>
               <TabsTrigger value="operations" className="gap-2">
                 <BarChart2 className="size-4" />
@@ -226,7 +225,7 @@ export default function ReportsPage() {
                 <HourlyPerformance items={reportData.hourlyPerformance} />
                 <Card>
                   <CardContent className="space-y-4 pt-6">
-                    <h3 className="text-sm font-bold">Operational Focus</h3>
+                    <h3 className="text-sm font-semibold">Operational focus</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
                       Use this view to identify rush hours, staffing pressure, and settlement
                       patterns before adjusting shifts or prep quantities.

@@ -118,7 +118,7 @@ export default function CashierProfilePage() {
             />
           </div>
           <Button onClick={saveProfile} disabled={savingProfile}>
-            {savingProfile ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+            {savingProfile ? <Loader2 className="animate-spin" /> : <Save />}
             Save changes
           </Button>
         </CardContent>
@@ -165,7 +165,7 @@ export default function CashierProfilePage() {
             />
           </div>
           <Button onClick={savePassword} disabled={savingPassword}>
-            {savingPassword ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
+            {savingPassword ? <Loader2 className="animate-spin" /> : <KeyRound />}
             Update password
           </Button>
         </CardContent>

@@ -12,13 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/page-header";
 
 type SettingLink = {
@@ -75,25 +69,24 @@ export default function SettingsPage() {
         description="Manage your account and how this business operates."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {SECTIONS.map((s) => (
-          <Link key={s.href} href={s.href} className="group">
-            <Card className="hover:border-primary/40 h-full transition-colors">
-              <CardHeader>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
-                    <s.icon className="size-5" />
-                  </div>
-                  <ChevronRightIcon className="text-muted-foreground group-hover:text-foreground size-4 transition-colors" />
-                </div>
-                <CardTitle className="pt-2 text-base">{s.title}</CardTitle>
-                <CardDescription>{s.description}</CardDescription>
-              </CardHeader>
-              <CardContent />
-            </Card>
-          </Link>
-        ))}
-      </div>
+      <Card className="gap-0 overflow-hidden py-0">
+        <ul className="divide-y divide-border">
+          {SECTIONS.map((s) => (
+            <li key={s.href}>
+              <Link
+                href={s.href}
+                className="group flex items-center gap-4 px-5 py-4 transition-colors outline-none hover:bg-row-hover focus-visible:ring-4 focus-visible:ring-ring focus-visible:ring-inset">
+                <s.icon className="size-5 shrink-0 text-muted-foreground" />
+                <span className="min-w-0 flex-1">
+                  <span className="block font-semibold text-foreground">{s.title}</span>
+                  <span className="block text-sm text-muted-foreground">{s.description}</span>
+                </span>
+                <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Card>
     </div>
   );
 }

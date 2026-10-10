@@ -49,7 +49,7 @@ export default function DataManagementPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Data Management"
+        title="Data management"
         description="Destructive maintenance actions for the branch selected in the switcher above."
       />
 
@@ -66,10 +66,10 @@ export default function DataManagementPage() {
           <CardHeader>
             <CardTitle className="text-destructive flex items-center gap-2">
               <AlertTriangleIcon className="size-5" />
-              Danger Zone
+              Danger zone
             </CardTitle>
             <CardDescription>
-              These actions are irreversible. Please proceed with extreme caution.
+              These actions are irreversible. please proceed with extreme caution.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -90,7 +90,7 @@ export default function DataManagementPage() {
                 size="sm"
                 onClick={() => setOpen(true)}
                 className="w-full shrink-0 sm:w-auto">
-                <Trash2Icon className="mr-2 size-4" />
+                <Trash2Icon />
                 Cleanup
               </Button>
             </div>
@@ -111,7 +111,7 @@ export default function DataManagementPage() {
             <DialogTitle>Delete all orders &amp; payments?</DialogTitle>
             <DialogDescription>
               This permanently deletes every order and payment for the selected
-              branch. This cannot be undone. Type <strong>DELETE</strong> to
+              branch. this cannot be undone. type <strong>DELETE</strong> to
               confirm.
             </DialogDescription>
           </DialogHeader>
@@ -126,7 +126,7 @@ export default function DataManagementPage() {
               disabled={busy}
             />
           </div>
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setOpen(false)}

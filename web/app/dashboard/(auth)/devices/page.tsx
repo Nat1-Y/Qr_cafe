@@ -37,7 +37,7 @@ const columns: Column<Device>[] = [
     render: (d) => (
       <div className="flex items-center gap-3">
         <span
-          className={`size-2.5 shrink-0 rounded-full ${d.online ? "bg-green-500" : "bg-muted-foreground/40"}`}
+          className={`size-2.5 shrink-0 rounded-full ${d.online ? "bg-success" : "bg-muted-foreground/40"}`}
           title={d.online ? "Online" : "Offline"}
         />
         <div>

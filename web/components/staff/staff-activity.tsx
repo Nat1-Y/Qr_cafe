@@ -198,7 +198,7 @@ export function StaffActivity() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Filters</CardTitle>
+          <CardTitle>Filters</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
           <div className="space-y-2">
@@ -206,8 +206,8 @@ export function StaffActivity() {
             <select
               value={selectedId}
               onChange={(e) => setSelectedId(e.target.value)}
-              className="border-input bg-background h-9 w-full rounded-md border px-3 text-sm sm:w-72">
-              <option value="all">All Employees</option>
+              className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full sm:w-72">
+              <option value="all">All employees</option>
               {employees.map((e) => (
                 <option key={e.employee_id} value={e.employee_id}>
                   {e.employee_name}
@@ -233,20 +233,20 @@ export function StaffActivity() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
-          title="Orders Total"
+          title="Orders total"
           value={formatETB(activeSummary.orders_total)}
           subtitle={`${activeSummary.orders_count} orders`}
           icon={<Users className="size-5" />}
         />
         <StatCard
-          title="Paid Total"
+          title="Paid total"
           value={formatETB(activeSummary.paid_total)}
           subtitle={`${activeSummary.payments_count} payments`}
           icon={<DollarSign className="size-5" />}
           variant="success"
         />
         <StatCard
-          title="Unpaid Total"
+          title="Unpaid total"
           value={formatETB(activeSummary.unpaid_total)}
           subtitle="Unpaid balance"
           icon={<TrendingDown className="size-5" />}
@@ -256,7 +256,7 @@ export function StaffActivity() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Employees Summary</CardTitle>
+          <CardTitle>Employees summary</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
@@ -270,7 +270,7 @@ export function StaffActivity() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Employee</TableHead>
-                  <TableHead className="text-right">Orders Total</TableHead>
+                  <TableHead className="text-right">Orders total</TableHead>
                   <TableHead className="text-right">Paid</TableHead>
                   <TableHead className="text-right">Unpaid</TableHead>
                 </TableRow>
@@ -285,7 +285,7 @@ export function StaffActivity() {
                       data-state={e.employee_id === selectedId ? "selected" : undefined}>
                       <TableCell className="font-medium">{e.employee_name}</TableCell>
                       <TableCell className="text-right">{formatETB(e.orders_total)}</TableCell>
-                      <TableCell className="text-right font-medium text-green-600">
+                      <TableCell className="text-right font-medium text-success">
                         {formatETB(e.paid_total)}
                       </TableCell>
                       <TableCell className="text-destructive text-right font-medium">
@@ -311,7 +311,7 @@ export function StaffActivity() {
       {selectedId !== "all" && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Live Orders</CardTitle>
+            <CardTitle>Live orders</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
@@ -331,7 +331,7 @@ export function StaffActivity() {
                 {detailOrders.length > 0 ? (
                   detailOrders.map((o) => (
                     <TableRow key={o.id}>
-                      <TableCell className="font-bold">{formatOrderNumber(o)}</TableCell>
+                      <TableCell className="font-semibold">{formatOrderNumber(o)}</TableCell>
                       <TableCell className="capitalize">{o.type}</TableCell>
                       <TableCell>{o.table_number ?? "N/A"}</TableCell>
                       <TableCell className="text-right font-medium">
@@ -369,7 +369,7 @@ export function StaffActivity() {
                           size="icon"
                           className="size-8"
                           onClick={() => setDetailOrder(o)}>
-                          <Eye className="size-4" />
+                          <Eye />
                         </Button>
                       </TableCell>
                     </TableRow>

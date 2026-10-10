@@ -180,11 +180,11 @@ export default function RolesPermissionsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Roles & Permissions"
-        description="Choose what each role can see and do. Owners and platform admins always have full access."
+        title="Roles & permissions"
+        description="Choose what each role can see and do. owners and platform admins always have full access."
         action={
           <Button onClick={save} disabled={saving || loading} size="sm">
-            <SaveIcon className="size-4" />
+            <SaveIcon />
             {saving ? "Saving…" : "Save changes"}
           </Button>
         }
@@ -226,14 +226,14 @@ export default function RolesPermissionsPage() {
                   <TableHead key={a} className="text-center">
                     <button
                       type="button"
-                      className="hover:text-foreground text-muted-foreground text-xs font-medium uppercase tracking-wide"
+                      className="hover:text-foreground text-muted-foreground text-xs font-medium"
                       onClick={() => setColumn(a, true)}
                       title={`Allow ${ACTION_LABELS[a]} for all areas`}>
                       {ACTION_LABELS[a]}
                     </button>
                   </TableHead>
                 ))}
-                <TableHead className="w-[18%] text-center text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <TableHead className="w-[18%] text-center">
                   Locations
                 </TableHead>
               </TableRow>
@@ -324,7 +324,7 @@ function LocationPicker({
           variant="outline"
           size="sm"
           disabled={locations.length === 0}
-          className="h-7 gap-1 text-xs">
+          className="h-7 gap-1">
           <MapPinIcon className="size-3" />
           {summary}
           <ChevronDownIcon className="size-3" />
@@ -337,14 +337,14 @@ function LocationPicker({
             <div className="flex gap-1">
               <button
                 type="button"
-                className="text-muted-foreground hover:text-foreground text-[11px] underline-offset-2 hover:underline"
+                className="text-muted-foreground hover:text-foreground text-xs underline-offset-2 hover:underline"
                 onClick={() => onSetAll(true)}>
                 All
               </button>
-              <span className="text-muted-foreground text-[11px]">/</span>
+              <span className="text-muted-foreground text-xs">/</span>
               <button
                 type="button"
-                className="text-muted-foreground hover:text-foreground text-[11px] underline-offset-2 hover:underline"
+                className="text-muted-foreground hover:text-foreground text-xs underline-offset-2 hover:underline"
                 onClick={() => onSetAll(false)}>
                 None
               </button>

@@ -273,7 +273,7 @@ export default function PlatformUsersPage() {
           </p>
         </div>
         <Button onClick={() => { setForm(emptyForm); setAddOpen(true); }}>
-          <PlusIcon className="size-4" />
+          <PlusIcon />
           Add user
         </Button>
       </div>
@@ -327,7 +327,7 @@ export default function PlatformUsersPage() {
             <div className="space-y-1.5">
               <label className="text-sm font-medium">Business</label>
               <select
-                className="border-input bg-background h-9 w-full rounded-md border px-3 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={form.business_id}
                 onChange={(e) =>
                   setForm({ ...form, business_id: e.target.value, branch_id: "" })
@@ -346,7 +346,7 @@ export default function PlatformUsersPage() {
               <div className="space-y-1.5">
                 <label className="text-sm font-medium">Role</label>
                 <select
-                  className="border-input bg-background h-9 w-full rounded-md border px-3 text-sm"
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                   value={form.role}
                   onChange={(e) => setForm({ ...form, role: e.target.value })}>
                   {ROLE_OPTIONS.map((r) => (
@@ -361,7 +361,7 @@ export default function PlatformUsersPage() {
                   Branch{roleNeedsBranch ? "" : " (n/a)"}
                 </label>
                 <select
-                  className="border-input bg-background h-9 w-full rounded-md border px-3 text-sm disabled:opacity-50"
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                   disabled={!roleNeedsBranch || !selectedBusiness}
                   value={form.branch_id}
                   onChange={(e) => setForm({ ...form, branch_id: e.target.value })}>
@@ -379,7 +379,7 @@ export default function PlatformUsersPage() {
               <Input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="e.g. Abel Tesfaye"
+                placeholder="e.g. abel tesfaye"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">

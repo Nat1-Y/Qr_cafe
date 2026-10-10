@@ -105,7 +105,7 @@ export default function BusinessesPage() {
         </div>
         <Button asChild>
           <Link href="/dashboard/businesses/new">
-            <PlusIcon className="size-4" />
+            <PlusIcon />
             New business
           </Link>
         </Button>
@@ -150,7 +150,7 @@ function StatusBadge({ active }: { active: boolean }) {
       className={
         "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium " +
         (active
-          ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
+          ? "bg-success-soft text-success"
           : "bg-muted text-muted-foreground")
       }>
       {active ? "Active" : "Suspended"}

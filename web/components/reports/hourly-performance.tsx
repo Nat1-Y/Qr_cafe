@@ -28,7 +28,7 @@ export function HourlyPerformance({ items }: { items: HourlyPerformanceItem[] })
   return (
     <Card>
       <CardHeader className="border-b pb-3">
-        <CardTitle className="text-base">Hourly Performance</CardTitle>
+        <CardTitle>Hourly performance</CardTitle>
         <CardDescription>
           Paid sales across the day{peak ? ` · peak ${peak.hour}` : ""}
         </CardDescription>
@@ -41,13 +41,13 @@ export function HourlyPerformance({ items }: { items: HourlyPerformanceItem[] })
               <XAxis
                 dataKey="hour"
                 tickLine={false}
-                axisLine={false}
+                axisLine={{ stroke: "var(--border)" }}
                 tickMargin={8}
                 minTickGap={12}
               />
               <YAxis
                 tickLine={false}
-                axisLine={false}
+                axisLine={{ stroke: "var(--border)" }}
                 width={44}
                 tickMargin={4}
                 tickFormatter={(v) => compact(Number(v))}

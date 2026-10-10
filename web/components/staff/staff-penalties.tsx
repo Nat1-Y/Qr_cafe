@@ -254,10 +254,10 @@ export function StaffPenalties() {
     <div className="space-y-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base">Filters</CardTitle>
+          <CardTitle>Filters</CardTitle>
           {canWrite && (
             <Button onClick={openCreate}>
-              <PlusIcon className="size-4" />
+              <PlusIcon />
               Log penalty
             </Button>
           )}
@@ -277,21 +277,21 @@ export function StaffPenalties() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
-          title="Total Penalties"
+          title="Total penalties"
           value={summary?.count ?? 0}
           subtitle={dateFrom || dateTo ? "In selected range" : "All time"}
           icon={<AlertTriangle className="size-5" />}
           variant="warning"
         />
         <StatCard
-          title="Total Fine Amount"
+          title="Total fine amount"
           value={formatETB(summary?.total ?? 0)}
           subtitle="Sum of monetary penalties"
           icon={<DollarSign className="size-5" />}
           variant="destructive"
         />
         <StatCard
-          title="Most Penalized"
+          title="Most penalized"
           value={topEmployee?.employee_name || "—"}
           subtitle={topEmployee ? `${topEmployee.count} penalt${topEmployee.count === 1 ? "y" : "ies"}` : "No penalties yet"}
         />
@@ -299,7 +299,7 @@ export function StaffPenalties() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">By Employee</CardTitle>
+          <CardTitle>By employee</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
@@ -307,7 +307,7 @@ export function StaffPenalties() {
               <TableRow>
                 <TableHead>Employee</TableHead>
                 <TableHead className="text-right">Count</TableHead>
-                <TableHead className="text-right">Total Amount</TableHead>
+                <TableHead className="text-right">Total amount</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -350,12 +350,12 @@ export function StaffPenalties() {
                 <>
                   {canWrite && (
                     <Button variant="ghost" size="icon" onClick={() => openEdit(row)}>
-                      <PencilIcon className="size-4" />
+                      <PencilIcon />
                     </Button>
                   )}
                   {canDelete && (
                     <Button variant="ghost" size="icon" onClick={() => onDelete(row.id)}>
-                      <Trash2Icon className="text-destructive size-4" />
+                      <Trash2Icon className="text-destructive" />
                     </Button>
                   )}
                 </>
@@ -369,7 +369,7 @@ export function StaffPenalties() {
           <DialogHeader>
             <DialogTitle>{editingId ? "Edit penalty" : "Log penalty"}</DialogTitle>
             <DialogDescription>
-              Record a disciplinary action against an employee. Amount is optional — only fill
+              Record a disciplinary action against an employee. amount is optional — only fill
               it in for fines or cost deductions (e.g. cash shortage, breakage).
             </DialogDescription>
           </DialogHeader>
@@ -377,7 +377,7 @@ export function StaffPenalties() {
             <div className="space-y-2">
               <Label>Employee</Label>
               <select
-                className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={form.employee_id}
                 onChange={(e) => setForm({ ...form, employee_id: e.target.value })}>
                 <option value="">Select employee…</option>
@@ -391,7 +391,7 @@ export function StaffPenalties() {
             <div className="space-y-2">
               <Label>Severity</Label>
               <select
-                className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={form.severity}
                 onChange={(e) => setForm({ ...form, severity: e.target.value })}>
                 {SEVERITY_OPTIONS.map((o) => (

@@ -120,14 +120,14 @@ export default function InventoryLedgerPage() {
       value: (stats.total_in ?? 0).toLocaleString(),
       hint: "Stock-ins, reversals, transfers in",
       icon: TrendingUpIcon,
-      valueClass: "text-emerald-600 dark:text-emerald-500",
+      valueClass: "text-success",
     },
     {
       label: "Deducted",
       value: (stats.total_out ?? 0).toLocaleString(),
       hint: "Sales, transfers out",
       icon: TrendingDownIcon,
-      valueClass: "text-red-600 dark:text-red-500",
+      valueClass: "text-destructive",
     },
     {
       label: "Net change",
@@ -135,8 +135,8 @@ export default function InventoryLedgerPage() {
       icon: ScaleIcon,
       valueClass:
         (stats.net_change ?? 0) < 0
-          ? "text-red-600 dark:text-red-500"
-          : "text-emerald-600 dark:text-emerald-500",
+          ? "text-destructive"
+          : "text-success",
     },
   ];
 
@@ -170,7 +170,7 @@ export default function InventoryLedgerPage() {
         return (
           <span
             className={`inline-flex items-center gap-0.5 font-medium tabular-nums ${
-              positive ? "text-emerald-600 dark:text-emerald-500" : "text-red-600 dark:text-red-500"
+              positive ? "text-success" : "text-destructive"
             }`}>
             {positive ? <PlusIcon className="size-3" /> : <MinusIcon className="size-3" />}
             {Math.abs(r.quantity_delta)} {r.base_unit ?? ""}
@@ -221,7 +221,7 @@ export default function InventoryLedgerPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Inventory Ledger"
+        title="Inventory ledger"
         description="Full audit trail of every stock deduction and addition, with the balance left after each entry."
       />
 

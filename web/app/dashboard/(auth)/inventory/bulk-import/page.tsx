@@ -151,14 +151,14 @@ export default function BulkInventoryImportPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Bulk Inventory Import"
+        title="Bulk inventory import"
         description="Add many inventory items at once from a CSV or JSON file."
         action={
           <Button
             variant="outline"
             onClick={() => router.push("/dashboard/inventory")}>
-            <ArrowLeftIcon className="size-4" />
-            Back to Inventory
+            <ArrowLeftIcon />
+            Back to inventory
           </Button>
         }
       />
@@ -166,7 +166,7 @@ export default function BulkInventoryImportPage() {
       {/* Step 1 — template + upload */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">
+          <CardTitle>
             1. Get a template &amp; upload your file
           </CardTitle>
         </CardHeader>
@@ -178,7 +178,7 @@ export default function BulkInventoryImportPage() {
               onClick={() =>
                 downloadFile("inventory-template.csv", CSV_TEMPLATE, "text/csv")
               }>
-              <DownloadIcon className="size-4" />
+              <DownloadIcon />
               CSV template
             </Button>
             <Button
@@ -191,7 +191,7 @@ export default function BulkInventoryImportPage() {
                   "application/json",
                 )
               }>
-              <DownloadIcon className="size-4" />
+              <DownloadIcon />
               JSON template
             </Button>
           </div>
@@ -219,7 +219,7 @@ export default function BulkInventoryImportPage() {
               variant="outline"
               size="sm"
               onClick={() => fileInputRef.current?.click()}>
-              <UploadIcon className="size-4" />
+              <UploadIcon />
               Choose file
             </Button>
             <input
@@ -260,7 +260,7 @@ export default function BulkInventoryImportPage() {
                 onChange={(e) => handleTextChange(e.target.value)}
                 placeholder={format === "csv" ? CSV_TEMPLATE : JSON_TEMPLATE}
                 rows={6}
-                className="font-mono text-xs"
+                className="font-mono"
               />
             </div>
           </details>
@@ -271,15 +271,15 @@ export default function BulkInventoryImportPage() {
       {result && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-            <CardTitle className="text-base">2. Review &amp; confirm</CardTitle>
+            <CardTitle>2. Review &amp; confirm</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="gap-1">
-                <CheckCircle2Icon className="size-3 text-emerald-600" />
+                <CheckCircle2Icon className="size-3 text-success" />
                 {validRows.length} ready
               </Badge>
               {warningCount > 0 && (
                 <Badge variant="secondary" className="gap-1">
-                  <AlertTriangleIcon className="size-3 text-amber-500" />
+                  <AlertTriangleIcon className="size-3 text-warning" />
                   {warningCount} warning{warningCount === 1 ? "" : "s"}
                 </Badge>
               )}
@@ -307,7 +307,7 @@ export default function BulkInventoryImportPage() {
                 )}
                 <div className="max-h-[460px] overflow-auto rounded-md border">
                   <Table>
-                    <TableHeader className="bg-card sticky top-0">
+                    <TableHeader className="sticky top-0">
                       <TableRow>
                         <TableHead className="w-10">#</TableHead>
                         <TableHead>Name</TableHead>
@@ -341,9 +341,9 @@ export default function BulkInventoryImportPage() {
             onClick={handleImport}
             disabled={submitting || validRows.length === 0}>
             {submitting ? (
-              <Loader2Icon className="size-4 animate-spin" />
+              <Loader2Icon className="animate-spin" />
             ) : (
-              <UploadIcon className="size-4" />
+              <UploadIcon />
             )}
             Import {validRows.length} item{validRows.length === 1 ? "" : "s"}
           </Button>
@@ -358,18 +358,18 @@ function RowView({ row }: { row: ParsedInventoryRow }) {
   const hasWarning = row.warnings.length > 0;
   return (
     <TableRow className={hasError ? "bg-destructive/5" : undefined}>
-      <TableCell className="text-muted-foreground text-xs">
+      <TableCell className="text-muted-foreground">
         {row.rowNumber}
       </TableCell>
       <TableCell className="font-medium">{row.name || "—"}</TableCell>
-      <TableCell className="text-muted-foreground text-xs">
+      <TableCell className="text-muted-foreground">
         {row.unit}
         {row.base_unit && row.base_unit !== row.unit ? ` → ${row.base_unit}` : ""}
       </TableCell>
       <TableCell className="text-right tabular-nums">
         {row.quantity ?? "—"}
       </TableCell>
-      <TableCell className="text-muted-foreground text-xs">
+      <TableCell className="text-muted-foreground">
         {row.location || (row.quantity !== null ? "Default" : "—")}
       </TableCell>
       <TableCell className="text-right tabular-nums">{row.min_quantity}</TableCell>
@@ -380,12 +380,12 @@ function RowView({ row }: { row: ParsedInventoryRow }) {
             {row.errors.join("; ")}
           </span>
         ) : hasWarning ? (
-          <span className="flex items-center gap-1 text-xs text-amber-600">
+          <span className="flex items-center gap-1 text-xs text-warning">
             <AlertTriangleIcon className="size-3.5" />
             {row.warnings.join("; ")}
           </span>
         ) : (
-          <span className="flex items-center gap-1 text-xs text-emerald-600">
+          <span className="flex items-center gap-1 text-xs text-success">
             <CheckCircle2Icon className="size-3.5" />
             Ready
           </span>

@@ -128,7 +128,7 @@ export default function StaffPage() {
         action={
           <Button variant="outline" asChild>
             <Link href="/dashboard/staff/bulk-import">
-              <UploadIcon className="size-4" />
+              <UploadIcon />
               Bulk import
             </Link>
           </Button>

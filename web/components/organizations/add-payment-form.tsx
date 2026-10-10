@@ -49,7 +49,7 @@ export function AddPaymentForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Add credit payment</CardTitle>
+        <CardTitle>Add credit payment</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">

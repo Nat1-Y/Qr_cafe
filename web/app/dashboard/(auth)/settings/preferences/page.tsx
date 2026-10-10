@@ -111,7 +111,7 @@ function HistoryLookbackCard() {
                 }`}>
                 <div className="text-sm font-medium">{roleLabel(role)}</div>
                 <select
-                  className="border-input bg-background h-9 rounded-md border px-3 text-sm shadow-sm disabled:opacity-50"
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
                   value={value}
                   disabled={saving === role}
                   onChange={(e) => change(role, Number(e.target.value))}>
@@ -670,8 +670,8 @@ export default function PreferencesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Order Rules"
-        description="Per-branch POS behavior. These apply to the branch selected in the switcher above."
+        title="Order rules"
+        description="Per-branch POS behavior. these apply to the branch selected in the switcher above."
       />
 
       <Card className="max-w-2xl">

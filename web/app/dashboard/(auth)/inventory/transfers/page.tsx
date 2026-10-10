@@ -155,13 +155,13 @@ export default function TransfersPage() {
       value: stats.sent ?? 0,
       hint: "Sent, not yet received",
       icon: ClockIcon,
-      valueClass: "text-amber-600 dark:text-amber-500",
+      valueClass: "text-warning",
     },
     {
       label: "Received",
       value: stats.received ?? 0,
       icon: CheckCircle2Icon,
-      valueClass: "text-emerald-600 dark:text-emerald-500",
+      valueClass: "text-success",
     },
     {
       label: "Units moved",
@@ -238,18 +238,18 @@ export default function TransfersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Stock Transfers"
+        title="Stock transfers"
         description="Move stock between locations — every transfer keeps the exact balance left at each end."
         action={
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild>
               <Link href="/dashboard/inventory/links">
-                <Link2Icon className="size-4" />
+                <Link2Icon />
                 Item links
               </Link>
             </Button>
             <Button onClick={() => setOpen(true)}>
-              <PlusIcon className="size-4" />
+              <PlusIcon />
               New transfer
             </Button>
           </div>
@@ -289,7 +289,7 @@ export default function TransfersPage() {
         rowActions={(t) => (
           <Button asChild variant="outline" size="sm">
             <Link href={`/dashboard/inventory/transfers/${t.id}`}>
-              <EyeIcon className="size-4" />
+              <EyeIcon />
               View
             </Link>
           </Button>
@@ -306,7 +306,7 @@ export default function TransfersPage() {
               <div className="space-y-2">
                 <Label>From</Label>
                 <select
-                  className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                   value={from}
                   onChange={(e) => setFrom(e.target.value)}>
                   <option value="">—</option>
@@ -318,7 +318,7 @@ export default function TransfersPage() {
               <div className="space-y-2">
                 <Label>To</Label>
                 <select
-                  className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                   value={to}
                   onChange={(e) => setTo(e.target.value)}>
                   <option value="">—</option>
@@ -340,7 +340,7 @@ export default function TransfersPage() {
                   <div key={idx} className="space-y-1">
                     <div className="flex gap-2">
                       <select
-                        className="border-input h-9 flex-1 rounded-md border bg-transparent px-3 text-sm"
+                        className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 flex-1"
                         value={line.inventory_item_id}
                         onChange={(e) => {
                           const next = [...lines];
@@ -367,7 +367,7 @@ export default function TransfersPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => setLines(lines.filter((_, i) => i !== idx))}>
-                        <XIcon className="size-4" />
+                        <XIcon />
                       </Button>
                     </div>
                     {link && (
@@ -384,7 +384,7 @@ export default function TransfersPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setLines([...lines, { inventory_item_id: "", quantity: "" }])}>
-                <PlusIcon className="size-4" />
+                <PlusIcon />
                 Add line
               </Button>
             </div>

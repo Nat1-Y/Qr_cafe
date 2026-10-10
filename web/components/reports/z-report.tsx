@@ -91,7 +91,7 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
       <Card>
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <CardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2">
               <CalendarRange className="size-5" />
               Z-Report · {rangeLabel(dateFrom, dateTo)}
             </CardTitle>
@@ -119,34 +119,34 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
         <>
           <div className="flex justify-end">
             <Button onClick={() => window.print()} variant="outline">
-              <Printer className="mr-2 size-4" />
-              Print Report
+              <Printer />
+              Print report
             </Button>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Summary</CardTitle>
+              <CardTitle>Summary</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 <div>
                   <p className="text-muted-foreground text-sm">Total Orders</p>
-                  <p className="text-2xl font-bold">{zReport.summary.total_orders}</p>
+                  <p className="text-2xl font-semibold">{zReport.summary.total_orders}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm">Gross Sales</p>
-                  <p className="text-2xl font-bold">{formatETB(zReport.summary.gross_sales)}</p>
+                  <p className="text-2xl font-semibold">{formatETB(zReport.summary.gross_sales)}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm">Refunds</p>
-                  <p className="text-destructive text-2xl font-bold">
+                  <p className="text-destructive text-2xl font-semibold">
                     {formatETB(zReport.summary.refunds)}
                   </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm">Net Sales</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-2xl font-semibold text-success">
                     {formatETB(zReport.summary.net_sales)}
                   </p>
                 </div>
@@ -233,7 +233,7 @@ function ZTable({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+        <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <table className="w-full text-sm">

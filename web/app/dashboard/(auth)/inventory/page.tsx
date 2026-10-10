@@ -110,10 +110,10 @@ const locationIcon = (loc: Pick<Loc, "name" | "slug">) => {
   if (/store|warehouse|storage|main/.test(term))
     return <WarehouseIcon className="size-5 text-primary" />;
   if (/barista|bar|coffee|cafe/.test(term))
-    return <CoffeeIcon className="size-5 text-amber-500" />;
+    return <CoffeeIcon className="size-5 text-warning" />;
   if (/kitchen|chef|food/.test(term))
-    return <ChefHatIcon className="size-5 text-emerald-500" />;
-  return <MapPinIcon className="size-5 text-blue-500" />;
+    return <ChefHatIcon className="size-5 text-success" />;
+  return <MapPinIcon className="size-5 text-info" />;
 };
 
 // ── measurement units ──────────────────────────────────────────────────────
@@ -237,7 +237,7 @@ function UnitSelect({
           onChange(e.target.value);
         }
       }}
-      className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm">
+      className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full">
       {UNIT_GROUPS.map((g) => (
         <optgroup key={g.group} label={g.group}>
           {g.units.map((u) => (
@@ -272,20 +272,20 @@ function LocationCard({
       <CardHeader className="border-b [.border-b]:pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg border bg-background p-2.5 shadow-sm transition-transform group-hover:scale-105">
+            <div className="text-muted-foreground">
               {locationIcon(loc)}
             </div>
             <div>
-              <CardTitle className="text-base transition-colors group-hover:text-primary">
+              <CardTitle className="transition-colors group-hover:text-primary">
                 {loc.name}
               </CardTitle>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <span className="text-xs font-semibold text-muted-foreground">
                 {loc.location_type}
               </span>
             </div>
           </div>
           {loc.is_default && (
-            <Badge variant="success" className="px-1.5 py-0 text-[10px]">
+            <Badge variant="success">
               Default
             </Badge>
           )}
@@ -294,26 +294,26 @@ function LocationCard({
       <CardContent className="space-y-3">
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="rounded-md border bg-background p-2 text-center">
-            <span className="block text-[10px] font-medium uppercase text-muted-foreground">
+            <span className="block text-xs font-medium text-muted-foreground">
               In Stock
             </span>
-            <span className="text-lg font-bold">{stats.inStock}</span>
+            <span className="text-lg font-semibold">{stats.inStock}</span>
           </div>
           <div className="rounded-md border bg-background p-2 text-center">
-            <span className="block text-[10px] font-medium uppercase text-muted-foreground">
+            <span className="block text-xs font-medium text-muted-foreground">
               Tracked Items
             </span>
-            <span className="text-lg font-bold">{stats.totalItems}</span>
+            <span className="text-lg font-semibold">{stats.totalItems}</span>
           </div>
         </div>
 
         {stats.lowStock > 0 ? (
-          <div className="flex items-center gap-2 rounded-md bg-amber-500/10 p-2 text-xs font-medium text-amber-600 dark:text-amber-400">
+          <div className="flex items-center gap-2 rounded-md bg-warning/10 p-2 text-xs font-medium text-warning">
             <AlertTriangleIcon className="size-4 shrink-0" />
             <span>{stats.lowStock} item(s) below minimum stock!</span>
           </div>
         ) : (
-          <div className="flex items-center gap-2 rounded-md bg-emerald-500/10 p-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+          <div className="flex items-center gap-2 rounded-md bg-success/10 p-2 text-xs font-medium text-success">
             <CheckCircle2Icon className="size-4 shrink-0" />
             <span>All tracked items are healthy</span>
           </div>
@@ -567,10 +567,10 @@ export default function InventoryPage() {
         const min = Number(r.min_quantity || 0);
         const low = min > 0 && qty < min;
         return (
-          <span className={low ? "font-semibold text-amber-600 dark:text-amber-400" : ""}>
+          <span className={low ? "font-semibold text-warning" : ""}>
             {qty} {r.base_unit ?? ""}
             {low && (
-              <Badge variant="warning" className="ml-2 px-1.5 py-0 text-[10px]">
+              <Badge variant="warning" className="ml-2">
                 Low
               </Badge>
             )}
@@ -605,13 +605,13 @@ export default function InventoryPage() {
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild>
               <Link href="/dashboard/inventory/bulk-import">
-                <UploadIcon className="size-4" />
+                <UploadIcon />
                 Bulk import
               </Link>
             </Button>
             <Button variant="outline" asChild>
               <Link href="/dashboard/inventory/transfers">
-                <ArrowLeftRightIcon className="size-4" />
+                <ArrowLeftRightIcon />
                 Transfer stock
               </Link>
             </Button>
@@ -681,16 +681,16 @@ export default function InventoryPage() {
           <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-muted/40 p-4">
             <div className="flex items-center gap-3">
               <Button variant="outline" size="sm" onClick={() => setSelectedLocId(null)}>
-                <ArrowLeftIcon className="size-4" />
+                <ArrowLeftIcon />
                 Back to locations
               </Button>
               <div className="hidden h-5 w-px bg-border sm:block" />
               <div className="flex items-center gap-2.5">
-                <div className="rounded-lg border bg-background p-2 shadow-sm">
+                <div className="rounded-lg border bg-background p-2">
                   {locationIcon(selectedLoc)}
                 </div>
                 <div>
-                  <h3 className="text-base font-bold">{selectedLoc.name}</h3>
+                  <h3 className="text-base font-semibold">{selectedLoc.name}</h3>
                   <p className="text-xs text-muted-foreground">
                     Items available inside this location.
                   </p>
@@ -698,7 +698,7 @@ export default function InventoryPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <label className="flex cursor-pointer items-center gap-2 rounded-md border bg-background px-3 py-2 text-xs font-semibold shadow-sm hover:bg-muted/50">
+              <label className="flex cursor-pointer items-center gap-2 rounded-md border bg-background px-3 py-2 text-xs font-semibold hover:bg-muted/50">
                 <input
                   type="checkbox"
                   checked={onlyInStock}
@@ -708,7 +708,7 @@ export default function InventoryPage() {
                 <span>Only in stock</span>
               </label>
               <Button size="sm" onClick={() => setCreateOpen(true)}>
-                <PlusIcon className="size-4" />
+                <PlusIcon />
                 New item
               </Button>
             </div>
@@ -850,7 +850,7 @@ export default function InventoryPage() {
                       a ? { ...a, unit: e.target.value as "base" | "purchase" } : a,
                     )
                   }
-                  className="h-10 rounded-md border border-input bg-background px-2 text-sm">
+                  className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50">
                   <option value="base">{adjBaseUnit}</option>
                   <option value="purchase">{adjPurchaseUnit}</option>
                 </select>
@@ -858,7 +858,7 @@ export default function InventoryPage() {
 
               {adjust?.mode === "delta" ? (
                 <div className="flex gap-4 text-xs">
-                  <span className="flex items-center text-emerald-600 dark:text-emerald-400">
+                  <span className="flex items-center text-success">
                     <PlusIcon className="mr-1 size-3" />
                     positive adds
                   </span>

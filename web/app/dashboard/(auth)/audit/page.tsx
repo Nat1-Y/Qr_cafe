@@ -28,7 +28,7 @@ const columns: Column<Log>[] = [
     key: "action",
     label: "Action",
     render: (l) => (
-      <Badge variant={actionVariant(l.action)} className="font-mono text-xs">
+      <Badge variant={actionVariant(l.action)} className="font-mono">
         {l.action}
       </Badge>
     ),

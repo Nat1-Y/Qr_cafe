@@ -18,9 +18,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import { apiFetch } from "@/lib/api";
 import { formatETB } from "@/lib/format";
+import { StatCards } from "@/components/stat-cards";
+import { PageHeader } from "@/components/page-header";
 
 type Overview = {
   businesses: number;
@@ -78,41 +80,16 @@ export default function OverviewPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Platform Overview</h1>
-        <p className="text-muted-foreground text-sm">
-          Everything across every business you manage.
-        </p>
-      </div>
+      <PageHeader title="Platform" description="Every business on Buna, at a glance." />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map(({ key, label, icon: Icon, format, sub }) => (
-          <Card key={key}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {label}
-              </CardTitle>
-              <Icon className="size-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {loading || !data ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <div className="text-3xl font-semibold">
-                    {format ? format(data[key]) : data[key]}
-                  </div>
-                  {sub && (
-                    <p className="text-muted-foreground mt-1 text-xs">
-                      {sub(data)}
-                    </p>
-                  )}
-                </>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <StatCards
+        loading={loading || !data}
+        cards={cards.map(({ key, label, format, sub }) => ({
+          label,
+          value: data ? (format ? format(data[key]) : data[key]) : "",
+          hint: data && sub ? sub(data) : undefined,
+        }))}
+      />
     </div>
   );
 }

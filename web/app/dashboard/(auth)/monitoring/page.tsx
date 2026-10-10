@@ -89,7 +89,7 @@ const statusColor = (status: string) =>
   STATUS_COLORS[status] ?? "var(--chart-5)";
 
 const chartConfig = {
-  revenue: { label: "Revenue", color: "var(--primary)" },
+  revenue: { label: "Revenue", color: "var(--chart-1)" },
   orders: { label: "Orders", color: "var(--chart-2)" },
 } satisfies ChartConfig;
 
@@ -257,7 +257,7 @@ export default function MonitoringPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader className="border-b pb-3">
-            <CardTitle className="text-base">Revenue over time</CardTitle>
+            <CardTitle>Revenue over time</CardTitle>
             <CardDescription>Daily non-cancelled sales</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
@@ -268,31 +268,17 @@ export default function MonitoringPage() {
                 config={chartConfig}
                 className="aspect-auto h-64 w-full">
                 <AreaChart data={series} margin={{ left: 4, right: 8, top: 8 }}>
-                  <defs>
-                    <linearGradient id="fillRev" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor="var(--color-revenue)"
-                        stopOpacity={0.35}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="var(--color-revenue)"
-                        stopOpacity={0.03}
-                      />
-                    </linearGradient>
-                  </defs>
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
                   <XAxis
                     dataKey="label"
                     tickLine={false}
-                    axisLine={false}
+                    axisLine={{ stroke: "var(--border)" }}
                     tickMargin={8}
                     minTickGap={24}
                   />
                   <YAxis
                     tickLine={false}
-                    axisLine={false}
+                    axisLine={{ stroke: "var(--border)" }}
                     width={44}
                     tickMargin={4}
                     tickFormatter={(v) => compact(Number(v))}
@@ -312,7 +298,8 @@ export default function MonitoringPage() {
                   <Area
                     dataKey="revenue"
                     type="monotone"
-                    fill="url(#fillRev)"
+                    fill="var(--color-revenue)"
+                fillOpacity={0.12}
                     stroke="var(--color-revenue)"
                     strokeWidth={2}
                   />
@@ -326,7 +313,7 @@ export default function MonitoringPage() {
 
         <Card>
           <CardHeader className="border-b pb-3">
-            <CardTitle className="text-base">Orders per day</CardTitle>
+            <CardTitle>Orders per day</CardTitle>
             <CardDescription>Order count in the selected window</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
@@ -341,13 +328,13 @@ export default function MonitoringPage() {
                   <XAxis
                     dataKey="label"
                     tickLine={false}
-                    axisLine={false}
+                    axisLine={{ stroke: "var(--border)" }}
                     tickMargin={8}
                     minTickGap={24}
                   />
                   <YAxis
                     tickLine={false}
-                    axisLine={false}
+                    axisLine={{ stroke: "var(--border)" }}
                     width={32}
                     tickMargin={4}
                     allowDecimals={false}
@@ -374,7 +361,7 @@ export default function MonitoringPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader className="border-b pb-3">
-            <CardTitle className="text-base">Revenue by branch</CardTitle>
+            <CardTitle>Revenue by branch</CardTitle>
             <CardDescription>Top branches in range</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
@@ -392,14 +379,14 @@ export default function MonitoringPage() {
                   <XAxis
                     type="number"
                     tickLine={false}
-                    axisLine={false}
+                    axisLine={{ stroke: "var(--border)" }}
                     tickFormatter={(v) => compact(Number(v))}
                   />
                   <YAxis
                     type="category"
                     dataKey="branch_name"
                     tickLine={false}
-                    axisLine={false}
+                    axisLine={{ stroke: "var(--border)" }}
                     width={110}
                     tickMargin={4}
                   />
@@ -430,7 +417,7 @@ export default function MonitoringPage() {
 
         <Card>
           <CardHeader className="border-b pb-3">
-            <CardTitle className="text-base">Order status</CardTitle>
+            <CardTitle>Order status</CardTitle>
             <CardDescription>All orders in range</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
@@ -485,7 +472,7 @@ export default function MonitoringPage() {
       {/* Per-branch table */}
       <Card>
         <CardHeader className="border-b pb-3">
-          <CardTitle className="text-base">Branch breakdown</CardTitle>
+          <CardTitle>Branch breakdown</CardTitle>
           <CardDescription>
             Revenue and orders per branch in the selected window
           </CardDescription>
@@ -551,7 +538,7 @@ function StatCard({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-muted-foreground text-sm font-medium">
+        <CardTitle className="text-muted-foreground">
           {label}
         </CardTitle>
         <Icon className="text-muted-foreground size-4" />

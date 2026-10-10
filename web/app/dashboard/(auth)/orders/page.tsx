@@ -30,7 +30,8 @@ import { PageHeader } from "@/components/page-header";
 import { Orders, Payments, Settings } from "@/lib/resources";
 import { getUser } from "@/lib/auth";
 import { can } from "@/lib/permissions";
-import { formatETB, shortDate, displayStatus, statusBadgeVariant } from "@/lib/format";
+import { formatETB, shortDate } from "@/lib/format";
+import { StatusBadge } from "@/components/status-badge";
 import { formatOrderNumber } from "@/lib/utils";
 
 type OrderItem = {
@@ -214,14 +215,14 @@ export default function OrdersPage() {
         value: formatETB(serverStats.collected ?? 0),
         hint: "Paid orders",
         icon: TrendingUpIcon,
-        valueClass: "text-emerald-600 dark:text-emerald-500",
+        valueClass: "text-success",
       },
       {
         label: "Outstanding",
         value: formatETB(serverStats.outstanding ?? 0),
         hint: "Unpaid orders",
         icon: ClockIcon,
-        valueClass: "text-amber-600 dark:text-amber-500",
+        valueClass: "text-warning",
       },
       {
         label: "Pending",
@@ -295,24 +296,13 @@ export default function OrdersPage() {
     {
       key: "status",
       label: "Status",
-      render: (o) => (
-        <Badge variant={statusBadgeVariant(o.status)} className="capitalize">
-          {displayStatus(o.status)}
-        </Badge>
-      ),
+      render: (o) => <StatusBadge kind="order" status={o.status} />,
     },
     {
       key: "payment_status",
       label: "Payment",
       searchValue: (o) => o.payment_status ?? "unpaid",
-      render: (o) => (
-        <Badge
-          variant={statusBadgeVariant(o.payment_status ?? o.status)}
-          className="capitalize"
-        >
-          {displayStatus(o.payment_status ?? o.status)}
-        </Badge>
-      ),
+      render: (o) => <StatusBadge kind="payment" status={o.payment_status ?? o.status} />,
     },
     {
       key: "total_amount",
@@ -336,7 +326,7 @@ export default function OrdersPage() {
         action={
           <Button asChild>
             <Link href="/dashboard/orders/new">
-              <PlusIcon className="size-4" />
+              <PlusIcon />
               New order
             </Link>
           </Button>
@@ -399,7 +389,7 @@ export default function OrdersPage() {
         rowActions={(o) => (
           <div className="flex items-center justify-end gap-2">
             <Button variant="outline" size="sm" onClick={() => setViewing(o)}>
-              <EyeIcon className="size-4" />
+              <EyeIcon />
               View
             </Button>
             {!isPaid(o) && (
@@ -413,7 +403,7 @@ export default function OrdersPage() {
                 size="sm"
                 className="text-destructive hover:text-destructive"
                 onClick={() => setCancelling(o)}>
-                <XCircleIcon className="size-4" />
+                <XCircleIcon />
                 Cancel
               </Button>
             )}
@@ -434,7 +424,7 @@ export default function OrdersPage() {
             <div className="space-y-2">
               <Label>Payment method</Label>
               <select
-                className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={method}
                 onChange={(e) => setMethod(e.target.value)}>
                 {methods.length === 0 && <option value="cash">Cash</option>}
@@ -584,7 +574,7 @@ export default function OrdersPage() {
                   setViewing(null);
                   setCancelling(o);
                 }}>
-                <XCircleIcon className="size-4" />
+                <XCircleIcon />
                 Cancel order
               </Button>
             )}

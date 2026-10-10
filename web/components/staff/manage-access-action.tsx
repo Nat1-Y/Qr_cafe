@@ -94,7 +94,7 @@ export function ManageAccessAction({
   return (
     <>
       <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
-        <KeyRound className="size-4" />
+        <KeyRound />
         Manage access
       </Button>
 
@@ -112,7 +112,7 @@ export function ManageAccessAction({
             <div className="space-y-2">
               <Label>Role</Label>
               <select
-                className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+                className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
               >
@@ -189,7 +189,7 @@ export function ManageAccessAction({
               Cancel
             </Button>
             <Button onClick={save} disabled={saving}>
-              {saving ? <Loader2 className="size-4 animate-spin" /> : null}
+              {saving ? <Loader2 className="animate-spin" /> : null}
               Save
             </Button>
           </DialogFooter>
