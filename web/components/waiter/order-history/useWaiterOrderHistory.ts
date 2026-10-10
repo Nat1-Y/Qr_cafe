@@ -7,6 +7,7 @@ import { waiterServices as api } from "@/lib/waiter/api";
 import { useWaiterAuth } from "@/components/waiter/auth-context";
 import { toast } from "sonner";
 import { Clock, CheckCircle, AlertCircle, DollarSign } from "lucide-react";
+import { formatETB } from "@/lib/format";
 
 // sessionStorage handoff key for "Add Items" navigation — the create-order
 // page reads this back to pre-load the target order's context. Next.js
@@ -214,11 +215,7 @@ export const useWaiterOrderHistory = () => {
     [router],
   );
 
-  const formatCurrency = useCallback((val: any) => {
-    const n = parseFloat(val);
-    const safe = Number.isFinite(n) ? n : 0;
-    return `${safe.toLocaleString()} Birr`;
-  }, []);
+  const formatCurrency = formatETB;
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {

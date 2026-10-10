@@ -205,7 +205,7 @@ export default function EnrollPage() {
               if (error) setError(null);
             }}
             placeholder="A1B2C3D4E5F6"
-            className="h-12 text-center text-lg font-semibold tracking-[0.2em]"
+            className="h-12 text-center text-lg"
             disabled={submitting}
             aria-invalid={!!error}
           />
@@ -221,7 +221,7 @@ export default function EnrollPage() {
             autoComplete="off"
             value={deviceName}
             onChange={(e) => setDeviceName(e.target.value)}
-            placeholder="e.g. Floor tablet 1"
+            placeholder="e.g. floor tablet 1"
             className="h-11"
             disabled={submitting}
           />

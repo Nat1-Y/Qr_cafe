@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/waiter/LoadingSpinner";
-import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatOrderNumber } from "@/lib/utils";
@@ -14,6 +14,7 @@ import WaiterCartSidebar from "@/components/waiter/create-order/WaiterCartSideba
 import MobileCartDialog from "@/components/waiter/create-order/MobileCartDialog";
 import MenuItemCard from "@/components/waiter/create-order/MenuItemCard";
 
+import { EmptyState } from "@/components/empty-state";
 export default function CreateOrderPage() {
   const router = useRouter();
   const {
@@ -70,8 +71,7 @@ export default function CreateOrderPage() {
   const trimmedSearchQuery = searchQuery.trim();
 
   return (
-    <div className="h-screen overflow-auto bg-[#fafaf9] font-sans selection:bg-amber-100 selection:text-amber-900 flex flex-col animate-in fade-in duration-300">
-      {/* Premium Navigation Header */}
+    <div className="flex h-screen flex-col overflow-hidden bg-background">
       <WaiterHeader
         onLogout={handleLogout}
         onNavigateToHistory={() => router.push("/waiter/order-history")}
@@ -79,19 +79,24 @@ export default function CreateOrderPage() {
       />
 
       {isAddMode && (
-        <div className="mx-4 sm:mx-6 mt-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-bold text-primary">
-          {existingOrder
-            ? `Adding items to Order ${formatOrderNumber(existingOrder)}${existingOrder?.table_number ? ` • Table ${existingOrder.table_number}` : ''}`
-            : 'Adding items to an existing order'}
+        <div className="mx-4 mt-3 rounded-xl bg-highlight/50 px-4 py-2.5 text-sm text-foreground sm:mx-6">
+          {existingOrder ? (
+            <>
+              Adding to <span className="font-semibold">{formatOrderNumber(existingOrder)}</span>
+              {existingOrder?.table_number ? ` · Table ${existingOrder.table_number}` : ""}
+            </>
+          ) : (
+            "Adding to an existing order"
+          )}
         </div>
       )}
 
-      <div className="flex-1 max-w-full mx-auto px-4 sm:px-6 pb-5 flex flex-col lg:flex-row gap-6 overflow-auto w-full pt-2">
-        <div className="flex-1 space-y-2 flex flex-col">
+      <div className="mx-auto flex min-h-0 w-full max-w-full flex-1 flex-col gap-6 overflow-hidden px-4 pt-4 pb-28 sm:px-6 lg:flex-row lg:pb-5">
+        <div className="flex min-h-0 flex-1 flex-col gap-3">
           <OrderFiltersPanel
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
-            searchPlaceholder="Search menu items for this table..."
+            searchPlaceholder="Search the menu"
             allTables={allTables}
             selectedTable={selectedTable}
             onSelectTable={setSelectedTable}
@@ -119,73 +124,46 @@ export default function CreateOrderPage() {
             outOfStockCount={outOfStockCount}
           />
 
-          <Card className="flex min-h-0 flex-1 flex-col overflow-hidden border-border/80 bg-background/90 shadow-sm shadow-amber-100/30">
-            <div className="flex flex-col gap-3 border-b border-border/50 bg-linear-to-r from-white to-amber-50/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <h3 className="text-base font-bold text-foreground">
-                    Menu items
-                  </h3>
-                  <Badge
-                    variant="outline"
-                    className="border-amber-200 bg-amber-50 text-amber-700"
-                  >
-                    {filteredItems.length} items
-                  </Badge>
-                </div>
-              </div>
-
+          <section className="flex min-h-0 flex-1 flex-col">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="text-sm text-muted-foreground">
+                {trimmedSearchQuery
+                  ? `${filteredItems.length} ${filteredItems.length === 1 ? "match" : "matches"} for “${trimmedSearchQuery}”`
+                  : `${filteredItems.length} ${filteredItems.length === 1 ? "item" : "items"}`}
+              </p>
               {trimmedSearchQuery ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSearchQuery("")}
-                  className="self-start border-border bg-background text-foreground/80 hover:bg-muted/30"
-                >
+                <Button type="button" variant="ghost" size="sm" onClick={() => setSearchQuery("")}>
                   Clear search
                 </Button>
               ) : null}
             </div>
 
-            <CardContent className="min-h-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 overflow-auto gap-2 p-2">
-              {filteredItems.length === 0 ? (
-                <div className="col-span-full flex min-h-full flex-col items-center justify-center px-6 py-16 text-center">
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-amber-100 to-orange-100 text-2xl shadow-sm">
-                    🍽️
-                  </div>
-                  <h3 className="text-lg font-bold text-foreground mb-1">
-                    {trimmedSearchQuery
-                      ? "No matching items found"
-                      : "No items found"}
-                  </h3>
-                  <p className="text-muted-foreground font-medium max-w-md">
-                    {trimmedSearchQuery
-                      ? "Try a different keyword or clear the search to see all available items."
-                      : "Try selecting a different category to load items here."}
-                  </p>
-                </div>
-              ) : (
-                <>
-                  {filteredItems.map((item) => (
-                    <MenuItemCard
-                      key={item.id}
-                      item={item}
-                      onAddToCart={addToOrder}
-                      availability={
-                        showAvailability
-                          ? availabilityByItem[String(item.id)]
-                          : undefined
-                      }
-                    />
-                  ))}
-                </>
-              )}
-            </CardContent>
-          </Card>
+            {filteredItems.length === 0 ? (
+              <EmptyState
+                className="rounded-card border border-dashed border-border"
+                title={trimmedSearchQuery ? "Nothing on the menu matches that" : "No items in this category"}
+                description={trimmedSearchQuery ? "Try another word, or clear the search." : "Pick another category above."}
+              />
+            ) : (
+              <div className="grid min-h-0 grid-cols-2 content-start gap-3 overflow-auto pb-1 sm:grid-cols-3 xl:grid-cols-4">
+                {filteredItems.map((item) => (
+                  <MenuItemCard
+                    key={item.id}
+                    item={item}
+                    onAddToCart={addToOrder}
+                    availability={
+                      showAvailability
+                        ? availabilityByItem[String(item.id)]
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </section>
         </div>
 
-        <div className="hidden lg:flex lg:flex-col lg:w-96 min-h-0">
+        <div className="hidden min-h-0 lg:flex lg:w-96 lg:flex-col">
           <WaiterCartSidebar
             orderItems={orderItems}
             selectedTable={selectedTable}

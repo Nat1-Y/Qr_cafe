@@ -119,7 +119,7 @@ const OrderFiltersPanel: React.FC<OrderFiltersPanelProps> = ({
   };
 
   const pill =
-    'inline-flex h-10 shrink-0 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition-colors hover:bg-row-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring';
+    'inline-flex h-12 shrink-0 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition-colors hover:bg-row-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring';
   const pillOn = 'border-[1.5px] border-primary text-primary';
   const tile =
     'flex items-center justify-center rounded-xl border border-border bg-card text-sm font-medium text-foreground transition-colors hover:bg-row-hover';
@@ -203,7 +203,7 @@ const OrderFiltersPanel: React.FC<OrderFiltersPanelProps> = ({
                             key={value}
                             type="button"
                             onClick={() => handleSelectTable(value)}
-                            className={cn(tile, 'h-12', isSelected && tileOn)}
+                            className={cn(tile, 'h-14 text-base', isSelected && tileOn)}
                           >
                             {value}
                           </button>
@@ -220,7 +220,7 @@ const OrderFiltersPanel: React.FC<OrderFiltersPanelProps> = ({
             <button
               type="button"
               onClick={() => handleSelectTable('')}
-              className="inline-flex h-10 items-center rounded-full px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="inline-flex h-12 items-center rounded-full px-4 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               Clear table
             </button>
@@ -327,7 +327,7 @@ const OrderFiltersPanel: React.FC<OrderFiltersPanelProps> = ({
               handleSelectMainCategory('all');
               if (showSubCategories) handleSelectSubCategory('all');
             }}
-            className="inline-flex h-10 items-center rounded-full px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="inline-flex h-12 items-center rounded-full px-4 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             Reset
           </button>

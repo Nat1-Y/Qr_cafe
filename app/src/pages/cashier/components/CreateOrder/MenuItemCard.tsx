@@ -13,14 +13,14 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
     <button
       type="button"
       onClick={() => onAddToCart(item)}
-      className="group flex min-h-[112px] flex-col justify-between gap-3 rounded-card border border-border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-row-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring active:bg-highlight/40"
+      className="group flex min-h-[120px] flex-col justify-between gap-3 rounded-card border border-border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-row-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring active:bg-highlight/40"
     >
       <span className="line-clamp-2 text-base font-medium leading-snug text-foreground [overflow-wrap:anywhere]">
         {item.name}
       </span>
       <span className="flex items-center justify-between gap-2">
         <span className="text-sm text-muted-foreground">{formatETB(item.price)}</span>
-        <span className="inline-flex h-9 items-center gap-1 rounded-full bg-highlight px-3 text-sm font-semibold text-highlight-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+        <span className="inline-flex h-10 items-center gap-1 rounded-full bg-highlight px-3.5 text-sm font-semibold text-highlight-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
           <PlusIcon className="h-4 w-4" />
           Add
         </span>

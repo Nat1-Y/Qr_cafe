@@ -1,7 +1,6 @@
 import React from "react";
-import { List, Home, LogOut, Coffee } from "lucide-react";
+import { CoffeeIcon, HouseIcon, ListIcon, LogOutIcon } from "lucide-react";
 import BranchBadge from "@/components/waiter/BranchBadge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 interface WaiterHeaderProps {
@@ -10,61 +9,39 @@ interface WaiterHeaderProps {
   onNavigateToDashboard: () => void;
 }
 
+/** Slim header row for the waiter's order screen. Touch targets are 48px. */
 export const WaiterHeader: React.FC<WaiterHeaderProps> = ({
   onLogout,
   onNavigateToHistory,
   onNavigateToDashboard,
 }) => {
   return (
-    <Card className="rounded-none border-b shadow-sm bg-card/70 backdrop-blur-md py-0">
-      <CardContent className="py-3 px-4 sm:px-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary shadow-sm">
-            <Coffee className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-sm font-extrabold text-foreground tracking-wide">
-              Create Cafe Order
-            </h1>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <BranchBadge />
-              <span className="text-[10px] text-muted-foreground font-semibold">
-                Checks Portal
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 text-xs font-bold gap-1 rounded-xl shadow-inner transition-colors duration-200"
-            onClick={onNavigateToHistory}
-          >
-            <List className="w-3.5 h-3.5 text-primary" />
-            <span className="hidden sm:inline">Order History</span>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 text-xs font-bold gap-1 rounded-xl shadow-inner transition-colors duration-200"
-            onClick={onNavigateToDashboard}
-          >
-            <Home className="w-3.5 h-3.5 text-primary" />
-            <span className="hidden sm:inline">Dashboard</span>
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            className="h-8 text-xs font-bold gap-1 rounded-xl transition-all duration-200 active:scale-95 shadow-md hover:shadow-destructive/15"
-            onClick={onLogout}
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Log Out</span>
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <header className="flex shrink-0 items-center gap-3 border-b border-border bg-background px-4 py-2 sm:px-6">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-highlight text-highlight-foreground">
+        <CoffeeIcon className="size-5" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <h1 className="text-section text-foreground">New order</h1>
+        <BranchBadge />
+      </div>
+      <nav className="flex items-center gap-1">
+        <Button variant="ghost" size="icon-lg" onClick={onNavigateToHistory} aria-label="Order history" title="Order history">
+          <ListIcon className="size-5" />
+        </Button>
+        <Button variant="ghost" size="icon-lg" onClick={onNavigateToDashboard} aria-label="Dashboard" title="Dashboard">
+          <HouseIcon className="size-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-lg"
+          onClick={onLogout}
+          aria-label="Sign out"
+          title="Sign out"
+          className="text-muted-foreground hover:bg-destructive-soft hover:text-destructive">
+          <LogOutIcon className="size-5" />
+        </Button>
+      </nav>
+    </header>
   );
 };
 

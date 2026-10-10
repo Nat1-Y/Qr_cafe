@@ -119,10 +119,10 @@ export const WaiterCartSidebar: React.FC<WaiterCartSidebarProps> = ({
                 </div>
 
                 <div className="mt-2 flex items-center gap-3">
-                  <div className="inline-flex h-10 items-center rounded-full border border-border bg-card">
+                  <div className="inline-flex h-12 items-center rounded-full border border-border bg-card">
                     <button
                       type="button"
-                      className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      className="flex h-12 w-12 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                       onClick={() => onUpdateQuantity(item.menu_item_id, -1)}
                       aria-label="One less"
                     >
@@ -131,7 +131,7 @@ export const WaiterCartSidebar: React.FC<WaiterCartSidebarProps> = ({
                     <span className="w-7 text-center text-sm font-semibold text-foreground">{item.quantity}</span>
                     <button
                       type="button"
-                      className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      className="flex h-12 w-12 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                       onClick={() => onUpdateQuantity(item.menu_item_id, 1)}
                       aria-label="One more"
                     >
@@ -141,7 +141,7 @@ export const WaiterCartSidebar: React.FC<WaiterCartSidebarProps> = ({
                   <span className="text-meta text-muted-foreground">{formatCurrency(item.price)} each</span>
                   <button
                     type="button"
-                    className="ml-auto flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive-soft hover:text-destructive"
+                    className="ml-auto flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive-soft hover:text-destructive"
                     onClick={() => onRemoveFromOrder(item.menu_item_id)}
                     aria-label={`Remove ${item.menu_item_name}`}
                   >
@@ -164,7 +164,7 @@ export const WaiterCartSidebar: React.FC<WaiterCartSidebarProps> = ({
                                 onUpdateItemNote(item.menu_item_id, togglePart(item.note, presetNote))
                               }
                               className={cn(
-                                'h-8 rounded-full border px-3 text-meta transition-colors',
+                                'h-10 rounded-full border px-3.5 text-meta transition-colors',
                                 active
                                   ? 'border-[1.5px] border-primary bg-card font-medium text-primary'
                                   : 'border-border bg-card text-muted-foreground hover:text-foreground'

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Clipboard, CheckCircle, Coffee, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+
 import StatsCard from "@/components/waiter/StatsCard";
 import { useWaiterAuth } from "@/components/waiter/auth-context";
 import { useWaiterData } from "@/components/waiter/dashboard/useWaiterData";
@@ -13,6 +13,8 @@ import { useWaiterStats } from "@/components/waiter/dashboard/useWaiterStats";
 import HeaderBanner from "@/components/waiter/dashboard/HeaderBanner";
 import QuickActions from "@/components/waiter/dashboard/QuickActions";
 import RecentOrdersPanel from "@/components/waiter/dashboard/RecentOrdersPanel";
+import { Segmented } from "@/components/segmented";
+import { formatETB } from "@/lib/format";
 
 export default function WaiterDashboardPage() {
   const { user, logout } = useWaiterAuth();
@@ -37,9 +39,9 @@ export default function WaiterDashboardPage() {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 space-y-6">
-        <Skeleton className="h-20 w-full rounded-2xl" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
+        <Skeleton className="h-16 w-64" />
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} className="h-24 w-full" />
           ))}
@@ -49,34 +51,14 @@ export default function WaiterDashboardPage() {
   }
 
   const statsCards = [
-    {
-      title: "Orders",
-      value: stats.ordersCreated,
-      icon: <Clipboard className="w-5 h-5" />,
-      variant: "info" as const,
-    },
-    {
-      title: "Orders Served",
-      value: stats.ordersServed,
-      icon: <CheckCircle className="w-5 h-5" />,
-      variant: "success" as const,
-    },
-    {
-      title: "Revenue",
-      value: `${stats.totalRevenue.toLocaleString()} Birr`,
-      icon: <Coffee className="w-5 h-5" />,
-      variant: "default" as const,
-    },
-    {
-      title: "Pending Balance",
-      value: `${(Number(stats.pendingBalance) || 0).toLocaleString()} Birr`,
-      icon: <DollarSign className="w-5 h-5" />,
-      variant: "warning" as const,
-    },
+    { title: "Orders taken", value: stats.ordersCreated, variant: "default" as const },
+    { title: "Served", value: stats.ordersServed, variant: "success" as const },
+    { title: "Sales", value: formatETB(stats.totalRevenue), variant: "default" as const },
+    { title: "Still to pay", value: formatETB(stats.pendingBalance), variant: "warning" as const },
   ];
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
       <HeaderBanner
         userName={user?.full_name}
         attendanceStatus={attendanceStatus}
@@ -92,39 +74,25 @@ export default function WaiterDashboardPage() {
         onMyProfile={() => router.push("/waiter/profile")}
       />
 
-      <div className="flex justify-center">
-        <div className="flex bg-muted/50 p-1 rounded-xl border">
-          {[
-            { key: "today", label: "Today" },
-            { key: "yesterday", label: "Yesterday" },
-            { key: "week", label: "Week" },
-            { key: "month", label: "Month" },
-            { key: "all", label: "All" },
-          ].map((opt) => (
-            <Button
-              key={opt.key}
-              variant={statsRange === opt.key ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setStatsRange(opt.key)}
-              className="h-8 text-xs font-bold px-3 sm:px-4"
-            >
-              {opt.label}
-            </Button>
+      <section className="space-y-3">
+        <Segmented
+          aria-label="Time range"
+          value={statsRange}
+          onChange={(v) => setStatsRange(v)}
+          options={[
+            { value: "today", label: "Today" },
+            { value: "yesterday", label: "Yesterday" },
+            { value: "week", label: "Week" },
+            { value: "month", label: "Month" },
+            { value: "all", label: "All" },
+          ]}
+        />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {statsCards.map((card, index) => (
+            <StatsCard key={index} title={card.title} value={card.value} variant={card.variant} />
           ))}
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statsCards.map((card, index) => (
-          <StatsCard
-            key={index}
-            title={card.title}
-            value={card.value}
-            icon={card.icon}
-            variant={card.variant}
-          />
-        ))}
-      </div>
+      </section>
 
       <RecentOrdersPanel orders={rangeOrders} />
     </div>

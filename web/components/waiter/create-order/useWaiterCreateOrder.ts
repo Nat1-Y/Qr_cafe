@@ -7,6 +7,7 @@ import { waiterServices as api } from "@/lib/waiter/api";
 import { useWaiterAuth } from "@/components/waiter/auth-context";
 import { toast } from "sonner";
 import { ADD_ITEMS_ORDER_SESSION_KEY } from "@/components/waiter/order-history/useWaiterOrderHistory";
+import { formatETB } from "@/lib/format";
 
 export const useWaiterCreateOrder = () => {
   const { user, logout } = useWaiterAuth();
@@ -435,10 +436,9 @@ export const useWaiterCreateOrder = () => {
         ]);
       }
 
-      toast.success("Added to Cart", {
+      toast.success("Added", {
         id: "waiter-add-to-order",
-        duration: 1000,
-        icon: "🛒",
+        duration: 1000,
       });
     },
     [orderItems],
@@ -504,21 +504,21 @@ export const useWaiterCreateOrder = () => {
       return {
         type: "beverage_only",
         message: "Beverages only - Stream directly to Cashier register",
-        icon: "☕",
+        icon: "",
         color: "text-info bg-info/10 border-info/20",
       };
     } else if (beverageItems.length === 0) {
       return {
         type: "food_only",
         message: "Food items only - Stream to Kitchen board first",
-        icon: "🍽️",
-        color: "text-orange-600 bg-orange-500/10 border-orange-500/20",
+        icon: "",
+        color: "text-warning bg-warning/10 border-warning/20",
       };
     } else {
       return {
         type: "mixed",
         message: `Mixed order - Beverages (${beverageItems.length}) will coordinate with Kitchen food cooking release`,
-        icon: "🔄",
+        icon: "",
         color: "text-primary bg-primary/10 border-primary/20",
       };
     }
@@ -663,11 +663,7 @@ export const useWaiterCreateOrder = () => {
     orderIdParam,
   ]);
 
-  const formatCurrency = useCallback((val: any) => {
-    const n = parseFloat(val);
-    const safe = Number.isFinite(n) ? n : 0;
-    return `${safe.toLocaleString()} Birr`;
-  }, []);
+  const formatCurrency = formatETB;
 
   const waiterName =
     user?.full_name || (user as any)?.name || user?.username || "Waiter";

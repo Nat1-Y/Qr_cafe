@@ -33,6 +33,7 @@ import BranchBadge from "@/components/waiter/BranchBadge";
 import { useWaiterAuth } from "@/components/waiter/auth-context";
 import { waiterServices } from "@/lib/waiter/api";
 import { roleLabel } from "@/lib/auth";
+import { PageHeader } from "@/components/page-header";
 
 // waiterApi rejects with an axios-shaped `{ message }` object, but a thrown
 // Error is also possible — pull a human-readable string from either.
@@ -149,47 +150,29 @@ export default function WaiterProfilePage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
-      {/* Header */}
-      <Card className="border border-primary/20 bg-gradient-to-r from-primary/10 via-background to-background shadow-sm rounded-3xl overflow-hidden">
-        <CardContent className="p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="bg-gradient-to-br from-primary/20 to-primary/5 p-3 rounded-2xl text-primary shadow-sm shrink-0">
-              <User className="w-8 h-8" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-base sm:text-lg font-extrabold text-foreground tracking-wide">
-                  My Profile
-                </h1>
-                <BranchBadge />
-              </div>
-              <p className="text-xs text-muted-foreground font-semibold mt-0.5">
-                Manage your name and login PIN
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 text-xs font-bold gap-1 rounded-xl shadow-inner hover:bg-primary/5 transition-colors"
-              onClick={() => router.push("/waiter")}
-            >
-              <ArrowLeft className="w-3.5 h-3.5 text-primary" /> Dashboard
+    <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-8">
+      <PageHeader
+        title="My profile"
+        description="Your name and sign-in PIN."
+        action={
+          <>
+            <BranchBadge />
+            <Button variant="outline" className="h-12" onClick={() => router.push("/waiter")}>
+              <ArrowLeft />
+              Home
             </Button>
             <Button
-              variant="destructive"
-              size="sm"
-              className="h-9 text-xs font-bold gap-1 rounded-xl shadow transition-all duration-200 active:scale-95 hover:shadow-destructive/15"
+              variant="ghost"
+              size="icon-lg"
+              className="size-12 text-muted-foreground hover:bg-destructive-soft hover:text-destructive"
               onClick={handleLogout}
-            >
-              <LogOut className="w-3.5 h-3.5" /> Log Out
+              aria-label="Sign out"
+              title="Sign out">
+              <LogOut className="size-5" />
             </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </>
+        }
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Identity card */}
@@ -294,7 +277,7 @@ export default function WaiterProfilePage() {
               <div className="relative">
                 <Shield className="text-muted-foreground absolute top-2.5 left-3 size-4" />
                 <Input
-                  className="bg-muted pl-9"
+                  className="pl-9"
                   value={roleLabel(user?.role)}
                   disabled
                 />

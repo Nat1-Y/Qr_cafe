@@ -1,17 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { formatOrderNumber } from "@/lib/utils";
 import React from "react";
-import { MapPin } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+
+import { Card } from "@/components/ui/card";
+
 import { formatOrderItemsPreview, normalizeStatus } from "./utils";
 
+import { StatusBadge } from "@/components/status-badge";
+import { formatETB } from "@/lib/format";
 interface RecentOrdersPanelProps {
   orders: any[];
 }
@@ -22,16 +18,14 @@ export const RecentOrdersPanel: React.FC<RecentOrdersPanelProps> = ({
   const filteredRecentOrders = Array.isArray(orders) ? orders : [];
 
   return (
-    <Card>
-      <CardHeader className="pb-3 border-b">
-        <CardTitle className="text-base">Recent Table Orders</CardTitle>
-        <CardDescription>
-          Overview of your waitered table bookings
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="pt-6 space-y-3">
-        {filteredRecentOrders.length > 0 ? (
-          filteredRecentOrders
+    <Card className="gap-0 py-0">
+      <div className="border-b border-border px-5 py-4">
+        <h2 className="text-section text-foreground">Recent orders</h2>
+        <p className="text-meta text-muted-foreground">Your latest tables in this range.</p>
+      </div>
+      {filteredRecentOrders.length > 0 ? (
+        <ul className="divide-y divide-border">
+          {filteredRecentOrders
             .slice()
             .sort(
               (a: any, b: any) =>
@@ -45,78 +39,40 @@ export const RecentOrdersPanel: React.FC<RecentOrdersPanelProps> = ({
               const isCanceled =
                 st === "deleted" || st === "cancelled" || st === "canceled";
               const displayStatus = pst === "paid" ? "paid" : st || order.status;
+              const where =
+                order.order_type_label ||
+                (order.table_number ? `Table ${order.table_number}` : "Takeaway");
 
               return (
-                <div
+                <li
                   key={order.id}
-                  className={`border rounded-2xl p-4 transition-colors hover:bg-muted/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                    isCanceled ? "opacity-60 bg-destructive/5" : ""
-                  }`}
-                >
-                  <div className="space-y-1.5 flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <MapPin className="w-3.5 h-3.5 text-primary" />
-                      <span className="font-extrabold text-sm text-foreground">
-                        {order.order_type_label ||
-                          (order.table_number
-                            ? `Table ${order.table_number}`
-                            : "Take Away")}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        Order {formatOrderNumber(order)}
-                      </span>
-                      {isCanceled ? (
-                        <Badge
-                          variant="destructive"
-                          className="text-[9px] uppercase py-0 px-2"
-                        >
-                          Canceled
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant={
-                            displayStatus === "done" ||
-                            displayStatus === "completed" ||
-                            displayStatus === "paid"
-                              ? "success"
-                              : displayStatus === "ready"
-                                ? "info"
-                                : "warning"
-                          }
-                          className="text-[9px] capitalize py-0 px-2"
-                        >
-                          {displayStatus}
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-[10px] text-muted-foreground font-semibold">
-                      {new Date(order.created_at).toLocaleString()}
-                      {Array.isArray(order.items)
-                        ? ` • ${order.items.length} items`
-                        : ""}
+                  className={`flex items-start justify-between gap-4 px-5 py-3.5 transition-colors hover:bg-row-hover ${
+                    isCanceled ? "opacity-60" : ""
+                  }`}>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-foreground">
+                      {formatOrderNumber(order)} · {where}
                     </p>
                     {Array.isArray(order.items) && order.items.length > 0 && (
-                      <p className="text-xs text-foreground font-bold truncate">
+                      <p className="truncate text-sm text-muted-foreground">
                         {formatOrderItemsPreview(order.items)}
                       </p>
                     )}
-                  </div>
-
-                  <div className="text-right">
-                    <p className="text-base font-black text-foreground">
-                      {(parseFloat(order.total_amount) || 0).toLocaleString()}{" "}
-                      Birr
+                    <p className="text-meta text-muted-foreground">
+                      {new Date(order.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
-                </div>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <span className="font-semibold text-foreground">{formatETB(order.total_amount)}</span>
+                    <StatusBadge kind="order" status={isCanceled ? "cancelled" : displayStatus} />
+                  </div>
+                </li>
               );
-            })
-        ) : (
-          <div className="p-8 text-center text-xs text-muted-foreground font-bold border border-dashed rounded-xl bg-muted/20">
-            No recent orders in this range
-          </div>
-        )}
-      </CardContent>
+            })}
+        </ul>
+      ) : (
+        <p className="px-5 py-12 text-center text-sm text-muted-foreground">No orders in this range yet.</p>
+      )}
     </Card>
   );
 };

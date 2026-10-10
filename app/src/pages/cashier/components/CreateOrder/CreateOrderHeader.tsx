@@ -21,7 +21,7 @@ const CreateOrderHeader: React.FC<CreateOrderHeaderProps> = ({
 }) => {
   return (
     <header className="flex shrink-0 items-center gap-3 border-b border-border bg-background px-4 py-3 sm:px-6">
-      <Button variant="ghost" size="icon" onClick={onNavigateToWaiters} aria-label={deliveryMode ? 'Change order type' : 'Change waiter'}>
+      <Button variant="ghost" size="icon" className="h-12 w-12" onClick={onNavigateToWaiters} aria-label={deliveryMode ? 'Change order type' : 'Change waiter'}>
         <ArrowLeftIcon />
       </Button>
 
@@ -40,7 +40,7 @@ const CreateOrderHeader: React.FC<CreateOrderHeaderProps> = ({
         </div>
       </div>
 
-      <Button variant="ghost" onClick={onNavigateToDashboard}>
+      <Button variant="ghost" className="h-12" onClick={onNavigateToDashboard}>
         <HouseIcon />
         <span className="hidden sm:inline">Dashboard</span>
       </Button>

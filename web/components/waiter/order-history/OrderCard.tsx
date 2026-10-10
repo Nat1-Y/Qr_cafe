@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { formatOrderNumber } from "@/lib/utils";
 import React from "react";
-import { Calendar, MapPin, Plus, ClipboardList, ChefHat } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,189 +30,81 @@ export const OrderCard: React.FC<OrderCardProps> = ({
   const effectiveStatus = getEffectiveStatus(order);
   const statusDisplay = getStatusDisplay(effectiveStatus);
   const StatusIcon = statusDisplay.icon;
-
-  const getAmbientStyles = () => {
-    switch (effectiveStatus) {
-      case "pending":
-        return "from-amber-500/5 via-transparent to-transparent border-amber-200/40 hover:border-amber-400/50";
-      case "preparing":
-        return "from-blue-500/5 via-transparent to-transparent border-info/30 hover:border-blue-400/50";
-      case "ready":
-      case "paid":
-      case "completed":
-        return "from-emerald-500/5 via-transparent to-transparent border-emerald-200/40 hover:border-emerald-400/50";
-      case "cancelled":
-        return "from-red-500/5 via-transparent to-transparent border-destructive/30 hover:border-red-400/50";
-      default:
-        return "from-gray-500/5 via-transparent to-transparent border-border hover:border-primary/25";
-    }
-  };
-
-  const getSpotlightColor = () => {
-    switch (effectiveStatus) {
-      case "pending":
-        return "bg-warning/10";
-      case "preparing":
-        return "bg-info/10";
-      case "ready":
-      case "paid":
-      case "completed":
-        return "bg-emerald-500/10";
-      case "cancelled":
-        return "bg-destructive/10";
-      default:
-        return "bg-primary/5";
-    }
-  };
+  const where =
+    order.order_type_label || (order.table_number ? `Table ${order.table_number}` : "Takeaway");
 
   return (
-    <Card
-      className={`relative overflow-hidden border bg-gradient-to-br from-card to-card/95 hover:shadow-[0_12px_45px_rgba(0,0,0,0.025)] hover:-translate-y-0.5 transition-all duration-300 rounded-[28px] group ${getAmbientStyles()}`}
-    >
-      {/* Decorative ambient background spotlight glow */}
-      <div
-        className={`absolute top-0 right-0 w-36 h-36 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-500 pointer-events-none ${getSpotlightColor()}`}
-      />
-
-      <CardContent className="p-6 space-y-5">
-        {/* Header Block */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/40">
-          <div className="flex items-start gap-3.5">
-            <div className="shrink-0">
-              <Badge
-                variant={statusDisplay.variant}
-                className="rounded-2xl w-11 h-11 p-0 flex items-center justify-center border-none shadow-sm group-hover:scale-110 transition-transform duration-300"
-              >
-                <StatusIcon className="w-5 h-5 animate-pulse" />
-              </Badge>
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-black text-foreground tracking-tight">
-                  Order {formatOrderNumber(order)}
-                </h3>
-                <Badge
-                  variant="secondary"
-                  className="text-[9px] font-black uppercase tracking-wider py-0.5 px-2 bg-muted/80"
-                >
-                  {order.type || "Cafe"}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-4 text-[10px] text-muted-foreground/80 font-bold mt-1.5 flex-wrap">
-                <span className="flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-primary" />
-                  {formatDate(order.created_at)}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-primary" />
-                  {order.order_type_label ||
-                    (order.table_number
-                      ? `Table #${order.table_number}`
-                      : "Take Away")}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Pricing display with pill card */}
-          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 shrink-0">
-            <Badge
-              variant={statusDisplay.variant}
-              className="text-[9px] uppercase font-black tracking-wider py-0.5 px-2.5 border-none shadow-sm"
-            >
-              {statusDisplay.label}
-            </Badge>
-            <div className="text-lg font-black text-primary tracking-tight bg-primary/5 px-3 py-1 rounded-xl">
-              {formatCurrency(order.total_amount)}
-            </div>
-          </div>
+    <article
+      className={`rounded-card border border-border bg-card p-5 ${effectiveStatus === "cancelled" ? "opacity-70" : ""}`}>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="font-semibold text-foreground">
+            {formatOrderNumber(order)} · {where}
+          </p>
+          <p className="text-meta text-muted-foreground">
+            {formatDate(order.created_at)}
+            {order.type ? <span className="capitalize"> · {order.type}</span> : null}
+          </p>
         </div>
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <span className="font-semibold text-foreground">{formatCurrency(order.total_amount)}</span>
+          <Badge variant={statusDisplay.variant}>
+            {StatusIcon ? <StatusIcon /> : null}
+            {statusDisplay.label}
+          </Badge>
+        </div>
+      </div>
 
-        {/* Order Items Grid List */}
-        {order.items && order.items.length > 0 && (
-          <div className="space-y-2.5">
-            <div className="flex items-center gap-1.5">
-              <ClipboardList className="w-3.5 h-3.5 text-muted-foreground" />
-              <h4 className="text-[10px] uppercase font-black text-muted-foreground tracking-wider">
-                Checkout Items Detailed List
-              </h4>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-              {order.items.map((item: any, idx: number) => (
-                <div
-                  key={idx}
-                  className="text-xs text-foreground bg-muted/20 border border-border/40 hover:border-primary/15 hover:bg-muted/30 transition-all rounded-2xl p-3 flex justify-between items-center shadow-inner group/item"
-                >
-                  <span className="truncate pr-2 font-bold flex items-center gap-1.5">
-                    <span className="font-black text-primary bg-primary/10 px-2 py-0.5 rounded-lg text-[10px] shrink-0 group-hover/item:scale-105 transition-transform">
-                      {item.quantity}x
-                    </span>
-                    <span className="truncate">{item.menu_item_name}</span>
-                  </span>
-                  <span className="font-extrabold text-muted-foreground shrink-0">
-                    {formatCurrency(item.subtotal)}
-                  </span>
-                </div>
+      {order.items && order.items.length > 0 && (
+        <ul className="mt-4 space-y-1 border-t border-dashed border-border pt-3 text-sm">
+          {order.items.map((item: any, idx: number) => (
+            <li key={idx} className="flex items-baseline justify-between gap-3">
+              <span className="min-w-0 truncate text-body">
+                <span className="text-muted-foreground">{item.quantity} ×</span> {item.menu_item_name}
+              </span>
+              <span className="shrink-0 text-muted-foreground">{formatCurrency(item.subtotal)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* "Added later" audit trail — kept apart from the original items. */}
+      {itemAdditions.length > 0 && (
+        <div className="mt-3 space-y-2 border-t border-border pt-3">
+          <p className="text-meta font-medium text-muted-foreground">Added later</p>
+          {itemAdditions.map((addition: any) => (
+            <div key={addition.id} className="text-sm">
+              <p className="text-meta text-muted-foreground">
+                {addition.added_by_name || "Unknown"}
+                {addition.added_at ? ` · ${new Date(addition.added_at).toLocaleString()}` : ""}
+              </p>
+              {(addition.items || []).map((it: any, idx: number) => (
+                <p key={idx} className="text-body">
+                  + {it.quantity} × {it.menu_item_name || "Item"}
+                </p>
               ))}
             </div>
-          </div>
-        )}
+          ))}
+        </div>
+      )}
 
-        {/* "Added later" audit trail — visually separate from the original items above. */}
-        {itemAdditions.length > 0 && (
-          <div className="border-t border-border/40 pt-4 space-y-2">
-            <h4 className="text-[10px] uppercase font-black text-muted-foreground tracking-wider">
-              Added later
-            </h4>
-            {itemAdditions.map((addition: any) => (
-              <div key={addition.id} className="text-xs bg-muted/20 rounded-2xl p-2.5">
-                <p className="text-muted-foreground font-bold">
-                  {addition.added_by_name || "Unknown"}
-                  {addition.added_at
-                    ? ` — ${new Date(addition.added_at).toLocaleString()}`
-                    : ""}
-                </p>
-                {(addition.items || []).map((it: any, idx: number) => (
-                  <p key={idx} className="pl-2 text-foreground">
-                    + {it.quantity}x {it.menu_item_name || "Item"}
-                  </p>
-                ))}
-              </div>
-            ))}
-          </div>
-        )}
+      {order.notes && (
+        <div className="mt-3 border-t border-border pt-3">
+          <p className="text-meta font-medium text-muted-foreground">Kitchen note</p>
+          <p className="mt-0.5 text-sm text-body">{order.notes}</p>
+        </div>
+      )}
 
-        {/* Notes Block */}
-        {order.notes && (
-          <div className="border-t border-border/40 pt-4">
-            <div className="flex items-center gap-1.5 mb-2">
-              <ChefHat className="w-3.5 h-3.5 text-muted-foreground" />
-              <h4 className="text-[10px] uppercase font-black text-muted-foreground tracking-wider">
-                Kitchen Instructions Notes
-              </h4>
-            </div>
-            <p className="text-xs text-muted-foreground/90 font-bold leading-relaxed bg-warning/5 p-3 rounded-2xl border border-amber-200/35 shadow-inner">
-              &quot;{order.notes}&quot;
-            </p>
-          </div>
-        )}
-
-        {/* "Add Items" navigates to the full order-creation screen, pre-loaded
-            with this order, instead of opening a picker here. */}
-        {canAddItems(order) && (
-          <div className="flex justify-end pt-3 border-t border-border/40">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 text-xs font-black gap-1.5 text-primary border-primary/20 hover:bg-primary/5 rounded-2xl shadow-sm hover:shadow transition-all duration-200 active:scale-95"
-              onClick={() => goAddItems(order)}
-            >
-              <Plus className="w-3.5 h-3.5 text-primary" /> Add Items
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      {/* "Add items" opens the full order screen pre-loaded with this order. */}
+      {canAddItems(order) && (
+        <div className="mt-4 flex justify-end">
+          <Button variant="outline" className="h-12" onClick={() => goAddItems(order)}>
+            <Plus />
+            Add items
+          </Button>
+        </div>
+      )}
+    </article>
   );
 };
 

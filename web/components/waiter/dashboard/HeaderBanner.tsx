@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 import React from "react";
-import { Clock, LogOut, Coffee } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { ClockIcon, LogOutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BranchBadge from "@/components/waiter/BranchBadge";
 
@@ -14,7 +12,11 @@ interface HeaderBannerProps {
   onLogout: () => void;
 }
 
-export const HeaderBanner: React.FC<HeaderBannerProps> = ({
+const todayLabel = () =>
+  new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+
+/** Waiter home header: who's on, today's date, shift and sign-out. */
+const HeaderBanner: React.FC<HeaderBannerProps> = ({
   userName,
   attendanceStatus,
   onClockIn,
@@ -22,71 +24,50 @@ export const HeaderBanner: React.FC<HeaderBannerProps> = ({
   onLogout,
 }) => {
   return (
-    <Card className="border border-primary/20 bg-gradient-to-r from-primary/10 via-background to-background shadow-sm">
-      <CardContent className="pt-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/20 p-2.5 rounded-2xl text-primary">
-            <Coffee className="w-8 h-8" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg font-extrabold text-foreground">
-                Café Table Service
-              </h1>
-              <BranchBadge />
-            </div>
-            <p className="text-xs text-muted-foreground font-semibold">
-              Welcome, {userName || "Waiter"} • Manage orders and shifts
-              efficiently
-            </p>
-          </div>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0">
+        <p className="eyebrow mb-1">{userName || "Waiter"}</p>
+        <h1 className="text-[26px] leading-tight font-semibold tracking-[-0.02em] text-foreground sm:text-title">
+          On the floor
+        </h1>
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <span>{todayLabel()}</span>
+          <BranchBadge />
         </div>
+      </div>
 
-        <div className="flex items-center gap-3">
-          {attendanceStatus ? (
-            <div className="flex items-center gap-3">
-              <Badge
-                variant="success"
-                className="h-9 px-3 text-xs font-bold gap-1"
-              >
-                <Clock className="w-3.5 h-3.5" />
-                Clocked in at{" "}
-                {new Date(attendanceStatus.clock_in_time).toLocaleTimeString(
-                  [],
-                  {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  },
-                )}
-              </Badge>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={onClockOut}
-                className="h-9 text-xs font-bold"
-              >
-                Clock Out
-              </Button>
-            </div>
-          ) : (
-            <Button onClick={onClockIn} size="sm" className="h-9 text-xs font-bold">
-              <Clock className="w-4 h-4 mr-2" />
-              Clock In
+      <div className="flex items-center gap-2">
+        {attendanceStatus ? (
+          <>
+            <span className="inline-flex h-12 items-center gap-1.5 rounded-full bg-success-soft px-4 text-sm font-medium text-success">
+              <ClockIcon className="size-4" />
+              In since{" "}
+              {new Date(attendanceStatus.clock_in_time).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+            <Button variant="outline" size="lg" className="h-12" onClick={onClockOut}>
+              Clock out
             </Button>
-          )}
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onLogout}
-            className="h-9 text-xs font-bold text-destructive hover:text-destructive hover:bg-destructive/10"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
+          </>
+        ) : (
+          <Button variant="outline" size="lg" className="h-12" onClick={onClockIn}>
+            <ClockIcon />
+            Clock in
           </Button>
-        </div>
-      </CardContent>
-    </Card>
+        )}
+        <Button
+          variant="ghost"
+          size="icon-lg"
+          className="size-12 text-muted-foreground hover:bg-destructive-soft hover:text-destructive"
+          onClick={onLogout}
+          aria-label="Sign out"
+          title="Sign out">
+          <LogOutIcon className="size-5" />
+        </Button>
+      </div>
+    </div>
   );
 };
 

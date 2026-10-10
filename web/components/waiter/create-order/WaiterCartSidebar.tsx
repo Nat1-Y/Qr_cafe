@@ -1,17 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import {
-  ShoppingCart,
-  Plus,
-  Minus,
-  X,
-  MapPin,
-  Clock,
-  Check,
-  AlertTriangle,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { AlertTriangle, Loader2, Minus, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 // Item notes combine free text with quick-select preset chips. Presets are
 // stored as comma-separated parts inside the same note string, so a chip is
@@ -67,6 +60,7 @@ export const WaiterCartSidebar: React.FC<WaiterCartSidebarProps> = ({
   forceTableSelection = false,
   notes = "",
   onNotesChange,
+  isMobile = false,
 }) => {
   const totalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   // A delivery order or an explicit Take Away both carry no table by design —
@@ -75,232 +69,177 @@ export const WaiterCartSidebar: React.FC<WaiterCartSidebarProps> = ({
   const tableRequirementUnmet =
     forceTableSelection && !selectedTable && !selectedDeliveryMethodName;
 
-  return (
-    <div className="flex flex-col overflow-hidden bg-card h-full min-h-0">
-      {/* Sleek Gradient Header */}
-      <div className="shrink-0 border-b border-border/60 bg-gradient-to-r from-amber-200 via-amber-100 to-amber-100 px-5 py-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="uppercase tracking-[0.22em] text-warning">
-              Order Summary
-            </p>
-            <h3 className="mt-1 font-extrabold tracking-tight text-foreground">
-              Current table order
-            </h3>
+  const tableLabel = selectedDeliveryMethodName
+    ? selectedDeliveryMethodName
+    : selectedTable === "takeaway"
+      ? "Takeaway"
+      : selectedTable
+        ? `Table ${selectedTable}`
+        : null;
 
-            <div className="mt-3">
-              {selectedDeliveryMethodName ? (
-                <Badge
-                  variant="secondary"
-                  className="bg-sky-500/10 text-sky-700 border-none font-bold py-0.5 px-2 rounded-lg text-[9px] flex items-center gap-1 shrink-0 shadow-sm"
-                >
-                  <MapPin className="w-3 h-3 text-sky-500" />
-                  {selectedDeliveryMethodName}
-                </Badge>
-              ) : selectedTable ? (
-                <Badge
-                  variant="secondary"
-                  className="bg-emerald-500/10 text-emerald-700 border-none font-bold py-0.5 px-2 rounded-lg text-[9px] flex items-center gap-1 shrink-0 shadow-sm"
-                >
-                  <MapPin className="w-3 h-3 text-emerald-500 animate-bounce" />
-                  {selectedTable === "takeaway"
-                    ? "Take Away"
-                      : `Table #${selectedTable}`}
-                </Badge>
-              ) : (
-                <Badge
-                  variant="secondary"
-                  className="bg-warning/10 text-amber-700 border-none font-bold py-0.5 px-2 rounded-lg text-[9px] flex items-center gap-1 shrink-0 shadow-sm"
-                >
-                  <Clock className="w-3 h-3 text-warning animate-pulse" />
-                  No Table Selected
-                </Badge>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 rounded-2xl border border-border/70 bg-background/80 px-3 py-1.5 shadow-sm">
-              <span className="text-[10px] font-black uppercase tracking-wider text-foreground">
-                {totalItems} items
-              </span>
-            </div>
-          </div>
+  return (
+    <div
+      className={cn(
+        "flex h-full min-h-0 flex-col overflow-hidden bg-card",
+        !isMobile && "rounded-card border border-border"
+      )}
+    >
+      {/* Header */}
+      <div className="shrink-0 border-b border-border px-5 pb-4 pt-5 pr-12">
+        <p className="eyebrow">Current order</p>
+        <div className="mt-1 flex items-baseline justify-between gap-3">
+          <h3 className={cn("truncate text-section", tableLabel ? "text-foreground" : "text-muted-foreground")}>
+            {tableLabel ?? "No table yet"}
+          </h3>
+          <span className="shrink-0 text-meta text-muted-foreground">
+            {totalItems} {totalItems === 1 ? "item" : "items"}
+          </span>
         </div>
       </div>
 
-      {/* Cart Content */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-5 py-5 space-y-4">
+      {/* Lines */}
+      <div className="min-h-0 flex-1 overflow-y-auto px-5">
         {orderItems.length === 0 ? (
-          <div className="text-center space-y-3 rounded-[28px] border border-dashed border-border/80 bg-gradient-to-b from-muted/10 to-background p-5 py-16 animate-in fade-in duration-300">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border bg-background shadow-inner">
-              <ShoppingCart className="w-6 h-6 text-muted-foreground/45 animate-pulse" />
-            </div>
-            <div>
-              <p className="text-xs font-black uppercase tracking-wider text-foreground">
-                Your cart is empty
-              </p>
-              <p className="mx-auto mt-1 max-w-[220px] text-[10px] font-semibold leading-relaxed text-muted-foreground/75">
-                Add items from the menu to build the table order and submit it
-                when ready.
-              </p>
-            </div>
+          <div className="flex h-full flex-col items-center justify-center py-12 text-center">
+            <p className="text-base font-medium text-foreground">Nothing in this order yet</p>
+            <p className="mt-1 max-w-[240px] text-sm text-muted-foreground">Tap a menu item to add it.</p>
           </div>
         ) : (
-          <div className="space-y-2 pt-1 animate-in slide-in-from-bottom-2 duration-300">
+          <ul className="divide-y divide-border">
             {orderItems.map((item) => (
-              <div
-                key={item.menu_item_id}
-                className="group flex flex-col gap-2 rounded-2xl border border-border/50 bg-muted/15 p-2.5 transition-all duration-200 hover:border-primary/15 hover:bg-muted/25"
-              >
-                <div className="flex items-center gap-3">
-                <div className="flex-1 min-w-0">
-                  <h4 className="truncate text-foreground">
-                    {item.menu_item_name}
-                  </h4>
-                  <p className="mt-0.5 font-bold text-muted-foreground/80">
-                    {formatCurrency(item.price)}
+              <li key={item.menu_item_id} className="py-3">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="min-w-0 text-sm">
+                    <span className="text-muted-foreground">{item.quantity} ×</span>{" "}
+                    <span className="font-medium text-foreground">{item.menu_item_name}</span>
                   </p>
-                </div>
-
-                {/* Counter controls */}
-                <div className="flex shrink-0 items-center gap-2 rounded-xl border bg-background p-1 shadow-inner">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
-                    onClick={() => onUpdateQuantity(item.menu_item_id, -1)}
-                  >
-                    <Minus className="w-3 h-3" />
-                  </Button>
-                  <span className="w-4 text-center text-foreground">
-                    {item.quantity}
+                  <span className="shrink-0 text-sm text-foreground">
+                    {formatCurrency(Number(item.price) * Number(item.quantity))}
                   </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
-                    onClick={() => onUpdateQuantity(item.menu_item_id, 1)}
-                  >
-                    <Plus className="w-3 h-3" />
-                  </Button>
                 </div>
 
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 shrink-0 rounded-xl text-muted-foreground transition-colors hover:bg-destructive/5 hover:text-destructive"
-                  onClick={() => onRemoveFromOrder(item.menu_item_id)}
-                >
-                  <X className="w-3.5 h-3.5" />
-                </Button>
+                <div className="mt-2 flex items-center gap-3">
+                  <div className="inline-flex h-12 items-center rounded-full border border-border bg-card">
+                    <button
+                      type="button"
+                      className="flex size-12 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      onClick={() => onUpdateQuantity(item.menu_item_id, -1)}
+                      aria-label="One less"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="w-7 text-center text-sm font-semibold text-foreground">{item.quantity}</span>
+                    <button
+                      type="button"
+                      className="flex size-12 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      onClick={() => onUpdateQuantity(item.menu_item_id, 1)}
+                      aria-label="One more"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <span className="text-meta text-muted-foreground">{formatCurrency(item.price)} each</span>
+                  <button
+                    type="button"
+                    className="ml-auto flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive-soft hover:text-destructive"
+                    onClick={() => onRemoveFromOrder(item.menu_item_id)}
+                    aria-label={`Remove ${item.menu_item_name}`}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
 
                 {onUpdateItemNote && (
-                  <div className="space-y-2">
-                    {Array.isArray(item.predefined_notes) &&
-                      item.predefined_notes.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {item.predefined_notes.map((presetNote: string) => {
-                            const active = noteHasPart(item.note, presetNote);
-                            return (
-                              <button
-                                key={presetNote}
-                                type="button"
-                                onClick={() =>
-                                  onUpdateItemNote(
-                                    item.menu_item_id,
-                                    togglePart(item.note, presetNote),
-                                  )
-                                }
-                                className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold transition-colors ${
-                                  active
-                                    ? "border-primary bg-primary/10 text-primary"
-                                    : "border-border/50 bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                                }`}
-                              >
-                                {active ? "✓ " : ""}
-                                {presetNote}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    <input
+                  <div className="mt-2 space-y-2">
+                    {Array.isArray(item.predefined_notes) && item.predefined_notes.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {item.predefined_notes.map((presetNote: string) => {
+                          const active = noteHasPart(item.note, presetNote);
+                          return (
+                            <button
+                              key={presetNote}
+                              type="button"
+                              aria-pressed={active}
+                              onClick={() =>
+                                onUpdateItemNote(item.menu_item_id, togglePart(item.note, presetNote))
+                              }
+                              className={cn(
+                                "h-10 rounded-full border px-3.5 text-meta transition-colors",
+                                active
+                                  ? "border-[1.5px] border-primary bg-card font-medium text-primary"
+                                  : "border-border bg-card text-muted-foreground hover:text-foreground"
+                              )}
+                            >
+                              {presetNote}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                    <Input
                       type="text"
                       value={item.note || ""}
-                      onChange={(e) =>
-                        onUpdateItemNote(item.menu_item_id, e.target.value)
-                      }
+                      onChange={(e) => onUpdateItemNote(item.menu_item_id, e.target.value)}
                       maxLength={200}
-                      placeholder="Item note (e.g. no ice, well done)…"
-                      className="w-full rounded-xl border border-border/50 bg-background px-2.5 py-1.5 text-[11px] text-foreground outline-none placeholder:text-muted-foreground/55 focus:border-primary/40"
+                      placeholder="Note for the kitchen, e.g. no sugar"
+                      className="h-11"
                     />
                   </div>
                 )}
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
 
-      {/* Total + Submit — pinned to bottom */}
-      <div className="shrink-0 px-5 pb-5">
-        {orderItems.length > 0 && onNotesChange && (
-          <div className="mt-4">
-            <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-              Order note{" "}
-              <span className="font-semibold normal-case tracking-normal text-muted-foreground/70">
-                (optional)
-              </span>
-            </label>
-            <textarea
-              value={notes}
-              onChange={(e) => onNotesChange(e.target.value)}
-              rows={2}
-              maxLength={300}
-              placeholder="e.g. no sugar, extra hot, allergy info…"
-              className="w-full resize-none rounded-2xl border border-border/60 bg-background px-3 py-2 text-xs text-foreground shadow-inner outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary/40"
-            />
-          </div>
-        )}
-
-        {orderItems.length > 0 && (
-          <div className="mt-4 flex items-center justify-between rounded-2xl border border-emerald-500/10 bg-gradient-to-r from-emerald-500/10 via-emerald-500/[0.02] to-transparent p-4 shadow-inner">
-            <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-800">
-              Total Amount
-            </span>
-            <span className="text-base font-black tracking-tight text-emerald-600">
-              {formatCurrency(calculateTotal())}
-            </span>
-          </div>
-        )}
-
-        {tableRequirementUnmet && orderItems.length > 0 && (
-          <p className="mt-3 flex items-center gap-1.5 text-[10px] font-semibold text-amber-700">
-            <AlertTriangle className="h-3 w-3" />
-            Select a table or choose Take Away to place this order.
-          </p>
-        )}
-
-        <Button
-          disabled={
-            orderItems.length === 0 || creatingOrder || tableRequirementUnmet
-          }
-          className="mt-4 h-12 w-full gap-1.5 rounded-2xl bg-primary text-xs font-black text-primary-foreground shadow-md transition-all duration-200 hover:bg-primary/95 hover:shadow-lg hover:shadow-primary/25 active:scale-95"
-          onClick={onSubmitOrder}
-        >
-          {creatingOrder ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              <span>Creating checkout order...</span>
-            </>
-          ) : (
-            <>
-              <Check className="w-4 h-4 text-primary-foreground" /> Place Order
-            </>
+      {/* Total + send */}
+      {orderItems.length > 0 && (
+        <div className="shrink-0 space-y-3 border-t border-dashed border-border px-5 pb-5 pt-4">
+          {onNotesChange && (
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">
+                Order note <span className="font-normal text-muted-foreground">(optional)</span>
+              </label>
+              <Textarea
+                value={notes}
+                onChange={(e) => onNotesChange(e.target.value)}
+                rows={2}
+                maxLength={300}
+                placeholder="e.g. allergy info, serve together"
+                className="min-h-[64px] resize-none text-sm"
+              />
+            </div>
           )}
-        </Button>
-      </div>
+
+          <div className="flex items-baseline justify-between">
+            <span className="text-base font-semibold text-foreground">Total</span>
+            <span className="text-kpi text-foreground">{formatCurrency(calculateTotal())}</span>
+          </div>
+
+          {tableRequirementUnmet && (
+            <p className="flex items-center gap-2 rounded-xl bg-warning-soft px-3 py-2 text-meta text-warning">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              Pick a table or Takeaway first.
+            </p>
+          )}
+
+          <Button
+            size="charge"
+            disabled={creatingOrder || tableRequirementUnmet}
+            className="w-full"
+            onClick={onSubmitOrder}
+          >
+            {creatingOrder ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Sending…
+              </>
+            ) : (
+              "Send to kitchen"
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
