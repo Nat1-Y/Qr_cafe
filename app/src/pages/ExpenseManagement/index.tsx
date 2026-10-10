@@ -66,11 +66,11 @@ const ExpenseManagement = () => {
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Expenses"
-        description="Track operating costs, review spending patterns, and compare expenses against sales"
+        description="Write down what you spend and compare it with sales."
         actions={
           <div className="flex items-center gap-3">
             <div className="hidden sm:block text-right">
-              <p className="text-xs font-semibold text-muted-foreground">Visible expenses</p>
+              <p className="text-xs font-semibold text-muted-foreground">Expenses shown</p>
               <p className="text-sm font-semibold text-primary">{formatETB(totalVisibleAmount)}</p>
             </div>
             <Button variant="outline" onClick={() => loadExpenseData(filters)} disabled={refreshing}>
@@ -102,8 +102,8 @@ const ExpenseManagement = () => {
         {/* Trends & Recents */}
         <div className="lg:col-span-2 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <TrendChart title="Daily expense trend" data={dashboard?.trends?.daily} colorClass="bg-chart-1" />
-            <TrendChart title="Monthly expense trend" data={dashboard?.trends?.monthly} colorClass="bg-chart-4" />
+            <TrendChart title="Expenses each day" data={dashboard?.trends?.daily} colorClass="bg-chart-1" />
+            <TrendChart title="Expenses each month" data={dashboard?.trends?.monthly} colorClass="bg-chart-4" />
           </div>
 
           <RecentExpenses recentExpenses={dashboard?.recent_expenses} />

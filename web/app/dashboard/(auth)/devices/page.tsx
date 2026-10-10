@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable, type Column } from "@/components/data-table";
 import { apiFetch } from "@/lib/api";
 import { humanize } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
 
 type Device = {
   id: string;
@@ -105,7 +106,7 @@ export default function PlatformDevicesPage() {
         setDevices(d.devices ?? []);
         setOnline(d.online_count ?? 0);
       })
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, []);
 
@@ -115,7 +116,7 @@ export default function PlatformDevicesPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Devices</h1>
         <p className="text-muted-foreground text-sm">
           {online} of {devices.length} device{devices.length === 1 ? "" : "s"} online
-          (heartbeat within 5 minutes).
+          (seen in the last 5 minutes).
         </p>
       </div>
 
@@ -125,11 +126,11 @@ export default function PlatformDevicesPage() {
         loading={loading}
         searchKeys={["name"]}
         searchPlaceholder="Search devices…"
-        emptyMessage="No devices enrolled yet."
+        emptyMessage="No devices set up yet."
         filters={[
           {
             key: "online",
-            label: "Connectivity",
+            label: "Internet",
             options: [
               { value: "online", label: "Online" },
               { value: "offline", label: "Offline" },
@@ -141,8 +142,8 @@ export default function PlatformDevicesPage() {
             label: "Status",
             options: [
               { value: "active", label: "Active" },
-              { value: "pending", label: "Pending" },
-              { value: "revoked", label: "Revoked" },
+              { value: "pending", label: "Waiting for approval" },
+              { value: "revoked", label: "Removed" },
             ],
           },
         ]}

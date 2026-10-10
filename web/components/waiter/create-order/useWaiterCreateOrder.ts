@@ -8,6 +8,7 @@ import { useWaiterAuth } from "@/components/waiter/auth-context";
 import { toast } from "sonner";
 import { ADD_ITEMS_ORDER_SESSION_KEY } from "@/components/waiter/order-history/useWaiterOrderHistory";
 import { formatETB } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
 
 export const useWaiterCreateOrder = () => {
   const { user, logout } = useWaiterAuth();
@@ -227,7 +228,7 @@ export const useWaiterCreateOrder = () => {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
-      toast.error("Failed to load menu items or table status");
+      toast.error("Couldn't load the menu. Check the internet and try again.");
     } finally {
       setLoading(false);
     }
@@ -503,21 +504,21 @@ export const useWaiterCreateOrder = () => {
     if (foodItems.length === 0) {
       return {
         type: "beverage_only",
-        message: "Beverages only - Stream directly to Cashier register",
+        message: "Drinks only. Goes straight to the cashier.",
         icon: "",
         color: "text-info bg-info/10 border-info/20",
       };
     } else if (beverageItems.length === 0) {
       return {
         type: "food_only",
-        message: "Food items only - Stream to Kitchen board first",
+        message: "Food only. Goes to the kitchen first.",
         icon: "",
         color: "text-warning bg-warning/10 border-warning/20",
       };
     } else {
       return {
         type: "mixed",
-        message: `Mixed order - Beverages (${beverageItems.length}) will coordinate with Kitchen food cooking release`,
+        message: `Food and drinks. The ${beverageItems.length} drink(s) go out with the food.`,
         icon: "",
         color: "text-primary bg-primary/10 border-primary/20",
       };
@@ -533,7 +534,7 @@ export const useWaiterCreateOrder = () => {
       setCreatingOrder(true);
 
       if (orderItems.length === 0) {
-        toast.error("Please add at least one item to the order");
+        toast.error("Add at least one item first.");
         return;
       }
 
@@ -556,7 +557,7 @@ export const useWaiterCreateOrder = () => {
           }),
           updated_by: user!.id,
         });
-        toast.success("Items added to order successfully!");
+        toast.success("Items added to the order");
         setOrderItems([]);
         setNotes("");
         router.push("/waiter/order-history");
@@ -571,7 +572,7 @@ export const useWaiterCreateOrder = () => {
       // design — force_table_selection only blocks placing an order with no
       // choice made at all, same as the backend.
       if (forceTableSelection && !selectedTable && !selectedDeliveryMethod) {
-        toast.error("Table selection is mandatory.");
+        toast.error("Pick a table first.");
         return;
       }
 
@@ -616,7 +617,7 @@ export const useWaiterCreateOrder = () => {
       }
 
       await api.orders.createCafe(orderData);
-      toast.success("Order created successfully!");
+      toast.success("Order sent");
 
       setSelectedTable("");
       setSelectedDeliveryMethodId("");
@@ -637,10 +638,12 @@ export const useWaiterCreateOrder = () => {
         );
       } else {
         toast.error(
-          error?.message ||
-            (isAddMode
-              ? "Failed to add items. Please try again."
-              : "Failed to create order. Please try again."),
+          friendlyError(
+            error,
+            isAddMode
+              ? "Couldn't add the items. Please try again."
+              : "Couldn't send the order. Please try again.",
+          ),
         );
       }
     } finally {

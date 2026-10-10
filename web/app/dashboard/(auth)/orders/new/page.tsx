@@ -16,6 +16,7 @@ import { PageHeader } from "@/components/page-header";
 import { Menu, Tables, Orders, Organizations, Users, Settings } from "@/lib/resources";
 import { getUser } from "@/lib/auth";
 import { formatETB } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
 
 type Item = {
   id: string;
@@ -67,7 +68,7 @@ export default function NewOrderPage() {
         setWaiters(w);
         setDeliveryMethods(dm);
       })
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
 
     // When launched from an organization's account, attach the order to it.
@@ -122,7 +123,7 @@ export default function NewOrderPage() {
       return;
     }
     if (!waiterId) {
-      toast.error("Select the waiter this order is for.");
+      toast.error("Pick the waiter for this order.");
       return;
     }
     if (submitLockRef.current || placing) return;
@@ -155,10 +156,10 @@ export default function NewOrderPage() {
           item_type: "food",
         })),
       });
-      toast.success("Order placed");
+      toast.success("Order sent");
       router.push(orgId ? `/dashboard/customers/${orgId}` : "/dashboard/orders");
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       submitLockRef.current = false;
       setPlacing(false);
@@ -177,8 +178,8 @@ export default function NewOrderPage() {
           title="New order"
           description={
             orgName
-              ? `Order on the account of ${orgName}.`
-              : "Build an order for this branch."
+              ? `Order on ${orgName}'s company account.`
+              : "Take an order for this branch."
           }
         />
       </div>
@@ -225,7 +226,7 @@ export default function NewOrderPage() {
               <Skeleton className="h-40 w-full" />
             ) : filtered.length === 0 ? (
               <p className="text-muted-foreground py-8 text-center text-sm">
-                No available menu items.
+                No menu items can be ordered right now.
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -284,7 +285,7 @@ export default function NewOrderPage() {
                 className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={waiterId}
                 onChange={(e) => setWaiterId(e.target.value)}>
-                <option value="">Select a waiter…</option>
+                <option value="">Pick a waiter</option>
                 {waiters.map((w) => (
                   <option key={w.id} value={w.id}>
                     {w.full_name || w.username}
@@ -293,7 +294,7 @@ export default function NewOrderPage() {
               </select>
               {waiters.length === 0 && (
                 <p className="text-muted-foreground text-xs">
-                  No waiters found for this branch.
+                  No waiters at this branch yet.
                 </p>
               )}
             </div>
@@ -327,7 +328,7 @@ export default function NewOrderPage() {
                 </select>
                 {deliveryMethodId && (
                   <p className="text-muted-foreground text-xs">
-                    Tracked separately on the Deliveries board — no table needed.
+                    Shown on the Deliveries page. No table needed.
                   </p>
                 )}
               </div>
@@ -339,7 +340,7 @@ export default function NewOrderPage() {
                   <Input
                     value={orgCustomerName}
                     onChange={(e) => setOrgCustomerName(e.target.value)}
-                    placeholder="Who at this organization is this order for?"
+                    placeholder="Who at this company is this order for?"
                   />
                 </div>
                 <div className="space-y-2">
@@ -356,14 +357,13 @@ export default function NewOrderPage() {
                   <Textarea
                     value={orgCustomerNotes}
                     onChange={(e) => setOrgCustomerNotes(e.target.value)}
-                    placeholder="Department, delivery instructions, etc."
+                    placeholder="Their department, delivery notes, etc."
                     rows={2}
                   />
                 </div>
                 <p className="text-muted-foreground text-xs">
-                  Display-only — doesn&apos;t change who gets billed. The
-                  organization&apos;s balance isn&apos;t touched until you
-                  confirm this order from its Orders tab.
+                  Just for your notes. It doesn&apos;t change who pays. The company&apos;s credit
+                  doesn&apos;t change until you mark this order as paid in its Orders tab.
                 </p>
               </div>
             )}
@@ -377,7 +377,7 @@ export default function NewOrderPage() {
               <span className="text-lg font-semibold">{formatETB(total)}</span>
             </div>
             <Button className="w-full" onClick={placeOrder} disabled={placing || lines.length === 0 || !waiterId}>
-              {placing ? "Placing…" : "Place order"}
+              {placing ? "Sending…" : "Send order"}
             </Button>
           </CardContent>
         </Card>

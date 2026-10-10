@@ -43,7 +43,7 @@ export const LocationFormDialog: React.FC<LocationFormDialogProps> = ({
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {selectedLocation ? 'Edit Stock Location' : 'Add Stock Location'}
+            {selectedLocation ? 'Edit stock place' : 'Add stock place'}
           </DialogTitle>
         </DialogHeader>
 
@@ -67,7 +67,7 @@ export const LocationFormDialog: React.FC<LocationFormDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location_slug">Slug</Label>
+            <Label htmlFor="location_slug">Short name</Label>
             <Input
               id="location_slug"
               value={formData.slug}
@@ -80,7 +80,7 @@ export const LocationFormDialog: React.FC<LocationFormDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location_type">Location type</Label>
+            <Label htmlFor="location_type">Type of place</Label>
             <select
               id="location_type"
               className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
@@ -101,7 +101,7 @@ export const LocationFormDialog: React.FC<LocationFormDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="linked_main_category_slug">Linked menu department (optional)</Label>
+            <Label htmlFor="linked_main_category_slug">Section that uses it (optional)</Label>
             <select
               id="linked_main_category_slug"
               className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
@@ -121,7 +121,7 @@ export const LocationFormDialog: React.FC<LocationFormDialogProps> = ({
               ))}
             </select>
             <p className="text-xs text-muted-foreground">
-              Orders from this department will deduct stock from this location by default.
+              Orders from this section use stock from this place.
             </p>
           </div>
 
@@ -134,7 +134,7 @@ export const LocationFormDialog: React.FC<LocationFormDialogProps> = ({
               }
             />
             <Label htmlFor="is_default" className="cursor-pointer text-sm">
-              Default location
+              Main stock place
             </Label>
           </div>
 
@@ -156,7 +156,7 @@ export const LocationFormDialog: React.FC<LocationFormDialogProps> = ({
               Cancel
             </Button>
             <Button type="submit" disabled={saving}>
-              {saving ? 'Saving…' : selectedLocation ? 'Update' : 'Create'}
+              {saving ? 'Saving…' : selectedLocation ? 'Save' : 'Add'}
             </Button>
           </DialogFooter>
         </form>

@@ -69,7 +69,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({
             variant={item.is_available ? 'success' : 'destructive'}
             className="ml-auto"
           >
-            {item.is_available ? 'Available' : 'Unavailable'}
+            {item.is_available ? 'Available' : 'Not available'}
           </Badge>
 
           {/* Recipe status badge (admin only) */}
@@ -78,7 +78,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({
               <Badge
                 variant="outline"
                 className="border-success/50 text-success gap-1"
-                title={`Recipe: ${ingredientCount} ingredient(s)`}
+                title={`Recipe: ${ingredientCount} ingredient${ingredientCount === 1 ? "" : "s"}`}
               >
                 <ChefHat className="h-2.5 w-2.5" />
                 {ingredientCount} ing.
@@ -87,7 +87,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({
               <Badge
                 variant="outline"
                 className="border-warning/50 text-warning gap-1"
-                title="No recipe — stock won't auto-deduct"
+                title="No recipe, so stock is not used up by orders"
               >
                 <ChefHat className="h-2.5 w-2.5" />
                 No recipe

@@ -42,6 +42,7 @@ import { useCashierAuth } from "@/components/cashier/auth-context";
 import { cashierServices } from "@/lib/cashier/api";
 import { AddItemsToOrderDialog } from "@/components/cashier/AddItemsToOrderDialog";
 import { roleLabel } from "@/lib/auth";
+import { friendlyError } from "@/lib/errors";
 
 // Items can be added to an open order or a served ("done") one, which
 // reopens it — mirrors the desktop/waiter portals' canAddItems.
@@ -59,8 +60,8 @@ type Range = (typeof RANGES)[number]["key"];
 const PAYMENT_METHODS = [
   { value: "cash", label: "Cash" },
   { value: "card", label: "Card" },
-  { value: "transfer", label: "Transfer" },
-  { value: "mobile", label: "Mobile" },
+  { value: "transfer", label: "Bank transfer" },
+  { value: "mobile", label: "Mobile money" },
 ];
 
 const formatCurrency = formatETB;
@@ -316,7 +317,7 @@ export default function CashierEmployeesPage() {
         }));
         if (active) setEmployees(arr);
       } catch {
-        if (active) toast.error("Failed to load employees");
+        if (active) toast.error("Couldn't load waiters. Please try again.");
       } finally {
         if (active) setLoadingEmployees(false);
       }
@@ -389,7 +390,7 @@ export default function CashierEmployeesPage() {
       return;
     }
     fetchEmployeeData(selectedId, true).catch(() =>
-      toast.error("Failed to load employee data"),
+      toast.error("Couldn't load this waiter's orders. Please try again."),
     );
   }, [selectedId, fetchEmployeeData]);
 
@@ -533,9 +534,9 @@ export default function CashierEmployeesPage() {
     setSettlingAll(false);
     setSettleAllOpen(false);
     setSettleProgress(null);
-    if (fail === 0) toast.success(`Settled ${ok} payment${ok === 1 ? "" : "s"}`);
-    else if (ok === 0) toast.error(`Failed to settle ${fail} payment${fail === 1 ? "" : "s"}`);
-    else toast.warning(`Settled ${ok}, ${fail} failed`);
+    if (fail === 0) toast.success(`Paid ${ok} order${ok === 1 ? "" : "s"}`);
+    else if (ok === 0) toast.error(`Couldn't take payment for ${fail} order${fail === 1 ? "" : "s"}. Please try again.`);
+    else toast.warning(`Paid ${ok}. ${fail} didn't go through. Please try again.`);
     if (selectedId) fetchEmployeeData(selectedId).catch(() => {});
   }, [
     pendingSettleTasks,
@@ -594,9 +595,9 @@ export default function CashierEmployeesPage() {
           await cashierServices.payments.confirm(createdId, { processed_by: user?.id });
         }
       }
-      toast.success("Payment confirmed");
+      toast.success("Payment saved");
     } catch (err: any) {
-      toast.error(err?.message || "Failed to confirm payment");
+      toast.error(friendlyError(err, "Couldn't take the payment. Please try again."));
     } finally {
       setProcessing((prev) => {
         const next = new Set(prev);
@@ -614,7 +615,7 @@ export default function CashierEmployeesPage() {
 
     if (cancelPwdRequired) {
       if (!cancelPwd.trim()) {
-        toast.error("Enter the cancel password");
+        toast.error("Enter the manager PIN for cancelling.");
         return;
       }
       setVerifyingCancel(true);
@@ -624,12 +625,12 @@ export default function CashierEmployeesPage() {
         );
         const payload = res?.data ?? res;
         if (!Boolean(payload?.data?.valid ?? payload?.valid)) {
-          toast.error("Incorrect cancel password");
+          toast.error("Wrong manager PIN. Please try again.");
           setVerifyingCancel(false);
           return;
         }
       } catch (err: any) {
-        toast.error(err?.message || "Failed to verify password");
+        toast.error(friendlyError(err, "Couldn't check the PIN. Please try again."));
         setVerifyingCancel(false);
         return;
       }
@@ -651,7 +652,7 @@ export default function CashierEmployeesPage() {
       });
       toast.success("Order cancelled");
     } catch (err: any) {
-      toast.error(err?.message || "Failed to cancel order");
+      toast.error(friendlyError(err, "Couldn't cancel the order. Please try again."));
     } finally {
       setProcessing((prev) => {
         const next = new Set(prev);
@@ -771,7 +772,7 @@ export default function CashierEmployeesPage() {
         eyebrow={<span>{roleLabel(selectedEmployee?.role || "cafe_waiter")}</span>}
         title={selectedEmployee?.full_name || selectedId}
         description={
-          isAttached ? departments.map((d) => prettyDept(d, deptLabels)).join(" · ") : "Orders, payments and checkout."
+          isAttached ? departments.map((d) => prettyDept(d, deptLabels)).join(" · ") : "Orders and payments."
         }
         action={
           <Button variant="outline" onClick={() => setSelectedId("")}>
@@ -785,7 +786,7 @@ export default function CashierEmployeesPage() {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatsCard title="Orders taken" value={stats.created} />
         <StatsCard title="Orders paid" value={stats.served} variant="success" />
-        <StatsCard title={isAttached ? "Taken for your department" : "Taken"} value={formatCurrency(stats.revenue)} />
+        <StatsCard title={isAttached ? "Taken for your section" : "Taken"} value={formatCurrency(stats.revenue)} />
         <StatsCard title="Still to pay" value={formatCurrency(stats.pending)} variant="warning" />
       </div>
 
@@ -802,7 +803,7 @@ export default function CashierEmployeesPage() {
           <CardHeader className="pb-3 border-b">
             <CardTitle>Waiting for payment</CardTitle>
             <CardDescription>
-              {isAttached ? "Your department's share." : "This waiter's served orders."}
+              {isAttached ? "Your section's part." : "This waiter's served orders."}
             </CardDescription>
             <CardAction>
               <Badge variant="default">
@@ -812,7 +813,7 @@ export default function CashierEmployeesPage() {
           </CardHeader>
           <CardContent className="pt-4 space-y-3">
             <SearchInput
-                placeholder="Table filter…"
+                placeholder="Filter by table"
                 value={tableFilter}
                 onChange={(e) => setTableFilter(e.target.value)} wrapperClassName="w-full sm:max-w-[12rem]" />
 
@@ -831,7 +832,7 @@ export default function CashierEmployeesPage() {
                 ) : (
                   <CheckCircle2 />
                 )}
-                Settle all {pendingSettleTasks.length} • {formatCurrency(pendingSettleTotal)}
+                Pay all {pendingSettleTasks.length} • {formatCurrency(pendingSettleTotal)}
               </Button>
             ) : null}
 
@@ -839,7 +840,7 @@ export default function CashierEmployeesPage() {
               [...Array(3)].map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-card" />)
             ) : visibleQueue.length === 0 ? (
               <div className="py-12 text-center text-xs text-muted-foreground">
-                No active invoices waiting for payment
+                No orders waiting for payment
               </div>
             ) : (
               visibleQueue.map((order) => {
@@ -877,7 +878,7 @@ export default function CashierEmployeesPage() {
                       <>
                       {dues.length === 0 ? (
                         <p className="py-2 text-center text-xs text-muted-foreground">
-                          Nothing to settle for your department.
+                          Nothing to pay for your section.
                         </p>
                       ) : (
                         dues.map((due: any) => {
@@ -909,7 +910,7 @@ export default function CashierEmployeesPage() {
                                   }}
                                 >
                                   {busy ? <RefreshCw className="size-3.5 animate-spin" /> : <CheckCircle2 className="size-3.5" />}
-                                  Settle {prettyDept(due.department, deptLabels)}
+                                  Pay {prettyDept(due.department, deptLabels)}
                                 </Button>
                               ) : null}
                             </div>
@@ -941,7 +942,7 @@ export default function CashierEmployeesPage() {
                             }}
                           >
                             {processing.has(order.id) ? <RefreshCw className="size-3.5 animate-spin" /> : <CheckCircle2 className="size-3.5" />}
-                            Settle
+                            Pay
                           </Button>
                           <Button
                             size="sm"
@@ -968,7 +969,7 @@ export default function CashierEmployeesPage() {
           <CardHeader className="pb-3 border-b">
             <CardTitle>Order timeline</CardTitle>
             <CardDescription>
-              {isAttached ? "Department activity in range" : "Recent activity in range"}
+              {isAttached ? "Your section's orders in this time" : "Orders in this time"}
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-5 space-y-3">
@@ -1002,7 +1003,7 @@ export default function CashierEmployeesPage() {
                       <div className="min-w-0">
                         <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                           <MapPin className="h-3 w-3 text-primary" />
-                          {o.table_number ? `Table ${o.table_number}` : "Take Away"}
+                          {o.table_number ? `Table ${o.table_number}` : "Takeaway"}
                           <span className="font-medium text-muted-foreground">#{o.order_number ?? "—"}</span>
                         </p>
                         {itemsPreview(deptItems) ? (
@@ -1042,15 +1043,15 @@ export default function CashierEmployeesPage() {
             <DialogDescription>
               {confirmTarget
                 ? confirmTarget.kind === "department"
-                  ? `Settle ${prettyDept(confirmTarget.due.department, deptLabels)} for order #${confirmTarget.order.order_number ?? ""}.`
-                  : `Settle order #${confirmTarget.order.order_number ?? ""}${confirmTarget.order.table_number ? ` (Table ${confirmTarget.order.table_number})` : ""}.`
+                  ? `Pay ${prettyDept(confirmTarget.due.department, deptLabels)} for order #${confirmTarget.order.order_number ?? ""}.`
+                  : `Pay order #${confirmTarget.order.order_number ?? ""}${confirmTarget.order.table_number ? ` (Table ${confirmTarget.order.table_number})` : ""}.`
                 : ""}
             </DialogDescription>
           </DialogHeader>
           {confirmTarget ? (
             <div className="space-y-4 py-1">
               <div className="flex items-center justify-between rounded-xl border bg-muted/30 px-4 py-3">
-                <span className="text-sm font-semibold text-muted-foreground">Amount due</span>
+                <span className="text-sm font-semibold text-muted-foreground">Amount to pay</span>
                 <span className="text-xl font-semibold text-foreground">
                   {formatCurrency(
                     confirmTarget.kind === "department"
@@ -1061,7 +1062,7 @@ export default function CashierEmployeesPage() {
               </div>
               <div className="space-y-1.5">
                 <p className="text-sm font-medium text-foreground">Paid with</p>
-                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Payment method">
+                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Paid with">
                   {PAYMENT_METHODS.map((m) => (
                     <Button
                       key={m.value}
@@ -1098,12 +1099,12 @@ export default function CashierEmployeesPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Settle all pending payments</DialogTitle>
+            <DialogTitle>Pay all waiting orders</DialogTitle>
             <DialogDescription>
-              Confirm {pendingSettleTasks.length} pending payment
-              {pendingSettleTasks.length === 1 ? "" : "s"} for{" "}
+              Take payment for {pendingSettleTasks.length} order
+              {pendingSettleTasks.length === 1 ? "" : "s"} from{" "}
               {selectedEmployee?.full_name || "this waiter"}
-              {isAttached ? " (your department's share)" : ""}. This cannot be undone.
+              {isAttached ? " (your section's part)" : ""}. You can&apos;t undo this.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-1">
@@ -1115,7 +1116,7 @@ export default function CashierEmployeesPage() {
             </div>
             <div className="space-y-1.5">
               <p className="text-sm font-medium text-foreground">Paid with</p>
-              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Payment method">
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Paid with">
                 {PAYMENT_METHODS.map((m) => (
                   <Button
                     key={m.value}
@@ -1130,12 +1131,12 @@ export default function CashierEmployeesPage() {
                 ))}
               </div>
               <p className="text-xs text-muted-foreground">
-                Applied to every payment in this batch.
+                Used for all of these payments.
               </p>
             </div>
             {settleProgress ? (
               <p className="text-center text-xs font-semibold text-muted-foreground">
-                Settling {settleProgress.done} / {settleProgress.total}…
+                Paying {settleProgress.done} of {settleProgress.total}…
               </p>
             ) : null}
           </div>
@@ -1157,7 +1158,7 @@ export default function CashierEmployeesPage() {
               ) : (
                 <CheckCircle2 />
               )}
-              {settlingAll ? "Settling…" : `Confirm ${pendingSettleTasks.length} payments`}
+              {settlingAll ? "Paying…" : `Pay ${pendingSettleTasks.length} orders`}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1178,19 +1179,19 @@ export default function CashierEmployeesPage() {
             <DialogTitle>Cancel order</DialogTitle>
             <DialogDescription>
               Cancel order #{cancelOrder?.order_number ?? ""}
-              {cancelOrder?.table_number ? ` (Table ${cancelOrder.table_number})` : ""}? This
-              voids the order and cannot be undone.
+              {cancelOrder?.table_number ? ` (Table ${cancelOrder.table_number})` : ""}? The
+              order will be cancelled. You can&apos;t undo this.
             </DialogDescription>
           </DialogHeader>
           {cancelPwdRequired ? (
             <div className="space-y-1.5 py-1">
-              <Label htmlFor="emp-cancel-pwd">Cancel password</Label>
+              <Label htmlFor="emp-cancel-pwd">Manager PIN for cancelling</Label>
               <Input
                 id="emp-cancel-pwd"
                 type="password"
                 value={cancelPwd}
                 onChange={(e) => setCancelPwd(e.target.value)}
-                placeholder="Enter cancel password"
+                placeholder="Enter manager PIN"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === "Enter") doCancel();

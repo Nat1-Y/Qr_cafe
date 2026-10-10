@@ -27,8 +27,10 @@ import {
 import { StatCard } from "@/components/stat-card";
 import { DateFilterBar } from "@/components/date-filter-bar";
 import { formatETB, humanize } from "@/lib/format";
+import { StatusBadge } from "@/components/status-badge";
 import { formatOrderNumber } from "@/lib/utils";
 import { Orders, Users as UsersResource } from "@/lib/resources";
+import { friendlyError } from "@/lib/errors";
 
 const LIVE_ORDER_TYPE = "cafe";
 
@@ -55,9 +57,9 @@ const getEmployeeId = (order: any): string | null => {
   return id ? id : null;
 };
 
-const getEmployeeName = (user: any, fallbackId: string) => {
+const getEmployeeName = (user: any) => {
   const name = [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim();
-  return name || user?.full_name || user?.name || user?.username || `Employee #${fallbackId}`;
+  return name || user?.full_name || user?.name || user?.username || "Staff member";
 };
 
 export function StaffActivity() {
@@ -101,7 +103,7 @@ export function StaffActivity() {
             ...order,
             id: String(order?.id ?? ""),
             employee_id: employeeId,
-            employee_name: order?.employee_name || getEmployeeName(user, employeeId),
+            employee_name: order?.employee_name || getEmployeeName(user),
             total_amount: num(order?.total_amount),
             status: String(order?.status || "pending"),
             payment_status: order?.payment_status ? String(order.payment_status) : null,
@@ -116,7 +118,7 @@ export function StaffActivity() {
       for (const order of normalized) {
         const existing = summaryByEmployee.get(order.employee_id) || {
           employee_id: order.employee_id,
-          employee_name: order.employee_name || `Employee #${order.employee_id}`,
+          employee_name: order.employee_name || "Staff member",
           orders_total: 0,
           paid_total: 0,
           unpaid_total: 0,
@@ -151,7 +153,7 @@ export function StaffActivity() {
       setEmployees(list);
       setLiveOrders(normalized);
     } catch (e: any) {
-      toast.error(e.message || "Failed to load employee orders");
+      toast.error(friendlyError(e, "Couldn't load staff orders. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -202,12 +204,12 @@ export function StaffActivity() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
           <div className="space-y-2">
-            <Label>Employee</Label>
+            <Label>Staff</Label>
             <select
               value={selectedId}
               onChange={(e) => setSelectedId(e.target.value)}
               className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full sm:w-72">
-              <option value="all">All employees</option>
+              <option value="all">All staff</option>
               {employees.map((e) => (
                 <option key={e.employee_id} value={e.employee_id}>
                   {e.employee_name}
@@ -221,7 +223,7 @@ export function StaffActivity() {
             <DateFilterBar
               defaultPreset="all"
               allLabel="All time"
-              viewingPrefix="Viewing:"
+              viewingPrefix="Showing:"
               onChange={(range) => {
                 setDateFrom(range.from ?? "");
                 setDateTo(range.to ?? "");
@@ -246,9 +248,9 @@ export function StaffActivity() {
           variant="success"
         />
         <StatCard
-          title="Unpaid total"
+          title="Not paid yet"
           value={formatETB(activeSummary.unpaid_total)}
-          subtitle="Unpaid balance"
+          subtitle="Still owed"
           icon={<TrendingDown className="size-5" />}
           variant="destructive"
         />
@@ -256,7 +258,7 @@ export function StaffActivity() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Employees summary</CardTitle>
+          <CardTitle>Staff summary</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
@@ -269,10 +271,10 @@ export function StaffActivity() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Employee</TableHead>
+                  <TableHead>Staff</TableHead>
                   <TableHead className="text-right">Orders total</TableHead>
                   <TableHead className="text-right">Paid</TableHead>
-                  <TableHead className="text-right">Unpaid</TableHead>
+                  <TableHead className="text-right">Not paid yet</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -298,7 +300,7 @@ export function StaffActivity() {
                     <TableCell
                       colSpan={4}
                       className="text-muted-foreground py-10 text-center text-sm">
-                      No employee order activity yet.
+                      No staff orders yet.
                     </TableCell>
                   </TableRow>
                 )}
@@ -311,7 +313,7 @@ export function StaffActivity() {
       {selectedId !== "all" && (
         <Card>
           <CardHeader>
-            <CardTitle>Live orders</CardTitle>
+            <CardTitle>Latest orders</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
@@ -338,16 +340,7 @@ export function StaffActivity() {
                         {formatETB(o.total_amount)}
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant={
-                            o.status === "paid"
-                              ? "success"
-                              : o.status === "pending"
-                                ? "warning"
-                                : "secondary"
-                          }>
-                          {humanize(o.status)}
-                        </Badge>
+                        <StatusBadge kind="order" status={o.status} />
                       </TableCell>
                       <TableCell>
                         <Badge
@@ -356,11 +349,11 @@ export function StaffActivity() {
                               ? "success"
                               : "secondary"
                           }>
-                          {o.payment_status || "unpaid"}
+                          {String(o.payment_status || "").toLowerCase() === "paid" ? "Paid" : "Not paid yet"}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {o.created_at ? new Date(o.created_at).toLocaleString() : "N/A"}
+                        {o.created_at ? new Date(o.created_at).toLocaleString() : "—"}
                       </TableCell>
                       <TableCell className="text-center">
                         <Button
@@ -378,7 +371,7 @@ export function StaffActivity() {
                     <TableCell
                       colSpan={8}
                       className="text-muted-foreground py-10 text-center text-sm">
-                      No orders for this employee.
+                      This person has no orders yet.
                     </TableCell>
                   </TableRow>
                 )}

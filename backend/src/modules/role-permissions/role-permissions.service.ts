@@ -86,7 +86,7 @@ export class RolePermissionsService {
       throw new ForbiddenException("Only the owner can configure role permissions.");
     }
     if (!CONFIGURABLE_ROLES.includes(role as (typeof CONFIGURABLE_ROLES)[number])) {
-      throw new ForbiddenException(`Role "${role}" is not configurable.`);
+      throw new ForbiddenException("This role can't be changed.");
     }
     const clean = withDefaults(permissions);
     const business_id = requireBusinessId();

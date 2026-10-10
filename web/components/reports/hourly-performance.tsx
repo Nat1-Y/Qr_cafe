@@ -13,7 +13,7 @@ import { formatETB } from "@/lib/format";
 import type { HourlyPerformanceItem } from "@/lib/reports";
 
 const chartConfig = {
-  revenue: { label: "Revenue", color: "var(--chart-2)" },
+  revenue: { label: "Money in", color: "var(--chart-2)" },
 } satisfies ChartConfig;
 
 const compact = (value: number) =>
@@ -28,9 +28,9 @@ export function HourlyPerformance({ items }: { items: HourlyPerformanceItem[] })
   return (
     <Card>
       <CardHeader className="border-b pb-3">
-        <CardTitle>Hourly performance</CardTitle>
+        <CardTitle>Sales by hour</CardTitle>
         <CardDescription>
-          Paid sales across the day{peak ? ` · peak ${peak.hour}` : ""}
+          Paid sales through the day{peak ? ` · busiest ${peak.hour}` : ""}
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
@@ -75,7 +75,7 @@ export function HourlyPerformance({ items }: { items: HourlyPerformanceItem[] })
           </ChartContainer>
         ) : (
           <p className="text-muted-foreground py-16 text-center text-xs font-medium">
-            No hourly sales data in the selected window.
+            No sales in these dates.
           </p>
         )}
       </CardContent>

@@ -14,7 +14,7 @@ export const RecentOrdersList: React.FC<RecentOrdersListProps> = ({ recentOrders
     <Card className="transition-shadow">
       <CardHeader className="pb-3 border-b">
         <CardTitle>Recent orders</CardTitle>
-        <CardDescription>Latest order status logs</CardDescription>
+        <CardDescription>Newest orders first</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">

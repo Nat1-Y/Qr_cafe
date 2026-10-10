@@ -66,8 +66,8 @@ export const HeaderBanner: React.FC<HeaderBannerProps> = ({
               >
                 <RefreshCw className={cn(syncStatus.syncing && 'animate-spin')} />
                 {syncStatus.syncing
-                  ? 'Syncing…'
-                  : `Sync now${syncStatus.unsyncedCount > 0 ? ` (${syncStatus.unsyncedCount})` : ''}`}
+                  ? 'Updating…'
+                  : `Send now${syncStatus.unsyncedCount > 0 ? ` (${syncStatus.unsyncedCount})` : ''}`}
               </Button>
             )}
             <Button variant="outline" onClick={() => navigate('/dashboard/cashier/employees')}>
@@ -97,7 +97,7 @@ export const HeaderBanner: React.FC<HeaderBannerProps> = ({
         </Signal>
         <Signal tone={syncStatus.online ? 'ok' : 'bad'}>{syncStatus.online ? 'Online' : 'Offline'}</Signal>
         {syncStatus.unsyncedCount > 0 && (
-          <Signal tone="warn">{syncStatus.unsyncedCount} not synced yet</Signal>
+          <Signal tone="warn">{syncStatus.unsyncedCount} not sent yet</Signal>
         )}
       </div>
     </div>

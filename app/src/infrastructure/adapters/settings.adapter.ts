@@ -256,7 +256,7 @@ export const settingsAdapter = {
   }) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Payment method management requires an internet connection"),
+        new Error("No internet. Connect to change payment types."),
       );
     }
 
@@ -305,7 +305,7 @@ export const settingsAdapter = {
   ) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Payment method management requires an internet connection"),
+        new Error("No internet. Connect to change payment types."),
       );
     }
 
@@ -336,7 +336,7 @@ export const settingsAdapter = {
   deletePaymentMethod: async (id: string) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Payment method management requires an internet connection"),
+        new Error("No internet. Connect to change payment types."),
       );
     }
 
@@ -531,7 +531,7 @@ export const settingsAdapter = {
     if (!isOnline()) {
       return Promise.reject(
         new Error(
-          "Updating the cancel password requires an internet connection",
+          "No internet. Connect to change the manager PIN for cancelling.",
         ),
       );
     }
@@ -704,7 +704,7 @@ export const settingsAdapter = {
     // order creation) is refreshed only after the backend confirms.
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Updating system settings requires an internet connection"),
+        new Error("No internet. Connect to change settings."),
       );
     }
 
@@ -748,7 +748,7 @@ export const settingsAdapter = {
   updateTableSelectionSettings: async (data: { force_table_selection: boolean }) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Updating system settings requires an internet connection"),
+        new Error("No internet. Connect to change settings."),
       );
     }
 
@@ -811,7 +811,7 @@ export const settingsAdapter = {
     // org-order access) is refreshed only after the backend confirms.
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Updating system settings requires an internet connection"),
+        new Error("No internet. Connect to change settings."),
       );
     }
 
@@ -885,7 +885,7 @@ export const settingsAdapter = {
     if (!isOnline()) {
       return Promise.reject(
         new Error(
-          "Updating organization order access requires an internet connection",
+          "No internet. Connect to change company account settings.",
         ),
       );
     }
@@ -1122,7 +1122,7 @@ export const settingsAdapter = {
   updateReceiptSettings: async (data: { enable_cashier_receipt: boolean }) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Updating system settings requires an internet connection"),
+        new Error("No internet. Connect to change settings."),
       );
     }
 

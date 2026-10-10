@@ -19,7 +19,7 @@ export const useOrganizationData = () => {
       const list = (res as any)?.data?.data?.organizations ?? [];
       setOrgs(Array.isArray(list) ? list : []);
     } catch {
-      toast.error('Failed to load organizations');
+      toast.error("Couldn't load company accounts. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -43,21 +43,21 @@ export const useOrganizationData = () => {
   };
 
   const handleSubmit = async () => {
-    if (!form.name.trim()) { toast.error('Organization name is required'); return; }
+    if (!form.name.trim()) { toast.error('Enter the company name.'); return; }
     try {
       setSaving(true);
-      if (selected && selected.id) { await api.organizations.update(selected.id, form); toast.success('Organization updated'); }
-      else { await api.organizations.create(form); toast.success('Organization created'); }
+      if (selected && selected.id) { await api.organizations.update(selected.id, form); toast.success('Company account saved'); }
+      else { await api.organizations.create(form); toast.success('Company account added'); }
       setDialogOpen(false); load();
-    } catch { toast.error('Failed to save organization'); }
+    } catch { toast.error("Couldn't save the company account. Please try again."); }
     finally { setSaving(false); }
   };
 
   const handleDeactivate = async (org: Organization) => {
-    if (!window.confirm(`Deactivate "${org.name}"?`)) return;
-    if (!org.id) { toast.error('Invalid organization ID'); return; }
-    try { await api.organizations.deactivate(org.id); toast.success('Deactivated'); load(); }
-    catch { toast.error('Failed to deactivate'); }
+    if (!window.confirm(`Turn off "${org.name}"?`)) return;
+    if (!org.id) { toast.error("We couldn't find that company account."); return; }
+    try { await api.organizations.deactivate(org.id); toast.success('Turned off'); load(); }
+    catch { toast.error("Couldn't turn it off. Please try again."); }
   };
 
   return {

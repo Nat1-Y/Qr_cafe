@@ -82,7 +82,7 @@ export const LocationItemsView: React.FC<LocationItemsViewProps> = ({
             className="h-9 px-3 bg-background hover:bg-muted"
           >
             <ArrowLeft />
-            Back to locations
+            Back to stock places
           </Button>
           <div className="h-5 w-px bg-border hidden sm:block" />
           <div className="flex items-center gap-2.5">
@@ -91,7 +91,7 @@ export const LocationItemsView: React.FC<LocationItemsViewProps> = ({
             </div>
             <div>
               <h3 className="text-base font-semibold text-foreground">{selectedLocation?.name}</h3>
-              <p className="text-xs text-muted-foreground">Showing items available inside this location.</p>
+              <p className="text-xs text-muted-foreground">Items kept in this place.</p>
             </div>
           </div>
         </div>
@@ -113,7 +113,7 @@ export const LocationItemsView: React.FC<LocationItemsViewProps> = ({
             className="h-9 px-3 bg-background hover:bg-muted"
           >
             <Printer />
-            Print inventory
+            Print stock list
           </Button>
         </div>
       </div>
@@ -126,13 +126,13 @@ export const LocationItemsView: React.FC<LocationItemsViewProps> = ({
       <Card className="overflow-hidden border">
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-6 text-center text-muted-foreground">Loading...</div>
+            <div className="p-6 text-center text-muted-foreground">Loading…</div>
           ) : filteredLocationItems.length === 0 ? (
             <div className="py-12">
               <EmptyState
                 icon={<div className="h-10 w-10 text-muted-foreground" />}
-                title="No items available"
-                description={showOnlyInStock ? "No items are currently in stock at this location." : "No items match your search for this location."}
+                title="No items here"
+                description={showOnlyInStock ? "Nothing is in stock in this place right now." : "No items here match your search."}
               />
             </div>
           ) : (

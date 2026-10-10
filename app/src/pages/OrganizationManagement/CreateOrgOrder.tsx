@@ -16,6 +16,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import api from '@/application';
 import { formatETB } from '@/lib/format';
+import { friendlyError } from '@/lib/errors';
 
 interface CartItem {
   menu_item_id: string;
@@ -116,7 +117,7 @@ export const CreateOrgOrder: React.FC = () => {
       setMenuItems(normalized);
     } catch (error) {
       console.error('[CreateOrgOrder] load failed', error);
-      toast.error('Failed to load menu');
+      toast.error("Couldn't load the menu. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -187,7 +188,7 @@ export const CreateOrgOrder: React.FC = () => {
 
   const handleSubmit = async () => {
     if (cart.length === 0) {
-      toast.error('Add at least one item');
+      toast.error('Add at least one item first.');
       return;
     }
     if (!id) return;
@@ -205,8 +206,8 @@ export const CreateOrgOrder: React.FC = () => {
         org_customer_phone: customerPhone.trim() || undefined,
         org_customer_notes: customerNotes.trim() || undefined,
         order_type_label: organization?.name
-          ? `Org: ${organization.name}`
-          : 'Organization',
+          ? `Company: ${organization.name}`
+          : 'Company',
         items: cart.map((c) => {
           return {
             menu_item_id: c.menu_item_id,
@@ -222,17 +223,14 @@ export const CreateOrgOrder: React.FC = () => {
       };
 
       await api.orders.create(orderData);
-      toast.success('Organization order created');
+      toast.success('Company order sent');
       // The per-org detail page is admin-only (ProtectedRoute would just
       // bounce a cashier/waiter straight back to /dashboard) — send them to
       // the cashier-facing consolidated view instead.
       navigate(isAdmin ? `/dashboard/organizations/${id}` : '/dashboard/organizations/orders');
     } catch (error: any) {
       console.error('[CreateOrgOrder] submit failed', error);
-      const message =
-        error?.response?.data?.message ||
-        'Failed to create order. Check inventory or try again.';
-      toast.error(message);
+      toast.error(friendlyError(error, "Couldn't send the order. Check the stock and try again."));
     } finally {
       submitLockRef.current = false;
       setSubmitting(false);
@@ -243,7 +241,7 @@ export const CreateOrgOrder: React.FC = () => {
     return (
       <div className="p-4 md:p-8 space-y-6">
         <PageHeader
-          title="Create organization order"
+          title="New company order"
           actions={
             <Button variant="outline" onClick={() => navigate(-1)}>
               <ArrowLeft />
@@ -253,8 +251,7 @@ export const CreateOrgOrder: React.FC = () => {
         />
         <Card>
           <CardContent className="py-10 text-center text-muted-foreground">
-            You're not allowed to place organization orders. Ask the owner to
-            add you to the allow-list.
+            You can&apos;t take company orders yet. Ask the owner to allow you.
           </CardContent>
         </Card>
       </div>
@@ -264,11 +261,11 @@ export const CreateOrgOrder: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Create organization order"
+        title="New company order"
         description={
           organization?.name
-            ? `Bulk order for ${organization.name}`
-            : 'Bulk order'
+            ? `Big order for ${organization.name}`
+            : 'Big order'
         }
         actions={
           <Button
@@ -289,12 +286,12 @@ export const CreateOrgOrder: React.FC = () => {
             <SearchInput
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search items..." wrapperClassName="mt-2" />
+                placeholder="Search items…" wrapperClassName="mt-2" />
           </CardHeader>
           <CardContent>
             {loading ? (
               <p className="text-muted-foreground text-center py-8">
-                Loading menu...
+                Loading menu…
               </p>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -312,7 +309,7 @@ export const CreateOrgOrder: React.FC = () => {
                 ))}
                 {filteredItems.length === 0 && (
                   <p className="text-muted-foreground col-span-full text-center py-8">
-                    No items found.
+                    No items match.
                   </p>
                 )}
               </div>
@@ -333,7 +330,7 @@ export const CreateOrgOrder: React.FC = () => {
                   id="org-customer-name"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="Who at this organization is this order for?"
+                  placeholder="Who at this company is this order for?"
                 />
               </div>
               <div className="space-y-1.5">
@@ -352,18 +349,18 @@ export const CreateOrgOrder: React.FC = () => {
                   id="org-customer-notes"
                   value={customerNotes}
                   onChange={(e) => setCustomerNotes(e.target.value)}
-                  placeholder="Department, delivery instructions, etc."
+                  placeholder="Their department, delivery notes, etc."
                   rows={2}
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                Display-only context — doesn't change who gets billed.
+                Just for your notes. It doesn&apos;t change who pays.
               </p>
             </div>
 
             {cart.length === 0 ? (
               <p className="text-muted-foreground text-sm text-center py-6">
-                No items added.
+                No items added yet.
               </p>
             ) : (
               <div className="space-y-2">
@@ -415,7 +412,7 @@ export const CreateOrgOrder: React.FC = () => {
               {isAdmin && (
                 <div className="space-y-1.5">
                   <Label htmlFor="override-total">
-                    Negotiated total (override)
+                    Agreed price (optional)
                   </Label>
                   <Input
                     id="override-total"
@@ -423,10 +420,10 @@ export const CreateOrgOrder: React.FC = () => {
                     min={0}
                     value={overrideTotal}
                     onChange={(e) => setOverrideTotal(e.target.value)}
-                    placeholder="Leave blank to use subtotal"
+                    placeholder="Leave empty to use the items total"
                   />
                   <p className="text-xs text-muted-foreground">
-                    As admin you can set the final price for this bulk order.
+                    As a manager you can set the final price for this big order.
                   </p>
                 </div>
               )}
@@ -448,7 +445,7 @@ export const CreateOrgOrder: React.FC = () => {
                 onClick={handleSubmit}
                 disabled={submitting || cart.length === 0}
               >
-                {submitting ? 'Creating...' : 'Create Order'}
+                {submitting ? 'Sending…' : 'Send order'}
               </Button>
             </div>
           </CardContent>

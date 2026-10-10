@@ -13,10 +13,10 @@ export const ManagementCenter: React.FC = () => {
       <CardHeader className="pb-3 border-b">
         <CardTitle className="flex items-center gap-2">
           <Settings className="w-4 h-4 text-primary" />
-          <span>Management center</span>
+          <span>Shortcuts</span>
         </CardTitle>
         <CardDescription>
-          Quick administrative shortcuts and floor setup configurations
+          Quick links to the pages you use most
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">

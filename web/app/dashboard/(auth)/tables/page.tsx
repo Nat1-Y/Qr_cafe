@@ -60,7 +60,7 @@ export default function TablesPage() {
   return (
     <ResourceManager<T>
       title="Tables"
-      description="Dining tables for this branch."
+      description="The tables at this branch."
       createLabel="New table"
       columns={columns}
       fields={[{ key: "table_number", label: "Table number", type: "number", required: true }]}

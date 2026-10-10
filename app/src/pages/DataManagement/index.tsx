@@ -55,10 +55,10 @@ const DataManagement = () => {
             const request = await createCleanupRequest();
             setCleanupRequest(request);
             setIsRequestCleanupOpen(false);
-            toast.success('Cleanup requested. Waiting for owner approval.');
+            toast.success('Request sent. Waiting for the owner to say yes.');
         } catch (error) {
             console.error('Cleanup request failed:', error);
-            toast.error('Failed to request cleanup. Please try again.');
+            toast.error("Couldn't send the request. Please try again.");
         } finally {
             setRequestingCleanup(false);
         }
@@ -71,11 +71,11 @@ const DataManagement = () => {
             setAllowLowStock(enabled);
             toast.success(
                 enabled
-                    ? 'Orders can now be created with low stock ingredients.'
+                    ? 'Orders can now be taken even when stock is low.'
                     : 'Orders will be blocked when ingredients are low in stock.',
             );
         } catch (error: any) {
-            toast.error('Failed to update inventory settings. Please try again.');
+            toast.error("Couldn't save the stock setting. Please try again.");
         } finally {
             setSavingInventorySettings(false);
         }
@@ -88,11 +88,11 @@ const DataManagement = () => {
             setForceTableSelection(enabled);
             toast.success(
                 enabled
-                    ? 'Table selection is now mandatory for dine-in orders.'
-                    : 'Table selection is optional for all orders.',
+                    ? 'Staff must now pick a table for dine-in orders.'
+                    : 'Picking a table is now optional.',
             );
         } catch (error: any) {
-            toast.error('Failed to update dining settings. Please try again.');
+            toast.error("Couldn't save the table setting. Please try again.");
         } finally {
             setSavingDiningSettings(false);
         }
@@ -105,11 +105,11 @@ const DataManagement = () => {
             setEnableCashierReceipt(enabled);
             toast.success(
                 enabled
-                    ? 'Cashier receipt page is now enabled for cashiers.'
+                    ? 'Cashiers can now print receipts.'
                     : 'Cashier receipt page is now hidden from cashiers.',
             );
         } catch (error: any) {
-            toast.error('Failed to update receipt settings. Please try again.');
+            toast.error("Couldn't save the receipt setting. Please try again.");
         } finally {
             setSavingReceiptSettings(false);
         }
@@ -131,11 +131,11 @@ const DataManagement = () => {
             await db.delete(localDbTables.payments);
             await db.delete(localDbTables.expenses);
             await clearDeviceEnrollment();
-            toast.success('Device unenrolled. Restarting setup…');
+            toast.success('Device cleared and signed out. Starting setup again…');
             setTimeout(() => window.location.reload(), 600);
         } catch (error) {
             console.error('Device reset failed:', error);
-            toast.error('Failed to reset device. Please try again.');
+            toast.error("Couldn't clear this device. Please try again.");
             setResettingDevice(false);
         }
     };
@@ -144,7 +144,7 @@ const DataManagement = () => {
         <div className="p-4 md:p-8 space-y-6">
             <PageHeader
                 title="Settings"
-                description="Backups, resets and other data housekeeping."
+                description="Stock, tables, receipts and this device."
             />
 
             <div className="max-w-2xl mx-auto">
@@ -157,24 +157,24 @@ const DataManagement = () => {
                     <CardHeader className="pb-3 border-b">
                         <CardTitle className="flex items-center gap-2">
                             <Package className="h-5 w-5 text-primary" />
-                            Inventory settings
+                            Stock
                         </CardTitle>
                         <CardDescription>
-                            Configure how the system handles low stock situations.
+                            What happens when stock runs low.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-5">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg bg-background gap-4">
                             <div className="space-y-1">
-                                <h4 className="font-medium text-sm">Allow orders with low stock</h4>
+                                <h4 className="font-medium text-sm">Allow orders when stock is low</h4>
                                 <p className="text-xs text-muted-foreground">
-                                    When enabled, orders can be created even if one or more ingredients
-                                    are below the required quantity. Stock levels will go negative.
+                                    When on, staff can take orders even if there isn&apos;t enough
+                                    stock. Stock can then go below zero.
                                 </p>
                             </div>
                             <div className="flex items-center gap-3 shrink-0">
                                 <span className={`text-xs font-semibold ${allowLowStock ? 'text-warning' : 'text-muted-foreground'}`}>
-                                    {allowLowStock ? 'Enabled' : 'Disabled'}
+                                    {allowLowStock ? 'On' : 'Off'}
                                 </span>
                                 <button
                                     type="button"
@@ -197,7 +197,7 @@ const DataManagement = () => {
                         {allowLowStock && (
                             <p className="mt-3 text-xs text-warning flex items-start gap-1.5">
                                 <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                                Low stock orders are allowed. Inventory may go negative after payment is confirmed.
+                                Orders are allowed when stock is low. Stock may go below zero after payment.
                             </p>
                         )}
                     </CardContent>
@@ -208,23 +208,23 @@ const DataManagement = () => {
                     <CardHeader className="pb-3 border-b">
                         <CardTitle className="flex items-center gap-2">
                             <MapPin className="h-5 w-5 text-primary" />
-                            Dining settings
+                            Tables
                         </CardTitle>
                         <CardDescription>
-                            Configure table selection requirement rules for orders.
+                            Choose if staff must pick a table.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-5">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg bg-background gap-4">
                             <div className="space-y-1">
-                                <h4 className="font-medium text-sm">Require table selection</h4>
+                                <h4 className="font-medium text-sm">Staff must pick a table</h4>
                                 <p className="text-xs text-muted-foreground">
-                                    When enabled, staff must either pick a table or explicitly choose Take Away — an order can no longer be placed with no selection at all.
+                                    When on, staff must pick a table or Takeaway before they can send an order.
                                 </p>
                             </div>
                             <div className="flex items-center gap-3 shrink-0">
                                 <span className={`text-xs font-semibold ${forceTableSelection ? 'text-warning' : 'text-muted-foreground'}`}>
-                                    {forceTableSelection ? 'Enabled' : 'Disabled'}
+                                    {forceTableSelection ? 'On' : 'Off'}
                                 </span>
                                 <button
                                     type="button"
@@ -252,23 +252,23 @@ const DataManagement = () => {
                     <CardHeader className="pb-3 border-b">
                         <CardTitle className="flex items-center gap-2">
                             <Receipt className="h-5 w-5 text-primary" />
-                            Receipt settings
+                            Receipts
                         </CardTitle>
                         <CardDescription>
-                            Control cashier access to the receipt generation page.
+                            Choose if cashiers can print receipts.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-5">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg bg-background gap-4">
                             <div className="space-y-1">
-                                <h4 className="font-medium text-sm">Enable cashier receipt page</h4>
+                                <h4 className="font-medium text-sm">Let cashiers print receipts</h4>
                                 <p className="text-xs text-muted-foreground">
-                                    When enabled, cashiers can access the receipt generation page to print official receipts for orders.
+                                    When on, cashiers can open the receipts page and print receipts for orders.
                                 </p>
                             </div>
                             <div className="flex items-center gap-3 shrink-0">
                                 <span className={`text-xs font-semibold ${enableCashierReceipt ? 'text-success' : 'text-muted-foreground'}`}>
-                                    {enableCashierReceipt ? 'Enabled' : 'Disabled'}
+                                    {enableCashierReceipt ? 'On' : 'Off'}
                                 </span>
                                 <button
                                     type="button"
@@ -296,10 +296,10 @@ const DataManagement = () => {
                     <CardHeader className="pb-3 border-b">
                         <CardTitle className="flex items-center gap-2">
                             <Eraser className="h-5 w-5 text-primary" />
-                            Request data cleanup
+                            Ask to clear old data
                         </CardTitle>
                         <CardDescription>
-                            Ask the owner to approve clearing this device's local data. Once approved, all local tables are wiped and this branch's orders &amp; payments are deleted.
+                            Ask the owner to clear the data on this device. If the owner says yes, this branch&apos;s orders and payments are deleted.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-5">
@@ -307,23 +307,23 @@ const DataManagement = () => {
                             <div className="space-y-1">
                                 {cleanupRequest?.status === 'pending' ? (
                                     <>
-                                        <h4 className="font-medium text-sm text-warning">Waiting for owner approval</h4>
+                                        <h4 className="font-medium text-sm text-warning">Waiting for the owner</h4>
                                         <p className="text-xs text-muted-foreground">
-                                            Your cleanup request is pending. The device will clear its data automatically once the owner approves it in the web dashboard.
+                                            Your request is sent. This device will clear its data by itself when the owner says yes online.
                                         </p>
                                     </>
                                 ) : cleanupRequest?.status === 'approved' ? (
                                     <>
-                                        <h4 className="font-medium text-sm text-success">Approved — clearing data…</h4>
+                                        <h4 className="font-medium text-sm text-success">Owner said yes. Clearing data…</h4>
                                         <p className="text-xs text-muted-foreground">
-                                            The owner approved the cleanup. The device will finish syncing and then wipe its local data.
+                                            The owner said yes. This device will finish sending updates, then clear its data.
                                         </p>
                                     </>
                                 ) : (
                                     <>
-                                        <h4 className="font-medium text-sm">Clear all local data</h4>
+                                        <h4 className="font-medium text-sm">Clear all data on this device</h4>
                                         <p className="text-xs text-muted-foreground">
-                                            Sends a cleanup request to the owner. Nothing is deleted until they approve it. The device stays enrolled and re-downloads menu, users and settings afterwards.
+                                            Sends a request to the owner. Nothing is deleted until they say yes. This device stays set up and downloads the menu, staff and settings again after.
                                         </p>
                                     </>
                                 )}
@@ -335,7 +335,7 @@ const DataManagement = () => {
                                 disabled={!online || cleanupRequest?.status === 'pending' || cleanupRequest?.status === 'approved'}
                                 className="w-full sm:w-auto shrink-0"
                             >
-                                {cleanupRequest?.status === 'pending' ? 'Request pending' : 'Request Cleanup'}
+                                {cleanupRequest?.status === 'pending' ? 'Request sent' : 'Ask to clear data'}
                             </Button>
                         </div>
                     </CardContent>
@@ -346,23 +346,23 @@ const DataManagement = () => {
                     <CardHeader className="pb-3 border-b">
                         <CardTitle className="flex items-center gap-2">
                             <MonitorSmartphone className="h-5 w-5 text-primary" />
-                            Device enrollment
+                            This device
                         </CardTitle>
                         <CardDescription>
-                            This device is linked to a branch via a device token sent on every request.
+                            This device is set up for one branch.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-5">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg bg-background gap-4">
                             <div className="space-y-1">
                                 <h4 className="font-medium text-sm">
-                                    {enrollment?.deviceName || 'Enrolled device'}
+                                    {enrollment?.deviceName || 'Set up'}
                                 </h4>
                                 <p className="text-xs text-muted-foreground font-mono">
                                     Branch: {enrollment?.branchId || '—'}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
-                                    Resetting unlinks this device and returns to the enrollment screen so it can be set up for a different branch. All local data is cleared.
+                                    Clearing signs this device out of the branch and goes back to the setup screen, so you can set it up again. All data on this device is cleared.
                                 </p>
                             </div>
                             <Button
@@ -371,7 +371,7 @@ const DataManagement = () => {
                                 onClick={() => setIsResetDeviceOpen(true)}
                                 className="w-full sm:w-auto shrink-0"
                             >
-                                Reset / Re-enroll
+                                Clear and sign out device
                             </Button>
                         </div>
                     </CardContent>
@@ -381,11 +381,11 @@ const DataManagement = () => {
             <Dialog open={isRequestCleanupOpen} onOpenChange={setIsRequestCleanupOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Request data cleanup?</DialogTitle>
+                        <DialogTitle>Ask to clear old data?</DialogTitle>
                         <DialogDescription>
-                            This sends a request to the owner. After they approve it, all local
-                            data on this device is cleared and this branch's orders &amp; payments
-                            are permanently deleted. The device stays enrolled. This cannot be undone.
+                            This sends a request to the owner. If they say yes, all data on this
+                            device is cleared and this branch&apos;s orders and payments are deleted
+                            for good. The device stays set up. You can&apos;t undo this.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -393,7 +393,7 @@ const DataManagement = () => {
                             Cancel
                         </Button>
                         <Button variant="destructive" onClick={handleRequestCleanup} disabled={requestingCleanup}>
-                            {requestingCleanup ? 'Requesting…' : 'Send Request'}
+                            {requestingCleanup ? 'Sending…' : 'Send request'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -402,10 +402,10 @@ const DataManagement = () => {
             <Dialog open={isResetDeviceOpen} onOpenChange={setIsResetDeviceOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Reset device enrollment?</DialogTitle>
+                        <DialogTitle>Clear and sign out this device?</DialogTitle>
                         <DialogDescription>
-                            This unlinks the device from its current branch and clears all local data.
-                            You'll need a new enrollment code to set it up again. This cannot be undone.
+                            This signs the device out of its branch and clears all its data.
+                            You&apos;ll need a new setup code to set it up again. You can&apos;t undo this.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -413,7 +413,7 @@ const DataManagement = () => {
                             Cancel
                         </Button>
                         <Button variant="destructive" onClick={handleResetDevice} disabled={resettingDevice}>
-                            {resettingDevice ? 'Resetting…' : 'Yes, Reset Device'}
+                            {resettingDevice ? 'Clearing…' : 'Yes, clear device'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

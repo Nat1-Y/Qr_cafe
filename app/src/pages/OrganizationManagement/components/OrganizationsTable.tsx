@@ -20,17 +20,17 @@ export const OrganizationsTable = ({ orgs, loading, onEdit, onDeactivate }: Orga
           <TableHead>Name</TableHead>
           <TableHead>Contact</TableHead>
           <TableHead>Phone</TableHead>
-          <TableHead>Credit balance</TableHead>
+          <TableHead>Credit left</TableHead>
           <TableHead>Status</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {loading ? (
-          <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+          <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Loading…</TableCell></TableRow>
         ) : orgs.length === 0 ? (
           <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-            No organizations yet.
+            No company accounts yet.
           </TableCell></TableRow>
         ) : orgs.map(org => {
           const active = org.is_active !== false && org.is_active !== 0 && org.is_active !== '0' && org.is_active !== 'false';
@@ -41,7 +41,7 @@ export const OrganizationsTable = ({ orgs, loading, onEdit, onDeactivate }: Orga
               <TableCell>{org.contact_name || '—'}</TableCell>
               <TableCell>{org.phone || '—'}</TableCell>
               <TableCell><CreditBadge balance={balance} /></TableCell>
-              <TableCell><Badge variant={active ? 'default' : 'secondary'}>{active ? 'Active' : 'Inactive'}</Badge></TableCell>
+              <TableCell><Badge variant={active ? 'default' : 'secondary'}>{active ? 'Active' : 'Not active'}</Badge></TableCell>
               <TableCell className="text-right space-x-1">
                 <Button variant="ghost" size="sm" onClick={() => onEdit(org)}><Pencil /></Button>
                 {active && <Button variant="ghost" size="sm" onClick={() => onDeactivate(org)}><Ban className="text-destructive" /></Button>}

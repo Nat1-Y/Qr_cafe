@@ -27,7 +27,7 @@ export const OrganizationDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader><DialogTitle>{selected ? 'Edit Organization' : 'Add Organization'}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{selected ? 'Edit company account' : 'Add company account'}</DialogTitle></DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
             <Label htmlFor="org-name">Name *</Label>
@@ -51,7 +51,7 @@ export const OrganizationDialog = ({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={onSubmit} disabled={saving}>{saving ? 'Saving...' : selected ? 'Save changes' : 'Create'}</Button>
+          <Button onClick={onSubmit} disabled={saving}>{saving ? 'Saving…' : selected ? 'Save changes' : 'Add'}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getOrderPlacerLabel } from '@/lib/utils';
-import { formatETB } from '@/lib/format';
+import { formatETB, humanize } from '@/lib/format';
 
 interface ViewPaymentDialogProps {
   viewOpen: boolean;
@@ -44,7 +44,7 @@ export const ViewPaymentDialog: React.FC<ViewPaymentDialogProps> = ({
                     )}
                     {viewPayment?.payment_method && (
                       <Badge variant="info" className="mt-1">
-                        {viewPayment.payment_method.replace('_', ' ')}
+                        {humanize(viewPayment.payment_method)}
                       </Badge>
                     )}
                   </div>
@@ -82,7 +82,7 @@ export const ViewPaymentDialog: React.FC<ViewPaymentDialogProps> = ({
               </Card>
             ) : (
               <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg">
-                No order items available
+                No items on this order
               </p>
             )}
           </div>

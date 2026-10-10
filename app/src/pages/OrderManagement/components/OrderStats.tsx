@@ -35,8 +35,8 @@ export const OrderStats: React.FC<OrderStatsProps> = ({ orders, paidOrderIdSet }
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <StatsCard title="Orders" value={stats.totalOrders} />
-      <StatsCard title="Revenue" value={formatETB(stats.totalRevenue)} variant="success" />
-      <StatsCard title="Pending" value={stats.pendingOrders} variant="warning" />
+      <StatsCard title="Money in" value={formatETB(stats.totalRevenue)} variant="success" />
+      <StatsCard title="Waiting" value={stats.pendingOrders} variant="warning" />
       <StatsCard title="Not paid yet" value={formatETB(stats.unpaidAmount)} variant="destructive" />
     </div>
   );

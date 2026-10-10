@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Organizations } from "@/lib/resources";
 import { formatETB } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
 
 type ServiceRow = { key: string; description: string; cost: string };
 
@@ -49,7 +50,7 @@ export function RecordTransactionForm({
       .filter((r) => r.description.trim() && Number(r.cost) > 0)
       .map((r) => ({ description: r.description.trim(), cost: Number(r.cost) }));
     if (valid.length === 0) {
-      toast.error("Add at least one service with a cost.");
+      toast.error("Add at least one thing they used, with its cost.");
       return;
     }
     setSaving(true);
@@ -59,13 +60,13 @@ export function RecordTransactionForm({
         transaction_date: date ? new Date(date).toISOString() : undefined,
         notes: notes || undefined,
       });
-      toast.success("Transaction recorded");
+      toast.success("Saved and taken from credit");
       setServices([{ key: newKey(), description: "", cost: "" }]);
       setDate("");
       setNotes("");
       onRecorded();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setSaving(false);
     }
@@ -74,7 +75,7 @@ export function RecordTransactionForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Record service usage</CardTitle>
+        <CardTitle>Use company credit</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
@@ -108,7 +109,7 @@ export function RecordTransactionForm({
           ))}
           <Button type="button" variant="outline" size="sm" onClick={addRow}>
             <PlusIcon />
-            Add service
+            Add another
           </Button>
         </div>
 
@@ -128,7 +129,7 @@ export function RecordTransactionForm({
           <span className="text-lg font-semibold">{formatETB(total)}</span>
         </div>
         <Button onClick={submit} disabled={saving}>
-          {saving ? "Saving…" : "Record transaction"}
+          {saving ? "Saving…" : "Save"}
         </Button>
       </CardContent>
     </Card>

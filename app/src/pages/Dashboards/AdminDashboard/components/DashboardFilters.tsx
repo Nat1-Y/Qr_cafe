@@ -50,7 +50,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
           <div className="flex flex-wrap items-center gap-2">
             <Select value={businessUnit} onValueChange={setBusinessUnit}>
               <SelectTrigger className="w-[150px] rounded-full px-4">
-                <SelectValue placeholder="All units" />
+                <SelectValue placeholder="All sections" />
               </SelectTrigger>
               <SelectContent>
                 {BUSINESS_UNITS.map((unit) => (
@@ -103,7 +103,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             <div className="flex flex-wrap gap-4 items-center">
               {customMode === 'single' ? (
                 <div className="space-y-1">
-                  <Label>Select date</Label>
+                  <Label>Pick a date</Label>
                   <Input
                     type="date"
                     value={customDate}

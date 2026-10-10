@@ -63,7 +63,7 @@ export const FilterCard: React.FC<FilterCardProps> = ({
                
               >
                 <Calendar className="w-3.5 h-3.5 mr-1.5 text-primary" />
-                Specific date
+                One day
               </Button>
               <Button
                 variant={customMode === 'range' ? 'secondary' : 'ghost'}
@@ -113,7 +113,7 @@ export const FilterCard: React.FC<FilterCardProps> = ({
 
             <div className="inline-flex bg-warning-soft border border-warning/30 text-warning rounded-xl px-3 py-1.5 text-xs font-semibold items-center gap-2">
               <CheckCircle className="w-4 h-4 text-warning" />
-              Viewing ledger for: {viewingLabel}
+              Showing: {viewingLabel}
             </div>
           </div>
         )}

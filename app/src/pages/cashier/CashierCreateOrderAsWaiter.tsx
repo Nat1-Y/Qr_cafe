@@ -62,7 +62,7 @@ const CashierCreateOrderAsWaiter = () => {
   const totalItemsCount = mappedMainCategories.reduce((sum, c) => sum + c.count, 0);
   const trimmedSearchQuery = searchQuery.trim();
 
-  if (loading) return <LoadingSpinner text="Loading menu..." />;
+  if (loading) return <LoadingSpinner text="Loading the menu…" />;
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background">

@@ -20,7 +20,7 @@ export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ isOnline, se
           onClick={() => setShowChangePassword(true)}
           disabled={!isOnline}
         >
-          Change password {!isOnline && ' (Unavailable Offline)'}
+          Change password {!isOnline && ' (needs internet)'}
         </Button>
         <Button className="w-full justify-start" variant="outline">
           Download data

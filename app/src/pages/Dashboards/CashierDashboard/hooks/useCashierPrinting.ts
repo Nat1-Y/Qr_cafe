@@ -23,6 +23,7 @@ interface PrintingProps {
 
 export interface StuckPrintOrder {
   id: number;
+  order_number?: number | string | null;
   table_number?: any;
   attempts: number;
   error: string;
@@ -54,7 +55,7 @@ export const useCashierPrinting = ({
       ? err
       : err?.message
         ? String(err.message)
-        : String(err || "Unknown native printing error");
+        : String(err || "Printer problem");
   }, []);
 
   const recordPrintFailure = useCallback(
@@ -69,7 +70,7 @@ export const useCashierPrinting = ({
         const others = prev.filter((o) => o.id !== id);
         return [
           ...others,
-          { id, table_number: order?.table_number, attempts, error: msg },
+          { id, order_number: order?.order_number, table_number: order?.table_number, attempts, error: msg },
         ];
       });
     },
@@ -101,9 +102,9 @@ export const useCashierPrinting = ({
         ? err
         : err?.message
           ? String(err.message)
-          : String(err || "Unknown native printing error");
+          : String(err || "Printer problem");
     console.error("Tauri Thermal Printer Error Details:", err);
-    toast.error(`Thermal printer printing failed: ${msg}`, { duration: 2000 });
+    toast.error("The receipt didn't print. Check the printer is on and has paper.", { duration: 2000 });
     setQzStatus({ connected: false, error: msg });
   }, []);
 
@@ -180,7 +181,7 @@ export const useCashierPrinting = ({
           const tablePart = order.table_number
             ? ` (Table ${order.table_number})`
             : "";
-          toast.success(`Order #${tablePart} printed successfully`, {
+          toast.success(`Order #${tablePart} printed`, {
             duration: 2000,
           });
           printed = true;
@@ -380,7 +381,7 @@ export const useCashierPrinting = ({
 
         setQzStatus({ connected: true, error: null });
         recordPrintSuccess(orderId);
-        toast.success(`Order printed successfully`, { duration: 1000 });
+        toast.success(`Order printed`, { duration: 1000 });
       } catch (err: any) {
         console.error(
           `[Immediate Tauri Print] Print failed for order #${orderId}:`,
@@ -508,18 +509,18 @@ export const useCashierPrinting = ({
   // Diagnostic Printer testing utility
   const testQzPrint = async () => {
     try {
-      toast.loading("Sending test print command natively...", {
+      toast.loading("Printing a test page…", {
         id: "tauri-test",
       });
       await (api.orders as any).testPrintNative(getActivePrinterName());
       toast.success(
-        `Test print sent to ${getActivePrinterName() || "default printer"}!`,
+        `Test page sent to ${getActivePrinterName() || "the main printer"}`,
         { id: "tauri-test" },
       );
       setQzStatus({ connected: true, error: null });
     } catch (err: any) {
       console.error("[Tauri Print Test] Error:", err);
-      toast.error(`Test print failed: ${err.message || err}`, {
+      toast.error("The test page didn't print. Check the printer is on and has paper.", {
         id: "tauri-test",
         duration: 2000,
       });

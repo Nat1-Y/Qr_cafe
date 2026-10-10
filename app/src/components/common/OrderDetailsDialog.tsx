@@ -133,7 +133,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
             </div>
             {order.created_by_id && order.created_by_id !== (order.waiter_id || order.employee_id) && (
               <div>
-                <span className="text-muted-foreground block text-xs">Cashier / created by</span>
+                <span className="text-muted-foreground block text-xs">Taken by</span>
                 <span className="font-medium">{usersMap?.[order.created_by_id]?.name || 'Unknown'}</span>
               </div>
             )}
@@ -191,7 +191,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
             ))}
 
             <div className="pt-4 border-t flex justify-between items-center font-semibold">
-              <span>Total amount</span>
+              <span>Total</span>
               <span className="text-primary">{formatETB(parseFloat(order.total_amount || 0))}</span>
             </div>
           </div>

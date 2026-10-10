@@ -13,14 +13,14 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ counts }) => {
       <StatsCard
         title="Total food items sold"
         value={counts.foodQty}
-        subtitle="Cafe & Restaurant aggregations"
+        subtitle="Cafe and restaurant, added up"
         icon={<Coffee className="w-5 h-5" />}
         variant="success"
       />
       <StatsCard
-        title="Total beverages sold"
+        title="Total drinks sold"
         value={counts.softQty}
-        subtitle="Barista beverage orders count"
+        subtitle="Drinks from the barista"
         icon={<TrendingUp className="w-5 h-5" />}
         variant="info"
       />

@@ -192,7 +192,7 @@ export const attendanceAdapter = {
     );
 
     if (!active || !active.id) {
-      throw new Error("No active attendance record found to clock out.");
+      throw new Error("You're not clocked in.");
     }
 
     const clockInTime = new Date(active.clock_in_time!);

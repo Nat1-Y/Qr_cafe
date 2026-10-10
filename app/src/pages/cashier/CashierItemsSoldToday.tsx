@@ -240,7 +240,7 @@ export const CashierItemsSoldToday: React.FC = () => {
       setPayments(Array.isArray(pay) ? pay : []);
       setMenuItems(Array.isArray(menu) ? menu : []);
     } catch (e) {
-      toast.error('Failed to load items sold today');
+      toast.error("Couldn't load today's items. Please try again.");
       setOrders([]);
       setPayments([]);
       setMenuItems([]);
@@ -273,7 +273,7 @@ export const CashierItemsSoldToday: React.FC = () => {
       });
     } catch (e) {
       console.error('Failed to print items sold report:', e);
-      toast.error('Failed to print report');
+      toast.error("The report didn't print. Check the printer is on and has paper.");
     } finally {
       setPrinting(false);
     }
@@ -297,7 +297,7 @@ export const CashierItemsSoldToday: React.FC = () => {
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Items sold today"
-        description="Everything sold today, aggregated by item — ready to print"
+        description="Everything sold today, added up by item. Ready to print."
         actions={
           <div className="flex items-center gap-2">
             {printers.length > 0 && (
@@ -340,7 +340,7 @@ export const CashierItemsSoldToday: React.FC = () => {
           variant="info"
         />
         <StatsCard
-          title="Total revenue"
+          title="Total money in"
           value={`${formatETB(Number(counts.totalRevenue || 0))}`}
           variant="default"
         />
@@ -350,20 +350,20 @@ export const CashierItemsSoldToday: React.FC = () => {
         <CardHeader className="pb-3 border-b flex flex-row items-center justify-between">
           <div>
             <CardTitle>Items sold today</CardTitle>
-            <CardDescription>{itemsRows.length} distinct item types</CardDescription>
+            <CardDescription>{itemsRows.length} different items</CardDescription>
           </div>
           <Badge variant="secondary">
-            Orders: {todaysOrders.length} · Settled: {paidCount}
+            Orders: {todaysOrders.length} · Paid: {paidCount}
           </Badge>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Business unit</TableHead>
+                <TableHead>Section</TableHead>
                 <TableHead>Item name</TableHead>
                 <TableHead>Quantity sold</TableHead>
-                <TableHead className="text-right">Revenue</TableHead>
+                <TableHead className="text-right">Money in</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

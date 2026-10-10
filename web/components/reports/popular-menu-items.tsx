@@ -16,8 +16,8 @@ export function PopularMenuItems({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between border-b pb-3">
         <div>
-          <CardTitle>Popular menu items</CardTitle>
-          <CardDescription>Most frequently bought dishes</CardDescription>
+          <CardTitle>Best sellers</CardTitle>
+          <CardDescription>What customers buy most</CardDescription>
         </div>
         <select
           value={topItemsPeriod}
@@ -54,7 +54,7 @@ export function PopularMenuItems({
             ))
           ) : (
             <div className="bg-muted/20 text-muted-foreground rounded-xl border border-dashed p-8 text-center text-xs font-semibold">
-              No item summary found for the selected filters and period.
+              Nothing sold for these filters and dates.
             </div>
           )}
         </div>

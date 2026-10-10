@@ -16,6 +16,7 @@ import {
 import { printStockTransferReceipts } from "@/utils/receiptPrinter";
 import { getContainer, TOKENS } from "@/bootstrap/container";
 import type { UserFacade } from "@/application/users/user.facade";
+import { friendlyError } from '@/lib/errors';
 
 const usersApi = () => getContainer().resolve<UserFacade>(TOKENS.userFacade);
 
@@ -92,18 +93,18 @@ export const useInventoryData = () => {
   const handleManualSync = async () => {
     if (syncStatus.syncing) return;
     if (!syncStatus.online) {
-      toast.error("You are offline. Cannot sync right now.");
+      toast.error("No internet. Your changes will send later.");
       return;
     }
-    toast.loading("Synchronizing stock transfers...", { id: "manual-sync-progress" });
+    toast.loading("Updating stock moves…", { id: "manual-sync-progress" });
     const success = await syncEngine.sync(['inventory_pull']);
     if (success) {
-      toast.success("Synchronization completed successfully!", {
+      toast.success("Stock is up to date", {
         id: "manual-sync-progress",
       });
       await fetchAll();
     } else {
-      toast.error("Synchronization failed or nothing to sync.", {
+      toast.error("Couldn't update stock, or there was nothing new. Please try again.", {
         id: "manual-sync-progress",
       });
     }
@@ -162,7 +163,7 @@ export const useInventoryData = () => {
 
       setStockLocations(mappedLocations);
     } catch {
-      toast.error("Failed to load inventory");
+      toast.error("Couldn't load stock. Please try again.");
     } finally {
       setLoading(false);
       hasLoadedRef.current = true;
@@ -360,7 +361,7 @@ export const useInventoryData = () => {
       setMovements(Array.isArray(rows) ? rows : []);
     } catch {
       setMovements([]);
-      toast.error("Failed to load movement history");
+      toast.error("Couldn't load stock history. Please try again.");
     } finally {
       setMovementLoading(false);
     }
@@ -380,7 +381,7 @@ export const useInventoryData = () => {
     e.preventDefault();
     if (isSubmittingForm) return;
     if (!formData.name.trim()) {
-      toast.error("Name is required");
+      toast.error("Enter a name.");
       return;
     }
     const piecesPerUnit = Math.max(
@@ -449,7 +450,7 @@ export const useInventoryData = () => {
       // Only refresh inventory items — much faster than full fetchAll
       fetchInventoryOnly();
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Failed to save");
+      toast.error(friendlyError(err, "Couldn't save the item. Please try again."));
     } finally {
       setIsSubmittingForm(false);
     }
@@ -466,14 +467,14 @@ export const useInventoryData = () => {
     if (qtyData.mode === "delta") {
       const d = parseFloat(qtyData.delta);
       if (!Number.isFinite(d)) {
-        toast.error("Invalid delta");
+        toast.error("Enter a number.");
         return;
       }
       payload.delta = d;
     } else {
       const q = parseFloat(qtyData.quantity);
       if (!Number.isFinite(q)) {
-        toast.error("Invalid quantity");
+        toast.error("Enter an amount.");
         return;
       }
       payload.quantity = q;
@@ -482,11 +483,11 @@ export const useInventoryData = () => {
     setIsSubmittingForm(true);
     try {
       await api.inventory.updateQuantity(selectedItem.id, payload);
-      toast.success("Quantity updated");
+      toast.success("Stock saved");
       setQtyDialog(false);
       fetchInventoryOnly();
     } catch {
-      toast.error("Failed to update quantity");
+      toast.error("Couldn't save the stock. Please try again.");
     } finally {
       setIsSubmittingForm(false);
     }
@@ -497,15 +498,15 @@ export const useInventoryData = () => {
     if (isSubmittingTransfer) return;
 
     if (transferData.lines.length === 0) {
-      toast.error("Add at least one item to transfer");
+      toast.error("Add at least one item to move.");
       return;
     }
     if (!transferData.to_location) {
-      toast.error("Select a destination location");
+      toast.error("Pick where the stock goes.");
       return;
     }
     if (!transferData.from_location) {
-      toast.error("Select a source location");
+      toast.error("Pick where the stock comes from.");
       return;
     }
 
@@ -519,7 +520,7 @@ export const useInventoryData = () => {
       const enteredQty = parseFloat(line.quantity);
       const item = normalizedItems.find((c) => String(c.id) === String(itemId));
       if (!item || !Number.isFinite(enteredQty) || enteredQty <= 0) {
-        toast.error(`Invalid entry for item ${item?.name ?? itemId}`);
+        toast.error(`Check the amount for ${item?.name ?? 'this item'}.`);
         return;
       }
       const multiplier =
@@ -543,7 +544,7 @@ export const useInventoryData = () => {
       const transfer =
         response?.data?.data?.transfer ?? response?.data?.transfer;
 
-      toast.success("Stock transferred successfully");
+      toast.success("Stock moved");
       setTransferDialog(false);
       // Refresh inventory FIRST so the receipt prints the balances that remain
       // *after* this transfer. The backend has already applied it; printing with
@@ -551,7 +552,7 @@ export const useInventoryData = () => {
       const freshItems = await fetchInventoryOnly();
       await printStockTransferReceipts(transfer, freshItems ?? normalizedItems, stockLocations);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Failed to transfer stock");
+      toast.error(friendlyError(err, "Couldn't move the stock. Please try again."));
     } finally {
       setIsSubmittingTransfer(false);
     }
@@ -562,10 +563,10 @@ export const useInventoryData = () => {
       await (api.inventory as any).receiveTransfer(
         transfer.remote_id ?? transfer.id,
       );
-      toast.success("Transfer marked as received");
+      toast.success("Marked as received");
       fetchAll();
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Failed to receive transfer");
+      toast.error(friendlyError(err, "Couldn't mark it as received. Please try again."));
     }
   };
 
@@ -586,18 +587,18 @@ export const useInventoryData = () => {
       await printStockTransferReceipts(transfer, normalizedItems, stockLocations);
     } catch (err) {
       console.error("Failed to print stock transfer receipts:", err);
-      toast.error("Failed to print transfer receipts");
+      toast.error("The slips didn't print. Check the printer is on and has paper.");
     }
   };
 
   const deleteItem = async (item: NormalizedInventoryItem) => {
-    if (!window.confirm("Delete this inventory item?")) return;
+    if (!window.confirm("Delete this stock item?")) return;
     try {
       await api.inventory.delete(item.id);
       toast.success("Deleted");
       fetchAll();
     } catch {
-      toast.error("Failed to delete");
+      toast.error("Couldn't delete the item. Please try again.");
     }
   };
 

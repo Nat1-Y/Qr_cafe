@@ -26,7 +26,7 @@ export const AddTableDialog: React.FC<AddTableDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Add new Table</DialogTitle>
+          <DialogTitle>Add table</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -57,7 +57,7 @@ export const AddTableDialog: React.FC<AddTableDialogProps> = ({
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit">Create table</Button>
+            <Button type="submit">Add table</Button>
           </DialogFooter>
         </form>
       </DialogContent>

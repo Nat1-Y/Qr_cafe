@@ -107,7 +107,7 @@ export const usePaymentData = () => {
         [];
       setPaymentMethods(Array.isArray(methodsList) ? methodsList : []);
     } catch {
-      toast.error("Failed to load payments");
+      toast.error("Couldn't load payments. Please try again.");
     }
   }, [floorDate]);
 
@@ -163,7 +163,7 @@ export const usePaymentData = () => {
       setPagePayments(Array.isArray(data.payments) ? data.payments : []);
       setServerTotal(Number(data.count ?? 0));
     } catch {
-      toast.error("Failed to load payments");
+      toast.error("Couldn't load payments. Please try again.");
       setPagePayments([]);
       setServerTotal(0);
     } finally {
@@ -267,7 +267,7 @@ export const usePaymentData = () => {
         (or as any)?.data?.data?.order ?? (or as any)?.data?.order ?? null,
       );
     } catch {
-      toast.error("Failed to load details");
+      toast.error("Couldn't load details. Please try again.");
     } finally {
       setViewLoading(false);
     }

@@ -30,7 +30,7 @@ export const RoleFormDialog: React.FC<RoleFormDialogProps> = ({
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{selectedRole ? 'Edit Role' : 'Add New Role'}</DialogTitle>
+          <DialogTitle>{selectedRole ? 'Edit role' : 'Add role'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -51,7 +51,7 @@ export const RoleFormDialog: React.FC<RoleFormDialogProps> = ({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="name">System key</Label>
+            <Label htmlFor="name">Code name</Label>
             <Input
               id="name"
               value={formData.name}
@@ -59,7 +59,7 @@ export const RoleFormDialog: React.FC<RoleFormDialogProps> = ({
               placeholder="e.g. restaurant_manager"
               required
             />
-            <p className="text-xs text-muted-foreground font-medium">Lowercase with underscores only. Used internally to check permissions.</p>
+            <p className="text-xs text-muted-foreground font-medium">Filled in for you from the name. Small letters and _ only.</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
@@ -81,7 +81,7 @@ export const RoleFormDialog: React.FC<RoleFormDialogProps> = ({
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={saving}>{saving ? 'Saving…' : selectedRole ? 'Update' : 'Create'}</Button>
+            <Button type="submit" disabled={saving}>{saving ? 'Saving…' : selectedRole ? 'Save' : 'Add'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

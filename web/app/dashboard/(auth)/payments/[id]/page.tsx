@@ -12,8 +12,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/page-header";
 import { Orders, Payments } from "@/lib/resources";
 import { formatETB, shortDate, humanize } from "@/lib/format";
-import { formatOrderNumber } from "@/lib/utils";
+import { formatOrderNumber, uuidToDisplayId } from "@/lib/utils";
 import { StatusBadge } from "@/components/status-badge";
+import { friendlyError } from "@/lib/errors";
 
 type OrderItem = {
   id: string;
@@ -91,7 +92,7 @@ export default function PaymentDetailPage({
           if (active) setOrder(o);
         }
       })
-      .catch((e: any) => toast.error(e.message))
+      .catch((e: any) => toast.error(friendlyError(e)))
       .finally(() => active && setLoading(false));
     return () => {
       active = false;
@@ -102,7 +103,7 @@ export default function PaymentDetailPage({
     <div className="space-y-6">
       <PageHeader
         title="Payment details"
-        description={`Payment ${id.slice(0, 8)}`}
+        description={`Payment #${uuidToDisplayId(id)}`}
         action={
           <Button asChild variant="outline">
             <Link href="/dashboard/payments">
@@ -119,7 +120,7 @@ export default function PaymentDetailPage({
           <Skeleton className="h-64" />
         </div>
       ) : !payment ? (
-        <p className="text-muted-foreground text-sm">Payment not found.</p>
+        <p className="text-muted-foreground text-sm">We couldn&apos;t find this payment. It may have been deleted.</p>
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
@@ -129,12 +130,12 @@ export default function PaymentDetailPage({
             <CardContent>
               <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
                 <Row
-                  label="Reference"
-                  value={<span className="font-mono text-xs">{payment.id}</span>}
+                  label="Payment number"
+                  value={`#${uuidToDisplayId(payment.id)}`}
                 />
                 <Row label="Amount" value={formatETB(payment.amount)} />
                 <Row
-                  label="Method"
+                  label="Paid with"
                   value={humanize(payment.payment_method)}
                 />
                 <Row
@@ -146,7 +147,7 @@ export default function PaymentDetailPage({
                     </Badge>
                   }
                 />
-                <Row label="Processed by" value={payment.processed_by_name ?? "—"} />
+                <Row label="Taken by" value={payment.processed_by_name ?? "—"} />
                 <Row label="Created" value={shortDate(payment.created_at)} />
                 {payment.paid_at && (
                   <Row label="Paid at" value={shortDate(payment.paid_at)} />
@@ -157,11 +158,11 @@ export default function PaymentDetailPage({
                 <div className="mt-4 flex items-start gap-2 rounded-md border border-warning/30 bg-warning-soft p-3 text-sm text-warning">
                   <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" />
                   <div>
-                    <p className="font-medium">Amount mismatch flagged</p>
+                    <p className="font-medium">Amount didn&apos;t match</p>
                     <p className="text-warning">
                       The till sent {formatETB(payment.meta.client_sent_amount ?? null)}, but the
                       order total was {formatETB(payment.meta.order_total_at_payment ?? null)}.
-                      The recorded amount was corrected to the order total.
+                      We saved the order total.
                     </p>
                   </div>
                 </div>
@@ -171,7 +172,7 @@ export default function PaymentDetailPage({
 
           <Card>
             <CardHeader className="flex-row items-center justify-between">
-              <CardTitle>Mapped order</CardTitle>
+              <CardTitle>Order</CardTitle>
               {payment.order_id && (
                 <Button asChild variant="ghost" size="sm">
                   <Link href="/dashboard/orders">
@@ -184,11 +185,11 @@ export default function PaymentDetailPage({
             <CardContent>
               {!payment.order_id ? (
                 <p className="text-muted-foreground text-sm">
-                  This payment is not linked to an order.
+                  This payment isn&apos;t for an order.
                 </p>
               ) : !order ? (
                 <p className="text-muted-foreground text-sm">
-                  Order {payment.order_id.slice(0, 8)} could not be loaded.
+                  We couldn&apos;t load this order. Please try again.
                 </p>
               ) : (
                 <div className="space-y-4">
@@ -225,7 +226,7 @@ export default function PaymentDetailPage({
                     </div>
                     {(order.items ?? []).length === 0 ? (
                       <div className="text-muted-foreground px-3 py-4 text-center text-sm">
-                        No items recorded for this order.
+                        No items on this order.
                       </div>
                     ) : (
                       (order.items ?? []).map((it) => (

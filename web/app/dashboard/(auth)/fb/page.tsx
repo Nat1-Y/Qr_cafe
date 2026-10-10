@@ -36,6 +36,7 @@ import {
   normalizeId,
   normalizeStatus,
 } from "@/lib/reports";
+import { friendlyError } from "@/lib/errors";
 
 // The F&B overview is the F&B manager's landing page: a branch-scoped snapshot
 // of food-and-beverage sales, the items driving them and how revenue splits
@@ -68,7 +69,7 @@ const UNIT_LABELS: Record<string, string> = {
   cafe: "Café",
   barista: "Barista",
   restaurant: "Restaurant",
-  uncategorized: "Uncategorized",
+  uncategorized: "No category",
 };
 const unitLabel = (u: string) => UNIT_LABELS[u] ?? u;
 
@@ -100,7 +101,7 @@ export default function FbOverviewPage() {
       try {
         await load();
       } catch (e: any) {
-        toast.error(e.message || "Failed to load F&B overview");
+        toast.error(friendlyError(e, "Couldn't load the food & drinks overview. Please try again."));
       } finally {
         setLoading(false);
       }
@@ -112,7 +113,7 @@ export default function FbOverviewPage() {
     try {
       await load();
     } catch (e: any) {
-      toast.error(e.message || "Failed to refresh");
+      toast.error(friendlyError(e, "Couldn't refresh. Please try again."));
     } finally {
       setRefreshing(false);
     }
@@ -204,21 +205,21 @@ export default function FbOverviewPage() {
 
   const kpis = [
     {
-      label: "F&B revenue",
+      label: "Food & drinks money in",
       value: sales.paid,
-      hint: "Collected",
+      hint: "Paid",
       icon: TrendingUpIcon,
       valueClass: "text-success",
     },
     {
-      label: "Unpaid sales",
+      label: "Not paid yet",
       value: sales.unpaid,
-      hint: "Outstanding",
+      hint: "Still owed",
       icon: ClockIcon,
       valueClass: "text-warning",
     },
     {
-      label: "Avg. order",
+      label: "Average order",
       value: avgOrder,
       hint: `${orderCount} paid order${orderCount === 1 ? "" : "s"}`,
       icon: WalletIcon,
@@ -229,8 +230,8 @@ export default function FbOverviewPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="F&B overview"
-        description="Food & beverage performance for your branch."
+        title="Food & drinks overview"
+        description="How food and drinks are selling at your branch."
         action={
           <Button
             variant="outline"
@@ -275,7 +276,7 @@ export default function FbOverviewPage() {
                   <TableHead>Item</TableHead>
                   <TableHead>Unit</TableHead>
                   <TableHead className="text-right">Qty</TableHead>
-                  <TableHead className="text-right">Revenue</TableHead>
+                  <TableHead className="text-right">Money in</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -292,7 +293,7 @@ export default function FbOverviewPage() {
                     <TableCell
                       colSpan={4}
                       className="text-muted-foreground py-8 text-center">
-                      No paid F&B sales in this period.
+                      No paid food or drink sales in these dates.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -318,7 +319,7 @@ export default function FbOverviewPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Revenue by unit</CardTitle>
+            <CardTitle>Money in by section</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {loading ? (
@@ -355,8 +356,7 @@ export default function FbOverviewPage() {
 
       <p className="text-muted-foreground flex items-center gap-2 text-xs">
         <ReceiptTextIcon className="size-3.5" />
-        Showing collected (paid) food &amp; beverage sales for the selected
-        branch. Use Items Sold and Reports for a full breakdown.
+        Shows paid food &amp; drink sales for this branch. See Items sold and Reports for more detail.
       </p>
     </div>
   );

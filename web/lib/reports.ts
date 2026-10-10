@@ -2,7 +2,7 @@ import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { Orders } from "./resources";
-import { formatETB } from "./format";
+import { formatETB, humanize } from "./format";
 
 // ---------------------------------------------------------------------------
 // Types (ported from app/src/pages/Reports/types.ts)
@@ -735,28 +735,28 @@ export const calculatePeriodStats = (
 };
 
 export const generateCSVReport = (metricsData: ReportData): string => {
-  const headers = ["Metric", "Value", "Period"];
+  const headers = ["What", "Value", "Period"];
   const rows: (string | number)[][] = [
-    ["Total Orders Today", metricsData.dailyStats.totalOrders, "Daily"],
-    ["Paid Revenue Today", (metricsData.dailyStats.paidRevenue || 0).toFixed(2), "Daily"],
-    ["Paid Orders Today", metricsData.dailyStats.paidOrders, "Daily"],
-    ["Pending Orders Today", metricsData.dailyStats.pendingOrders, "Daily"],
-    ["Voided Orders Today", metricsData.dailyStats.voidedOrders, "Daily"],
-    ["Cafe Orders Today", metricsData.dailyStats.cafeOrders, "Daily"],
-    ["Restaurant Orders Today", metricsData.dailyStats.restaurantOrders, "Daily"],
-    ["Barista Orders Today", metricsData.dailyStats.baristaOrders, "Daily"],
-    ["Weekly Orders", metricsData.weeklyStats.totalOrders, "Weekly"],
-    ["Weekly Paid Revenue", (metricsData.weeklyStats.paidRevenue || 0).toFixed(2), "Weekly"],
-    ["Weekly Paid Orders", metricsData.weeklyStats.paidOrders, "Weekly"],
-    ["Weekly Pending Orders", metricsData.weeklyStats.pendingOrders, "Weekly"],
-    ["Weekly Avg Paid Order", (metricsData.weeklyStats.avgPaidOrderValue || 0).toFixed(2), "Weekly"],
-    ["Monthly Orders", metricsData.monthlyStats.totalOrders, "Monthly"],
-    ["Monthly Paid Revenue", (metricsData.monthlyStats.paidRevenue || 0).toFixed(2), "Monthly"],
-    ["Monthly Growth", `${metricsData.monthlyStats.growth}%`, "Monthly"],
+    ["Total orders today", metricsData.dailyStats.totalOrders, "Daily"],
+    ["Money in today", (metricsData.dailyStats.paidRevenue || 0).toFixed(2), "Daily"],
+    ["Paid orders today", metricsData.dailyStats.paidOrders, "Daily"],
+    ["Waiting orders today", metricsData.dailyStats.pendingOrders, "Daily"],
+    ["Cancelled orders today", metricsData.dailyStats.voidedOrders, "Daily"],
+    ["Cafe orders today", metricsData.dailyStats.cafeOrders, "Daily"],
+    ["Restaurant orders today", metricsData.dailyStats.restaurantOrders, "Daily"],
+    ["Barista orders today", metricsData.dailyStats.baristaOrders, "Daily"],
+    ["Orders this week", metricsData.weeklyStats.totalOrders, "Weekly"],
+    ["Money in this week", (metricsData.weeklyStats.paidRevenue || 0).toFixed(2), "Weekly"],
+    ["Paid orders this week", metricsData.weeklyStats.paidOrders, "Weekly"],
+    ["Waiting orders this week", metricsData.weeklyStats.pendingOrders, "Weekly"],
+    ["Average paid order this week", (metricsData.weeklyStats.avgPaidOrderValue || 0).toFixed(2), "Weekly"],
+    ["Orders this month", metricsData.monthlyStats.totalOrders, "Monthly"],
+    ["Money in this month", (metricsData.monthlyStats.paidRevenue || 0).toFixed(2), "Monthly"],
+    ["Growth this month", `${metricsData.monthlyStats.growth}%`, "Monthly"],
   ];
 
   Object.entries(metricsData.paymentMethods || {}).forEach(([method, count]) => {
-    rows.push([`Payment Method: ${method.replace("_", " ")}`, String(count), "Selected Range"]);
+    rows.push([`Paid with: ${humanize(method)}`, String(count), "These dates"]);
   });
 
   const csvRows = [headers, ...rows];
@@ -852,7 +852,7 @@ export async function exportBusinessData(
 
         const existing = itemSummaryMap.get(key) || {
           menu_item_id: Number.isFinite(mid) ? mid : null,
-          menu_item_name: it?.menu_item_name || it?.name || "Unknown Item",
+          menu_item_name: it?.menu_item_name || it?.name || "Item",
           category: it?.category || it?.sub_category || null,
           main_category: it?.main_category || null,
           business_unit: dept || normalizeOrderType(o?.type) || "unknown",
@@ -908,26 +908,26 @@ export async function exportBusinessData(
   const wb = XLSX.utils.book_new();
 
   const summaryAoa = [
-    ["Report", "Business Data Export"],
-    ["Business Unit", selectedUnit === "all" ? "All" : selectedUnit],
-    ["Date From", dateFrom || "All"],
-    ["Date To", dateTo || "All"],
-    ["Generated At", new Date().toLocaleString()],
-    ["Summary Metric", "Value"],
-    ["Total Orders", exportSummary.totalOrders],
-    ["Paid Orders", exportSummary.paidOrders],
-    ["Pending Orders", exportSummary.pendingOrders],
-    ["Voided Orders", exportSummary.voidedOrders],
-    ["Paid Revenue (Orders Total)", exportSummary.paidRevenue],
-    ["Payments Count", exportSummary.totalPayments],
-    ["Paid Payments Count", exportSummary.paidPayments],
-    ["Paid Payments Total", exportSummary.paymentsTotal],
+    ["Report", "Sales and reports"],
+    ["Section", selectedUnit === "all" ? "All" : selectedUnit],
+    ["From", dateFrom || "All"],
+    ["To", dateTo || "All"],
+    ["Made at", new Date().toLocaleString()],
+    ["What", "Value"],
+    ["Total orders", exportSummary.totalOrders],
+    ["Paid orders", exportSummary.paidOrders],
+    ["Waiting orders", exportSummary.pendingOrders],
+    ["Cancelled orders", exportSummary.voidedOrders],
+    ["Money in (paid orders)", exportSummary.paidRevenue],
+    ["Number of payments", exportSummary.totalPayments],
+    ["Number of paid payments", exportSummary.paidPayments],
+    ["Total of paid payments", exportSummary.paymentsTotal],
   ];
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryAoa), "Summary");
 
   // ----- Per-tab sheets: one worksheet per report tab -----
   const paymentMethodRows = Object.entries(exportMetrics.paymentMethods || {}).map(
-    ([method, count]) => [String(method).replace(/_/g, " "), Number(count) || 0],
+    ([method, count]) => [humanize(String(method)), Number(count) || 0],
   );
   const revenueTrendRows = (exportMetrics.revenueTrend || []).map((p) => [
     p.label,
@@ -950,8 +950,8 @@ export async function exportBusinessData(
   XLSX.utils.book_append_sheet(
     wb,
     buildSectionSheet([
-      { title: "Revenue Trend", columns: ["Date", "Orders", "Revenue"], rows: revenueTrendRows },
-      { title: "Payment Methods", columns: ["Method", "Paid Payments"], rows: paymentMethodRows },
+      { title: "Money in over time", columns: ["Date", "Orders", "Money in"], rows: revenueTrendRows },
+      { title: "Paid with", columns: ["Paid with", "Paid payments"], rows: paymentMethodRows },
     ]),
     "Overview",
   );
@@ -960,37 +960,37 @@ export async function exportBusinessData(
   XLSX.utils.book_append_sheet(
     wb,
     buildSectionSheet([
-      { title: "Popular Menu Items", columns: ["Item", "Qty Sold", "Revenue"], rows: topItemRows },
+      { title: "Best sellers", columns: ["Item", "Amount sold", "Money in"], rows: topItemRows },
       {
-        title: "Category Sales",
-        columns: ["Category", "Quantity", "Revenue"],
+        title: "Sales by category",
+        columns: ["Category", "Amount", "Money in"],
         rows: categorySalesRows,
       },
     ]),
-    "Product Mix",
+    "What sold",
   );
 
   // Sales Breakdown tab: payment methods + category sales
   XLSX.utils.book_append_sheet(
     wb,
     buildSectionSheet([
-      { title: "Payment Methods", columns: ["Method", "Paid Payments"], rows: paymentMethodRows },
+      { title: "Paid with", columns: ["Paid with", "Paid payments"], rows: paymentMethodRows },
       {
-        title: "Category Sales",
-        columns: ["Category", "Quantity", "Revenue"],
+        title: "Sales by category",
+        columns: ["Category", "Amount", "Money in"],
         rows: categorySalesRows,
       },
     ]),
-    "Sales Breakdown",
+    "Sales split",
   );
 
   // Operations tab: hourly performance
   XLSX.utils.book_append_sheet(
     wb,
     buildSectionSheet([
-      { title: "Hourly Performance", columns: ["Hour", "Orders", "Revenue"], rows: hourlyRows },
+      { title: "Sales by hour", columns: ["Hour", "Orders", "Money in"], rows: hourlyRows },
     ]),
-    "Operations",
+    "Busy times",
   );
 
   const orderHeaders = [
@@ -1125,7 +1125,7 @@ export async function exportBusinessData(
   XLSX.utils.book_append_sheet(
     wb,
     buildSheetFromRows(itemSummaryRows, itemSummaryHeaders),
-    "Items Summary",
+    "Items sold",
   );
 
   // Z-Report tab: fetched from the backend for the selected date range.
@@ -1143,22 +1143,22 @@ export async function exportBusinessData(
   const zSections: SheetSection[] = [];
   if (zReport) {
     zSections.push({
-      title: "Z-Report Summary",
-      columns: ["Metric", "Value"],
+      title: "End of day summary",
+      columns: ["What", "Value"],
       rows: [
-        ["Period Start", zReport.period_start || ""],
-        ["Period End", zReport.period_end || ""],
-        ["Generated At", zReport.report_date || ""],
-        ["Total Orders", zReport.summary?.total_orders ?? 0],
-        ["Gross Sales", zReport.summary?.gross_sales ?? 0],
-        ["Refunds", zReport.summary?.refunds ?? 0],
+        ["From", zReport.period_start || ""],
+        ["To", zReport.period_end || ""],
+        ["Made at", zReport.report_date || ""],
+        ["Total orders", zReport.summary?.total_orders ?? 0],
+        ["Total sales", zReport.summary?.gross_sales ?? 0],
+        ["Cancelled", zReport.summary?.refunds ?? 0],
         ["Discounts", zReport.summary?.discounts ?? 0],
-        ["Net Sales", zReport.summary?.net_sales ?? 0],
+        ["Sales after discounts", zReport.summary?.net_sales ?? 0],
       ],
     });
     zSections.push({
-      title: "Payment Breakdown",
-      columns: ["Method", "Count", "Amount", "%"],
+      title: "Paid with",
+      columns: ["Paid with", "Count", "Amount", "%"],
       rows: (zReport.payment_breakdown || []).map((p: any) => [
         p.method,
         p.count,
@@ -1167,8 +1167,8 @@ export async function exportBusinessData(
       ]),
     });
     zSections.push({
-      title: "Employee Activity",
-      columns: ["Employee", "Orders", "Sales"],
+      title: "Staff sales",
+      columns: ["Staff", "Orders", "Sales"],
       rows: (zReport.employee_activity || []).map((e: any) => [
         e.employee_name,
         e.orders_count,
@@ -1176,13 +1176,13 @@ export async function exportBusinessData(
       ]),
     });
     zSections.push({
-      title: "Category Breakdown",
+      title: "Sales by category",
       columns: ["Category", "Count", "Amount"],
       rows: (zReport.category_breakdown || []).map((c: any) => [c.category, c.count, c.amount]),
     });
     zSections.push({
-      title: "Voided Transactions",
-      columns: ["Order ID", "Employee", "Amount", "Time"],
+      title: "Cancelled orders",
+      columns: ["Order", "Staff", "Amount", "Time"],
       rows: (zReport.voided_transactions || []).map((t: any) => [
         `#${t.order_id}`,
         t.employee_name,
@@ -1192,11 +1192,11 @@ export async function exportBusinessData(
     });
   } else {
     zSections.push({
-      title: "Z-Report",
-      rows: [["Unable to load Z-Report for the selected range"]],
+      title: "End of day report",
+      rows: [["Couldn't load the end of day report for these dates"]],
     });
   }
-  XLSX.utils.book_append_sheet(wb, buildSectionSheet(zSections), "Z-Report");
+  XLSX.utils.book_append_sheet(wb, buildSectionSheet(zSections), "End of day report");
 
   const todayStr = new Date().toISOString().slice(0, 10);
   const fromSlug = dateFrom || "all";
@@ -1243,13 +1243,13 @@ export function exportItemsSoldPdf(
 
   doc.setTextColor(0);
   doc.setFontSize(10);
-  doc.text(`Total Food Items Sold: ${meta.foodQty.toLocaleString()}`, 14, 32);
-  doc.text(`Total Beverages Sold: ${meta.softQty.toLocaleString()}`, 14, 38);
-  doc.text(`Total Revenue: ${formatETB(meta.totalRevenue)}`, 14, 44);
+  doc.text(`Total food items sold: ${meta.foodQty.toLocaleString()}`, 14, 32);
+  doc.text(`Total drinks sold: ${meta.softQty.toLocaleString()}`, 14, 38);
+  doc.text(`Total money in: ${formatETB(meta.totalRevenue)}`, 14, 44);
 
   autoTable(doc, {
     startY: 50,
-    head: [["Business Unit", "Item Name", "Quantity Sold", "Revenue"]],
+    head: [["Section", "Item", "Amount sold", "Money in"]],
     body: rows.map((r) => [r.unit, r.item, String(r.qtySold), formatETB(r.revenue)]),
     styles: { fontSize: 9 },
     headStyles: { fillColor: [30, 41, 59] },

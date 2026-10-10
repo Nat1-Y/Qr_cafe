@@ -68,10 +68,10 @@ function usePaymentMethods(
         if (activeList.length > 0 && !activeList.some((m: any) => m.name === paymentMethod)) {
           setPaymentMethod(activeList[0].name);
         } else if (activeList.length === 0) {
-          toast.error('No active payment methods. Please contact an administrator.');
+          toast.error('No payment types are set up. Ask your manager.');
         }
       } catch {
-        toast.error('Failed to load payment methods');
+        toast.error("Couldn't load payment types. Please try again.");
       } finally {
         setLoadingMethods(false);
       }
@@ -155,9 +155,9 @@ const ChargeOrderBody: React.FC<
             ))}
           </div>
         ) : paymentMethods.length === 0 ? (
-          <p className="text-meta text-muted-foreground">No payment methods are set up yet.</p>
+          <p className="text-meta text-muted-foreground">No payment types are set up yet.</p>
         ) : (
-          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Payment method">
+          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Paid with">
             {paymentMethods.map((method) => {
               const selected = method.name === paymentMethod;
               return (

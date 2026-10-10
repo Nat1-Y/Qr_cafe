@@ -22,6 +22,7 @@ import {
   type DataTableFilter,
   type DateRangeFilter,
 } from "@/components/data-table";
+import { friendlyError } from "@/lib/errors";
 
 export type { Column, DataTableFilter, DateRangeFilter };
 
@@ -87,7 +88,7 @@ export function ResourceManager<T extends { id: string }>({
     try {
       setRows(await load());
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setLoading(false);
     }
@@ -126,12 +127,12 @@ export function ResourceManager<T extends { id: string }>({
       } else {
         if (!create) return;
         await create(form);
-        toast.success("Created");
+        toast.success("Added");
       }
       setOpen(false);
       await reload();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
@@ -142,7 +143,7 @@ export function ResourceManager<T extends { id: string }>({
       toast.success("Deleted");
       await reload();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
@@ -237,7 +238,7 @@ export function ResourceManager<T extends { id: string }>({
                             setAuthMode("pin");
                             setForm({ ...form, password: "" });
                           }}>
-                          4-Digit PIN
+                          4-number PIN
                         </Button>
                       </div>
                       {authMode === "password" ? (
@@ -252,7 +253,7 @@ export function ResourceManager<T extends { id: string }>({
                           type="tel"
                           inputMode="numeric"
                           maxLength={4}
-                          placeholder="Enter 4-digit PIN"
+                          placeholder="4-number PIN"
                           value={form.pin ?? ""}
                           onChange={(e) =>
                             setForm({

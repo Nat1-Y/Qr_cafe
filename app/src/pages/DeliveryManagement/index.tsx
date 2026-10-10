@@ -44,10 +44,11 @@ import {
   Loader2,
   type LucideIcon,
 } from 'lucide-react';
-import { formatETB } from '@/lib/format';
+import { formatETB, humanize } from '@/lib/format';
 import StatsCard from '@/components/common/StatsCard';
 import PageHeader from '@/components/layout/PageHeader';
 import StatusBadge from '@/components/common/StatusBadge';
+import { friendlyError } from '@/lib/errors';
 
 const birr = formatETB;
 
@@ -161,7 +162,7 @@ function ManageDeliveryDialog({
       toast.success('Delivery details saved');
       await onSaved();
     } catch (e: any) {
-      toast.error(e?.message || 'Failed to save');
+      toast.error(friendlyError(e, "Couldn't save. Please try again."));
     } finally {
       setBusy(false);
     }
@@ -171,10 +172,10 @@ function ManageDeliveryDialog({
     setBusy(true);
     try {
       await api.orders.updateDeliveryDetails(order.id, { status });
-      toast.success(`Marked ${status}`);
+      toast.success(`Marked as ${humanize(status).toLowerCase()}`);
       await onSaved();
     } catch (e: any) {
-      toast.error(e?.message || 'Failed to update status');
+      toast.error(friendlyError(e, "Couldn't change the status. Please try again."));
     } finally {
       setBusy(false);
     }
@@ -190,13 +191,13 @@ function ManageDeliveryDialog({
         notes: payNotes || null,
         status: 'paid',
       });
-      toast.success('Payment recorded');
+      toast.success('Payment saved');
       setPayMethod('');
       setPayNotes('');
       await onSaved();
     } catch (e: any) {
-      const message = e?.response?.data?.message || e?.message || 'Failed to record payment';
-      toast.error(message);
+      const message = e?.response?.data?.message || e?.message || '';
+      toast.error(friendlyError(e, "Couldn't save the payment. Please try again."));
       // The order's payment state can change from under us — e.g. the owner
       // just confirmed it from the web dashboard while this dialog was still
       // showing a stale "still owing" amount. Refresh instead of leaving
@@ -229,7 +230,7 @@ function ManageDeliveryDialog({
               <div className="text-sm font-semibold">{birr(order.total_amount)}</div>
             </div>
             <div className="px-2 py-2.5">
-              <div className="text-xs font-semibold text-muted-foreground">Collected</div>
+              <div className="text-xs font-semibold text-muted-foreground">Paid so far</div>
               <div className="text-sm font-semibold text-success">
                 {birr((order.delivery_payment_summary?.paid_cents ?? 0) / 100)}
               </div>
@@ -254,7 +255,7 @@ function ManageDeliveryDialog({
               </div>
               {(order.items ?? []).length === 0 ? (
                 <div className="px-3 py-4 text-center text-sm text-muted-foreground">
-                  No items recorded for this order.
+                  No items on this order.
                 </div>
               ) : (
                 (order.items ?? []).map((it: any) => (
@@ -301,16 +302,16 @@ function ManageDeliveryDialog({
           </div>
 
           <div className="space-y-3">
-            <SectionLabel icon={MapPin} className="mb-0">Courier & address</SectionLabel>
+            <SectionLabel icon={MapPin} className="mb-0">Driver & address</SectionLabel>
             <div className="space-y-1.5">
-              <Label>Courier</Label>
+              <Label>Driver</Label>
               <select
                 value={matchedCourierId}
                 onChange={(e) => selectCourier(e.target.value)}
                 className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
               >
                 <option value="">
-                  {couriers.length ? 'Choose a saved courier…' : 'No saved couriers — enter details below'}
+                  {couriers.length ? 'Pick a saved driver' : 'No saved drivers yet. Type the details below.'}
                 </option>
                 {couriers.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -322,7 +323,7 @@ function ManageDeliveryDialog({
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Courier name</Label>
+                <Label>Driver name</Label>
                 <Input
                   value={courierName}
                   onChange={(e) => setCourierName(e.target.value)}
@@ -330,7 +331,7 @@ function ManageDeliveryDialog({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Courier phone</Label>
+                <Label>Driver phone</Label>
                 <Input value={courierPhone} onChange={(e) => setCourierPhone(e.target.value)} placeholder="Optional" />
               </div>
             </div>
@@ -360,12 +361,12 @@ function ManageDeliveryDialog({
             <div className="mb-2 flex items-center justify-between">
               <SectionLabel icon={Wallet} className="mb-0">Payments</SectionLabel>
               <span className="text-xs text-muted-foreground">
-                {order.delivery_payments.length} entr{order.delivery_payments.length === 1 ? 'y' : 'ies'}
+                {order.delivery_payments.length} payment{order.delivery_payments.length === 1 ? '' : 's'}
               </span>
             </div>
 
             {order.delivery_payments.length === 0 ? (
-              <p className="py-3 text-center text-xs text-muted-foreground">No payment recorded yet.</p>
+              <p className="py-3 text-center text-xs text-muted-foreground">No payment yet.</p>
             ) : (
               <div className="space-y-2">
                 {order.delivery_payments.map((p: any) => (
@@ -377,16 +378,12 @@ function ManageDeliveryDialog({
                       <div>
                         <div className="font-medium">{birr(p.amount_cents / 100)}</div>
                         <div className="text-xs text-muted-foreground">
-                          {[p.method, p.processed_by_name].filter(Boolean).join(' · ') || '—'}
+                          {[p.method ? humanize(p.method) : null, p.processed_by_name].filter(Boolean).join(' · ') || '—'}
                         </div>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <Badge
-                        variant={p.status === 'paid' ? 'success' : p.status === 'cancelled' ? 'destructive' : 'warning'}
-                      >
-                        {p.status}
-                      </Badge>
+                      <StatusBadge kind="payment" status={p.status} />
                       {shortDate(p.paid_at) && (
                         <span className="text-xs text-muted-foreground">{shortDate(p.paid_at)}</span>
                       )}
@@ -399,18 +396,18 @@ function ManageDeliveryDialog({
             {remainingDueCents > 0 ? (
               <div className="mt-3 space-y-2 rounded-lg border border-warning/30 bg-warning-soft p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-warning">Amount due</span>
+                  <span className="text-xs font-medium text-warning">Amount to pay</span>
                   <span className="text-sm font-semibold text-warning">{birr(remainingDueCents / 100)}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <Input placeholder="Source (e.g. courier cash)" value={payMethod} onChange={(e) => setPayMethod(e.target.value)} />
+                  <Input placeholder="Paid with (e.g. driver cash)" value={payMethod} onChange={(e) => setPayMethod(e.target.value)} />
                   <Button size="sm" onClick={recordPayment} disabled={payBusy}>
                     {payBusy ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
                     Confirm payment
                   </Button>
                 </div>
                 <Input
-                  placeholder="Payment notes (optional)"
+                  placeholder="Note about the payment (optional)"
                   value={payNotes}
                   onChange={(e) => setPayNotes(e.target.value)}
                 />
@@ -459,12 +456,12 @@ function DeliveryPaymentsPopover({ order, onChanged }: { order: any; onChanged: 
         method: payMethod || null,
         status: 'paid',
       });
-      toast.success('Payment recorded');
+      toast.success('Payment saved');
       setPayMethod('');
       await onChanged();
     } catch (e: any) {
-      const message = e?.response?.data?.message || e?.message || 'Failed to record payment';
-      toast.error(message);
+      const message = e?.response?.data?.message || e?.message || '';
+      toast.error(friendlyError(e, "Couldn't save the payment. Please try again."));
       // See ManageDeliveryDialog.recordPayment — refresh on a stale-state
       // conflict so this popover stops showing an amount that's already
       // been paid elsewhere.
@@ -498,20 +495,15 @@ function DeliveryPaymentsPopover({ order, onChanged }: { order: any; onChanged: 
         </div>
 
         {payments.length === 0 ? (
-          <p className="py-2 text-center text-xs text-muted-foreground">No payment recorded yet.</p>
+          <p className="py-2 text-center text-xs text-muted-foreground">No payment yet.</p>
         ) : (
           <div className="mb-3 max-h-40 space-y-1.5 overflow-y-auto">
             {payments.map((p: any) => (
               <div key={p.id} className="flex items-center justify-between rounded-md border px-2 py-1.5 text-xs">
                 <div>
                   <span className="font-medium">{birr(p.amount_cents / 100)}</span>{' '}
-                  <Badge
-                    variant={p.status === 'paid' ? 'success' : p.status === 'cancelled' ? 'destructive' : 'warning'}
-                    className="ml-1"
-                  >
-                    {p.status}
-                  </Badge>
-                  <div className="text-muted-foreground">{p.method || '—'}</div>
+                  <StatusBadge kind="payment" status={p.status} className="ml-1" />
+                  <div className="text-muted-foreground">{p.method ? humanize(p.method) : '—'}</div>
                 </div>
               </div>
             ))}
@@ -521,12 +513,12 @@ function DeliveryPaymentsPopover({ order, onChanged }: { order: any; onChanged: 
         {remainingDueCents > 0 ? (
           <>
             <div className="mb-2 flex items-center justify-between rounded-md border bg-muted/20 px-2 py-1.5 text-xs">
-              <span className="font-medium text-muted-foreground">Amount due</span>
+              <span className="font-medium text-muted-foreground">Amount to pay</span>
               <span className="font-semibold">{birr(remainingDueCents / 100)}</span>
             </div>
             <div className="flex gap-1.5">
               <Input
-                placeholder="Source"
+                placeholder="Paid with"
                 value={payMethod}
                 onChange={(e) => setPayMethod(e.target.value)}
                 className="h-8"
@@ -565,7 +557,7 @@ const DeliveryManagement: React.FC = () => {
       const list = (response as any)?.data?.data?.orders ?? (response as any)?.data?.orders ?? [];
       setOrders(Array.isArray(list) ? list : []);
     } catch (e: any) {
-      toast.error(e?.message || 'Failed to load deliveries');
+      toast.error(friendlyError(e, "Couldn't load deliveries. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -657,22 +649,22 @@ const DeliveryManagement: React.FC = () => {
   const rangeStart = filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const rangeEnd = Math.min(page * PAGE_SIZE, filtered.length);
 
-  if (loading && orders.length === 0) return <LoadingSpinner text="Loading deliveries..." />;
+  if (loading && orders.length === 0) return <LoadingSpinner text="Loading deliveries…" />;
 
   return (
     <div className="space-y-6 p-4 md:p-8">
       <PageHeader
         title="Deliveries"
-        description="Orders placed through a delivery method, kept apart from dine-in and takeaway."
+        description="Orders sent with a delivery service. Kept apart from dine-in and takeaway."
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
         <StatTile title="Deliveries" value={stats.total} icon={Bike} color="default" />
-        <StatTile title="Pending" value={stats.pending} icon={Hourglass} color="warning" />
+        <StatTile title="Waiting" value={stats.pending} icon={Hourglass} color="warning" />
         <StatTile title="Delivered" value={stats.delivered} icon={PackageCheck} color="success" />
         <StatTile title="Cancelled" value={stats.cancelled} icon={XCircle} color="danger" />
-        <StatTile title="Collected" value={birr(stats.collectedCents / 100)} icon={CreditCard} color="success" />
-        <StatTile title="Outstanding" value={birr(stats.outstanding)} icon={Wallet} color="warning" />
+        <StatTile title="Paid so far" value={birr(stats.collectedCents / 100)} icon={CreditCard} color="success" />
+        <StatTile title="Still owed" value={birr(stats.outstanding)} icon={Wallet} color="warning" />
       </div>
 
       <Card>
@@ -680,14 +672,14 @@ const DeliveryManagement: React.FC = () => {
           <SearchInput
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search order #..." wrapperClassName="w-full sm:max-w-xs" />
+              placeholder="Search order number" wrapperClassName="w-full sm:max-w-xs" />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
           >
             <option value="">Status: All</option>
-            <option value="pending">Pending</option>
+            <option value="pending">Waiting</option>
             <option value="delivered">Delivered</option>
             <option value="cancelled">Cancelled</option>
           </select>
@@ -698,7 +690,7 @@ const DeliveryManagement: React.FC = () => {
           >
             <option value="">Payment: All</option>
             <option value="paid">Paid</option>
-            <option value="unpaid">Unpaid</option>
+            <option value="unpaid">Not paid yet</option>
           </select>
           {methodOptions.length > 0 && (
             <select
@@ -706,7 +698,7 @@ const DeliveryManagement: React.FC = () => {
               onChange={(e) => setMethodFilter(e.target.value)}
               className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
             >
-              <option value="">Method: All</option>
+              <option value="">Delivery service: All</option>
               {methodOptions.map((m) => (
                 <option key={m.value} value={m.value}>{m.label}</option>
               ))}
@@ -718,7 +710,7 @@ const DeliveryManagement: React.FC = () => {
               onChange={(e) => setCourierFilter(e.target.value)}
               className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
             >
-              <option value="">Courier: All</option>
+              <option value="">Driver: All</option>
               {courierOptions.map((c) => (
                 <option key={c.value} value={c.value}>{c.label}</option>
               ))}
@@ -732,8 +724,8 @@ const DeliveryManagement: React.FC = () => {
           {pagedOrders.length === 0 ? (
             <EmptyState
               icon={<Bike />}
-              title="No delivery orders found"
-              description={orders.length === 0 ? 'Delivery orders will show up here.' : 'Try adjusting your filters.'}
+              title="No delivery orders"
+              description={orders.length === 0 ? 'Delivery orders will show up here.' : 'Try other filters.'}
             />
           ) : (
             <Table>
@@ -774,7 +766,7 @@ const DeliveryManagement: React.FC = () => {
                     <TableCell>{birr(o.total_amount)}</TableCell>
                     <TableCell>
                       <Badge variant={o.delivery_payment_summary?.is_paid ? 'success' : 'warning'}>
-                        {o.delivery_payment_summary?.is_paid ? 'Paid' : 'Unpaid'}
+                        {o.delivery_payment_summary?.is_paid ? 'Paid' : 'Not paid yet'}
                       </Badge>
                     </TableCell>
                     <TableCell>

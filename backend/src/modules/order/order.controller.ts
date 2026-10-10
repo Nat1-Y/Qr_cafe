@@ -649,7 +649,7 @@ export class OrderController {
     const endDate = parseDateBoundInZone(endDateStr, timeZone, true);
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      return { status: "error", message: "Invalid date format" };
+      return { status: "error", message: "Check the date and try again." };
     }
 
     const zReport = await this.zReportService.generateZReport(startDate, endDate);

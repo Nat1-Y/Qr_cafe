@@ -65,7 +65,7 @@ export async function enrollDevice(
   deviceName?: string,
 ): Promise<DeviceEnrollment> {
   const trimmed = code.trim();
-  if (!trimmed) throw new Error("Enrollment code is required");
+  if (!trimmed) throw new Error("Enter the setup code.");
 
   const res = await fetch(`${API_BASE}/devices/enroll`, {
     method: "POST",
@@ -80,7 +80,7 @@ export async function enrollDevice(
   });
 
   if (!res.ok) {
-    let message = "Invalid enrollment code";
+    let message = "That setup code is wrong. Check it and try again.";
     try {
       const body = await res.json();
       message = body.message || message;
@@ -93,7 +93,7 @@ export async function enrollDevice(
 
   const data: EnrollResponse = await res.json();
   if (!data?.token) {
-    throw new Error("Enrollment failed: no token returned");
+    throw new Error("That code didn't work. Check it and try again.");
   }
 
   const enrollment: DeviceEnrollment = {

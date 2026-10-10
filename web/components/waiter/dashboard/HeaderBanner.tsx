@@ -41,7 +41,7 @@ const HeaderBanner: React.FC<HeaderBannerProps> = ({
           <>
             <span className="inline-flex h-12 items-center gap-1.5 rounded-full bg-success-soft px-4 text-sm font-medium text-success">
               <ClockIcon className="size-4" />
-              In since{" "}
+              Clocked in at{" "}
               {new Date(attendanceStatus.clock_in_time).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",

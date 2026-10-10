@@ -1,6 +1,7 @@
 import React from 'react';
 import { Check, Clock, Plus, X, type LucideIcon } from 'lucide-react';
 import { cn, displayStatus } from '@/lib/utils';
+import { humanize } from '@/lib/format';
 
 export type StatusKind =
   | 'order'
@@ -29,10 +30,6 @@ interface Resolved {
   icon?: LucideIcon;
 }
 
-const humanize = (s: string) => {
-  const t = s.replace(/[_-]+/g, ' ').trim();
-  return t ? t.charAt(0).toUpperCase() + t.slice(1) : '—';
-};
 
 function resolve(kind: StatusKind, raw: string): Resolved {
   const s = raw.trim().toLowerCase();
@@ -43,7 +40,7 @@ function resolve(kind: StatusKind, raw: string): Resolved {
       const d = displayStatus(s);
       if (d === 'paid') return { tone: 'success', label: 'Paid', icon: Check };
       if (d === 'deleted') return { tone: 'destructive', label: 'Cancelled', icon: X };
-      return { tone: 'warning', label: 'Pending', icon: Clock };
+      return { tone: 'warning', label: kind === 'payment' ? 'Not paid yet' : 'Waiting', icon: Clock };
     }
     case 'delivery':
       if (s === 'delivered' || s === 'completed') return { tone: 'success', label: 'Delivered', icon: Check };
@@ -56,7 +53,7 @@ function resolve(kind: StatusKind, raw: string): Resolved {
       if (s === 'received' || s === 'completed') return { tone: 'success', label: 'Received', icon: Check };
       if (s === 'approved' || s === 'in_transit') return { tone: 'info', label: humanize(s), icon: Clock };
       if (['rejected', 'cancelled', 'canceled'].includes(s)) return { tone: 'destructive', label: humanize(s), icon: X };
-      return { tone: 'warning', label: 'Pending', icon: Clock };
+      return { tone: 'warning', label: 'Sent', icon: Clock };
     case 'stock':
       if (['out', 'out_of_stock', 'empty'].includes(s)) return { tone: 'destructive', label: 'Out of stock', icon: X };
       if (s === 'low' || s === 'low_stock') return { tone: 'warning', label: 'Low stock', icon: Clock };
@@ -68,7 +65,7 @@ function resolve(kind: StatusKind, raw: string): Resolved {
     case 'device':
       if (['approved', 'active', 'enrolled'].includes(s)) return { tone: 'success', label: humanize(s), icon: Check };
       if (['rejected', 'revoked', 'disabled', 'blocked'].includes(s)) return { tone: 'destructive', label: humanize(s), icon: X };
-      if (s === 'pending') return { tone: 'warning', label: 'Pending', icon: Clock };
+      if (s === 'pending') return { tone: 'warning', label: 'Waiting for approval', icon: Clock };
       return { tone: 'neutral', label: humanize(s) };
     default:
       if (['paid', 'done', 'completed', 'approved', 'received', 'delivered', 'active', 'success'].includes(s))

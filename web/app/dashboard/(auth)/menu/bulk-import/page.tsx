@@ -38,6 +38,7 @@ import {
   slugify,
   ValidationContext,
 } from "@/lib/menu-import";
+import { friendlyError } from "@/lib/errors";
 
 function downloadFile(filename: string, content: string, mime: string) {
   const blob = new Blob([content], { type: mime });
@@ -135,18 +136,18 @@ export default function BulkMenuImportPage() {
 
   async function handleImport() {
     if (validRows.length === 0) {
-      toast.error("There are no valid rows to import.");
+      toast.error("No rows are ready to add. Fix the file and try again.");
       return;
     }
     setSubmitting(true);
     try {
       await Menu.bulkSync(validRows.map(rowToMenuItemPayload));
       toast.success(
-        `Imported ${validRows.length} item${validRows.length === 1 ? "" : "s"} successfully.`,
+        `Added ${validRows.length} item${validRows.length === 1 ? "" : "s"} to the menu.`,
       );
       router.push("/dashboard/menu");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Bulk import failed");
+      toast.error(friendlyError(e, "Couldn't add the items. Please try again."));
     } finally {
       setSubmitting(false);
     }
@@ -162,8 +163,8 @@ export default function BulkMenuImportPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Bulk menu import"
-        description="Add many menu items at once from a CSV or JSON file."
+        title="Add many menu items"
+        description="Add many items at once from a spreadsheet (CSV) or JSON file."
         action={
           <Button variant="outline" onClick={() => router.push("/dashboard/menu")}>
             <ArrowLeftIcon />
@@ -176,7 +177,7 @@ export default function BulkMenuImportPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            1. Get a template &amp; upload your file
+            1. Get the example file, fill it in, and upload it
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -200,10 +201,13 @@ export default function BulkMenuImportPage() {
           </div>
 
           <p className="text-muted-foreground text-xs">
-            Required columns: <strong>name</strong> and <strong>price</strong>{" "}
-            (whole birr). Optional: category, main_category, tags (separate with{" "}
-            <code>;</code>), description, is_available (true/false),
-            prep_time_minutes, sku, barcode.
+            Must have: item name (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">name</code>) and price in birr (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">price</code>).
+            Can also have: category (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">category</code>), section that prints it{" "}
+            (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">main_category</code>), extra tags (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">tags</code>) (put <code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">;</code>{" "}
+            between them), description (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">description</code>), can be ordered{" "}
+            (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">is_available</code>) (true or false), minutes to make{" "}
+            (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">prep_time_minutes</code>), product code (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">sku</code>), barcode{" "}
+            (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">barcode</code>).
           </p>
 
           <div
@@ -216,7 +220,7 @@ export default function BulkMenuImportPage() {
             className="border-muted-foreground/25 bg-muted/20 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-8 text-center">
             <FileUpIcon className="text-muted-foreground size-8" />
             <p className="text-sm font-medium">
-              {fileName ?? "Drag & drop a .csv or .json file here"}
+              {fileName ?? "Drag a .csv or .json file here"}
             </p>
             <p className="text-muted-foreground text-xs">or</p>
             <Button
@@ -275,7 +279,7 @@ export default function BulkMenuImportPage() {
       {result && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-            <CardTitle>2. Review &amp; confirm</CardTitle>
+            <CardTitle>2. Check and add</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="gap-1">
                 <CheckCircle2Icon className="size-3 text-success" />
@@ -284,13 +288,13 @@ export default function BulkMenuImportPage() {
               {warningCount > 0 && (
                 <Badge variant="secondary" className="gap-1">
                   <AlertTriangleIcon className="size-3 text-warning" />
-                  {warningCount} warning{warningCount === 1 ? "" : "s"}
+                  {warningCount} to check
                 </Badge>
               )}
               {errorCount > 0 && (
                 <Badge variant="destructive" className="gap-1">
                   <XCircleIcon className="size-3" />
-                  {errorCount} error{errorCount === 1 ? "" : "s"}
+                  {errorCount} with problems
                 </Badge>
               )}
             </div>
@@ -305,8 +309,7 @@ export default function BulkMenuImportPage() {
               <>
                 {errorCount > 0 && (
                   <p className="text-muted-foreground text-xs">
-                    Rows with errors are skipped. Fix them in your file and
-                    re-upload to include them.
+                    Rows with problems are skipped. Fix them in your file and upload it again to add them.
                   </p>
                 )}
                 <div className="max-h-[460px] overflow-auto rounded-md border">
@@ -317,9 +320,9 @@ export default function BulkMenuImportPage() {
                         <TableHead>Name</TableHead>
                         <TableHead className="text-right">Price</TableHead>
                         <TableHead>Category</TableHead>
-                        <TableHead>Department</TableHead>
+                        <TableHead>Section</TableHead>
                         <TableHead>Tags</TableHead>
-                        <TableHead>Avail.</TableHead>
+                        <TableHead>Can order</TableHead>
                         <TableHead>Status</TableHead>
                       </TableRow>
                     </TableHeader>

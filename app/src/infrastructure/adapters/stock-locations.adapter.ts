@@ -4,7 +4,7 @@ const requireOnline = () =>
   isOnline()
     ? null
     : Promise.reject(
-        new Error("Stock location management requires an internet connection"),
+        new Error("No internet. Connect to change stock places."),
       );
 
 export const stockLocationsAdapter = {

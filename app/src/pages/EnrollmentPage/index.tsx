@@ -7,6 +7,7 @@ import AuthSplitLayout from '@/components/layout/AuthSplitLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { friendlyError } from '@/lib/errors';
 interface EnrollmentPageProps {
   /** Called once the device has successfully redeemed a code for a token. */
   onEnrolled: () => void;
@@ -56,7 +57,7 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ onEnrolled }) => {
 
     const trimmed = code.trim();
     if (!trimmed) {
-      setError('Please enter the enrollment code.');
+      setError('Enter the setup code.');
       return;
     }
 
@@ -66,11 +67,7 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ onEnrolled }) => {
       await enrollDevice(trimmed, deviceName);
       onEnrolled();
     } catch (err: any) {
-      const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Enrollment failed. Check the code and try again.';
-      setError(Array.isArray(message) ? message.join(', ') : message);
+      setError(friendlyError(err, "That code didn't work. Check it and try again."));
     } finally {
       setSubmitting(false);
     }
@@ -79,21 +76,21 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ onEnrolled }) => {
   return (
     <AuthSplitLayout
       headline="Link this till to its branch."
-      subline="You only do this once per device. Ask your manager for the enrollment code."
+      subline="You only do this once. Ask your manager for the setup code."
     >
       {!isOnline && (
         <div className="mb-6 flex items-start gap-3 rounded-card bg-destructive-soft px-4 py-3 text-destructive animate-fade-in">
           <WifiOff className="mt-0.5 h-5 w-5 shrink-0" />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">No internet connection</p>
-            <p className="mt-0.5 text-meta">Enrolling needs a connection. Connect and try again.</p>
+            <p className="text-sm font-semibold">No internet</p>
+            <p className="mt-0.5 text-meta">Setting up needs internet. Connect and try again.</p>
           </div>
           <button
             onClick={checkConnection}
             disabled={checkingConn}
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-destructive/10 disabled:opacity-50"
-            title="Retry connection"
-            aria-label="Retry connection"
+            title="Try again"
+            aria-label="Try again"
           >
             <RefreshCw className={`h-4 w-4 ${checkingConn ? 'animate-spin' : ''}`} />
           </button>
@@ -104,13 +101,13 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ onEnrolled }) => {
         <p className="eyebrow mb-1">First-time setup</p>
         <h1 className="text-title text-foreground">Set up this device</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Enter the code from your administrator to link this device to its branch.
+          Type the setup code from your manager to link this till to its branch.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="enrollment-code">Enrollment code</Label>
+          <Label htmlFor="enrollment-code">Setup code</Label>
           <Input
             id="enrollment-code"
             type="text"
@@ -156,10 +153,10 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ onEnrolled }) => {
           {submitting ? (
             <>
               <Loader2 className="animate-spin" />
-              Enrolling…
+              Setting up…
             </>
           ) : (
-            'Enroll device'
+            'Set up this device'
           )}
         </Button>
       </form>

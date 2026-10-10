@@ -3,6 +3,7 @@
 // backend/src/common/permissions/permissions.constants.ts.
 
 import { apiFetch } from "./api";
+import { roleLabel } from "./auth";
 
 // Read the signed-in user's role straight from storage to avoid a circular
 // import with lib/auth.ts (which calls fetchMyPermissions here on login).
@@ -65,22 +66,22 @@ export const RESOURCES: { id: ResourceId; label: string; routes: string[] }[] = 
   { id: "payments", label: "Payments", routes: ["/dashboard/payments"] },
   { id: "tables", label: "Tables", routes: ["/dashboard/tables"] },
   { id: "menu", label: "Menu", routes: ["/dashboard/menu"] },
-  { id: "stock_locations", label: "Stock locations", routes: ["/dashboard/inventory/locations"] },
-  { id: "transfers", label: "Transfers", routes: ["/dashboard/inventory/transfers"] },
-  { id: "inventory", label: "Inventory", routes: ["/dashboard/inventory"] },
+  { id: "stock_locations", label: "Stock places", routes: ["/dashboard/inventory/locations"] },
+  { id: "transfers", label: "Move stock", routes: ["/dashboard/inventory/transfers"] },
+  { id: "inventory", label: "Stock", routes: ["/dashboard/inventory"] },
   { id: "staff", label: "Staff", routes: ["/dashboard/staff"] },
   // Capability-only permission (no page of its own): controls who may log
   // disciplinary penalties from the Staff → Penalties tab. Empty routes so it
   // renders as a toggle row in the roles editor without its own nav entry.
   { id: "staff_penalty", label: "Staff penalties", routes: [] },
-  { id: "customers", label: "Organizations", routes: ["/dashboard/customers"] },
+  { id: "customers", label: "Company accounts", routes: ["/dashboard/customers"] },
   { id: "reports", label: "Reports", routes: ["/dashboard/reports"] },
   { id: "expenses", label: "Expenses", routes: ["/dashboard/expenses"] },
-  { id: "payment_methods", label: "Payment methods", routes: ["/dashboard/settings/payment-methods"] },
-  { id: "delivery_methods", label: "Delivery methods", routes: ["/dashboard/settings/delivery-methods"] },
-  { id: "couriers", label: "Couriers", routes: ["/dashboard/settings/couriers"] },
+  { id: "payment_methods", label: "Payment types", routes: ["/dashboard/settings/payment-methods"] },
+  { id: "delivery_methods", label: "Delivery services", routes: ["/dashboard/settings/delivery-methods"] },
+  { id: "couriers", label: "Drivers", routes: ["/dashboard/settings/couriers"] },
   { id: "deliveries", label: "Deliveries", routes: ["/dashboard/deliveries"] },
-  { id: "roles", label: "Roles & permissions", routes: ["/dashboard/settings/roles"] },
+  { id: "roles", label: "Roles and access", routes: ["/dashboard/settings/roles"] },
   { id: "devices", label: "Devices", routes: ["/dashboard/settings/devices"] },
   { id: "settings", label: "Settings", routes: ["/dashboard/settings"] },
 ];
@@ -88,20 +89,29 @@ export const RESOURCES: { id: ResourceId; label: string; routes: string[] }[] = 
 export const RESOURCE_IDS = RESOURCES.map((r) => r.id);
 
 // Roles the owner can configure. super_admin / owner / business_admin are
-// always full-access and never appear here.
-export const CONFIGURABLE_ROLES: { value: string; label: string }[] = [
-  { value: "admin", label: "Manager" },
-  { value: "fb_manager", label: "F&B manager" },
-  { value: "finance", label: "Finance" },
-  { value: "cashier", label: "Cashier" },
-  { value: "cafe_waiter", label: "Waiter" },
-  { value: "kitchen_staff", label: "Kitchen staff" },
-  { value: "barista", label: "Barista" },
-  { value: "host", label: "Host / receptionist" },
-  { value: "storekeeper", label: "Storekeeper" },
-  { value: "accountant", label: "Accountant" },
-  { value: "housekeeping", label: "Housekeeping" },
+// always full-access and never appear here. Labels come from roleLabel() in
+// lib/auth.ts, read lazily because the two modules import each other.
+const CONFIGURABLE_ROLE_VALUES = [
+  "admin",
+  "fb_manager",
+  "finance",
+  "cashier",
+  "cafe_waiter",
+  "kitchen_staff",
+  "barista",
+  "host",
+  "storekeeper",
+  "accountant",
+  "housekeeping",
 ];
+
+export const CONFIGURABLE_ROLES: { value: string; readonly label: string }[] =
+  CONFIGURABLE_ROLE_VALUES.map((value) => ({
+    value,
+    get label() {
+      return roleLabel(value);
+    },
+  }));
 
 export const ALL_ACCESS_ROLES = ["super_admin", "owner", "business_admin"];
 

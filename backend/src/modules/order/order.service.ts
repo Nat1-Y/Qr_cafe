@@ -1969,7 +1969,7 @@ export class OrderService {
 
     const status = data.status ? String(data.status) : "paid";
     if (!["pending", "paid", "cancelled"].includes(status)) {
-      throw new BadRequestException("Invalid delivery payment status.");
+      throw new BadRequestException("Choose a delivery payment status.");
     }
 
     // Two clients can both load the order as "still owing" before either
@@ -2044,7 +2044,7 @@ export class OrderService {
     if (data.status !== undefined) {
       const status = String(data.status);
       if (!["pending", "paid", "cancelled"].includes(status)) {
-        throw new BadRequestException("Invalid delivery payment status.");
+        throw new BadRequestException("Choose a delivery payment status.");
       }
       setFields.status = status;
       setFields.paid_at = status === "paid" ? new Date() : null;
@@ -2097,7 +2097,7 @@ export class OrderService {
     if (data.status !== undefined) {
       const status = String(data.status);
       if (!["pending", "delivered", "cancelled"].includes(status)) {
-        throw new BadRequestException("Invalid delivery status.");
+        throw new BadRequestException("Choose a delivery status.");
       }
       setFields.status = status;
       setFields.delivered_at = status === "delivered" ? new Date() : null;

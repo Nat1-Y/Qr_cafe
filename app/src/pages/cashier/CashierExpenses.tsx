@@ -18,6 +18,7 @@ import ExpenseRowEditor, { ExpenseRow } from './components/CashierExpense/Expens
 import ExpenseFilters from './components/CashierExpense/ExpenseFilters';
 import ExpenseLog, { ExpenseEntry } from './components/CashierExpense/ExpenseLog';
 import ExpenseEntryCard from './components/CashierExpense/ExpenseEntryCard';
+import { friendlyError } from '@/lib/errors';
 
 const emptyRow = (): ExpenseRow => ({ item: '', cost: '' });
 
@@ -136,7 +137,7 @@ const CashierExpenses = () => {
       .filter((r) => r.item && Number.isFinite(r.cost));
 
     if (parsed.length === 0) {
-      toast.error('Enter at least one expense with a valid cost');
+      toast.error('Enter at least one expense with its cost.');
       return null;
     }
     return parsed;
@@ -153,7 +154,7 @@ const CashierExpenses = () => {
       setRows([emptyRow()]);
       await loadExpenses();
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || e?.message || 'Failed to save expenses');
+      toast.error(friendlyError(e, "Couldn't save the expenses. Please try again."));
     } finally {
       setSaving(false);
     }
@@ -182,11 +183,11 @@ const CashierExpenses = () => {
     setSavingEdit(true);
     try {
       await api.expenses.update(editId, { items: parsed });
-      toast.success('Expense updated');
+      toast.success('Expense saved');
       closeEdit();
       await loadExpenses();
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || e?.message || 'Failed to update expense');
+      toast.error(friendlyError(e, "Couldn't save the expense. Please try again."));
     } finally {
       setSavingEdit(false);
     }
@@ -194,7 +195,7 @@ const CashierExpenses = () => {
 
   const handleDelete = async (entry: ExpenseEntry) => {
     if (entry?.id == null) return;
-    if (!window.confirm('Delete this expense entry? This cannot be undone.')) return;
+    if (!window.confirm("Delete this expense? You can't undo this.")) return;
 
     setDeletingId(entry.id);
     try {
@@ -202,7 +203,7 @@ const CashierExpenses = () => {
       toast.success('Expense deleted');
       await loadExpenses();
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || e?.message || 'Failed to delete expense');
+      toast.error(friendlyError(e, "Couldn't delete the expense. Please try again."));
     } finally {
       setDeletingId(null);
     }
@@ -212,7 +213,7 @@ const CashierExpenses = () => {
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Expenses"
-        description="Record purchased items and their costs, then submit to save them."
+        description="Write down what you bought and what it cost, then save."
         actions={<BranchBadge />}
       />
 
@@ -245,7 +246,7 @@ const CashierExpenses = () => {
         </div>
         <div className="p-4">
           {loading ? (
-            <LoadingSpinner text="Loading expenses..." />
+            <LoadingSpinner text="Loading expenses…" />
           ) : (
             <ExpenseLog
               entries={filteredSaved}
@@ -261,7 +262,7 @@ const CashierExpenses = () => {
       <Dialog open={editId != null} onOpenChange={(open) => (!open ? closeEdit() : null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Edit expense entry</DialogTitle>
+            <DialogTitle>Edit expense</DialogTitle>
           </DialogHeader>
 
           <ExpenseRowEditor
@@ -278,7 +279,7 @@ const CashierExpenses = () => {
             </Button>
             <Button type="button" onClick={saveEdit} disabled={savingEdit}>
               <Save />
-              {savingEdit ? 'Saving...' : 'Save changes'}
+              {savingEdit ? 'Saving…' : 'Save changes'}
             </Button>
           </DialogFooter>
         </DialogContent>

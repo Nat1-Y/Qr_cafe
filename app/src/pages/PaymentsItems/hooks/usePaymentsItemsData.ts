@@ -221,7 +221,7 @@ export const usePaymentsItemsData = () => {
       setPayments(Array.isArray(pay) ? pay : []);
       setMenuItems(Array.isArray(menu) ? menu : []);
     } catch (e) {
-      toast.error('Failed to load payments items');
+      toast.error("Couldn't load items sold. Please try again.");
       setOrders([]);
       setPayments([]);
       setMenuItems([]);

@@ -128,7 +128,7 @@ export class DevicesService {
    */
   async enroll(code: string, deviceName?: string) {
     const trimmed = code?.trim().toUpperCase();
-    if (!trimmed) throw new BadRequestException("Enrollment code is required");
+    if (!trimmed) throw new BadRequestException("Enter the setup code.");
 
     const [branch] = await db
       .select()
@@ -140,7 +140,7 @@ export class DevicesService {
         ),
       )
       .limit(1);
-    if (!branch) throw new BadRequestException("Invalid enrollment code");
+    if (!branch) throw new BadRequestException("That setup code is wrong. Check it and try again.");
 
     const token = randomBytes(32).toString("hex"); // 64 chars
     await db.insert(branchDevices).values({
@@ -166,7 +166,7 @@ export class DevicesService {
    * device 401s and it falls back to the enrollment screen.
    */
   async removeDevice(deviceId: string, branchId: string) {
-    if (!deviceId) throw new BadRequestException("Device id is required");
+    if (!deviceId) throw new BadRequestException("Choose a device.");
     const branch = await this.getManageableBranch(branchId);
 
     const [device] = await db

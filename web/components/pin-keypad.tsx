@@ -36,7 +36,7 @@ export function PinKeypad({
         className={cn(KEY, QUIET)}
         onClick={onBackspace}
         disabled={disabled}
-        aria-label="Delete last digit">
+        aria-label="Delete last number">
         <DeleteIcon className="size-6" />
       </button>
     </div>
@@ -46,7 +46,7 @@ export function PinKeypad({
 /** Row of PIN dots: outlined when empty, filled terracotta when entered. */
 export function PinDots({ length, filled, className }: { length: number; filled: number; className?: string }) {
   return (
-    <div className={cn("flex gap-3", className)} aria-label={`${filled} of ${length} digits entered`}>
+    <div className={cn("flex gap-3", className)} aria-label={`${filled} of ${length} numbers typed`}>
       {Array.from({ length }).map((_, i) => (
         <span
           key={i}

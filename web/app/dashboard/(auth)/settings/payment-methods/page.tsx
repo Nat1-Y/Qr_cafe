@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ResourceManager, type Column } from "@/components/resource-manager";
 import { Settings } from "@/lib/resources";
+import { friendlyError } from "@/lib/errors";
 
 type PM = {
   id: string;
@@ -15,14 +16,14 @@ type PM = {
 };
 
 const columns: Column<PM>[] = [
-  { key: "display_name", label: "Method", render: (r) => <span className="font-medium">{r.display_name}</span> },
-  { key: "name", label: "Key", className: "text-muted-foreground" },
+  { key: "display_name", label: "Payment type", render: (r) => <span className="font-medium">{r.display_name}</span> },
+  { key: "name", label: "Code name", className: "text-muted-foreground" },
   {
     key: "is_active",
     label: "Status",
     render: (r) => (
       <Badge variant={r.is_active ? "success" : "muted"}>
-        {r.is_active ? "Active" : "Disabled"}
+        {r.is_active ? "Active" : "Turned off"}
       </Badge>
     ),
   },
@@ -31,12 +32,12 @@ const columns: Column<PM>[] = [
 export default function PaymentMethodsPage() {
   return (
     <ResourceManager<PM>
-      title="Payment methods"
-      description="Accepted payment methods for this branch."
-      createLabel="New method"
+      title="Payment types"
+      description="How customers can pay at this branch."
+      createLabel="Add payment type"
       columns={columns}
       fields={[
-        { key: "name", label: "Key (e.g. cash)", required: true },
+        { key: "name", label: "Code name (e.g. cash)", required: true },
         { key: "display_name", label: "Display name", required: true },
         { key: "icon", label: "Icon (optional)" },
       ]}
@@ -52,10 +53,10 @@ export default function PaymentMethodsPage() {
               await Settings.updatePaymentMethod(row.id, { is_active: !row.is_active });
               await reload();
             } catch (e: any) {
-              toast.error(e.message);
+              toast.error(friendlyError(e));
             }
           }}>
-          {row.is_active ? "Disable" : "Enable"}
+          {row.is_active ? "Turn off" : "Turn on"}
         </Button>
       )}
     />

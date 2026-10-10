@@ -35,6 +35,7 @@ import { HourlyPerformance } from "@/components/reports/hourly-performance";
 import { PopularMenuItems } from "@/components/reports/popular-menu-items";
 
 import { ZReport } from "@/components/reports/z-report";
+import { friendlyError } from "@/lib/errors";
 
 const inputCls = "border-input bg-background h-9 rounded-md border px-3 text-sm";
 
@@ -65,7 +66,7 @@ export default function ReportsPage() {
       });
       setExpenses(Array.isArray(expenseRows) ? expenseRows : []);
     } catch (e: any) {
-      toast.error(e.message || "Failed to load report data");
+      toast.error(friendlyError(e, "Couldn't load report data. Please try again."));
     } finally {
       if (!silent) setLoading(false);
     }
@@ -95,46 +96,46 @@ export default function ReportsPage() {
 
   const handleExport = async () => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
-      toast.error("Invalid date range: From date must be before To date");
+      toast.error("The From date must be before the To date.");
       return;
     }
     try {
       await exportBusinessData(source, businessUnit, dateFrom, dateTo);
-      toast.success("Export downloaded");
+      toast.success("Excel file downloaded");
     } catch (e: any) {
-      toast.error(e.message || "Failed to export report");
+      toast.error(friendlyError(e, "Couldn't make the Excel file. Please try again."));
     }
   };
 
   const handleGenerate = async () => {
     await loadSource(true);
-    toast.success("Report refreshed");
+    toast.success("Report is up to date");
   };
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Business reports"
-        description="Analytics, operational metrics, and complete data exports."
+        title="Sales & reports"
+        description="See how the business is doing and download the numbers."
         action={
           <div className="flex flex-wrap items-center gap-2">
             <select
               value={businessUnit}
               onChange={(e) => setBusinessUnit(e.target.value)}
               className={inputCls}
-              aria-label="Business unit">
-              <option value="all">All units</option>
+              aria-label="Section">
+              <option value="all">All sections</option>
               <option value="cafe">Cafe</option>
               <option value="restaurant">Restaurant</option>
               <option value="barista">Barista</option>
             </select>
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download />
-              Export
+              Download Excel
             </Button>
             <Button size="sm" onClick={handleGenerate}>
               <BarChart2 />
-              Generate
+              Make report
             </Button>
           </div>
         }
@@ -145,7 +146,7 @@ export default function ReportsPage() {
           <DateFilterBar
             defaultPreset="all"
             allLabel="All time"
-            viewingPrefix="Viewing:"
+            viewingPrefix="Showing:"
             onChange={(range) => {
               setDateFrom(range.from ?? "");
               setDateTo(range.to ?? "");
@@ -171,7 +172,7 @@ export default function ReportsPage() {
             <TabsList className="flex h-auto w-full flex-wrap justify-between gap-1 p-1">
               <TabsTrigger value="z-report" className="gap-2">
                 <FileText className="size-4" />
-                <span className="hidden sm:inline">Z-Report</span>
+                <span className="hidden sm:inline">End of day report</span>
               </TabsTrigger>
               <TabsTrigger value="overview" className="gap-2">
                 <TrendingUp className="size-4" />
@@ -179,15 +180,15 @@ export default function ReportsPage() {
               </TabsTrigger>
               <TabsTrigger value="product-mix" className="gap-2">
                 <PackageSearch className="size-4" />
-                <span className="hidden sm:inline">Product mix</span>
+                <span className="hidden sm:inline">What sold</span>
               </TabsTrigger>
               <TabsTrigger value="sales-breakdown" className="gap-2">
                 <PieChart className="size-4" />
-                <span className="hidden sm:inline">Sales breakdown</span>
+                <span className="hidden sm:inline">Sales split</span>
               </TabsTrigger>
               <TabsTrigger value="operations" className="gap-2">
                 <BarChart2 className="size-4" />
-                <span className="hidden sm:inline">Operations</span>
+                <span className="hidden sm:inline">Busy times</span>
               </TabsTrigger>
             </TabsList>
 
@@ -225,10 +226,10 @@ export default function ReportsPage() {
                 <HourlyPerformance items={reportData.hourlyPerformance} />
                 <Card>
                   <CardContent className="space-y-4 pt-6">
-                    <h3 className="text-sm font-semibold">Operational focus</h3>
+                    <h3 className="text-sm font-semibold">Plan your shifts</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
-                      Use this view to identify rush hours, staffing pressure, and settlement
-                      patterns before adjusting shifts or prep quantities.
+                      See your busiest hours and how customers pay before you change shifts or
+              how much you prepare.
                     </p>
                   </CardContent>
                 </Card>

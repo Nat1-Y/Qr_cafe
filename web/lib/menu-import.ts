@@ -183,7 +183,7 @@ const jsonToRawRows = (text: string): RawRow[] => {
         : null;
   if (!list) {
     throw new Error(
-      "JSON must be an array of items (or an object with a menuItems array).",
+      "This JSON file isn't in the right shape. Start from the example file.",
     );
   }
   return list.map((entry: Record<string, unknown>) => {
@@ -235,16 +235,16 @@ const normalizeRow = (
   const warnings: string[] = [];
 
   const name = str(raw.name);
-  if (!name) errors.push("Name is required");
+  if (!name) errors.push("Enter a name");
 
   const priceRaw = str(raw.price);
   let price = 0;
   if (priceRaw === "") {
-    errors.push("Price is required");
+    errors.push("Enter a price");
   } else {
     const parsed = Number(priceRaw.replace(/[^\d.]/g, ""));
     if (!Number.isFinite(parsed) || parsed < 0) {
-      errors.push(`Invalid price "${priceRaw}"`);
+      errors.push(`Price "${priceRaw}" is not a number`);
     } else {
       price = Math.round(parsed);
     }
@@ -253,7 +253,7 @@ const normalizeRow = (
   const category = str(raw.category) || "cafe";
   const mainCategory = slugify(str(raw.main_category)) || "barista";
   if (str(raw.main_category) && !ctx.knownMainCategorySlugs.has(mainCategory)) {
-    warnings.push(`Unknown category "${mainCategory}" — it will be saved as-is`);
+    warnings.push(`New section "${mainCategory}". It will be added as it is.`);
   }
 
   const tags = toTags(raw.tags);
@@ -269,9 +269,9 @@ const normalizeRow = (
   const lowerName = name.toLowerCase();
   if (lowerName) {
     if (seenNames.has(lowerName)) {
-      warnings.push("Duplicate name within this file");
+      warnings.push("This name is in the file twice");
     } else if (ctx.existingNames.has(lowerName)) {
-      warnings.push("An item with this name already exists");
+      warnings.push("The menu already has an item with this name");
     }
     seenNames.add(lowerName);
   }
@@ -310,12 +310,12 @@ export const parseMenuFile = (
   } catch (e) {
     return {
       rows: [],
-      fatalError: e instanceof Error ? e.message : "Failed to parse file",
+      fatalError: e instanceof Error ? e.message : "We couldn't read this file. Start from the example file.",
     };
   }
 
   if (rawRows.length === 0) {
-    return { rows: [], fatalError: "No data rows found in the file" };
+    return { rows: [], fatalError: "The file has no items in it." };
   }
 
   const seenNames = new Set<string>();

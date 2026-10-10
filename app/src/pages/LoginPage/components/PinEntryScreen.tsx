@@ -97,8 +97,8 @@ export const PinEntryScreen: React.FC<PinEntryScreenProps> = ({
         </div>
 
         <div className={cn(triggerShake && 'animate-pin-shake')}>
-          <p className="mb-3 text-sm font-medium text-foreground">Enter your 4-digit PIN</p>
-          <div className="flex gap-3" aria-label={`${formData.pin.length} of 4 digits entered`}>
+          <p className="mb-3 text-sm font-medium text-foreground">Enter your 4-number PIN</p>
+          <div className="flex gap-3" aria-label={`${formData.pin.length} of 4 numbers typed`}>
             {[0, 1, 2, 3].map((i) => (
               <span
                 key={i}

@@ -14,7 +14,7 @@ export class BranchesController {
   list() {
     const tenant = getTenant();
     if (!tenant?.businessId) {
-      throw new ForbiddenException("No business context");
+      throw new ForbiddenException("Please sign in again.");
     }
     return this.branches.listForBusiness(tenant.businessId);
   }

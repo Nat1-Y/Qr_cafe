@@ -13,6 +13,8 @@ interface MovementHistoryDialogProps {
   movements: InventoryMovement[];
   loading: boolean;
   itemName: string;
+  // Used to show a stock place's name when a movement row only has its id.
+  locations?: { id: string | number; name: string }[];
 }
 
 export const MovementHistoryDialog: React.FC<MovementHistoryDialogProps> = ({
@@ -20,7 +22,8 @@ export const MovementHistoryDialog: React.FC<MovementHistoryDialogProps> = ({
   onOpenChange,
   movements,
   loading,
-  itemName
+  itemName,
+  locations = [],
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -28,10 +31,10 @@ export const MovementHistoryDialog: React.FC<MovementHistoryDialogProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <History className="h-5 w-5 text-primary" />
-            <span>Stock movement history</span>
+            <span>Stock history</span>
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            Recent movements for <span className="font-semibold text-foreground">{itemName}</span>
+            Latest changes for <span className="font-semibold text-foreground">{itemName}</span>
           </DialogDescription>
         </DialogHeader>
         
@@ -41,7 +44,7 @@ export const MovementHistoryDialog: React.FC<MovementHistoryDialogProps> = ({
           </div>
         ) : movements.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground text-sm">
-            No movement history recorded for this item.
+            No changes saved for this item yet.
           </div>
         ) : (
           <div className="rounded-lg border overflow-hidden mt-2">
@@ -50,7 +53,7 @@ export const MovementHistoryDialog: React.FC<MovementHistoryDialogProps> = ({
                 <TableRow className="text-xs">
                   <TableHead>Date</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Location</TableHead>
+                  <TableHead>Stock place</TableHead>
                   <TableHead className="text-right">Change</TableHead>
                   <TableHead className="text-right">After</TableHead>
                   <TableHead>User</TableHead>
@@ -71,7 +74,9 @@ export const MovementHistoryDialog: React.FC<MovementHistoryDialogProps> = ({
                         </Badge>
                       </TableCell>
                       <TableCell className="font-medium">
-                        {m.location_name || `Location #${m.location_id}`}
+                        {m.location_name ||
+                          locations.find((l) => String(l.id) === String(m.location_id))?.name ||
+                          '—'}
                       </TableCell>
                       <TableCell className={`text-right font-semibold font-mono ${isPositive ? 'text-success' : 'text-destructive'}`}>
                         {isPositive ? '+' : ''}{m.quantity_delta}
@@ -93,7 +98,7 @@ export const MovementHistoryDialog: React.FC<MovementHistoryDialogProps> = ({
           </div>
         )}
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)}>Close history</Button>
+          <Button onClick={() => onOpenChange(false)}>Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

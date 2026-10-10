@@ -32,9 +32,9 @@ interface IngredientRow {
 }
 
 const STRATEGIES = [
-  { value: 'by_menu_category', label: 'By Menu Category (auto)' },
-  { value: 'fixed_location', label: 'Fixed location' },
-  { value: 'default_location', label: 'Default location' },
+  { value: 'by_menu_category', label: 'From the section that makes it (auto)' },
+  { value: 'fixed_location', label: 'Always from one stock place' },
+  { value: 'default_location', label: 'From the main stock place' },
 ];
 
 let keyCounter = 0;
@@ -140,13 +140,13 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
       {existingRecipe ? (
         <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm">
           <span className="h-2 w-2 rounded-full bg-success" />
-          <span className="text-success font-medium">Recipe configured</span>
+          <span className="text-success font-medium">Recipe set</span>
           <span className="ml-auto text-xs text-muted-foreground">{existingRecipe.ingredients?.length ?? 0} ingredient(s)</span>
         </div>
       ) : (
         <div className="flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm">
           <span className="h-2 w-2 rounded-full bg-warning" />
-          <span className="text-warning font-medium">No recipe yet — stock won't auto-deduct</span>
+          <span className="text-warning font-medium">No recipe yet, so stock is not used up by orders</span>
         </div>
       )}
 
@@ -176,7 +176,7 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
 
         {/* Deduction strategy */}
         <div className="space-y-1.5">
-          <Label>Stock deduction strategy</Label>
+          <Label>Use stock from</Label>
           <Select value={strategy} onValueChange={setStrategy}>
             <SelectTrigger className="h-8">
               <SelectValue />
@@ -192,10 +192,10 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
         {/* Fixed location picker */}
         {strategy === 'fixed_location' && (
           <div className="space-y-1.5">
-            <Label>Deduct from location</Label>
+            <Label>Stock place</Label>
             <Select value={fixedLocationId} onValueChange={setFixedLocationId}>
               <SelectTrigger className="h-8">
-                <SelectValue placeholder="Select location…" />
+                <SelectValue placeholder="Pick a stock place" />
               </SelectTrigger>
               <SelectContent>
                 {stockLocations.map((loc: any) => (
@@ -215,7 +215,7 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
             onChange={(e) => setIsActive(e.target.checked)}
             className="rounded"
           />
-          <Label htmlFor="recipe-active" className="cursor-pointer">Active (deduct on sale)</Label>
+          <Label htmlFor="recipe-active" className="cursor-pointer">On (use stock when sold)</Label>
         </div>
 
         {/* Ingredients list */}
@@ -229,7 +229,7 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
 
           {ingredients.length === 0 && (
             <p className="rounded-md border border-dashed py-4 text-center text-xs text-muted-foreground">
-              No ingredients yet. Click "+ Add" to begin.
+              No ingredients yet. Tap "+ Add" to start.
             </p>
           )}
 
@@ -248,13 +248,13 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="col-span-2 space-y-1">
-                    <Label>Inventory item</Label>
+                    <Label>Stock item</Label>
                     <Select
                       value={ing.inventory_item_id !== '' ? String(ing.inventory_item_id) : ''}
                       onValueChange={(v) => updateIngredient(ing.key, 'inventory_item_id', Number(v))}
                     >
                       <SelectTrigger className="h-7">
-                        <SelectValue placeholder="Select item…" />
+                        <SelectValue placeholder="Pick an item" />
                       </SelectTrigger>
                       <SelectContent>
                         <div className="p-1">
@@ -275,7 +275,7 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
                     </Select>
                   </div>
                   <div className="space-y-1">
-                    <Label>Qty (base units)</Label>
+                    <Label>Amount (small unit)</Label>
                     <Input
                       type="number"
                       min="1"
@@ -286,7 +286,7 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label>Waste factor</Label>
+                    <Label>Extra for waste</Label>
                     <Input
                       type="number"
                       min="1"
@@ -316,7 +316,7 @@ export const RecipeTab: React.FC<RecipeTabProps> = ({
         {/* Action buttons */}
         <div className="flex gap-2 pt-1">
           <Button type="submit" disabled={saving} className="flex-1">
-            {saving ? 'Saving…' : existingRecipe ? 'Update Recipe' : 'Create Recipe'}
+            {saving ? 'Saving…' : existingRecipe ? 'Save recipe' : 'Add recipe'}
           </Button>
           {existingRecipe && (
             <Button

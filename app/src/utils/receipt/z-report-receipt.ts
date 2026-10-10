@@ -5,6 +5,12 @@
 import { ReceiptBlock } from "@/utils/receiptImage";
 import { AMHARIC_FONT_STACK, printHTML } from "./html-printer";
 import { escapeHtml } from "./format";
+import { humanize } from "@/lib/format";
+
+// The backend's voided order_id is not a readable number; show the order's own
+// number when present, never a raw id.
+const voidedOrderLabel = (txn: { order_number?: number | string | null; order_id?: number | string | null }) =>
+  txn?.order_number != null ? `#${txn.order_number}` : Number.isFinite(Number(txn?.order_id)) && txn?.order_id != null ? `#${txn.order_id}` : "—";
 import {
   isTauriRuntime,
   resolveThermalPrinterName,
@@ -42,7 +48,7 @@ export async function printZReport(zReport: any) {
           { kind: "title", text: "Syntax services" },
           {
             kind: "text",
-            text: "Z-REPORT",
+            text: "END OF DAY REPORT",
             align: "center",
             bold: true,
           },
@@ -62,30 +68,30 @@ export async function printZReport(zReport: any) {
             kind: "row",
             widths: [25, 20],
             align: ["left", "right"],
-            cells: ["Total Orders:", String(zReport.summary.total_orders)],
+            cells: ["Total orders:", String(zReport.summary.total_orders)],
           },
           {
             kind: "row",
             widths: [25, 20],
             align: ["left", "right"],
-            cells: ["Gross Sales:", formatCurrency(zReport.summary.gross_sales)],
+            cells: ["Total sales:", formatCurrency(zReport.summary.gross_sales)],
           },
           {
             kind: "row",
             widths: [25, 20],
             align: ["left", "right"],
-            cells: ["Refunds:", formatCurrency(zReport.summary.refunds)],
+            cells: ["Cancelled:", formatCurrency(zReport.summary.refunds)],
           },
           {
             kind: "row",
             widths: [25, 20],
             align: ["left", "right"],
-            cells: ["Net Sales:", formatCurrency(zReport.summary.net_sales)],
+            cells: ["Sales after discounts:", formatCurrency(zReport.summary.net_sales)],
           },
           { kind: "divider" },
           {
             kind: "text",
-            text: "PAYMENT BREAKDOWN",
+            text: "PAID WITH",
             align: "center",
             bold: true,
           },
@@ -98,7 +104,7 @@ export async function printZReport(zReport: any) {
             widths: [20, 10, 15],
             align: ["left", "right", "right"],
             cells: [
-              payment.method,
+              humanize(payment.method),
               String(payment.count),
               formatCurrency(payment.amount),
             ],
@@ -108,7 +114,7 @@ export async function printZReport(zReport: any) {
         blocks.push({ kind: "divider" });
         blocks.push({
           kind: "text",
-          text: "EMPLOYEE ACTIVITY",
+          text: "STAFF SALES",
           align: "center",
           bold: true,
         });
@@ -131,7 +137,7 @@ export async function printZReport(zReport: any) {
           blocks.push({ kind: "divider" });
           blocks.push({
             kind: "text",
-            text: "VOIDED TRANSACTIONS",
+            text: "CANCELLED ORDERS",
             align: "center",
             bold: true,
           });
@@ -143,7 +149,7 @@ export async function printZReport(zReport: any) {
               widths: [8, 15, 12],
               align: ["left", "left", "right"],
               cells: [
-                `#${txn.order_id}`,
+                voidedOrderLabel(txn),
                 txn.employee_name.substring(0, 12),
                 formatCurrency(txn.amount),
               ],
@@ -153,7 +159,7 @@ export async function printZReport(zReport: any) {
 
         blocks.push({ kind: "divider" });
         blocks.push({ kind: "gap", height: 12 });
-        blocks.push({ kind: "text", text: "End of Z-Report" });
+        blocks.push({ kind: "text", text: "End of day report" });
 
         await printReceiptImage(printerName, blocks);
 
@@ -168,7 +174,7 @@ export async function printZReport(zReport: any) {
   const paymentRows = zReport.payment_breakdown
     .map((p: any) => `
       <tr>
-        <td class="text-left capitalize">${escapeHtml(p.method)}</td>
+        <td class="text-left">${escapeHtml(humanize(p.method))}</td>
         <td class="text-right">${escapeHtml(String(p.count))}</td>
         <td class="text-right">${escapeHtml(formatCurrency(p.amount))}</td>
         <td class="text-right">${escapeHtml(p.percentage.toFixed(1))}%</td>
@@ -190,7 +196,7 @@ export async function printZReport(zReport: any) {
     ? zReport.voided_transactions
       .map((v: any) => `
           <tr>
-            <td class="text-left">#${escapeHtml(String(v.order_id))}</td>
+            <td class="text-left">${escapeHtml(voidedOrderLabel(v))}</td>
             <td class="text-left">${escapeHtml(v.employee_name)}</td>
             <td class="text-right text-red-600">${escapeHtml(formatCurrency(v.amount))}</td>
             <td class="text-left">${escapeHtml(formatDate(v.created_at))}</td>
@@ -203,7 +209,7 @@ export async function printZReport(zReport: any) {
 <html>
 <head>
 <meta charset="utf-8">
-<title>Z-Report</title>
+<title>End of day report</title>
 <style>
   @page { size: 80mm auto; margin: 0; }
   * { box-sizing: border-box; }
@@ -242,7 +248,7 @@ export async function printZReport(zReport: any) {
 <body>
   <div class="ticket">
     <div class="header">Syntax Services</div>
-    <div class="section-title">Z-REPORT</div>
+    <div class="section-title">END OF DAY REPORT</div>
     <div class="rule"></div>
 
     <div class="row"><span>Date:</span><span>${escapeHtml(formatDate(zReport.report_date))}</span></div>
@@ -252,18 +258,18 @@ export async function printZReport(zReport: any) {
     <div class="rule"></div>
     <div class="section-title">SUMMARY</div>
     <div class="rule"></div>
-    <div class="row"><span>Total Orders:</span><span>${escapeHtml(String(zReport.summary.total_orders))}</span></div>
-    <div class="row"><span>Gross Sales:</span><span>${escapeHtml(formatCurrency(zReport.summary.gross_sales))}</span></div>
-    <div class="row"><span>Refunds:</span><span class="text-red-600">${escapeHtml(formatCurrency(zReport.summary.refunds))}</span></div>
-    <div class="row"><span>Net Sales:</span><span>${escapeHtml(formatCurrency(zReport.summary.net_sales))}</span></div>
+    <div class="row"><span>Total orders:</span><span>${escapeHtml(String(zReport.summary.total_orders))}</span></div>
+    <div class="row"><span>Total sales:</span><span>${escapeHtml(formatCurrency(zReport.summary.gross_sales))}</span></div>
+    <div class="row"><span>Cancelled:</span><span class="text-red-600">${escapeHtml(formatCurrency(zReport.summary.refunds))}</span></div>
+    <div class="row"><span>Sales after discounts:</span><span>${escapeHtml(formatCurrency(zReport.summary.net_sales))}</span></div>
 
     <div class="rule"></div>
-    <div class="section-title">PAYMENT BREAKDOWN</div>
+    <div class="section-title">PAID WITH</div>
     <div class="rule"></div>
     <table>
       <thead>
         <tr>
-          <th>Method</th>
+          <th>Paid with</th>
           <th class="text-right">Count</th>
           <th class="text-right">Amount</th>
           <th class="text-right">%</th>
@@ -273,12 +279,12 @@ export async function printZReport(zReport: any) {
     </table>
 
     <div class="rule"></div>
-    <div class="section-title">EMPLOYEE ACTIVITY</div>
+    <div class="section-title">STAFF SALES</div>
     <div class="rule"></div>
     <table>
       <thead>
         <tr>
-          <th>Employee</th>
+          <th>Staff</th>
           <th class="text-right">Orders</th>
           <th class="text-right">Sales</th>
         </tr>
@@ -288,13 +294,13 @@ export async function printZReport(zReport: any) {
 
     ${zReport.voided_transactions.length > 0 ? `
     <div class="rule"></div>
-    <div class="section-title">VOIDED TRANSACTIONS</div>
+    <div class="section-title">CANCELLED ORDERS</div>
     <div class="rule"></div>
     <table>
       <thead>
         <tr>
           <th>Order</th>
-          <th>Employee</th>
+          <th>Staff</th>
           <th class="text-right">Amount</th>
           <th>Time</th>
         </tr>
@@ -306,7 +312,7 @@ export async function printZReport(zReport: any) {
     <div class="rule"></div>
     <div class="meta text-center">
       Printed via Cafe System
-      End of Z-Report
+      End of day report
     </div>
   </div>
 </body>

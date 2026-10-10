@@ -18,14 +18,14 @@ function ProfitGroup({ label, result }: { label: string; result: ProfitResult })
         <StatCard
           title="Sales (paid)"
           value={formatETB(result.sales)}
-          subtitle="Paid order revenue"
+          subtitle="Money from paid orders"
           icon={<TrendingUp className="size-5" />}
           variant="info"
         />
         <StatCard
           title="Expenses"
           value={formatETB(result.expenses)}
-          subtitle="Recorded expenses"
+          subtitle="Expenses you wrote down"
           icon={<TrendingDown className="size-5" />}
           variant="warning"
         />
@@ -42,7 +42,7 @@ function ProfitGroup({ label, result }: { label: string; result: ProfitResult })
 }
 
 // Daily/monthly profit (paid revenue − expenses). When `from`/`to` are given,
-// a "Selected range" group is added on top of Today / This Month.
+// a "These dates" group is added on top of Today / This Month.
 export function ProfitSummary({
   orders,
   payments,
@@ -67,7 +67,7 @@ export function ProfitSummary({
       <div className="space-y-6">
         {hasRange && (
           <ProfitGroup
-            label="Selected range"
+            label="These dates"
             result={computeProfit(orders, payments, expenses, from ?? "", to ?? "")}
           />
         )}

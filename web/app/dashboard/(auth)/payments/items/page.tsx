@@ -34,6 +34,7 @@ import {
   normalizeId,
   normalizeStatus,
 } from "@/lib/reports";
+import { friendlyError } from "@/lib/errors";
 
 type AggregatedItemRow = {
   unit: string;
@@ -101,7 +102,7 @@ export default function PaymentsItemsPage() {
       try {
         await fetchData();
       } catch (e: any) {
-        toast.error(e.message || "Failed to load items sold");
+        toast.error(friendlyError(e, "Couldn't load items sold. Please try again."));
       } finally {
         setLoading(false);
       }
@@ -113,7 +114,7 @@ export default function PaymentsItemsPage() {
     try {
       await fetchData();
     } catch (e: any) {
-      toast.error(e.message || "Failed to refresh");
+      toast.error(friendlyError(e, "Couldn't refresh. Please try again."));
     } finally {
       setRefreshing(false);
     }
@@ -128,9 +129,9 @@ export default function PaymentsItemsPage() {
         softQty: counts.softQty,
         totalRevenue: counts.totalRevenue,
       });
-      toast.success("PDF export downloaded");
+      toast.success("PDF downloaded");
     } catch (e: any) {
-      toast.error(e.message || "Failed to export PDF");
+      toast.error(friendlyError(e, "Couldn't make the PDF. Please try again."));
     }
   };
 
@@ -258,13 +259,13 @@ export default function PaymentsItemsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Foods & drinks sold"
-        description="Aggregated breakdown of individual sold items matching paid transactions."
+        title="Food & drinks sold"
+        description="Every item sold in paid orders, added up."
         action={
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleExportPdf}>
               <Download />
-              Export PDF
+              Download PDF
             </Button>
             <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
               <RefreshCw className={`mr-2 size-4 ${refreshing ? "animate-spin" : ""}`} />
@@ -308,7 +309,7 @@ export default function PaymentsItemsPage() {
                       size="sm"
                       onClick={() => setCustomMode("specific")}
                      >
-                      Specific date
+                      One day
                     </Button>
                     <Button
                       variant={customMode === "range" ? "secondary" : "ghost"}
@@ -343,7 +344,7 @@ export default function PaymentsItemsPage() {
                     </div>
                   )}
                   <Badge variant="muted">
-                    Viewing ledger for: {viewingLabel}
+                    Showing: {viewingLabel}
                   </Badge>
                 </div>
               )}
@@ -371,7 +372,7 @@ export default function PaymentsItemsPage() {
                     Total food items sold
                   </p>
                   <p className="text-2xl font-semibold">{counts.foodQty.toLocaleString()}</p>
-                  <p className="text-muted-foreground text-xs">Food category aggregations</p>
+                  <p className="text-muted-foreground text-xs">Food items, added up</p>
                 </div>
                 <Coffee className="text-success size-6" />
               </CardContent>
@@ -380,10 +381,10 @@ export default function PaymentsItemsPage() {
               <CardContent className="flex items-center justify-between pt-6">
                 <div>
                   <p className="text-muted-foreground text-xs font-semibold">
-                    Total beverages sold
+                    Total drinks sold
                   </p>
                   <p className="text-2xl font-semibold">{counts.softQty.toLocaleString()}</p>
-                  <p className="text-muted-foreground text-xs">Drink category aggregations</p>
+                  <p className="text-muted-foreground text-xs">Drinks, added up</p>
                 </div>
                 <TrendingUp className="text-primary size-6" />
               </CardContent>
@@ -395,7 +396,7 @@ export default function PaymentsItemsPage() {
                     Total cost
                   </p>
                   <p className="text-2xl font-semibold">{formatETB(counts.totalRevenue)}</p>
-                  <p className="text-muted-foreground text-xs">Accumulated value of items sold</p>
+                  <p className="text-muted-foreground text-xs">Total value of items sold</p>
                 </div>
                 <Coins className="text-warning size-6" />
               </CardContent>
@@ -406,30 +407,30 @@ export default function PaymentsItemsPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between border-b pb-3">
               <div>
-                <CardTitle>Aggregated items list</CardTitle>
+                <CardTitle>Items sold</CardTitle>
                 <CardDescription>
-                  Matches {itemsRows.length} distinct item types
+                  Matches {itemsRows.length} different items
                 </CardDescription>
               </div>
               <Badge variant="secondary">
-                Orders: {filteredOrders.length} · Settled: {paidPayments.length}
+                Orders: {filteredOrders.length} · Paid: {paidPayments.length}
               </Badge>
             </CardHeader>
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Business unit</TableHead>
+                    <TableHead>Section</TableHead>
                     <TableHead>Item name</TableHead>
                     <TableHead>Quantity sold</TableHead>
-                    <TableHead className="text-right">Accumulated revenue</TableHead>
+                    <TableHead className="text-right">Total money in</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {itemsRows.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={4} className="text-muted-foreground py-12 text-center text-sm">
-                        No items found matching the selected filters.
+                        Nothing sold for these filters. Try other dates.
                       </TableCell>
                     </TableRow>
                   ) : (

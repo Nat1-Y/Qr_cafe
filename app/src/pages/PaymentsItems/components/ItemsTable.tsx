@@ -22,21 +22,21 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
     <Card>
       <CardHeader className="pb-3 border-b flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Aggregated items list</CardTitle>
-          <CardDescription>Matches {itemsRows.length} distinct item types</CardDescription>
+          <CardTitle>Items sold</CardTitle>
+          <CardDescription>Matches {itemsRows.length} different items</CardDescription>
         </div>
         <Badge variant="secondary">
-          Orders: {ordersCount} · Settled: {paidCount}
+          Orders: {ordersCount} · Paid: {paidCount}
         </Badge>
       </CardHeader>
       <CardContent className="p-0">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Business unit</TableHead>
+              <TableHead>Section</TableHead>
               <TableHead>Item name</TableHead>
               <TableHead>Quantity sold</TableHead>
-              <TableHead className="text-right">Accumulated revenue</TableHead>
+              <TableHead className="text-right">Total money in</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -45,8 +45,8 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
                 <TableCell colSpan={4}>
                   <EmptyState
                     icon={<Coffee />}
-                    title="No items found"
-                    description="No items found matching the selected filters."
+                    title="No items match"
+                    description="Nothing sold for these filters. Try other dates."
                   />
                 </TableCell>
               </TableRow>

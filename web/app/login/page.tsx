@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login } from "@/lib/auth";
 import { AuthSplitLayout } from "@/components/auth-split-layout";
+import { friendlyError } from "@/lib/errors";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function LoginPage() {
           : "/dashboard/home",
       );
     } catch (err: any) {
-      toast.error(err.message || "Login failed");
+      toast.error(friendlyError(err, "Couldn't sign in. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -40,10 +41,10 @@ export default function LoginPage() {
   return (
     <AuthSplitLayout
       headline="Every branch, one place to look after them."
-      subline="Owners and platform staff sign in here. Branch staff use the branch sign-in.">
+      subline="Owners sign in here. Branch staff, please use the branch sign-in.">
       <div className="mb-8">
         <h1 className="text-title text-foreground">Sign in</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Use your owner or platform account.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Use your owner account.</p>
       </div>
 
       <form onSubmit={onSubmit} className="space-y-5">
@@ -89,7 +90,7 @@ export default function LoginPage() {
       </form>
 
       <p className="mt-6 text-sm text-muted-foreground">
-        Branch admin or F&amp;B manager?{" "}
+        Branch manager or food &amp; drinks manager?{" "}
         <Link href="/branch" className="font-semibold text-primary underline-offset-4 hover:underline">
           Branch sign-in
         </Link>

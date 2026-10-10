@@ -38,14 +38,15 @@ import { StatusBadge } from "@/components/status-badge";
 import { useCashierAuth } from "@/components/cashier/auth-context";
 import { cashierServices } from "@/lib/cashier/api";
 import { AddItemsToOrderDialog } from "@/components/cashier/AddItemsToOrderDialog";
+import { friendlyError } from "@/lib/errors";
 
 const POLL_MS = 7000;
 
 const PAYMENT_METHODS = [
   { value: "cash", label: "Cash" },
   { value: "card", label: "Card" },
-  { value: "transfer", label: "Transfer" },
-  { value: "mobile", label: "Mobile" },
+  { value: "transfer", label: "Bank transfer" },
+  { value: "mobile", label: "Mobile money" },
 ];
 
 const formatCurrency = formatETB;
@@ -259,7 +260,7 @@ export default function CashierQueuePage() {
         const list = payload?.data?.orders ?? payload?.orders ?? [];
         setOrders(Array.isArray(list) ? list : []);
       } catch (err: any) {
-        if (showSpinner) toast.error(err?.message || "Failed to load orders");
+        if (showSpinner) toast.error(friendlyError(err, "Couldn't load orders. Please try again."));
       } finally {
         setLoading(false);
         if (showSpinner) setRefreshing(false);
@@ -433,9 +434,9 @@ export default function CashierQueuePage() {
     setSettlingTable(false);
     setSettleTableOpen(false);
     setSettleProgress(null);
-    if (fail === 0) toast.success(`Settled ${ok} payment${ok === 1 ? "" : "s"} for Table ${table}`);
-    else if (ok === 0) toast.error(`Failed to settle ${fail} payment${fail === 1 ? "" : "s"}`);
-    else toast.warning(`Settled ${ok}, ${fail} failed`);
+    if (fail === 0) toast.success(`Paid ${ok} order${ok === 1 ? "" : "s"} for Table ${table}`);
+    else if (ok === 0) toast.error(`Couldn't take payment for ${fail} order${fail === 1 ? "" : "s"}. Please try again.`);
+    else toast.warning(`Paid ${ok}. ${fail} didn't go through. Please try again.`);
     loadQueue(false);
     loadPayments();
   }, [tableSettleTasks, settlingTable, confirmMethod, user?.id, selectedTable, loadQueue, loadPayments]);
@@ -489,7 +490,7 @@ export default function CashierQueuePage() {
           processed_by: user?.id,
         });
         toast.success(
-          `${prettyDept(due.department, deptLabels)} settled — ${formatCurrency(due.subtotal)}`,
+          `${prettyDept(due.department, deptLabels)} paid — ${formatCurrency(due.subtotal)}`,
         );
       } else {
         setOrders((prev) => prev.filter((o) => o.id !== order.id));
@@ -510,11 +511,11 @@ export default function CashierQueuePage() {
           });
         }
         toast.success(
-          `Order #${order.order_number ?? ""} settled — ${formatCurrency(order.total_amount)}`,
+          `Order #${order.order_number ?? ""} paid — ${formatCurrency(order.total_amount)}`,
         );
       }
     } catch (err: any) {
-      toast.error(err?.message || "Failed to confirm payment");
+      toast.error(friendlyError(err, "Couldn't take the payment. Please try again."));
     } finally {
       submittingRef.current = false;
       setProcessing((prev) => {
@@ -536,7 +537,7 @@ export default function CashierQueuePage() {
     // Gate on the branch cancel password when one is configured.
     if (cancelPwdRequired) {
       if (!cancelPwd.trim()) {
-        toast.error("Enter the cancel password");
+        toast.error("Enter the manager PIN for cancelling.");
         return;
       }
       setVerifyingCancel(true);
@@ -546,12 +547,12 @@ export default function CashierQueuePage() {
         );
         const payload = res?.data ?? res;
         if (!Boolean(payload?.data?.valid ?? payload?.valid)) {
-          toast.error("Incorrect cancel password");
+          toast.error("Wrong manager PIN. Please try again.");
           setVerifyingCancel(false);
           return;
         }
       } catch (err: any) {
-        toast.error(err?.message || "Failed to verify password");
+        toast.error(friendlyError(err, "Couldn't check the PIN. Please try again."));
         setVerifyingCancel(false);
         return;
       }
@@ -573,7 +574,7 @@ export default function CashierQueuePage() {
       });
       toast.success(`Order #${order.order_number ?? ""} cancelled`);
     } catch (err: any) {
-      toast.error(err?.message || "Failed to cancel order");
+      toast.error(friendlyError(err, "Couldn't cancel the order. Please try again."));
     } finally {
       setProcessing((prev) => {
         const next = new Set(prev);
@@ -642,7 +643,7 @@ export default function CashierQueuePage() {
       </div>
       <div>
         <p className="mb-2 text-sm font-medium text-foreground">Paid with</p>
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Payment method">
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Paid with">
           {PAYMENT_METHODS.map((m) => (
             <Button
               key={m.value}
@@ -677,7 +678,7 @@ export default function CashierQueuePage() {
                 </Badge>
               ))
             ) : (
-              <Badge variant="muted">All departments</Badge>
+              <Badge variant="muted">All sections</Badge>
             )}
           </div>
         </div>
@@ -696,7 +697,7 @@ export default function CashierQueuePage() {
           <Button variant="ghost" asChild>
             <Link href="/cashier/organizations">
               <Building2 />
-              Organizations
+              Company accounts
             </Link>
           </Button>
           <Button variant="ghost" size="icon" asChild aria-label="Profile">
@@ -734,7 +735,7 @@ export default function CashierQueuePage() {
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <StatsCard title="Payments taken" value={stats.count} />
-          <StatsCard title="Revenue" value={formatCurrency(stats.revenue)} variant="success" />
+          <StatsCard title="Money in" value={formatCurrency(stats.revenue)} variant="success" />
           <StatsCard title="Waiting to be paid" value={formatCurrency(stats.pending)} />
         </div>
       </section>
@@ -774,7 +775,7 @@ export default function CashierQueuePage() {
                 <p className="font-semibold text-foreground">Table {selectedTable}</p>
                 <p className="text-meta text-muted-foreground">
                   {filteredOrders.length} {filteredOrders.length === 1 ? "order" : "orders"} ·{" "}
-                  {formatCurrency(tableSettleTotal)} due{isAttached ? " for your department" : ""}
+                  {formatCurrency(tableSettleTotal)} to pay{isAttached ? " for your section" : ""}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -835,7 +836,7 @@ export default function CashierQueuePage() {
                     {isAttached ? (
                       <>
                         {dues.length === 0 ? (
-                          <p className="text-meta text-muted-foreground">Nothing to settle for your department.</p>
+                          <p className="text-meta text-muted-foreground">Nothing to pay for your section.</p>
                         ) : (
                           dues.map((due) => {
                             const key = `${order.id}:${due.department}`;
@@ -942,7 +943,7 @@ export default function CashierQueuePage() {
             </div>
           ) : (
             <p className="px-5 py-10 text-center text-sm text-muted-foreground">
-              Tap Charge on an order to settle it here.
+              Tap Charge on an order to take payment here.
             </p>
           )}
         </Card>
@@ -1051,7 +1052,7 @@ export default function CashierQueuePage() {
             <DialogTitle className="text-[22px] leading-tight">Table {selectedTable}</DialogTitle>
             <DialogDescription>
               {tableSettleTasks.length} {tableSettleTasks.length === 1 ? "payment" : "payments"}
-              {isAttached ? " for your department" : ""} will be recorded. This can&apos;t be undone.
+              {isAttached ? " for your section" : ""} will be saved. You can&apos;t undo this.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-5">
@@ -1061,7 +1062,7 @@ export default function CashierQueuePage() {
             </div>
             <div>
               <p className="mb-2 text-sm font-medium text-foreground">Paid with</p>
-              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Payment method">
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Paid with">
                 {PAYMENT_METHODS.map((m) => (
                   <Button
                     key={m.value}
@@ -1080,7 +1081,7 @@ export default function CashierQueuePage() {
             {settleProgress ? (
               <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <RefreshCw className="size-3.5 animate-spin" />
-                Settling {settleProgress.done} of {settleProgress.total}…
+                Paying {settleProgress.done} of {settleProgress.total}…
               </p>
             ) : null}
           </div>
@@ -1094,7 +1095,7 @@ export default function CashierQueuePage() {
             </Button>
             <Button onClick={doSettleTable} disabled={settlingTable || tableSettleTasks.length === 0}>
               {settlingTable ? <RefreshCw className="animate-spin" /> : null}
-              {settlingTable ? "Settling…" : `Charge ${tableSettleTasks.length} ${tableSettleTasks.length === 1 ? "payment" : "payments"}`}
+              {settlingTable ? "Paying…" : `Charge ${tableSettleTasks.length} ${tableSettleTasks.length === 1 ? "payment" : "payments"}`}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1116,18 +1117,18 @@ export default function CashierQueuePage() {
             <DialogDescription>
               Cancel order #{cancelTarget?.order_number ?? ""}
               {cancelTarget?.table_number != null ? ` (Table ${cancelTarget.table_number})` : ""}?
-              This voids the order and cannot be undone.
+              The order will be cancelled. You can&apos;t undo this.
             </DialogDescription>
           </DialogHeader>
           {cancelPwdRequired ? (
             <div className="space-y-1.5 py-1">
-              <Label htmlFor="cancel-pwd">Cancel password</Label>
+              <Label htmlFor="cancel-pwd">Manager PIN for cancelling</Label>
               <Input
                 id="cancel-pwd"
                 type="password"
                 value={cancelPwd}
                 onChange={(e) => setCancelPwd(e.target.value)}
-                placeholder="Enter cancel password"
+                placeholder="Enter manager PIN"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === "Enter") doCancel();

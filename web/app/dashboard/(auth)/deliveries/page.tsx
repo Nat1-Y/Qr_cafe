@@ -42,8 +42,9 @@ import { PageHeader } from "@/components/page-header";
 import { StatCards, type StatCard } from "@/components/stat-cards";
 import { StatusBadge } from "@/components/status-badge";
 import { Deliveries, Settings } from "@/lib/resources";
-import { formatETB, shortDate } from "@/lib/format";
+import { formatETB, shortDate, humanize } from "@/lib/format";
 import { formatOrderNumber } from "@/lib/utils";
+import { friendlyError } from "@/lib/errors";
 
 // Hoisted so DataTable's `searchKeys` prop keeps a stable reference across
 // renders — an inline array literal at the call site would get a new
@@ -184,7 +185,7 @@ function ManageDeliveryDialog({
       toast.success("Delivery details saved");
       await onSaved();
     } catch (e: any) {
-      toast.error(e?.message || "Failed to save");
+      toast.error(friendlyError(e, "Couldn't save. Please try again."));
     } finally {
       setBusy(false);
     }
@@ -194,10 +195,10 @@ function ManageDeliveryDialog({
     setBusy(true);
     try {
       await Deliveries.updateDetails(order.id, { status });
-      toast.success(`Marked ${status}`);
+      toast.success(`Marked as ${humanize(status).toLowerCase()}`);
       await onSaved();
     } catch (e: any) {
-      toast.error(e?.message || "Failed to update status");
+      toast.error(friendlyError(e, "Couldn't change the status. Please try again."));
     } finally {
       setBusy(false);
     }
@@ -213,13 +214,13 @@ function ManageDeliveryDialog({
         notes: payNotes || null,
         status: "paid",
       });
-      toast.success("Payment recorded");
+      toast.success("Payment saved");
       setPayMethod("");
       setPayNotes("");
       await onSaved();
     } catch (e: any) {
-      const message = e?.message || "Failed to record payment";
-      toast.error(message);
+      const message = e?.message || "";
+      toast.error(friendlyError(e, "Couldn't save the payment. Please try again."));
       // The order's payment state can change from under us — e.g. a POS
       // client confirms the same order at nearly the same moment. Refresh
       // instead of leaving a stale "still owing" view up, which is exactly
@@ -254,7 +255,7 @@ function ManageDeliveryDialog({
             </div>
             <div className="px-2 py-2.5">
               <div className="text-xs font-semibold text-muted-foreground">
-                Collected
+                Paid so far
               </div>
               <div className="text-sm font-semibold text-success">
                 {formatETB(order.delivery_payment_summary.paid_cents / 100)}
@@ -282,7 +283,7 @@ function ManageDeliveryDialog({
               </div>
               {(order.items ?? []).length === 0 ? (
                 <div className="text-muted-foreground px-3 py-4 text-center text-sm">
-                  No items recorded for this order.
+                  No items on this order.
                 </div>
               ) : (
                 (order.items ?? []).map((it) => (
@@ -324,7 +325,7 @@ function ManageDeliveryDialog({
                     className="gap-1.5"
                   >
                     <StatusIcon className="size-3.5" />
-                    {s === "pending" ? "Pending" : s === "delivered" ? "Mark delivered" : "Cancel delivery"}
+                    {s === "pending" ? "Waiting" : s === "delivered" ? "Mark delivered" : "Cancel delivery"}
                   </Button>
                 );
               })}
@@ -333,17 +334,17 @@ function ManageDeliveryDialog({
 
           <div className="space-y-3">
             <SectionLabel icon={MapPinIcon} className="mb-0">
-              Courier & address
+              Driver & address
             </SectionLabel>
             <div className="space-y-1.5">
-              <Label>Courier</Label>
+              <Label>Driver</Label>
               <select
                 value={matchedCourierId}
                 onChange={(e) => selectCourier(e.target.value)}
                 className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
               >
                 <option value="">
-                  {couriers.length ? "Choose a saved courier…" : "No saved couriers — enter details below"}
+                  {couriers.length ? "Pick a saved driver" : "No saved drivers yet. Type the details below."}
                 </option>
                 {couriers.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -355,7 +356,7 @@ function ManageDeliveryDialog({
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Courier name</Label>
+                <Label>Driver name</Label>
                 <Input
                   value={courierName}
                   onChange={(e) => setCourierName(e.target.value)}
@@ -363,7 +364,7 @@ function ManageDeliveryDialog({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Courier phone</Label>
+                <Label>Driver phone</Label>
                 <Input value={courierPhone} onChange={(e) => setCourierPhone(e.target.value)} placeholder="Optional" />
               </div>
             </div>
@@ -395,14 +396,14 @@ function ManageDeliveryDialog({
                 Payments
               </SectionLabel>
               <span className="text-muted-foreground text-xs">
-                {order.delivery_payments.length} entr
-                {order.delivery_payments.length === 1 ? "y" : "ies"}
+                {order.delivery_payments.length} payment
+                {order.delivery_payments.length === 1 ? "" : "s"}
               </span>
             </div>
 
             {order.delivery_payments.length === 0 ? (
               <p className="py-3 text-center text-xs text-muted-foreground">
-                No payment recorded yet.
+                No payment yet.
               </p>
             ) : (
               <div className="space-y-2">
@@ -418,22 +419,12 @@ function ManageDeliveryDialog({
                       <div>
                         <div className="font-medium">{formatETB(p.amount_cents / 100)}</div>
                         <div className="text-xs text-muted-foreground">
-                          {[p.method, p.processed_by_name].filter(Boolean).join(" · ") || "—"}
+                          {[p.method ? humanize(p.method) : null, p.processed_by_name].filter(Boolean).join(" · ") || "—"}
                         </div>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <Badge
-                        variant={
-                          p.status === "paid"
-                            ? "success"
-                            : p.status === "cancelled"
-                              ? "destructive"
-                              : "warning"
-                        }
-                      >
-                        {p.status}
-                      </Badge>
+                      <StatusBadge kind="payment" status={p.status} />
                       {p.paid_at && (
                         <span className="text-xs text-muted-foreground">{shortDate(p.paid_at)}</span>
                       )}
@@ -447,7 +438,7 @@ function ManageDeliveryDialog({
               <div className="mt-3 space-y-2 rounded-lg border border-warning/30 bg-warning-soft p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-warning">
-                    Amount due
+                    Amount to pay
                   </span>
                   <span className="text-sm font-semibold text-warning">
                     {formatETB(remainingDueCents / 100)}
@@ -455,7 +446,7 @@ function ManageDeliveryDialog({
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <Input
-                    placeholder="Source (e.g. courier cash)"
+                    placeholder="Paid with (e.g. driver cash)"
                     value={payMethod}
                     onChange={(e) => setPayMethod(e.target.value)}
                   />
@@ -469,7 +460,7 @@ function ManageDeliveryDialog({
                   </Button>
                 </div>
                 <Input
-                  placeholder="Payment notes (optional)"
+                  placeholder="Note about the payment (optional)"
                   value={payNotes}
                   onChange={(e) => setPayNotes(e.target.value)}
                 />
@@ -523,12 +514,12 @@ function DeliveryPaymentsPopover({
         method: payMethod || null,
         status: "paid",
       });
-      toast.success("Payment recorded");
+      toast.success("Payment saved");
       setPayMethod("");
       await onChanged();
     } catch (e: any) {
-      const message = e?.message || "Failed to record payment";
-      toast.error(message);
+      const message = e?.message || "";
+      toast.error(friendlyError(e, "Couldn't save the payment. Please try again."));
       // See ManageDeliveryDialog.recordPayment — refresh on a stale-state
       // conflict so this popover stops showing an amount that's already
       // been paid elsewhere.
@@ -562,7 +553,7 @@ function DeliveryPaymentsPopover({
         </div>
 
         {order.delivery_payments.length === 0 ? (
-          <p className="text-muted-foreground py-2 text-center text-xs">No payment recorded yet.</p>
+          <p className="text-muted-foreground py-2 text-center text-xs">No payment yet.</p>
         ) : (
           <div className="mb-3 max-h-40 space-y-1.5 overflow-y-auto">
             {order.delivery_payments.map((p) => (
@@ -572,13 +563,8 @@ function DeliveryPaymentsPopover({
               >
                 <div>
                   <span className="font-medium">{formatETB(p.amount_cents / 100)}</span>{" "}
-                  <Badge
-                    variant={p.status === "paid" ? "success" : p.status === "cancelled" ? "destructive" : "warning"}
-                    className="ml-1"
-                  >
-                    {p.status}
-                  </Badge>
-                  <div className="text-muted-foreground">{p.method || "—"}</div>
+                  <StatusBadge kind="payment" status={p.status} className="ml-1" />
+                  <div className="text-muted-foreground">{p.method ? humanize(p.method) : "—"}</div>
                 </div>
               </div>
             ))}
@@ -588,12 +574,12 @@ function DeliveryPaymentsPopover({
         {remainingDueCents > 0 ? (
           <>
             <div className="mb-2 flex items-center justify-between rounded-md border bg-muted/20 px-2 py-1.5 text-xs">
-              <span className="font-medium text-muted-foreground">Amount due</span>
+              <span className="font-medium text-muted-foreground">Amount to pay</span>
               <span className="font-semibold">{formatETB(remainingDueCents / 100)}</span>
             </div>
             <div className="flex gap-1.5">
               <Input
-                placeholder="Source"
+                placeholder="Paid with"
                 value={payMethod}
                 onChange={(e) => setPayMethod(e.target.value)}
                 className="h-8"
@@ -648,11 +634,11 @@ function BulkConfirmDeliveryPaymentsDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            Confirm {orders.length} delivery payment{orders.length === 1 ? "" : "s"}
+            Pay {orders.length} delivery order{orders.length === 1 ? "" : "s"}
           </DialogTitle>
           <DialogDescription>
-            Each order is settled for exactly what it&apos;s owed — same as confirming one at a
-            time. This cannot be undone.
+            Each order is paid for exactly what it owes, the same as doing them one by one.
+            You can&apos;t undo this.
           </DialogDescription>
         </DialogHeader>
 
@@ -683,9 +669,9 @@ function BulkConfirmDeliveryPaymentsDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Source (optional)</Label>
+              <Label>Paid with (optional)</Label>
               <Input
-                placeholder="e.g. courier cash"
+                placeholder="e.g. driver cash"
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
                 disabled={busy}
@@ -716,7 +702,7 @@ function BulkConfirmDeliveryPaymentsDialog({
                 Confirming…
               </span>
             ) : (
-              `Confirm ${orders.length} payment${orders.length === 1 ? "" : "s"}`
+              `Pay ${orders.length} order${orders.length === 1 ? "" : "s"}`
             )}
           </Button>
         </DialogFooter>
@@ -753,7 +739,7 @@ export default function DeliveriesPage() {
     try {
       setOrders(await Deliveries.list());
     } catch (e: any) {
-      toast.error(e?.message || "Failed to load deliveries");
+      toast.error(friendlyError(e, "Couldn't load deliveries. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -828,9 +814,9 @@ export default function DeliveriesPage() {
     setBulkOpen(false);
     setSelectedIds(new Set());
 
-    if (fail === 0) toast.success(`Confirmed ${ok} payment${ok === 1 ? "" : "s"}`);
-    else if (ok === 0) toast.error(`Failed to confirm ${fail} payment${fail === 1 ? "" : "s"}`);
-    else toast(`Confirmed ${ok}, ${fail} failed`);
+    if (fail === 0) toast.success(`Paid ${ok} order${ok === 1 ? "" : "s"}`);
+    else if (ok === 0) toast.error(`Couldn't take payment for ${fail} order${fail === 1 ? "" : "s"}. Please try again.`);
+    else toast(`Paid ${ok}. ${fail} didn't go through. Please try again.`);
 
     await load();
   };
@@ -883,7 +869,7 @@ export default function DeliveriesPage() {
         label: "Payment",
         render: (r) => (
           <Badge variant={r.delivery_payment_summary.is_paid ? "success" : "warning"}>
-            {r.delivery_payment_summary.is_paid ? "Paid" : "Unpaid"}
+            {r.delivery_payment_summary.is_paid ? "Paid" : "Not paid yet"}
           </Badge>
         ),
       },
@@ -936,7 +922,7 @@ export default function DeliveriesPage() {
         key: "status",
         label: "Status",
         options: [
-          { value: "pending", label: "Pending" },
+          { value: "pending", label: "Waiting" },
           { value: "delivered", label: "Delivered" },
           { value: "cancelled", label: "Cancelled" },
         ],
@@ -947,7 +933,7 @@ export default function DeliveriesPage() {
         label: "Payment",
         options: [
           { value: "paid", label: "Paid" },
-          { value: "unpaid", label: "Unpaid" },
+          { value: "unpaid", label: "Not paid yet" },
         ],
         match: (row, value) =>
           value === "paid"
@@ -956,13 +942,13 @@ export default function DeliveriesPage() {
       },
       {
         key: "method",
-        label: "Method",
+        label: "Delivery service",
         options: methodOptions,
         match: (row, value) => row.delivery.method_id === value,
       },
       {
         key: "courier",
-        label: "Courier",
+        label: "Driver",
         options: courierOptions,
         match: (row, value) => row.delivery.courier_name === value,
       },
@@ -1000,18 +986,18 @@ export default function DeliveriesPage() {
 
   const statCards: StatCard[] = [
     { label: "Total deliveries", value: stats.total, icon: BikeIcon },
-    { label: "Pending", value: stats.pending, icon: HourglassIcon, valueClass: "text-warning" },
+    { label: "Waiting", value: stats.pending, icon: HourglassIcon, valueClass: "text-warning" },
     { label: "Delivered", value: stats.delivered, icon: PackageCheckIcon, valueClass: "text-success" },
     { label: "Cancelled", value: stats.cancelled, icon: XCircleIcon, valueClass: "text-destructive" },
-    { label: "Collected", value: formatETB(stats.collectedCents / 100), icon: CreditCardIcon, valueClass: "text-success" },
-    { label: "Outstanding", value: formatETB(stats.outstanding), icon: WalletIcon, valueClass: "text-warning" },
+    { label: "Paid so far", value: formatETB(stats.collectedCents / 100), icon: CreditCardIcon, valueClass: "text-success" },
+    { label: "Still owed", value: formatETB(stats.outstanding), icon: WalletIcon, valueClass: "text-warning" },
   ];
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Deliveries"
-        description="Orders placed through a delivery method, tracked separately from dine-in/take-away."
+        description="Orders sent with a delivery service. Kept apart from dine-in and takeaway."
       />
 
       <StatCards cards={statCards} loading={loading} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6" />
@@ -1021,7 +1007,7 @@ export default function DeliveriesPage() {
         rows={orders}
         loading={loading}
         searchKeys={DELIVERY_SEARCH_KEYS}
-        searchPlaceholder="Search order #..."
+        searchPlaceholder="Search order number"
         filters={filters}
         dateFilters={dateFilters}
         onVisibleRowsChange={setVisibleOrders}
@@ -1031,13 +1017,13 @@ export default function DeliveriesPage() {
           selectedKeys: selectedIds,
           onSelectionChange: setSelectedIds,
           isSelectable: isRowSelectable,
-          label: "Select all unpaid deliveries",
+          label: "Pick all deliveries not paid yet",
         }}
         toolbar={
           selectedOrders.length > 0 ? (
             <Button size="sm" onClick={() => setBulkOpen(true)}>
               <CheckCircle2Icon />
-              Confirm {selectedOrders.length} payment{selectedOrders.length === 1 ? "" : "s"}
+              Pay {selectedOrders.length} order{selectedOrders.length === 1 ? "" : "s"}
             </Button>
           ) : undefined
         }

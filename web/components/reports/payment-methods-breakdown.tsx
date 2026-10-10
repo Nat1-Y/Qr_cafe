@@ -10,6 +10,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { humanize } from "@/lib/format";
 
 const SLICE_COLORS = [
   "var(--chart-1)",
@@ -30,11 +31,11 @@ export function PaymentMethodsBreakdown({
     const cfg: ChartConfig = {};
     const rows = entries.map(([method, count], i) => {
       const key = method.replace(/[^a-z0-9]/gi, "_");
-      const label = method.replace(/_/g, " ");
-      cfg[key] = { label: label.charAt(0).toUpperCase() + label.slice(1), color: SLICE_COLORS[i % SLICE_COLORS.length] };
+      const label = humanize(method);
+      cfg[key] = { label, color: SLICE_COLORS[i % SLICE_COLORS.length] };
       return {
         key,
-        label: label.charAt(0).toUpperCase() + label.slice(1),
+        label,
         count,
         fill: SLICE_COLORS[i % SLICE_COLORS.length],
       };
@@ -45,8 +46,8 @@ export function PaymentMethodsBreakdown({
   return (
     <Card>
       <CardHeader className="border-b pb-3">
-        <CardTitle>Payment channel breakdown</CardTitle>
-        <CardDescription>Share of settled transactions by method</CardDescription>
+        <CardTitle>Paid with</CardTitle>
+        <CardDescription>How customers paid</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
         {data.length > 0 ? (
@@ -111,7 +112,7 @@ export function PaymentMethodsBreakdown({
           </div>
         ) : (
           <p className="text-muted-foreground py-16 text-center text-xs font-medium">
-            No transactions settled in the selected window.
+            No payments in these dates.
           </p>
         )}
       </CardContent>

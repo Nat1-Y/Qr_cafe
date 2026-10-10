@@ -13,6 +13,7 @@
 import { API_BASE } from "@/lib/api";
 import { getWaiterToken } from "@/lib/waiter/auth";
 import { getDeviceToken } from "@/lib/waiter/device";
+import { ERROR_TEXT, messageForStatus } from "@/lib/errors";
 
 export interface ApiResult<T = any> {
   data: T;
@@ -48,7 +49,7 @@ async function request<T = any>(
   });
 
   if (!res.ok) {
-    let message = `Request failed (${res.status})`;
+    let message = messageForStatus(res.status) ?? ERROR_TEXT.generic;
     let payload: any = null;
     try {
       payload = await res.json();

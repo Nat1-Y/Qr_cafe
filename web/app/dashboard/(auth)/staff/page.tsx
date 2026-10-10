@@ -15,6 +15,7 @@ import { ManageAccessAction } from "@/components/staff/manage-access-action";
 import { Users } from "@/lib/resources";
 import { roleLabel } from "@/lib/auth";
 import { CONFIGURABLE_ROLES } from "@/lib/permissions";
+import { friendlyError } from "@/lib/errors";
 
 // Selectable roles for staff accounts, sourced from the shared RBAC list so the
 // dropdown and the permission editor stay in sync.
@@ -38,7 +39,7 @@ const columns: Column<U>[] = [
     label: "Status",
     render: (r) => (
       <Badge variant={r.is_active ? "success" : "muted"}>
-        {r.is_active ? "Active" : "Inactive"}
+        {r.is_active ? "Active" : "Not active"}
       </Badge>
     ),
   },
@@ -48,8 +49,8 @@ function StaffAccounts() {
   return (
     <ResourceManager<U>
       title="Staff accounts"
-      description="Employees who can sign in to the POS."
-      createLabel="New staff"
+      description="Staff who can sign in to the till."
+      createLabel="Add staff"
       editLabel="Edit staff"
       columns={columns}
       searchKeys={["full_name", "name", "username", "role"]}
@@ -65,7 +66,7 @@ function StaffAccounts() {
           label: "Status",
           options: [
             { value: "active", label: "Active" },
-            { value: "inactive", label: "Inactive" },
+            { value: "inactive", label: "Not active" },
           ],
           match: (r, v) => (v === "active" ? r.is_active : !r.is_active),
         },
@@ -73,7 +74,7 @@ function StaffAccounts() {
       fields={[
         { key: "full_name", label: "Full name", required: true },
         { key: "username", label: "Username", required: true },
-        { key: "password", label: "Authentication method", type: "auth", required: true, createOnly: true },
+        { key: "password", label: "How they sign in", type: "auth", required: true, createOnly: true },
         {
           key: "role",
           label: "Role",
@@ -109,10 +110,10 @@ function StaffAccounts() {
                 await Users.toggle(row.id);
                 await reload();
               } catch (e: any) {
-                toast.error(e.message);
+                toast.error(friendlyError(e));
               }
             }}>
-            {row.is_active ? "Deactivate" : "Activate"}
+            {row.is_active ? "Turn off" : "Turn on"}
           </Button>
         </>
       )}
@@ -125,12 +126,12 @@ export default function StaffPage() {
     <div className="space-y-6">
       <PageHeader
         title="Staff"
-        description="Staff logins, and what each person has sold."
+        description="Who can sign in, and what each person has sold."
         action={
           <Button variant="outline" asChild>
             <Link href="/dashboard/staff/bulk-import">
               <UploadIcon />
-              Bulk import
+              Add many
             </Link>
           </Button>
         }

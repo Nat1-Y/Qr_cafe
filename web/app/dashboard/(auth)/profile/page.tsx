@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/page-header";
 import { getUser, roleLabel, setUser, type SessionUser } from "@/lib/auth";
 import { Account } from "@/lib/resources";
+import { friendlyError } from "@/lib/errors";
 
 export default function ProfilePage() {
   const [user, setUserState] = useState<SessionUser | null>(null);
@@ -61,9 +62,9 @@ export default function ProfilePage() {
 
   async function saveProfile() {
     if (!user) return;
-    if (!fullName.trim()) return toast.error("Full name is required");
+    if (!fullName.trim()) return toast.error("Enter your full name.");
     if (username.trim().length < 3)
-      return toast.error("Username must be at least 3 characters");
+      return toast.error("Username needs at least 3 letters.");
 
     setSavingProfile(true);
     try {
@@ -79,9 +80,9 @@ export default function ProfilePage() {
       setUser(next);
       setUserState(next);
       setEditing(false);
-      toast.success("Profile updated");
+      toast.success("Profile saved");
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setSavingProfile(false);
     }
@@ -89,11 +90,11 @@ export default function ProfilePage() {
 
   async function savePassword() {
     if (!user) return;
-    if (!currentPassword) return toast.error("Current password is required");
+    if (!currentPassword) return toast.error("Enter your current password.");
     if (newPassword.length < 6)
-      return toast.error("New password must be at least 6 characters");
+      return toast.error("New password needs at least 6 characters.");
     if (newPassword !== confirmPassword)
-      return toast.error("Password confirmation does not match");
+      return toast.error("The two new passwords don't match.");
 
     setSavingPassword(true);
     try {
@@ -103,7 +104,7 @@ export default function ProfilePage() {
       setConfirmPassword("");
       toast.success("Password changed");
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setSavingPassword(false);
     }
@@ -154,13 +155,13 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Account information */}
+        {/* Your details */}
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-start justify-between gap-4">
             <div>
-              <CardTitle>Account information</CardTitle>
+              <CardTitle>Your details</CardTitle>
               <CardDescription>
-                Your name and username on the platform.
+                Your name and username.
               </CardDescription>
             </div>
             {!editing ? (
@@ -231,7 +232,7 @@ export default function ProfilePage() {
                 />
               </div>
               <p className="text-muted-foreground text-xs">
-                Roles are managed by a platform administrator.
+                Only the platform admin can change your role.
               </p>
             </div>
           </CardContent>
@@ -246,7 +247,7 @@ export default function ProfilePage() {
             Change password
           </CardTitle>
           <CardDescription>
-            Use a strong password of at least 6 characters.
+            Use at least 6 characters. Make it hard to guess.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -288,7 +289,7 @@ export default function ProfilePage() {
           <div className="flex justify-end">
             <Button disabled={savingPassword} onClick={savePassword}>
               <KeyRoundIcon />
-              Update password
+              Save password
             </Button>
           </div>
         </CardContent>

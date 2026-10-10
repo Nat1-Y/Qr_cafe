@@ -167,7 +167,7 @@ export const ActiveInvoicesTable: React.FC<ActiveInvoicesTableProps> = ({
                             {isLoading ? (
                               <>
                                 <RefreshCw className="h-3 w-3 animate-spin" />
-                                Loading items...
+                                Loading items…
                               </>
                             ) : (
                               'No items loaded'
@@ -206,7 +206,7 @@ export const ActiveInvoicesTable: React.FC<ActiveInvoicesTableProps> = ({
                   colSpan={5}
                   className="py-14 text-center text-muted-foreground"
                 >
-                  No active table invoices waiting for payment
+                  No orders waiting for payment
                 </TableCell>
               </TableRow>
             )}

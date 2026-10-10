@@ -48,6 +48,7 @@ import {
   type DepartmentPrintConfig,
 } from '@/infrastructure/printing/printer-config';
 import { getApproximateServerDate } from '@/shared/utils/serverTime';
+import { friendlyError } from '@/lib/errors';
 
 export {
   PRINTER_STORAGE_KEY,
@@ -97,10 +98,10 @@ function statusColor(status?: string) {
 }
 function statusLabel(status?: string) {
   const s = (status || '').toLowerCase();
-  if (s === 'idle') return 'Idle';
+  if (s === 'idle') return 'Ready';
   if (s === 'printing') return 'Printing';
-  if (s === 'disabled') return 'Disabled';
-  return 'Unknown';
+  if (s === 'disabled') return 'Turned off';
+  return 'Not known';
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -122,8 +123,8 @@ const PrinterSettingsContent: React.FC = () => {
     setSimplePrintModeState(enabled);
     toast.success(
       enabled
-        ? 'Simple printing fallback on — unrouted tickets go to the active printer'
-        : 'Simple printing fallback off — unrouted departments will not print',
+        ? 'Simple printing on. Orders with no printer set print on the main printer.'
+        : 'Simple printing off. Sections with no printer set will not print.',
       { duration: 2500 },
     );
   };
@@ -133,8 +134,8 @@ const PrinterSettingsContent: React.FC = () => {
     setTicketShowPricesState(enabled);
     toast.success(
       enabled
-        ? 'Prices will be printed on order tickets'
-        : 'Prices hidden on order tickets',
+        ? 'Prices will print on kitchen tickets'
+        : 'Prices hidden on kitchen tickets',
       { duration: 2500 },
     );
   };
@@ -172,7 +173,7 @@ const PrinterSettingsContent: React.FC = () => {
       setPrinters(parsed);
     } catch (err: any) {
       console.error('[PrinterSettings] Failed to list printers:', err);
-      toast.error(`Failed to list printers: ${typeof err === 'string' ? err : (err?.message || String(err))}`);
+      toast.error("Couldn't find printers. Check the printer is on and plugged in, then try again.");
     } finally {
       setLoading(false);
     }
@@ -278,7 +279,7 @@ const PrinterSettingsContent: React.FC = () => {
       { id: createStationId(), label: 'CUSTOMER COPY', printer: defaultPrinter, copies: 1, showPrices: true },
     ];
     persistDepartmentConfig(slug, { ...config, stations });
-    toast.success('Butchery routing added — set a printer for each station', { duration: 2500 });
+    toast.success('Butcher setup added. Now pick a printer for each place.', { duration: 2500 });
   };
 
 
@@ -318,10 +319,10 @@ const PrinterSettingsContent: React.FC = () => {
         sections,
       } as any);
 
-      toast.success(`Test print sent to "${printerName}" ✓`, { duration: 2000 });
+      toast.success(`Test page sent to "${printerName}"`, { duration: 2000 });
     } catch (err: any) {
-      const msg = typeof err === 'string' ? err : (err?.message || String(err));
-      toast.error(`Test print failed: ${msg}`, { duration: 2000 });
+      console.error('[PrinterSettings] Test print failed:', err);
+      toast.error("The test page didn't print. Check the printer is on and has paper.", { duration: 2000 });
     } finally {
       setTestingPrinter(null);
     }
@@ -332,7 +333,7 @@ const PrinterSettingsContent: React.FC = () => {
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Printer settings"
-        description="Pick the thermal printer for this till and send a test ticket."
+        description="Pick the receipt printer for this till and print a test page."
         actions={
           <>
             <BranchBadge />
@@ -357,7 +358,7 @@ const PrinterSettingsContent: React.FC = () => {
               className="mt-0.5"
             />
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm text-foreground">Simple printing mode (fallback)</p>
+              <p className="font-semibold text-sm text-foreground">Simple printing (use the main printer when no printer is set)</p>
              
             </div>
           </label>
@@ -374,7 +375,7 @@ const PrinterSettingsContent: React.FC = () => {
               className="mt-0.5"
             />
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm text-foreground">Show prices on simple-print tickets</p>
+              <p className="font-semibold text-sm text-foreground">Show prices on simple printing tickets</p>
        
             </div>
           </label>
@@ -390,9 +391,9 @@ const PrinterSettingsContent: React.FC = () => {
           </CardTitle>
           <CardDescription>
             {loading
-              ? 'Scanning for printers via CUPS…'
+              ? 'Looking for printers…'
               : printers.length === 0
-                ? 'No printers detected. Make sure CUPS is running and printers are configured.'
+                ? 'No printers found. Check the printer is on and plugged in.'
                 : `${printers.length} printer${printers.length !== 1 ? 's' : ''} found`}
           </CardDescription>
         </CardHeader>
@@ -414,8 +415,8 @@ const PrinterSettingsContent: React.FC = () => {
               <div>
                 <p className="font-semibold text-foreground">No printers found</p>
                 <p className="text-xs text-muted-foreground mt-1 max-w-xs">
-                  Ensure CUPS is running and your thermal printer is connected and configured.
-                  <br />Run <code className="bg-muted px-1 rounded text-xs">lpstat -p</code> to verify.
+                  Check the receipt printer is turned on and plugged in, then try again.
+                  <br />For support: run <code className="bg-muted px-1 rounded text-xs">lpstat -p</code> to check.
                 </p>
               </div>
               <Button variant="outline" size="sm" onClick={loadPrinters} className="mt-2">
@@ -466,12 +467,12 @@ const PrinterSettingsContent: React.FC = () => {
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
                       {printer.interface_type && (
                         <span className="text-xs text-muted-foreground">
-                          <span className="font-medium">Interface:</span> {printer.interface_type}
+                          <span className="font-medium">Connected by:</span> {printer.interface_type}
                         </span>
                       )}
                       {printer.identifier && (
                         <span className="text-xs text-muted-foreground truncate max-w-[240px]">
-                          <span className="font-medium">ID:</span> {printer.identifier}
+                          <span className="font-medium">Printer code:</span> {printer.identifier}
                         </span>
                       )}
                     </div>
@@ -509,19 +510,19 @@ const PrinterSettingsContent: React.FC = () => {
         <CardHeader className="pb-3 pt-5 px-5">
           <CardTitle className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-primary" />
-            Advanced department routing
+            Print at more than one place
           </CardTitle>
           <CardDescription>
-            Optional. Fan a department's order out to several stations — each its own ticket and printer,
-            all sharing the order number. Built for butchery flows (butcher → kitchen → customer copy).
-            Leave a department untouched to keep its single-ticket behavior above.
+            Optional. Send one section's orders to more than one printer. Each place gets its own
+            ticket with the same order number. Good for a butcher (butcher → kitchen → customer copy).
+            If you leave a section alone, it prints one ticket as before.
           </CardDescription>
         </CardHeader>
 
         <CardContent className="px-5 pb-5 space-y-2">
           {availableDepartments.length === 0 && (
             <p className="text-xs text-muted-foreground py-4 text-center">
-              No departments found in the database.
+              No sections set up yet.
             </p>
           )}
 
@@ -540,11 +541,11 @@ const PrinterSettingsContent: React.FC = () => {
                   <span className="font-semibold text-sm text-foreground flex-1 truncate">{dept.name}</span>
                   {stations.length > 0 ? (
                     <Badge className="bg-primary/15 text-primary border-none">
-                      {stations.length} station{stations.length !== 1 ? 's' : ''}
+                      {stations.length} place{stations.length !== 1 ? 's' : ''}
                     </Badge>
                   ) : (
                     <span className="text-xs text-muted-foreground">
-                      {config.printer ? 'Single ticket' : 'Not routed'}
+                      {config.printer ? 'One ticket' : 'No printer set'}
                     </span>
                   )}
                   <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
@@ -554,7 +555,7 @@ const PrinterSettingsContent: React.FC = () => {
                   <div className="border-t border-border/50 px-4 py-3 space-y-3 bg-muted/10">
                     {stations.length === 0 && (
                       <p className="text-xs text-muted-foreground">
-                        This department prints one ticket to its assigned printer. Add stations to split it.
+                        This section prints one ticket on its printer. Add a place to print in more than one place.
                       </p>
                     )}
 
@@ -566,7 +567,7 @@ const PrinterSettingsContent: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <GripVertical className="w-3.5 h-3.5 text-muted-foreground/50 shrink-0" />
                           <span className="text-xs font-semibold text-muted-foreground">
-                            Station {idx + 1}
+                            Place {idx + 1}
                           </span>
                           <div className="flex-1" />
                           <Button
@@ -650,7 +651,7 @@ const PrinterSettingsContent: React.FC = () => {
                         onClick={() => handleAddStation(dept.slug)}
                       >
                         <Plus className="w-3.5 h-3.5 mr-1" />
-                        Add station
+                        Add place
                       </Button>
                       {stations.length === 0 && (
                         <Button
@@ -660,7 +661,7 @@ const PrinterSettingsContent: React.FC = () => {
                           onClick={() => handleApplyButcheryPreset(dept.slug)}
                         >
                           <Layers className="w-3.5 h-3.5 mr-1" />
-                          Use butchery preset
+                          Use butcher setup
                         </Button>
                       )}
                     </div>
@@ -727,11 +728,11 @@ const PrinterSettings: React.FC = () => {
         setGate('unlocked');
         setPassword('');
       } else {
-        toast.error('Incorrect printer settings password');
+        toast.error('Wrong password. Please try again.');
       }
     } catch (err) {
       console.error('[PrinterSettings] Password verification failed:', err);
-      toast.error('Could not verify password. Please try again.');
+      toast.error(friendlyError(err, "Couldn't check the password. Please try again."));
     } finally {
       setVerifying(false);
     }
@@ -758,12 +759,12 @@ const PrinterSettings: React.FC = () => {
             )}
             <div>
               <CardTitle>
-                {unavailable ? 'Printer settings unavailable' : 'Printer settings are locked'}
+                {unavailable ? "Can't open printer settings" : 'Printer settings are locked'}
               </CardTitle>
               <CardDescription>
                 {unavailable
-                  ? 'We couldn’t check access with the server. Try again when online.'
-                  : 'Enter the password the owner set to continue.'}
+                  ? 'No internet. Connect and try again.'
+                  : 'Enter the password the owner set.'}
               </CardDescription>
             </div>
           </div>
@@ -777,9 +778,8 @@ const PrinterSettings: React.FC = () => {
           ) : unavailable ? (
             <div className="space-y-4">
               <p className="text-xs text-muted-foreground leading-relaxed">
-                We couldn't confirm whether this branch requires a printer-settings
-                password, so access is blocked. Check your connection to the server
-                and try again.
+                We need internet to check if this branch has a printer password.
+                Check the connection and try again.
               </p>
               <Button
                 type="button"
@@ -788,7 +788,7 @@ const PrinterSettings: React.FC = () => {
                 onClick={checkStatus}
               >
                 <RefreshCw />
-                Retry
+                Try again
               </Button>
             </div>
           ) : (
@@ -805,7 +805,7 @@ const PrinterSettings: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={verifying}
-                  placeholder="Enter printer settings password"
+                  placeholder="Printer settings password"
                 />
               </div>
               <Button type="submit" className="w-full" disabled={verifying || !password}>
@@ -814,7 +814,7 @@ const PrinterSettings: React.FC = () => {
                 ) : (
                   <KeyRound />
                 )}
-                {verifying ? 'Verifying…' : 'Unlock'}
+                {verifying ? 'Checking…' : 'Unlock'}
               </Button>
             </form>
           )}

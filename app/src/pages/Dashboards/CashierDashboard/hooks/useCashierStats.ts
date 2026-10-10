@@ -324,8 +324,8 @@ export const useCashierStats = ({
   const statsRangeLabel = useMemo(() => {
     if (statsRange === "today") return "Today's";
     if (statsRange === "yesterday") return "Yesterday's";
-    if (statsRange === "week") return "This Week's";
-    if (statsRange === "month") return "This Month's";
+    if (statsRange === "week") return "This week's";
+    if (statsRange === "month") return "This month's";
     if (statsRange === "custom") {
       if (!customStatsDate) return "Custom";
       const parts = String(customStatsDate).split("-");
@@ -339,7 +339,7 @@ export const useCashierStats = ({
       if (Number.isNaN(dt.getTime())) return "Custom";
       return `On ${dt.toLocaleDateString()}`;
     }
-    return "All Time";
+    return "All time";
   }, [statsRange, customStatsDate]);
 
   const filteredRecentPayments = useMemo(() => {

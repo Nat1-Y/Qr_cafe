@@ -161,7 +161,7 @@ export const recipesAdapter = {
     },
   ) => {
     if (!isOnline())
-      throw new Error("Creating recipes requires an online connection");
+      throw new Error("No internet. Connect to add a recipe.");
     const response = await api.post("/recipes", data);
     return response;
   },
@@ -174,7 +174,7 @@ export const recipesAdapter = {
     },
   ) => {
     if (!isOnline())
-      throw new Error("Updating recipes requires an online connection");
+      throw new Error("No internet. Connect to change a recipe.");
     const response = await api.put(`/recipes/${id}`, data);
     return response;
   },
@@ -182,7 +182,7 @@ export const recipesAdapter = {
   /** Delete a recipe. Requires online connection. */
   delete: async (id: string) => {
     if (!isOnline())
-      throw new Error("Deleting recipes requires an online connection");
+      throw new Error("No internet. Connect to delete a recipe.");
     const response = await api.delete(`/recipes/${id}`);
     return response;
   },

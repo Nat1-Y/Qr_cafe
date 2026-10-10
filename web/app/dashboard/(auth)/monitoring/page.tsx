@@ -38,6 +38,7 @@ import {
 import { DateFilterBar } from "@/components/date-filter-bar";
 import { apiFetch } from "@/lib/api";
 import { formatETB, humanize } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
 
 type BusinessRow = { id: string; name: string };
 type BranchOption = { id: string; name: string };
@@ -89,7 +90,7 @@ const statusColor = (status: string) =>
   STATUS_COLORS[status] ?? "var(--chart-5)";
 
 const chartConfig = {
-  revenue: { label: "Revenue", color: "var(--chart-1)" },
+  revenue: { label: "Money in", color: "var(--chart-1)" },
   orders: { label: "Orders", color: "var(--chart-2)" },
 } satisfies ChartConfig;
 
@@ -120,7 +121,7 @@ export default function MonitoringPage() {
       .then((rows) =>
         setBusinesses(rows.map((b) => ({ id: b.id, name: b.name }))),
       )
-      .catch((e) => toast.error(e.message));
+      .catch((e) => toast.error(friendlyError(e)));
   }, []);
 
   const load = useCallback(() => {
@@ -130,7 +131,7 @@ export default function MonitoringPage() {
     if (branchId) qs.set("branch_id", branchId);
     return apiFetch<Analytics>(`/platform/analytics?${qs.toString()}`)
       .then(setData)
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, [businessId, branchId, range.from, range.to]);
 
@@ -158,9 +159,9 @@ export default function MonitoringPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Monitoring</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Sales &amp; reports</h1>
         <p className="text-muted-foreground text-sm">
-          Filter revenue and order activity across every business and branch.
+          See sales and orders for every business and branch.
         </p>
       </div>
 
@@ -195,7 +196,7 @@ export default function MonitoringPage() {
                 value={branchId}
                 onChange={(e) => setBranchId(e.target.value)}>
                 <option value="">
-                  {businessId ? "All branches" : "Select a business first"}
+                  {businessId ? "All branches" : "Pick a business first"}
                 </option>
                 {branchOptions.map((br) => (
                   <option key={br.id} value={br.id}>
@@ -213,7 +214,7 @@ export default function MonitoringPage() {
             <DateFilterBar
               presets={["today", "week", "month", "custom"]}
               defaultPreset="month"
-              viewingPrefix="Viewing:"
+              viewingPrefix="Showing:"
               onChange={(r) => setRange({ from: r.from ?? "", to: r.to ?? "" })}
             />
           </div>
@@ -223,7 +224,7 @@ export default function MonitoringPage() {
       {/* Headline stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Revenue"
+          label="Money in"
           icon={BanknoteIcon}
           loading={loading}
           value={data ? formatETB(data.summary.revenue) : "—"}
@@ -235,13 +236,13 @@ export default function MonitoringPage() {
           value={data ? data.summary.orders.toLocaleString() : "—"}
         />
         <StatCard
-          label="Avg order value"
+          label="Average order"
           icon={TrendingUpIcon}
           loading={loading}
           value={data ? formatETB(data.summary.avg_order_value) : "—"}
         />
         <StatCard
-          label="Active branches"
+          label="Branches with sales"
           icon={StoreIcon}
           loading={loading}
           value={data ? String(data.summary.branches_active) : "—"}
@@ -257,8 +258,8 @@ export default function MonitoringPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader className="border-b pb-3">
-            <CardTitle>Revenue over time</CardTitle>
-            <CardDescription>Daily non-cancelled sales</CardDescription>
+            <CardTitle>Money in over time</CardTitle>
+            <CardDescription>Sales each day, not counting cancelled orders</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             {loading ? (
@@ -314,7 +315,7 @@ export default function MonitoringPage() {
         <Card>
           <CardHeader className="border-b pb-3">
             <CardTitle>Orders per day</CardTitle>
-            <CardDescription>Order count in the selected window</CardDescription>
+            <CardDescription>Number of orders in these dates</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             {loading ? (
@@ -361,8 +362,8 @@ export default function MonitoringPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader className="border-b pb-3">
-            <CardTitle>Revenue by branch</CardTitle>
-            <CardDescription>Top branches in range</CardDescription>
+            <CardTitle>Money in by branch</CardTitle>
+            <CardDescription>Top branches in these dates</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             {loading ? (
@@ -418,7 +419,7 @@ export default function MonitoringPage() {
         <Card>
           <CardHeader className="border-b pb-3">
             <CardTitle>Order status</CardTitle>
-            <CardDescription>All orders in range</CardDescription>
+            <CardDescription>All orders in these dates</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             {loading ? (
@@ -474,7 +475,7 @@ export default function MonitoringPage() {
         <CardHeader className="border-b pb-3">
           <CardTitle>Branch breakdown</CardTitle>
           <CardDescription>
-            Revenue and orders per branch in the selected window
+            Money in and orders for each branch in these dates
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
@@ -488,7 +489,7 @@ export default function MonitoringPage() {
                     <th className="py-2 pr-4 font-medium">Branch</th>
                     <th className="py-2 pr-4 font-medium">Business</th>
                     <th className="py-2 pr-4 text-right font-medium">Orders</th>
-                    <th className="py-2 text-right font-medium">Revenue</th>
+                    <th className="py-2 text-right font-medium">Money in</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -513,7 +514,7 @@ export default function MonitoringPage() {
             </div>
           ) : (
             <div className="text-muted-foreground py-10 text-center text-sm">
-              No orders found for the selected filters.
+              No orders match. Try other filters.
             </div>
           )}
         </CardContent>
@@ -553,7 +554,7 @@ function StatCard({
 function EmptyChart() {
   return (
     <div className="bg-muted/20 text-muted-foreground flex h-64 items-center justify-center rounded-md border border-dashed text-xs font-medium">
-      No data for the selected filters.
+      Nothing to show. Try other filters.
     </div>
   );
 }

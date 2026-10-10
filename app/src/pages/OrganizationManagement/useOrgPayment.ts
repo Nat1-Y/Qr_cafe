@@ -55,7 +55,7 @@ export const useOrgPayment = (onDone: () => void | Promise<void>) => {
 
     const orderId = String(order.id ?? order.localId ?? "").trim();
     if (!orderId) {
-      toast.error('This order has not been saved yet. Sync first, then retry.');
+      toast.error("This order hasn't been sent yet. Tap Send now, then try again.");
       return;
     }
 
@@ -64,7 +64,7 @@ export const useOrgPayment = (onDone: () => void | Promise<void>) => {
 
       await api.orders.confirmOrganizationPayment(orderId, user?.id);
 
-      toast.success('Payment confirmed');
+      toast.success('Marked as paid');
       setShowConfirmModal(false);
       setConfirmOrder(null);
       syncEngine.notifyListeners();
@@ -72,14 +72,14 @@ export const useOrgPayment = (onDone: () => void | Promise<void>) => {
     } catch (error: any) {
       console.error('[useOrgPayment] confirm payment failed', error);
       if (error?.response?.status === 403) {
-        toast.error("Only the owner can confirm this order's payment.");
+        toast.error("Only the owner can mark this order as paid.");
       } else if (
         error?.response?.status === 400 &&
         String(error?.response?.data?.message || '').includes('already confirmed')
       ) {
-        toast.error('Payment already confirmed for this order');
+        toast.error('This order is already marked as paid.');
       } else {
-        toast.error('Failed to confirm payment');
+        toast.error("Couldn't mark it as paid. Please try again.");
       }
       await onDone();
     } finally {

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ResourceManager, type Column } from "@/components/resource-manager";
 import { Settings, Users } from "@/lib/resources";
+import { friendlyError } from "@/lib/errors";
 
 type DM = {
   id: string;
@@ -18,14 +19,14 @@ type DM = {
 };
 
 const columns: Column<DM>[] = [
-  { key: "display_name", label: "Method", render: (r) => <span className="font-medium">{r.display_name}</span> },
-  { key: "name", label: "Key", className: "text-muted-foreground" },
+  { key: "display_name", label: "Delivery service", render: (r) => <span className="font-medium">{r.display_name}</span> },
+  { key: "name", label: "Code name", className: "text-muted-foreground" },
   {
     key: "is_active",
     label: "Status",
     render: (r) => (
       <Badge variant={r.is_active ? "success" : "muted"}>
-        {r.is_active ? "Active" : "Disabled"}
+        {r.is_active ? "Active" : "Turned off"}
       </Badge>
     ),
   },
@@ -57,7 +58,7 @@ function WaiterAccessCard() {
       setWaiters(Array.isArray(w) ? w : []);
       setSelected(new Set((allowed ?? []).map(String)));
     } catch (e: any) {
-      toast.error(e?.message || "Failed to load waiter access");
+      toast.error(friendlyError(e, "Couldn't load which waiters can take deliveries. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -80,9 +81,9 @@ function WaiterAccessCard() {
     setSaving(true);
     try {
       await Settings.updateDeliveryAllowedWaiters(Array.from(selected));
-      toast.success("Waiter access updated");
+      toast.success("Saved which waiters can take deliveries");
     } catch (e: any) {
-      toast.error(e?.message || "Failed to save waiter access");
+      toast.error(friendlyError(e, "Couldn't save. Please try again."));
     } finally {
       setSaving(false);
     }
@@ -91,7 +92,7 @@ function WaiterAccessCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Waiter access</CardTitle>
+        <CardTitle>Waiters who can take deliveries</CardTitle>
         <CardDescription>
           Only these waiters see the delivery option on their own order screen.
           cashiers and orders placed from the dashboard are never restricted.
@@ -105,7 +106,7 @@ function WaiterAccessCard() {
           </div>
         ) : waiters.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">
-            No waiters found for this branch.
+            No waiters at this branch yet.
           </p>
         ) : (
           <div className="flex flex-wrap gap-2">
@@ -143,12 +144,12 @@ export default function DeliveryMethodsPage() {
   return (
     <div className="space-y-6">
       <ResourceManager<DM>
-        title="Delivery methods"
-        description="Delivery channels this branch works with (e.g. a delivery app, an in-house rider)."
-        createLabel="New method"
+        title="Delivery services"
+        description="Delivery services this branch uses (e.g. a delivery app, your own driver)."
+        createLabel="Add delivery service"
         columns={columns}
         fields={[
-          { key: "name", label: "Key (e.g. beu)", required: true },
+          { key: "name", label: "Code name (e.g. beu)", required: true },
           { key: "display_name", label: "Display name", required: true },
           { key: "icon", label: "Icon (optional)" },
         ]}
@@ -164,10 +165,10 @@ export default function DeliveryMethodsPage() {
                 await Settings.updateDeliveryMethod(row.id, { is_active: !row.is_active });
                 await reload();
               } catch (e: any) {
-                toast.error(e.message);
+                toast.error(friendlyError(e));
               }
             }}>
-            {row.is_active ? "Disable" : "Enable"}
+            {row.is_active ? "Turn off" : "Turn on"}
           </Button>
         )}
       />

@@ -223,7 +223,7 @@ api.interceptors.response.use(
     } else if (error.request) {
       handleNetworkLogout();
     } else {
-      toast.error("An unexpected error occurred.");
+      toast.error("Something went wrong. Please try again.");
     }
 
     return Promise.reject(error);

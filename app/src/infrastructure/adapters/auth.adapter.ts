@@ -153,7 +153,7 @@ const authAdapterImpl = {
         if (response.data?.user) {
           const userResponse = await persistAndReturnVerifiedUser(
             response.data.user,
-            response.data?.message || "Logged in successfully",
+            response.data?.message || "Signed in",
             response.data?.token || (response.data as any)?.access_token,
             response.data?.server_time,
           );
@@ -186,14 +186,14 @@ const authAdapterImpl = {
         return Promise.reject({
           response: {
             status: 401,
-            data: { status: "error", message: "Invalid credentials" },
+            data: { status: "error", message: "Wrong username or password." },
           },
         });
       }
 
       return makeSuccessResponse(
         sanitizeUser(user),
-        "Logged in offline",
+        "Signed in (no internet)",
         "offline_token_" + getApproximateServerNow(),
         getApproximateServerIsoString(),
       ) as any;
@@ -202,7 +202,7 @@ const authAdapterImpl = {
     return Promise.reject({
       response: {
         status: 401,
-        data: { status: "error", message: "Invalid credentials" },
+        data: { status: "error", message: "Wrong username or password." },
       },
     });
   },
@@ -224,7 +224,7 @@ const authAdapterImpl = {
     if (found) {
       return makeSuccessResponse(
         found,
-        "Logged in successfully",
+        "Signed in",
         "local_auth_token",
         getApproximateServerIsoString(),
       ) as any;
@@ -232,7 +232,7 @@ const authAdapterImpl = {
     return Promise.reject({
       response: {
         status: 401,
-        data: { status: "error", message: "Invalid PIN" },
+        data: { status: "error", message: "Wrong PIN." },
       },
     });
   },
@@ -254,14 +254,14 @@ const authAdapterImpl = {
     if (found) {
       return makeSuccessResponse(
         found,
-        "Logged in successfully",
+        "Signed in",
         "local_auth_token",
       ) as any;
     }
     return Promise.reject({
       response: {
         status: 401,
-        data: { status: "error", message: "Invalid Credentials" },
+        data: { status: "error", message: "Wrong username or password." },
       },
     });
   },
@@ -306,7 +306,7 @@ const authAdapterImpl = {
       return Promise.reject({
         response: {
           status: 409,
-          data: { status: "error", message: "User already exists" },
+          data: { status: "error", message: "This username is already taken." },
         },
       });
     }
@@ -324,7 +324,7 @@ const authAdapterImpl = {
     return {
       data: {
         status: "success",
-        message: "User registered offline",
+        message: "Account saved. It will send when there's internet.",
         token: "offline_token_" + getApproximateServerNow(),
         user: { id: userId, ...newUser },
       },
@@ -402,7 +402,7 @@ const authAdapterImpl = {
     return Promise.reject({
       response: {
         status: 404,
-        data: { status: "error", message: "User not found" },
+        data: { status: "error", message: "We couldn't find that person." },
       },
     });
   },
@@ -414,7 +414,7 @@ const authAdapterImpl = {
           data: {
             status: "error",
             message:
-              "Profile updates are disabled when the application is offline.",
+              "No internet. Connect to change your profile.",
           },
         },
       });
@@ -448,7 +448,7 @@ const authAdapterImpl = {
           data: {
             status: "error",
             message:
-              "Password/PIN changes are disabled when the application is offline.",
+              "No internet. Connect to change your password or PIN.",
           },
         },
       });

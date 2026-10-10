@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { apiFetch } from "@/lib/api";
+import { friendlyError } from "@/lib/errors";
 
 function Field({
   label,
@@ -61,10 +62,10 @@ export default function NewBusinessPage() {
           },
         }),
       });
-      toast.success("Business created");
+      toast.success("Business added");
       router.push(`/dashboard/businesses/${created.id}`);
     } catch (err: any) {
-      toast.error(err.message || "Failed to create business");
+      toast.error(friendlyError(err, "Couldn't add the business. Please try again."));
     } finally {
       setSaving(false);
     }
@@ -85,7 +86,7 @@ export default function NewBusinessPage() {
         <Card>
           <CardHeader>
             <CardTitle>Business</CardTitle>
-            <CardDescription>The owner company and its plan.</CardDescription>
+            <CardDescription>The owner&apos;s company and its package.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
@@ -98,13 +99,13 @@ export default function NewBusinessPage() {
               />
             </div>
             <Field
-              label="Plan"
+              label="Package"
               value={form.plan}
               onChange={set("plan")}
               placeholder="standard"
             />
             <Field
-              label="Max branches (blank = unlimited)"
+              label="Branch limit (leave empty for no limit)"
               type="number"
               min={1}
               value={form.max_branches}
@@ -118,7 +119,7 @@ export default function NewBusinessPage() {
           <CardHeader>
             <CardTitle>Owner account</CardTitle>
             <CardDescription>
-              The first user who can sign in and manage this business.
+              The first person who can sign in and run this business.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
@@ -153,7 +154,7 @@ export default function NewBusinessPage() {
             <Link href="/dashboard/businesses">Cancel</Link>
           </Button>
           <Button type="submit" disabled={saving}>
-            {saving ? "Creating…" : "Create business"}
+            {saving ? "Adding…" : "Add business"}
           </Button>
         </div>
       </form>

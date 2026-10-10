@@ -81,11 +81,11 @@ const platformNav: NavGroup[] = [
     title: "Platform",
     items: [
       { title: "Overview", href: "/dashboard/overview", icon: GaugeIcon },
-      { title: "Monitoring", href: "/dashboard/monitoring", icon: BarChart3Icon },
+      { title: "Sales & reports", href: "/dashboard/monitoring", icon: BarChart3Icon },
       { title: "Businesses", href: "/dashboard/businesses", icon: ShoppingBagIcon },
       { title: "Users", href: "/dashboard/users", icon: UsersIcon },
       { title: "Devices", href: "/dashboard/devices", icon: MonitorSmartphoneIcon },
-      { title: "Audit log", href: "/dashboard/audit", icon: ScrollTextIcon }
+      { title: "Activity history", href: "/dashboard/audit", icon: ScrollTextIcon }
     ]
   }
 ];
@@ -98,7 +98,7 @@ const ownerNav: NavGroup[] = [
     ]
   },
   {
-    title: "Operations",
+    title: "Daily work",
     items: [
       { title: "Orders", href: "/dashboard/orders", icon: ReceiptTextIcon, resource: "orders" },
       { title: "Deliveries", href: "/dashboard/deliveries", icon: BikeIcon, resource: "deliveries" },
@@ -108,25 +108,25 @@ const ownerNav: NavGroup[] = [
     ]
   },
   {
-    title: "Catalog & inventory",
+    title: "Menu & stock",
     items: [
       { title: "Menu", href: "/dashboard/menu", icon: UtensilsCrossedIcon, resource: "menu" },
-      { title: "Inventory", href: "/dashboard/inventory", icon: BoxesIcon, resource: "inventory" },
-      { title: "Stock locations", href: "/dashboard/inventory/locations", icon: WarehouseIcon, resource: "stock_locations" },
-      { title: "Transfers", href: "/dashboard/inventory/transfers", icon: ArrowLeftRightIcon, resource: "transfers" },
-      { title: "Ledger", href: "/dashboard/inventory/ledger", icon: ScrollTextIcon, resource: "inventory" },
-      { title: "Item links", href: "/dashboard/inventory/links", icon: Link2Icon, resource: "inventory" }
+      { title: "Stock", href: "/dashboard/inventory", icon: BoxesIcon, resource: "inventory" },
+      { title: "Stock places", href: "/dashboard/inventory/locations", icon: WarehouseIcon, resource: "stock_locations" },
+      { title: "Move stock", href: "/dashboard/inventory/transfers", icon: ArrowLeftRightIcon, resource: "transfers" },
+      { title: "Stock history", href: "/dashboard/inventory/ledger", icon: ScrollTextIcon, resource: "inventory" },
+      { title: "Pack contents", href: "/dashboard/inventory/links", icon: Link2Icon, resource: "inventory" }
     ]
   },
   {
     title: "People",
     items: [
       { title: "Staff", href: "/dashboard/staff", icon: UsersIcon, resource: "staff" },
-      { title: "Organizations", href: "/dashboard/customers", icon: Building2Icon, resource: "customers" }
+      { title: "Company accounts", href: "/dashboard/customers", icon: Building2Icon, resource: "customers" }
     ]
   },
   {
-    title: "Insights",
+    title: "Sales & reports",
     items: [
       { title: "Reports", href: "/dashboard/reports", icon: BarChart3Icon, resource: "reports" },
       { title: "Expenses", href: "/dashboard/expenses", icon: BanknoteIcon, resource: "expenses" }
@@ -137,10 +137,10 @@ const ownerNav: NavGroup[] = [
     items: [
       { title: "All settings", href: "/dashboard/settings", icon: SettingsIcon, resource: "settings" },
       { title: "Order rules", href: "/dashboard/settings/preferences", icon: SlidersHorizontalIcon, resource: "settings" },
-      { title: "Payment methods", href: "/dashboard/settings/payment-methods", icon: WalletCardsIcon, resource: "payment_methods" },
-      { title: "Delivery methods", href: "/dashboard/settings/delivery-methods", icon: BikeIcon, resource: "delivery_methods" },
-      { title: "Couriers", href: "/dashboard/settings/couriers", icon: ContactIcon, resource: "couriers" },
-      { title: "Roles", href: "/dashboard/settings/roles", icon: ShieldIcon, resource: "roles" },
+      { title: "Payment types", href: "/dashboard/settings/payment-methods", icon: WalletCardsIcon, resource: "payment_methods" },
+      { title: "Delivery services", href: "/dashboard/settings/delivery-methods", icon: BikeIcon, resource: "delivery_methods" },
+      { title: "Drivers", href: "/dashboard/settings/couriers", icon: ContactIcon, resource: "couriers" },
+      { title: "Roles and access", href: "/dashboard/settings/roles", icon: ShieldIcon, resource: "roles" },
       { title: "Devices", href: "/dashboard/settings/devices", icon: MonitorSmartphoneIcon, resource: "devices" }
     ]
   }
@@ -164,8 +164,8 @@ function filterNavByPermissions(groups: NavGroup[]): NavGroup[] {
 // The F&B manager keeps a dedicated overview landing page; it's prepended to the
 // permission-filtered nav when present so they still get their branch snapshot.
 const fbOverviewGroup: NavGroup = {
-  title: "Food & beverage",
-  items: [{ title: "F&B Overview", href: "/dashboard/fb", icon: GaugeIcon }],
+  title: "Food & drinks",
+  items: [{ title: "Food & drinks overview", href: "/dashboard/fb", icon: GaugeIcon }],
 };
 
 export function NavMain() {

@@ -1215,7 +1215,7 @@ const ordersAdapterImpl = {
     }
 
     return {
-      data: { status: "error", message: "Order not found offline" },
+      data: { status: "error", message: "We couldn't find that order on this till." },
       status: 404,
       statusText: "Not Found",
       headers: {},
@@ -1260,7 +1260,7 @@ const ordersAdapterImpl = {
           data: {
             status: "error",
             error: "table_required",
-            message: "Table selection is required to create an order.",
+            message: "Pick a table first.",
           },
         },
       });
@@ -1282,7 +1282,7 @@ const ordersAdapterImpl = {
             data: {
               status: "error",
               error: "insufficient_inventory",
-              message: "Not enough inventory to create this order.",
+              message: "Not enough stock for this order.",
               details: inventoryCheck.shortfalls,
             },
           },
@@ -1365,7 +1365,7 @@ const ordersAdapterImpl = {
     const order = await findOrder(id);
     if (!order || !order.id) {
       return {
-        data: { status: "error", message: "Order not found locally" },
+        data: { status: "error", message: "We couldn't find that order on this till." },
         status: 404,
         statusText: "Not Found",
         headers: {},
@@ -1620,7 +1620,7 @@ const ordersAdapterImpl = {
           {
             status: order.status,
             timestamp: order.updated_at,
-            notes: "Order status updated locally",
+            notes: "Order updated. It will send when there's internet.",
           },
         ]
       : [];
@@ -1783,7 +1783,7 @@ const ordersAdapterImpl = {
       const payloadBase64 = generateEscPosBase64(order, waiterName);
       return buildResponse({ payload: payloadBase64 });
     }
-    return buildErrorResponse("Ticket payload not found locally");
+    return buildErrorResponse("We couldn't find that ticket on this till.");
   },
 
   markPrinted: async (id: string) => {
@@ -1923,7 +1923,7 @@ const ordersAdapterImpl = {
   printOrderNative: async (id: string, printerName?: string) => {
     const order = await findOrder(id);
     if (!order) {
-      throw new Error("Order not found locally");
+      throw new Error("We couldn't find that order on this till.");
     }
 
     const waiterName = await resolveWaiterName(order);
@@ -2190,8 +2190,8 @@ const ordersAdapterImpl = {
     if (Object.keys(jobsByPrinter).length === 0) {
       throw new Error(
         simplePrintMode
-          ? "No printer is available to print the order ticket. Check that a printer is connected."
-          : "No printer is configured for this order's departments. Assign printers in Printer Settings, or turn on Simple printing mode to use the active printer.",
+          ? "No printer found. Check the printer is on and plugged in."
+          : "No printer is set for this order's section. Pick one in Printer settings, or turn on Simple printing.",
       );
     }
 
@@ -2226,7 +2226,7 @@ const ordersAdapterImpl = {
   ) => {
     const order = await findOrder(orderId);
     if (!order) {
-      throw new Error("Order not found locally");
+      throw new Error("We couldn't find that order on this till.");
     }
     if (!Array.isArray(additionItems) || additionItems.length === 0) {
       return true;
@@ -2471,7 +2471,7 @@ const ordersAdapterImpl = {
   printCancelledOrderNative: async (id: string, printerName?: string) => {
     const order = await findOrder(id);
     if (!order) {
-      throw new Error("Order not found locally");
+      throw new Error("We couldn't find that order on this till.");
     }
 
     const waiterName = await resolveWaiterName(order);
@@ -2689,7 +2689,7 @@ const ordersAdapterImpl = {
       { kind: "title", text: "DIAGNOSTIC TEST" },
       {
         kind: "text",
-        text: "TAURI NATIVE THERMAL PRINTER TEST",
+        text: "RECEIPT PRINTER TEST PAGE",
         align: "center",
       },
       { kind: "text", text: "የአማርኛ ህትመት ሙከራ", align: "center", bold: true },
@@ -2720,7 +2720,7 @@ const ordersAdapterImpl = {
       { kind: "divider" },
       { kind: "text", text: "TOTAL: 150.00 Birr", bold: true, large: true },
       { kind: "gap", height: 8 },
-      { kind: "text", text: "Connection Successful!", align: "center" },
+      { kind: "text", text: "Printer works!", align: "center" },
     ];
 
     const imageDatas = await renderReceiptImages(blocks);
@@ -2733,7 +2733,7 @@ const ordersAdapterImpl = {
     if (isOnline()) {
       return api.get("/orders/z-report", { params });
     }
-    throw new Error("Z-report requires online connection to backend");
+    throw new Error("No internet. Connect to see the end of day report.");
   },
 
   // ── Deliveries ─────────────────────────────────────────────────────────────
@@ -2745,25 +2745,25 @@ const ordersAdapterImpl = {
     if (isOnline()) {
       return api.get("/orders/deliveries", { params });
     }
-    throw new Error("Deliveries requires an online connection to the backend");
+    throw new Error("No internet. Connect to see deliveries.");
   },
   updateDeliveryDetails: async (orderId: string, data: any) => {
     if (isOnline()) {
       return api.put(`/orders/${orderId}/delivery`, data);
     }
-    throw new Error("Deliveries requires an online connection to the backend");
+    throw new Error("No internet. Connect to see deliveries.");
   },
   addDeliveryPayment: async (orderId: string, data: any) => {
     if (isOnline()) {
       return api.post(`/orders/${orderId}/delivery-payments`, data);
     }
-    throw new Error("Deliveries requires an online connection to the backend");
+    throw new Error("No internet. Connect to see deliveries.");
   },
   updateDeliveryPayment: async (orderId: string, paymentId: string, data: any) => {
     if (isOnline()) {
       return api.put(`/orders/${orderId}/delivery-payments/${paymentId}`, data);
     }
-    throw new Error("Deliveries requires an online connection to the backend");
+    throw new Error("No internet. Connect to see deliveries.");
   },
 
   // ── Organization order settlement ───────────────────────────────────────────
@@ -2778,7 +2778,7 @@ const ordersAdapterImpl = {
       });
     }
     throw new Error(
-      "Confirming an organization order's payment requires an online connection.",
+      "No internet. Connect to mark a company account order as paid.",
     );
   },
 };

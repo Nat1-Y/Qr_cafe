@@ -9,7 +9,7 @@ export function RecentOrdersList({ recentOrders }: { recentOrders: RecentOrder[]
     <Card>
       <CardHeader className="border-b pb-3">
         <CardTitle>Recent orders</CardTitle>
-        <CardDescription>Latest order status logs</CardDescription>
+        <CardDescription>Newest orders first</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
@@ -57,7 +57,7 @@ export function RecentOrdersList({ recentOrders }: { recentOrders: RecentOrder[]
             ))
           ) : (
             <p className="text-muted-foreground py-12 text-center text-xs font-semibold">
-              No recent orders for the selected filters.
+              No orders match. Try other filters.
             </p>
           )}
         </div>

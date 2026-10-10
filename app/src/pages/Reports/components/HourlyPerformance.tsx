@@ -13,8 +13,8 @@ export const HourlyPerformance: React.FC<HourlyPerformanceProps> = ({ items }) =
   return (
     <Card className="transition-shadow">
       <CardHeader className="pb-3 border-b">
-        <CardTitle>Hourly performance</CardTitle>
-        <CardDescription>Busiest paid sales windows</CardDescription>
+        <CardTitle>Sales by hour</CardTitle>
+        <CardDescription>Your busiest hours</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
@@ -33,7 +33,7 @@ export const HourlyPerformance: React.FC<HourlyPerformanceProps> = ({ items }) =
             </div>
           )) : (
             <p className="text-xs text-muted-foreground font-semibold text-center py-12">
-              No hourly sales data in the selected window.
+              No sales in these dates.
             </p>
           )}
         </div>

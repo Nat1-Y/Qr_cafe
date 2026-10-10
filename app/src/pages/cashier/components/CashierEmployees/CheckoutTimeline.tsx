@@ -63,10 +63,10 @@ export const CheckoutTimeline: React.FC<CheckoutTimelineProps> = ({
     <Card className="flex flex-col overflow-hidden">
       <CardHeader className="border-b">
         <CardTitle className="text-foreground">
-          Waiter checkout timeline
+          Waiter's orders
         </CardTitle>
         <CardDescription className="mt-0.5">
-          Latest operational transactions
+          Newest first
         </CardDescription>
       </CardHeader>
       <CardContent className="max-h-[500px] flex-1 space-y-3 overflow-y-auto p-4">
@@ -89,7 +89,7 @@ export const CheckoutTimeline: React.FC<CheckoutTimelineProps> = ({
                     <div className="flex flex-wrap items-center gap-2">
                       <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
                       <span className="text-xs font-medium text-foreground">
-                        {order.order_type_label || (order.table_number ? `Table ${order.table_number}` : 'Take Away')}
+                        {order.order_type_label || (order.table_number ? `Table ${order.table_number}` : 'Takeaway')}
                       </span>
                       {isCanceled ? (
                         <Badge variant="destructive">
@@ -126,7 +126,7 @@ export const CheckoutTimeline: React.FC<CheckoutTimelineProps> = ({
         ) : (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <p className="text-xs text-muted-foreground">
-              No recent orders recorded in this range
+              No orders in this time
             </p>
           </div>
         )}

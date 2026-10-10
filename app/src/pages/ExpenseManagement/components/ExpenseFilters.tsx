@@ -36,7 +36,7 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
           <CardTitle>Filters</CardTitle>
         </div>
         <Button variant="ghost" size="sm" onClick={onResetFilters}>
-          Reset filters
+          Clear filters
         </Button>
       </CardHeader>
       <CardContent>
@@ -47,7 +47,7 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
               name="search"
               value={filters.search}
               onChange={onFilterChange}
-              placeholder="Search title, payee, or notes..."
+              placeholder="Search name, who was paid, or notes"
             />
           </div>
           <div className="space-y-1.5">
@@ -61,11 +61,11 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>Method</Label>
+            <Label>Paid with</Label>
             <Select value={filters.payment_method} onValueChange={onPaymentMethodChange}>
-              <SelectTrigger><SelectValue placeholder="All methods" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="All payment types" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all_methods">All methods</SelectItem>
+                <SelectItem value="all_methods">All payment types</SelectItem>
                 {paymentMethods.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -104,7 +104,7 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
           </div>
           <Button type="submit" className="sm:col-span-2 md:col-span-4 mt-2">
             <Filter />
-            Apply filters
+            Show results
           </Button>
         </form>
       </CardContent>

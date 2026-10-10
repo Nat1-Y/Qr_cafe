@@ -20,8 +20,8 @@ export const PopularMenuItems: React.FC<PopularMenuItemsProps> = ({
     <Card className="transition-shadow">
       <CardHeader className="pb-3 border-b flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Popular menu items</CardTitle>
-          <CardDescription>Most frequently bought dishes</CardDescription>
+          <CardTitle>Best sellers</CardTitle>
+          <CardDescription>What customers buy most</CardDescription>
         </div>
         <Select value={topItemsPeriod} onValueChange={setTopItemsPeriod}>
           <SelectTrigger className="h-8 w-[130px]">
@@ -63,7 +63,7 @@ export const PopularMenuItems: React.FC<PopularMenuItemsProps> = ({
             ))
           ) : (
             <div className="p-8 text-center text-xs text-muted-foreground font-semibold border border-dashed rounded-xl bg-muted/20">
-              No item summary found for the selected filters and period.
+              Nothing sold for these filters and dates.
             </div>
           )}
         </div>

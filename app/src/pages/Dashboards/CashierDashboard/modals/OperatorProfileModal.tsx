@@ -42,15 +42,15 @@ const OperatorProfileModal: React.FC<OperatorProfileModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Operator profile</DialogTitle>
-          <DialogDescription>Update contact parameters and account information</DialogDescription>
+          <DialogTitle>My profile</DialogTitle>
+          <DialogDescription>Change your name, phone and address.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
           {!isOnline && (
             <div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-xl flex items-center gap-3 text-xs font-semibold">
               <WifiOff className="w-4 h-4 shrink-0" />
-              <span>Profile updates are disabled because you are currently offline.</span>
+              <span>No internet. Connect to change your profile.</span>
             </div>
           )}
 
@@ -111,7 +111,7 @@ const OperatorProfileModal: React.FC<OperatorProfileModalProps> = ({
             Cancel
           </Button>
           <Button onClick={onUpdateProfile} disabled={!isOnline}>
-            Update profile
+            Save changes
           </Button>
         </DialogFooter>
       </DialogContent>

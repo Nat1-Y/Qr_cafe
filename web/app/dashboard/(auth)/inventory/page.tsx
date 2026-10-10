@@ -43,6 +43,8 @@ import { DataTable, type Column } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
 import { StatCard } from "@/components/stat-card";
 import { Inventory, StockLocations } from "@/lib/resources";
+import { friendlyError } from "@/lib/errors";
+import { humanize } from "@/lib/format";
 
 type StockEntry = {
   location_id: string;
@@ -280,13 +282,13 @@ function LocationCard({
                 {loc.name}
               </CardTitle>
               <span className="text-xs font-semibold text-muted-foreground">
-                {loc.location_type}
+                {humanize(loc.location_type)}
               </span>
             </div>
           </div>
           {loc.is_default && (
             <Badge variant="success">
-              Default
+              Main
             </Badge>
           )}
         </div>
@@ -301,7 +303,7 @@ function LocationCard({
           </div>
           <div className="rounded-md border bg-background p-2 text-center">
             <span className="block text-xs font-medium text-muted-foreground">
-              Tracked items
+              Items counted
             </span>
             <span className="text-lg font-semibold">{stats.totalItems}</span>
           </div>
@@ -310,17 +312,17 @@ function LocationCard({
         {stats.lowStock > 0 ? (
           <div className="flex items-center gap-2 rounded-md bg-warning/10 p-2 text-xs font-medium text-warning">
             <AlertTriangleIcon className="size-4 shrink-0" />
-            <span>{stats.lowStock} item(s) below minimum stock!</span>
+            <span>{stats.lowStock} item(s) running low</span>
           </div>
         ) : (
           <div className="flex items-center gap-2 rounded-md bg-success/10 p-2 text-xs font-medium text-success">
             <CheckCircle2Icon className="size-4 shrink-0" />
-            <span>All tracked items are healthy</span>
+            <span>All items have enough stock</span>
           </div>
         )}
 
         <div className="flex items-center justify-end pt-1 text-xs font-semibold text-primary transition-transform group-hover:translate-x-1">
-          <span>Explore inventory</span>
+          <span>See stock</span>
           <ChevronRightIcon className="ml-1 size-3.5" />
         </div>
       </CardContent>
@@ -389,7 +391,7 @@ export default function InventoryPage() {
       setItems(its);
       setLocations(locs);
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setLoading(false);
     }
@@ -452,7 +454,7 @@ export default function InventoryPage() {
     const piecesPerUnit = Math.max(1, Number(adjust.item.pieces_per_unit || 1));
     const entered = Number(adjust.value);
     if (Number.isNaN(entered)) {
-      toast.error("Enter a valid quantity.");
+      toast.error("Enter an amount.");
       return;
     }
     // Always send base units to the API; convert from purchase units when needed.
@@ -462,31 +464,31 @@ export default function InventoryPage() {
     };
     if (adjust.mode === "delta") {
       if (baseValue === 0) {
-        toast.error("Enter an amount to add or subtract.");
+        toast.error("Enter an amount to add or take away.");
         return;
       }
       body.delta = baseValue;
     } else {
       if (baseValue < 0) {
-        toast.error("Quantity can't be negative.");
+        toast.error("The amount can't be below zero.");
         return;
       }
       body.quantity = baseValue;
     }
     try {
       await Inventory.setQuantity(adjust.item.id, body);
-      toast.success("Stock updated");
+      toast.success("Stock saved");
       setAdjust(null);
       await reload();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
   async function submitCreate() {
     if (!selectedLoc) return;
     if (!form.name.trim()) {
-      toast.error("Name is required.");
+      toast.error("Enter a name.");
       return;
     }
     try {
@@ -500,7 +502,7 @@ export default function InventoryPage() {
           { location_id: selectedLoc.id, quantity: Number(form.quantity) || 0 },
         ],
       });
-      toast.success("Item created");
+      toast.success("Item added");
       setCreateOpen(false);
       setForm({
         name: "",
@@ -512,14 +514,14 @@ export default function InventoryPage() {
       });
       await reload();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
   async function submitEdit() {
     if (!edit) return;
     if (!edit.name.trim()) {
-      toast.error("Name is required.");
+      toast.error("Enter a name.");
       return;
     }
     try {
@@ -530,11 +532,11 @@ export default function InventoryPage() {
         pieces_per_unit: Math.max(1, Number(edit.pieces_per_unit) || 1),
         min_quantity: Number(edit.min_quantity) || 0,
       });
-      toast.success("Item updated");
+      toast.success("Item saved");
       setEdit(null);
       await reload();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
@@ -545,7 +547,7 @@ export default function InventoryPage() {
       toast.success("Item deleted");
       await reload();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
@@ -559,7 +561,7 @@ export default function InventoryPage() {
     { key: "unit", label: "Unit", className: "text-muted-foreground" },
     {
       key: "quantity",
-      label: "In stock (here)",
+      label: "In stock in this place",
       sortable: true,
       sortValue: (r) => (selectedLoc ? qtyAt(r, selectedLoc.id) : 0),
       render: (r) => {
@@ -580,7 +582,7 @@ export default function InventoryPage() {
     },
     {
       key: "min_quantity",
-      label: "Min",
+      label: "Warn below",
       sortable: true,
       sortValue: (r) => r.min_quantity ?? 0,
       render: (r) => r.min_quantity ?? 0,
@@ -599,20 +601,20 @@ export default function InventoryPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Inventory"
-        description="Stock held across this branch's locations."
+        title="Stock"
+        description="What this branch has in each stock place."
         action={
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild>
               <Link href="/dashboard/inventory/bulk-import">
                 <UploadIcon />
-                Bulk import
+                Add many
               </Link>
             </Button>
             <Button variant="outline" asChild>
               <Link href="/dashboard/inventory/transfers">
                 <ArrowLeftRightIcon />
-                Transfer stock
+                Move stock
               </Link>
             </Button>
           </div>
@@ -628,24 +630,24 @@ export default function InventoryPage() {
               icon={<BoxesIcon className="size-5" />}
             />
             <StatCard
-              title="Locations"
+              title="Stock places"
               value={locations.length}
               icon={<WarehouseIcon className="size-5" />}
               variant="info"
             />
             <StatCard
-              title="Low stock"
+              title="Running low"
               value={totalLowStock}
-              subtitle="below minimum"
+              subtitle="below the warning level"
               icon={<AlertTriangleIcon className="size-5" />}
               variant={totalLowStock > 0 ? "warning" : "success"}
             />
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold">Select an inventory location</h3>
+            <h3 className="text-lg font-semibold">Pick a stock place</h3>
             <p className="text-sm text-muted-foreground">
-              Click a location to explore items and adjust per-location quantities.
+              Tap a place to see its items and change how much is there.
             </p>
           </div>
 
@@ -654,13 +656,13 @@ export default function InventoryPage() {
           ) : locations.length === 0 ? (
             <Card>
               <CardContent className="py-10 text-center text-sm text-muted-foreground">
-                No stock locations yet.{" "}
+                No stock places yet.{" "}
                 <Link
                   href="/dashboard/inventory/locations"
                   className="text-primary underline-offset-4 hover:underline">
-                  Create one
+                  Add one
                 </Link>{" "}
-                to start tracking inventory.
+                to start counting stock.
               </CardContent>
             </Card>
           ) : (
@@ -682,7 +684,7 @@ export default function InventoryPage() {
             <div className="flex items-center gap-3">
               <Button variant="outline" size="sm" onClick={() => setSelectedLocId(null)}>
                 <ArrowLeftIcon />
-                Back to locations
+                Back to stock places
               </Button>
               <div className="hidden h-5 w-px bg-border sm:block" />
               <div className="flex items-center gap-2.5">
@@ -692,7 +694,7 @@ export default function InventoryPage() {
                 <div>
                   <h3 className="text-base font-semibold">{selectedLoc.name}</h3>
                   <p className="text-xs text-muted-foreground">
-                    Items available inside this location.
+                    Items kept in this place.
                   </p>
                 </div>
               </div>
@@ -722,8 +724,8 @@ export default function InventoryPage() {
             searchPlaceholder="Search items…"
             emptyMessage={
               onlyInStock
-                ? "No items in stock at this location."
-                : "No items tracked at this location yet."
+                ? "Nothing is in stock in this place right now."
+                : "No items in this place yet."
             }
             rowActions={(row) => (
               <div className="flex justify-end gap-1">
@@ -761,7 +763,7 @@ export default function InventoryPage() {
       <Dialog open={adjust !== null} onOpenChange={(o) => !o && setAdjust(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Update stock quantity</DialogTitle>
+            <DialogTitle>Change stock amount</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="rounded-lg bg-muted/50 p-3 text-sm">
@@ -780,20 +782,20 @@ export default function InventoryPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>What would you like to do?</Label>
+              <Label>What do you want to do?</Label>
               <div className="grid grid-cols-2 gap-3">
                 {([
                   {
                     value: "set" as const,
                     icon: RefreshCwIcon,
                     title: "Set exact quantity",
-                    description: "Replace current stock",
+                    description: "Type how much you have now",
                   },
                   {
                     value: "delta" as const,
                     icon: PlusIcon,
-                    title: "Add / subtract",
-                    description: "Increase or decrease",
+                    title: "Add or take away",
+                    description: "Add more, or take some away",
                   },
                 ]).map((opt) => {
                   const Icon = opt.icon;
@@ -826,8 +828,8 @@ export default function InventoryPage() {
             <div className="space-y-2">
               <Label>
                 {adjust?.mode === "delta"
-                  ? "Quantity to add / subtract"
-                  : "New total quantity"}
+                  ? "Amount to add or take away"
+                  : "New amount"}
               </Label>
               <div className="flex items-center gap-2">
                 <Input
@@ -836,7 +838,7 @@ export default function InventoryPage() {
                   min={adjust?.mode === "delta" ? undefined : 0}
                   value={adjust?.value ?? ""}
                   placeholder={
-                    adjust?.mode === "delta" ? "e.g. 5 to add, -2 to remove" : ""
+                    adjust?.mode === "delta" ? "e.g. 5 to add, -2 to take away" : ""
                   }
                   onChange={(e) =>
                     setAdjust((a) => (a ? { ...a, value: e.target.value } : a))
@@ -860,22 +862,22 @@ export default function InventoryPage() {
                 <div className="flex gap-4 text-xs">
                   <span className="flex items-center text-success">
                     <PlusIcon className="mr-1 size-3" />
-                    positive adds
+                    a number adds
                   </span>
                   <span className="flex items-center text-destructive">
                     <MinusIcon className="mr-1 size-3" />
-                    negative removes
+                    a minus (-) takes away
                   </span>
                 </div>
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  This replaces the current stock of {adjCurrent} {adjBaseUnit}.
+                  This replaces the current amount of {adjCurrent} {adjBaseUnit}.
                 </p>
               )}
 
               {adjust?.unit === "purchase" && adjPieces > 1 && (
                 <div className="rounded bg-muted/50 p-2 text-xs text-muted-foreground">
-                  System will record:{" "}
+                  We will save:{" "}
                   <strong>
                     {adjBase} {adjBaseUnit}
                   </strong>
@@ -886,7 +888,7 @@ export default function InventoryPage() {
 
               {adjust?.mode === "delta" && adjBase !== 0 && (
                 <div className="rounded bg-muted/50 p-2 text-sm">
-                  New total will be:{" "}
+                  New amount will be:{" "}
                   <strong>
                     {adjCurrent + adjBase} {adjBaseUnit}
                   </strong>
@@ -899,7 +901,7 @@ export default function InventoryPage() {
               Cancel
             </Button>
             <Button onClick={submitAdjust}>
-              {adjust?.mode === "delta" ? "Update stock" : "Set quantity"}
+              {adjust?.mode === "delta" ? "Save stock" : "Save amount"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -922,23 +924,23 @@ export default function InventoryPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Base unit</Label>
+                <Label>Small unit (e.g. gram)</Label>
                 <UnitSelect
                   value={form.base_unit}
                   onChange={(v) => setUnits({ base_unit: v })}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Smallest unit you track &amp; consume in.
+                  The smallest amount you count and use.
                 </p>
               </div>
               <div className="space-y-2">
-                <Label>Purchase unit</Label>
+                <Label>Buying unit (e.g. kg bag)</Label>
                 <UnitSelect
                   value={form.unit}
                   onChange={(v) => setUnits({ unit: v })}
                 />
                 <p className="text-xs text-muted-foreground">
-                  The unit you buy stock in.
+                  How you buy it.
                 </p>
               </div>
             </div>
@@ -947,7 +949,7 @@ export default function InventoryPage() {
               <Label>
                 {form.base_unit && form.unit
                   ? `How many ${form.base_unit} in 1 ${form.unit}?`
-                  : "Base units per purchase unit"}
+                  : "How many small units in one buying unit"}
               </Label>
               <Input
                 type="number"
@@ -971,7 +973,7 @@ export default function InventoryPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Min quantity ({form.base_unit})</Label>
+                <Label>Warn me when below ({form.base_unit})</Label>
                 <Input
                   type="number"
                   min={0}
@@ -980,7 +982,7 @@ export default function InventoryPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Opening quantity ({form.base_unit})</Label>
+                <Label>Starting amount ({form.base_unit})</Label>
                 <Input
                   type="number"
                   min={0}
@@ -994,7 +996,7 @@ export default function InventoryPage() {
             <Button variant="outline" onClick={() => setCreateOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={submitCreate}>Create item</Button>
+            <Button onClick={submitCreate}>Add item</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -1017,23 +1019,23 @@ export default function InventoryPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Base unit</Label>
+                  <Label>Small unit (e.g. gram)</Label>
                   <UnitSelect
                     value={edit.base_unit}
                     onChange={(v) => setEditUnits({ base_unit: v })}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Smallest unit you track &amp; consume in.
+                    The smallest amount you count and use.
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Purchase unit</Label>
+                  <Label>Buying unit (e.g. kg bag)</Label>
                   <UnitSelect
                     value={edit.unit}
                     onChange={(v) => setEditUnits({ unit: v })}
                   />
                   <p className="text-xs text-muted-foreground">
-                    The unit you buy stock in.
+                    How you buy it.
                   </p>
                 </div>
               </div>
@@ -1042,7 +1044,7 @@ export default function InventoryPage() {
                 <Label>
                   {edit.base_unit && edit.unit
                     ? `How many ${edit.base_unit} in 1 ${edit.unit}?`
-                    : "Base units per purchase unit"}
+                    : "How many small units in one buying unit"}
                 </Label>
                 <Input
                   type="number"
@@ -1065,7 +1067,7 @@ export default function InventoryPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Min quantity ({edit.base_unit})</Label>
+                <Label>Warn me when below ({edit.base_unit})</Label>
                 <Input
                   type="number"
                   min={0}

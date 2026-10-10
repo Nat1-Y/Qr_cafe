@@ -131,7 +131,7 @@ export const useWaiterOrderHistory = () => {
         setAdditionsByOrderId(grouped);
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast.error("Failed to load order history");
+        toast.error("Couldn't load your orders. Please try again.");
       } finally {
         setLoading(false);
         isFirstLoad = false;
@@ -145,14 +145,14 @@ export const useWaiterOrderHistory = () => {
 
   const getStatusDisplay = useCallback((status: string) => {
     const statusConfig: { [key: string]: any } = {
-      pending: { icon: Clock, variant: "warning" as const, label: "Pending" },
+      pending: { icon: Clock, variant: "warning" as const, label: "Waiting" },
       preparing: { icon: Clock, variant: "info" as const, label: "Preparing" },
       ready: { icon: CheckCircle, variant: "success" as const, label: "Ready" },
       paid: { icon: DollarSign, variant: "success" as const, label: "Paid" },
       completed: {
         icon: CheckCircle,
         variant: "secondary" as const,
-        label: "Completed",
+        label: "Done",
       },
       cancelled: {
         icon: AlertCircle,

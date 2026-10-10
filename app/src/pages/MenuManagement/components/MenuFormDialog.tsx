@@ -96,7 +96,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
   const handleCreateMainCategory = async () => {
     const name = newMainCategoryName.trim();
     if (!name) {
-      toast.error('Enter a main category name');
+      toast.error('New section name');
       return;
     }
     setAddingMainCategory(true);
@@ -133,13 +133,13 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
       </div>
 
       <div className="space-y-2">
-        <Label>Main category (printing dept)</Label>
+        <Label>Section (where it prints)</Label>
         <Select
           value={formData.main_category || mainCategories[0]?.slug || 'barista'}
           onValueChange={(value) => setFormData((p) => ({ ...p, main_category: value }))}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select main category" />
+            <SelectValue placeholder="Pick a section" />
           </SelectTrigger>
           <SelectContent>
             {mainCategories.map((entry) => (
@@ -150,14 +150,14 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          Determines which printer/receipt this item belongs to.
+          This decides which printer the order prints on.
         </p>
 
         <div className="flex gap-2">
           <Input
             value={newMainCategoryName}
             onChange={(e) => setNewMainCategoryName(e.target.value)}
-            placeholder="Add new main category"
+            placeholder="Add a new section"
           />
           <Button
             type="button"
@@ -165,7 +165,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
             onClick={handleCreateMainCategory}
             disabled={addingMainCategory}
           >
-            {addingMainCategory ? 'Adding...' : 'Add'}
+            {addingMainCategory ? 'Adding…' : 'Add'}
           </Button>
         </div>
       </div>
@@ -175,7 +175,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
           <Label htmlFor="main_category">Category</Label>
           {suggestedCategories.length > 0 && (
             <span className="text-xs font-medium text-muted-foreground">
-              Pick existing or type a new value
+              Pick one or type a new one
             </span>
           )}
         </div>
@@ -198,7 +198,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
                 : 'text-muted-foreground hover:text-foreground'
               }`}
           >
-            New value
+            New
           </button>
         </div>
 
@@ -208,7 +208,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
             onValueChange={(value) => setFormData((p) => ({ ...p, category: value }))}
           >
             <SelectTrigger className="h-10">
-              <SelectValue placeholder="Select a category" />
+              <SelectValue placeholder="Pick a category" />
             </SelectTrigger>
             <SelectContent>
               {suggestedCategories.map((category) => (
@@ -223,13 +223,13 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
             id="main_category"
             value={formData.category}
             onChange={(e) => setFormData((p) => ({ ...p, category: e.target.value }))}
-            placeholder="Type a new category value"
+            placeholder="Type a new category"
             required
           />
         )}
 
         <p className="text-xs text-muted-foreground">
-          Existing categories are loaded from your current menu items.
+          These are the categories already on your menu.
         </p>
       </div>
 
@@ -241,12 +241,12 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
           placeholder="Cold drinks, popular, seasonal"
         />
         <p className="text-xs text-muted-foreground">
-          Separate multiple category tags with commas.
+          Put a comma between tags.
         </p>
       </div>
 
       <div className="space-y-2">
-        <Label>Predefined notes</Label>
+        <Label>Quick notes</Label>
         <div className="flex gap-2">
           <Input
             value={newNote}
@@ -285,7 +285,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
           </div>
         )}
         <p className="text-xs text-muted-foreground">
-          Waiters and cashiers can quick-select these when adding this item to an order.
+          Waiters and cashiers can tap these when they add this item to an order.
         </p>
       </div>
 
@@ -298,7 +298,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
           className="rounded"
         />
         <Label htmlFor="is_available" className="cursor-pointer">
-          Available for ordering
+          Can be ordered
         </Label>
       </div>
 
@@ -306,7 +306,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
         <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
           Cancel
         </Button>
-        <Button type="submit">{selectedItem ? 'Update Item' : 'Create Item'}</Button>
+        <Button type="submit">{selectedItem ? 'Save changes' : 'Add item'}</Button>
       </DialogFooter>
     </form>
   );
@@ -315,7 +315,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{selectedItem ? 'Edit Menu Item' : 'Add Menu Item'}</DialogTitle>
+          <DialogTitle>{selectedItem ? 'Edit menu item' : 'Add menu item'}</DialogTitle>
         </DialogHeader>
 
         {showRecipeTab ? (
@@ -323,7 +323,7 @@ export const MenuFormDialog: React.FC<MenuFormDialogProps> = ({
             <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="recipe" className="relative">
-                Recipe / BOM
+                Recipe
                 {!existingRecipe && (
                   <span className="ml-1.5 h-1.5 w-1.5 rounded-full bg-warning inline-block" />
                 )}

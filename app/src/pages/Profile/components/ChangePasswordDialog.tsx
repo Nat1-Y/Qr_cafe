@@ -33,14 +33,14 @@ export const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {isWaiter ? 'Change PIN' : 'Change Password'}
+            {isWaiter ? 'Change PIN' : 'Change password'}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={submitPasswordChange} className="space-y-4">
           <div className="space-y-2">
             <Label>
-              {isWaiter ? 'Current PIN' : 'Current Password'}
+              {isWaiter ? 'Current PIN' : 'Current password'}
             </Label>
             <Input
               type={isWaiter ? 'tel' : 'password'}
@@ -60,7 +60,7 @@ export const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({
 
           <div className="space-y-2">
             <Label>
-              {isWaiter ? 'New PIN' : 'New Password'}
+              {isWaiter ? 'New PIN' : 'New password'}
             </Label>
             <Input
               type={isWaiter ? 'tel' : 'password'}
@@ -108,7 +108,7 @@ export const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              Update
+              Save
             </Button>
           </DialogFooter>
         </form>

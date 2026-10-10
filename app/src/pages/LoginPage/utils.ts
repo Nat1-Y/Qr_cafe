@@ -9,7 +9,7 @@ export const getRoleColors = (role: string) => {
 export const getRoleLabel = (role: string) => {
   const labels: Record<string, string> = {
     cashier: "Cashier",
-    admin: "Admin",
+    admin: "Manager",
   };
   return labels[role] || "Staff";
 };

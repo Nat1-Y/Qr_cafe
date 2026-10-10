@@ -25,6 +25,7 @@ import {
 import { PageHeader } from "@/components/page-header";
 import { Settings } from "@/lib/resources";
 import { getBranchId } from "@/lib/api";
+import { friendlyError } from "@/lib/errors";
 
 export default function DataManagementPage() {
   const [open, setOpen] = useState(false);
@@ -36,11 +37,11 @@ export default function DataManagementPage() {
     setBusy(true);
     try {
       await Settings.cleanupData();
-      toast.success("All orders and payments for this branch were deleted.");
+      toast.success("All orders and payments for this branch are deleted.");
       setOpen(false);
       setConfirmText("");
     } catch (e: any) {
-      toast.error(e.message || "Cleanup failed. Please try again.");
+      toast.error(friendlyError(e, "Couldn't delete the data. Please try again."));
     } finally {
       setBusy(false);
     }
@@ -49,15 +50,15 @@ export default function DataManagementPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Data management"
-        description="Destructive maintenance actions for the branch selected in the switcher above."
+        title="Delete old data"
+        description="Delete data for the branch picked at the top. Be careful."
       />
 
       {!hasBranch ? (
         <Card className="max-w-2xl">
           <CardContent className="py-6">
             <p className="text-muted-foreground text-sm">
-              Select a branch in the switcher above to manage its data.
+              Pick a branch at the top first.
             </p>
           </CardContent>
         </Card>
@@ -69,7 +70,7 @@ export default function DataManagementPage() {
               Danger zone
             </CardTitle>
             <CardDescription>
-              These actions are irreversible. Please proceed with extreme caution.
+              You can&apos;t undo these. Be very careful.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -77,12 +78,10 @@ export default function DataManagementPage() {
               <div className="space-y-1">
                 <h4 className="flex items-center gap-2 text-sm font-medium">
                   <DatabaseIcon className="size-4" />
-                  Cleanup Orders &amp; Payments
+                  Delete all orders and payments
                 </h4>
                 <p className="text-muted-foreground text-xs">
-                  Permanently deletes ALL orders, order items, and payment records
-                  for the selected branch. Enrolled desktop devices will clear their
-                  copies on the next sync.
+                  Deletes every order and payment for this branch for good. Tills will clear their copies the next time they send updates.
                 </p>
               </div>
               <Button
@@ -91,7 +90,7 @@ export default function DataManagementPage() {
                 onClick={() => setOpen(true)}
                 className="w-full shrink-0 sm:w-auto">
                 <Trash2Icon />
-                Cleanup
+                Delete
               </Button>
             </div>
           </CardContent>
@@ -108,10 +107,10 @@ export default function DataManagementPage() {
         }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete all orders &amp; payments?</DialogTitle>
+            <DialogTitle>Delete all orders and payments?</DialogTitle>
             <DialogDescription>
-              This permanently deletes every order and payment for the selected
-              branch. This cannot be undone. Type <strong>DELETE</strong> to
+              This deletes every order and payment for this branch for good. You
+              can&apos;t undo this. Type <strong>DELETE</strong> to
               confirm.
             </DialogDescription>
           </DialogHeader>
@@ -137,7 +136,7 @@ export default function DataManagementPage() {
               variant="destructive"
               onClick={handleCleanup}
               disabled={busy || confirmText !== "DELETE"}>
-              {busy ? "Cleaning up…" : "Yes, delete everything"}
+              {busy ? "Deleting…" : "Yes, delete everything"}
             </Button>
           </DialogFooter>
         </DialogContent>

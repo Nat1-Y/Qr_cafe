@@ -41,8 +41,8 @@ export const PaymentMethodsTable: React.FC<PaymentMethodsTableProps> = ({
   return (
     <Card>
       <CardHeader className="pb-3 border-b">
-        <CardTitle>Configured methods</CardTitle>
-        <CardDescription>Payment options available at the cashier checkout</CardDescription>
+        <CardTitle>Payment types</CardTitle>
+        <CardDescription>How customers can pay at the till</CardDescription>
       </CardHeader>
       <CardContent className="pt-6 space-y-2">
         {methods.map(method => {
@@ -58,7 +58,7 @@ export const PaymentMethodsTable: React.FC<PaymentMethodsTableProps> = ({
 
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-sm">{method.display_name}</div>
-                <div className="text-xs text-muted-foreground font-medium">Key: {method.name}</div>
+                <div className="text-xs text-muted-foreground font-medium">Code name: {method.name}</div>
                 {method.description && (
                   <div className="text-xs text-muted-foreground mt-0.5">{method.description}</div>
                 )}
@@ -72,7 +72,7 @@ export const PaymentMethodsTable: React.FC<PaymentMethodsTableProps> = ({
                     : 'bg-muted/30 text-muted-foreground font-semibold text-xs'
                 }
               >
-                {method.is_active ? 'Active' : 'Disabled'}
+                {method.is_active ? 'Active' : 'Off'}
               </Badge>
 
               <div className="flex items-center gap-1 shrink-0">
@@ -99,7 +99,7 @@ export const PaymentMethodsTable: React.FC<PaymentMethodsTableProps> = ({
 
         {methods.length === 0 && (
           <div className="p-8 text-center text-xs text-muted-foreground font-semibold border border-dashed rounded-xl bg-muted/20">
-            No payment methods configured. Click "Add Method" to create one.
+            No payment types yet. Tap "Add payment type" to add one.
           </div>
         )}
       </CardContent>

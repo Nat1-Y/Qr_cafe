@@ -30,18 +30,17 @@ const CancelPasswordCard: React.FC<CancelPasswordCardProps> = ({
   return (
     <Card className="transition-shadow">
       <CardHeader className="pb-3 border-b">
-        <CardTitle>Cancel order password</CardTitle>
+        <CardTitle>Manager PIN for cancelling</CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
         {!isOnline && (
           <p className="mb-3 text-xs text-warning font-medium">
-            You're offline. The cancel password can only be changed with an
-            internet connection.
+            No internet. Connect to change the manager PIN for cancelling.
           </p>
         )}
         <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2 md:col-span-1">
-            <Label htmlFor="newCancelPassword">New cancel password</Label>
+            <Label htmlFor="newCancelPassword">New manager PIN</Label>
             <Input
               id="newCancelPassword"
               name="newCancelPassword"
@@ -58,7 +57,7 @@ const CancelPasswordCard: React.FC<CancelPasswordCardProps> = ({
           </div>
 
           <div className="space-y-2 md:col-span-1">
-            <Label htmlFor="confirmCancelPassword">Confirm cancel password</Label>
+            <Label htmlFor="confirmCancelPassword">Type the PIN again</Label>
             <Input
               id="confirmCancelPassword"
               name="confirmCancelPassword"
@@ -76,10 +75,10 @@ const CancelPasswordCard: React.FC<CancelPasswordCardProps> = ({
 
           <div className="md:col-span-2 flex gap-2 pt-1">
             <Button type="submit" disabled={disabled}>
-              {isLoading ? 'Saving…' : 'Update Cancel Password'}
+              {isLoading ? 'Saving…' : 'Save PIN'}
             </Button>
             <Button type="button" variant="outline" onClick={handleReset} disabled={isLoading}>
-              Reset
+              Clear
             </Button>
           </div>
         </form>

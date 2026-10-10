@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { ProfileFormData, PasswordFormData, CancelPasswordFormData, SyncFormData, SyncMetaData } from '../types';
 import { INITIAL_PASSWORD_FORM, INITIAL_CANCEL_PASSWORD_FORM, INITIAL_SYNC_FORM, INITIAL_SYNC_META } from '../constants';
 import { isDesktopRuntime } from '../utils';
+import { friendlyError } from '@/lib/errors';
 
 export const useProfileData = () => {
   const { user, updateProfile, changePassword, getRoleDisplayName, logout } = useAuth();
@@ -82,13 +83,13 @@ export const useProfileData = () => {
     const newErrors: any = {};
     
     if (!formData.full_name.trim()) {
-      newErrors.full_name = 'Full name is required';
+      newErrors.full_name = 'Enter your full name.';
     }
     
     if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
+      newErrors.username = 'Enter a username.';
     } else if (formData.username.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters';
+      newErrors.username = 'Username needs at least 3 letters.';
     }
     
     setErrors(newErrors);
@@ -105,7 +106,7 @@ export const useProfileData = () => {
       const result = await updateProfile(user.id, formData);
       if (result.success) {
         setIsEditing(false);
-        toast.success('Profile updated successfully!');
+        toast.success('Profile saved');
       }
     } catch (error) {
       console.error('Profile update error:', error);
@@ -144,23 +145,23 @@ export const useProfileData = () => {
     const newErrors: any = {};
 
     if (!passwordForm.currentPassword) {
-      newErrors.currentPassword = isWaiter ? 'Current PIN is required' : 'Current password is required';
+      newErrors.currentPassword = isWaiter ? 'Enter your current PIN.' : 'Enter your current password.';
     }
 
     if (!passwordForm.newPassword) {
-      newErrors.newPassword = isWaiter ? 'New PIN is required' : 'New password is required';
+      newErrors.newPassword = isWaiter ? 'Enter a new PIN.' : 'Enter a new password.';
     } else {
       if (isWaiter) {
         if (!/^\d{4}$/.test(passwordForm.newPassword)) {
-          newErrors.newPassword = 'PIN must be exactly 4 digits';
+          newErrors.newPassword = 'PIN must be 4 numbers.';
         }
       } else if (passwordForm.newPassword.length < 6) {
-        newErrors.newPassword = 'Password must be at least 6 characters';
+        newErrors.newPassword = 'Password needs at least 6 characters.';
       }
     }
 
     if (passwordForm.confirmPassword !== passwordForm.newPassword) {
-      newErrors.confirmPassword = isWaiter ? 'PIN confirmation does not match' : 'Password confirmation does not match';
+      newErrors.confirmPassword = isWaiter ? "The two PINs don't match." : "The two passwords don't match.";
     }
 
     setPasswordErrors(newErrors);
@@ -204,13 +205,13 @@ export const useProfileData = () => {
     const newErrors: any = {};
 
     if (!cancelPasswordForm.newCancelPassword) {
-      newErrors.newCancelPassword = 'Cancel password is required';
+      newErrors.newCancelPassword = 'Enter a manager PIN for cancelling.';
     } else if (cancelPasswordForm.newCancelPassword.length < 6) {
-      newErrors.newCancelPassword = 'Cancel password must be at least 6 characters';
+      newErrors.newCancelPassword = 'Manager PIN for cancelling needs at least 6 characters.';
     }
 
     if (cancelPasswordForm.confirmCancelPassword !== cancelPasswordForm.newCancelPassword) {
-      newErrors.confirmCancelPassword = 'Confirmation does not match';
+      newErrors.confirmCancelPassword = "The two entries don't match.";
     }
 
     setCancelPasswordErrors(newErrors);
@@ -228,15 +229,15 @@ export const useProfileData = () => {
       const response = await api.settings.updateCancelPassword(cancelPasswordForm.newCancelPassword);
       const result = (response as any)?.data || {};
       if (result.status === 'success' || result.success === true) {
-        toast.success('Cancel password updated successfully!');
+        toast.success('Manager PIN for cancelling saved');
         setCancelPasswordForm({ newCancelPassword: '', confirmCancelPassword: '' });
         setCancelPasswordErrors({});
       } else {
-        toast.error(result.message || result.error || 'Failed to update cancel password.');
+        toast.error(friendlyError(result, "Couldn't save the manager PIN. Please try again."));
       }
     } catch (error) {
       console.error('Cancel password update error:', error);
-      toast.error('Failed to update cancel password.');
+      toast.error(friendlyError(error, "Couldn't save the manager PIN. Please try again."));
     } finally {
       setIsLoading(false);
     }
@@ -285,13 +286,13 @@ export const useProfileData = () => {
       const response = await api.sync.getRemoteStatus();
       setRemoteStatus((response as any)?.data || null);
       if ((response as any)?.data?.success) {
-        toast.success('Hosted domain is reachable.');
+        toast.success('Connected to your online account.');
       } else {
-        toast.error((response as any)?.data?.error || 'Unable to reach hosted domain.');
+        toast.error(friendlyError((response as any)?.data?.error, "Can't reach the online address. Check it and the internet."));
       }
     } catch (error) {
       console.error('Remote status error:', error);
-      toast.error('Failed to check hosted domain.');
+      toast.error("Couldn't check the connection. Please try again.");
     } finally {
       setSyncBusy('');
     }
@@ -320,10 +321,10 @@ export const useProfileData = () => {
         hasPendingChanges: !!syncData.hasPendingChanges,
       });
       setSyncForm((prev) => ({ ...prev, token: '' }));
-      toast.success('Desktop sync settings saved.');
+      toast.success('Settings saved');
     } catch (error) {
       console.error('Save sync config error:', error);
-      toast.error('Failed to save sync settings.');
+      toast.error("Couldn't save the settings. Please try again.");
     } finally {
       setSyncBusy('');
     }
@@ -337,9 +338,9 @@ export const useProfileData = () => {
         : await api.sync.pullRemote();
       const result = (response as any)?.data || {};
       if (result.success) {
-        toast.success(action === 'push' ? 'Desktop data pushed to hosted domain.' : 'Hosted domain data pulled to desktop.');
+        toast.success(action === 'push' ? 'Updates sent' : 'Latest data downloaded');
       } else {
-        toast.error(result.error || 'Sync action failed.');
+        toast.error(friendlyError(result.error, "Couldn't send updates. Your work is saved. Please try again."));
       }
 
       const configResponse = await api.sync.getConfig();
@@ -355,7 +356,7 @@ export const useProfileData = () => {
       });
     } catch (error) {
       console.error('Sync action error:', error);
-      toast.error('Failed to run sync action.');
+      toast.error("Couldn't send updates. Your work is saved. Please try again.");
     } finally {
       setSyncBusy('');
     }

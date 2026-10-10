@@ -24,7 +24,7 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Employees summary</CardTitle>
+        <CardTitle>Staff summary</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         {loading ? (
@@ -35,10 +35,10 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Employee</TableHead>
+                <TableHead>Staff</TableHead>
                 <TableHead className="text-right">Orders total</TableHead>
                 <TableHead className="text-right">Paid</TableHead>
-                <TableHead className="text-right">Unpaid</TableHead>
+                <TableHead className="text-right">Not paid yet</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -59,8 +59,8 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
                   <TableCell colSpan={4}>
                     <EmptyState
                       icon={<Users />}
-                      title="No employees found"
-                      description="No employee data is available."
+                      title="No staff yet"
+                      description="No orders taken by staff yet."
                     />
                   </TableCell>
                 </TableRow>

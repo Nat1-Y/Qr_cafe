@@ -86,14 +86,14 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
       value: 'set',
       icon: RefreshCw,
       title: 'Set exact quantity',
-      description: 'Replace current stock with a specific amount',
+      description: 'Type how much you have now',
       color: 'bg-info/10 border-info/30 hover:bg-info/15'
     },
     {
       value: 'delta',
       icon: Plus,
-      title: 'Add / subtract',
-      description: 'Increase or decrease current stock',
+      title: 'Add or take away',
+      description: 'Add more, or take some away',
       color: 'bg-success/10 border-success/30 hover:bg-success/15'
     }
   ];
@@ -102,7 +102,7 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
     <Dialog open={qtyDialog} onOpenChange={setQtyDialog}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Update stock quantity</DialogTitle>
+          <DialogTitle>Change stock amount</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="bg-muted/50 p-3 rounded-lg">
@@ -117,7 +117,7 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label>What would you like to do?</Label>
+            <Label>What do you want to do?</Label>
             <div className="grid grid-cols-2 gap-3">
               {modeOptions.map((option) => {
                 const Icon = option.icon;
@@ -152,7 +152,7 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label>Location</Label>
+            <Label>Stock place</Label>
             <select
               value={qtyData.location_id || qtyData.location || ''}
               onChange={e => {
@@ -165,7 +165,7 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
               }}
               className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
             >
-              <option value="">Select location</option>
+              <option value="">Pick a stock place</option>
               {stockLocations
                 .filter((l: StockLocation) => l.active !== false)
                 .map((location: StockLocation) => (
@@ -178,14 +178,14 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
 
           {qtyData.mode === 'delta' ? (
             <div className="space-y-2">
-              <Label>Quantity to add/subtract</Label>
+              <Label>Amount to add or take away</Label>
               <div className="flex items-center gap-2">
                 <Input
                   type="number"
                   step="1"
                   value={displayDelta}
                   onChange={e => handleDeltaChange(e.target.value, currentUnit)}
-                  placeholder="e.g. 5 to add, -2 to subtract"
+                  placeholder="e.g. 5 to add, -2 to take away"
                   className="text-lg"
                 />
                 <select
@@ -200,29 +200,29 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
               <div className="flex gap-4 text-xs">
                 <div className="text-success">
                   <Plus className="inline h-3 w-3 mr-1" />
-                  Enter positive number to add stock
+                  Type a number to add stock
                 </div>
                 <div className="text-destructive">
                   <Minus className="inline h-3 w-3 mr-1" />
-                  Enter negative number to remove stock
+                  Put a minus (-) in front to take stock away
                 </div>
               </div>
               {currentUnit === 'purchase' && piecesPerUnit > 1 && (
                 <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-                  System will record: <strong>{qtyData.delta || 0} {selectedItem?.base_unit || 'pieces'}</strong>
+                  We will save: <strong>{qtyData.delta || 0} {selectedItem?.base_unit || 'pieces'}</strong>
                   <br />
                   (1 {selectedItem?.unit || 'box'} = {piecesPerUnit} {selectedItem?.base_unit || 'pieces'})
                 </div>
               )}
               {displayDelta !== 0 && (
                 <div className="text-sm p-2 bg-muted/50 rounded">
-                  New total will be: <strong>{currentStock + (qtyData.delta ? parseFloat(qtyData.delta) : 0)} {selectedItem?.base_unit || 'pieces'}</strong>
+                  New amount will be: <strong>{currentStock + (qtyData.delta ? parseFloat(qtyData.delta) : 0)} {selectedItem?.base_unit || 'pieces'}</strong>
                 </div>
               )}
             </div>
           ) : (
             <div className="space-y-2">
-              <Label>New total quantity</Label>
+              <Label>New amount</Label>
               <div className="flex items-center gap-2">
                 <Input
                   type="number"
@@ -242,11 +242,11 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
                 </select>
               </div>
               <div className="text-xs text-muted-foreground">
-                This will replace the current stock of {currentStock} {selectedItem?.base_unit || 'pieces'}
+                This replaces the current amount of {currentStock} {selectedItem?.base_unit || 'pieces'}
               </div>
               {currentUnit === 'purchase' && piecesPerUnit > 1 && (
                 <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-                  System will record: <strong>{qtyData.quantity || 0} {selectedItem?.base_unit || 'pieces'}</strong>
+                  We will save: <strong>{qtyData.quantity || 0} {selectedItem?.base_unit || 'pieces'}</strong>
                   <br />
                   (1 {selectedItem?.unit || 'box'} = {piecesPerUnit} {selectedItem?.base_unit || 'pieces'})
                 </div>
@@ -257,7 +257,7 @@ export const InventoryQtyDialog: React.FC<InventoryQtyDialogProps> = ({
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setQtyDialog(false)}>Cancel</Button>
             <Button type="submit">
-              {qtyData.mode === 'delta' ? 'Update Stock' : 'Set Quantity'}
+              {qtyData.mode === 'delta' ? 'Save stock' : 'Save amount'}
             </Button>
           </DialogFooter>
         </form>

@@ -59,7 +59,7 @@ export class RecipesService {
       .limit(1);
 
     if (!recipe) {
-      throw new NotFoundException(`Recipe with ID ${id} not found`);
+      throw new NotFoundException("We couldn't find that recipe.");
     }
 
     const ingredients = await db
@@ -107,7 +107,7 @@ export class RecipesService {
   async create(payload: any) {
     const menuItemId = payload.menu_item_id ? String(payload.menu_item_id) : "";
     if (!menuItemId) {
-      throw new BadRequestException("Valid menu_item_id is required");
+      throw new BadRequestException("Choose a menu item.");
     }
 
     // Verify menu item exists
@@ -117,13 +117,13 @@ export class RecipesService {
       .where(and(eq(menuItems.id, menuItemId), eq(menuItems.branch_id, requireBranchId())))
       .limit(1);
     if (!menuItem) {
-      throw new NotFoundException(`Menu item ${menuItemId} does not exist`);
+      throw new NotFoundException("We couldn't find that menu item.");
     }
 
     // Check if recipe already exists for this menu item
     const existing = await this.findByMenuItemId(menuItemId);
     if (existing) {
-      throw new BadRequestException(`A recipe already exists for menu item ${menuItemId}`);
+      throw new BadRequestException("This menu item already has a recipe.");
     }
 
     const name = String(payload.name || menuItem.name).trim();

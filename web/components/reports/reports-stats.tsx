@@ -65,7 +65,7 @@ export function ReportsStats({
     const to = range.to ? shortDate(range.to) : null;
     if (from && to) return `${from} – ${to}`;
     if (from) return `From ${from}`;
-    if (to) return `Through ${to}`;
+    if (to) return `Up to ${to}`;
     return "";
   }, [range]);
 
@@ -74,9 +74,9 @@ export function ReportsStats({
       <CardContent className="space-y-5 pt-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="eyebrow">Performance</p>
+            <p className="eyebrow">How it&apos;s going</p>
             <h3 className="text-section font-semibold text-foreground">
-              {hasRange ? "Selected range" : PERIOD_LABELS[period]}
+              {hasRange ? "These dates" : PERIOD_LABELS[period]}
             </h3>
           </div>
           {hasRange ? (
@@ -95,15 +95,15 @@ export function ReportsStats({
         </div>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Metric label="Orders" value={stats.totalOrders} subtitle={`${stats.pendingOrders} pending`} />
+          <Metric label="Orders" value={stats.totalOrders} subtitle={`${stats.pendingOrders} waiting`} />
           <Metric
-            label="Paid revenue"
+            label="Money in"
             value={formatETB(stats.paidRevenue || 0)}
             subtitle="Paid orders only"
             accent="success"
           />
-          <Metric label="Paid orders" value={stats.paidOrders} subtitle={`${stats.voidedOrders} voided`} />
-          <Metric label="Avg paid order" value={formatETB(stats.avgPaidOrderValue || 0)} />
+          <Metric label="Paid orders" value={stats.paidOrders} subtitle={`${stats.voidedOrders} cancelled`} />
+          <Metric label="Average paid order" value={formatETB(stats.avgPaidOrderValue || 0)} />
         </div>
       </CardContent>
     </Card>

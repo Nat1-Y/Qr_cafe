@@ -41,7 +41,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user, getRoleDis
           <div className="flex justify-between">
             <span>Account status</span>
             <span className={`font-semibold ${user?.is_active ? 'text-success' : 'text-destructive'}`}>
-              {user?.is_active ? 'Active' : 'Inactive'}
+              {user?.is_active ? 'Active' : 'Not active'}
             </span>
           </div>
           <div className="flex justify-between">

@@ -10,6 +10,8 @@ import {
 } from '@/shared/utils/sessionUser';
 import { syncEngine } from '@/infrastructure/sync/sync-engine';
 import { orderSocket } from '@/infrastructure/realtime/order-socket';
+import { friendlyError } from '@/lib/errors';
+import { humanize } from '@/lib/format';
 
 export interface User {
   id: string | number;
@@ -117,7 +119,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return { success: true, user: userData };
       }
       
-      const message = data.message || data.error || 'Login failed';
+      const message = friendlyError(data, "Couldn't sign in. Please try again.");
       console.log('❌ Login failed:', message);
       if (!silent) {
         toast.error(message);
@@ -125,7 +127,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return { success: false, error: message };
     } catch (error: any) {
       console.error('💥 Login error:', error);
-      const message = error.response?.data?.message || error.response?.data?.error || 'Login failed';
+      const message = friendlyError(error, "Couldn't sign in. Please try again.");
       if (!silent) {
         toast.error(message);
       }
@@ -142,13 +144,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await api.auth.register(userData);
       
       if (response.data.status === 'success') {
-        toast.success('Registration successful! Please login.');
+        toast.success('Account created. Please sign in.');
         return { success: true };
       }
       return { success: false };
     } catch (error: any) {
       console.error('Registration error:', error);
-      const message = error.response?.data?.message || 'Registration failed';
+      const message = friendlyError(error, "Couldn't create the account. Please try again.");
       toast.error(message);
       return { success: false, error: message };
     } finally {
@@ -179,13 +181,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Logout error:', error);
     }
 
-    toast.success('Logged out successfully');
+    toast.success('Signed out');
   };
 
   // Update user profile
   const updateProfile = async (userId: string | number, profileData: any) => {
     if (!isOnline()) {
-      const msg = 'Profile updates are disabled when the application is offline.';
+      const msg = 'No internet. Connect to change your profile.';
       toast.error(msg);
       return { success: false, error: msg };
     }
@@ -196,13 +198,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const updatedUser = response.data.user;
         setUser(updatedUser);
         setSessionUser(updatedUser as SessionUser);
-        toast.success('Profile updated successfully');
+        toast.success('Profile saved');
         return { success: true, user: updatedUser };
       }
-      return { success: false, error: 'Failed' };
+      return { success: false, error: "Couldn't save your profile. Please try again." };
     } catch (error: any) {
       console.error('Profile update error:', error);
-      const message = error.response?.data?.message || 'Profile update failed';
+      const message = friendlyError(error, "Couldn't save your profile. Please try again.");
       toast.error(message);
       return { success: false, error: message };
     }
@@ -210,7 +212,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const changePassword = async (userId: string | number, currentPassword: string, newPassword: string) => {
     if (!isOnline()) {
-      const msg = 'Password/PIN changes are disabled when the application is offline.';
+      const msg = 'No internet. Connect to change your password or PIN.';
       toast.error(msg);
       return { success: false, error: msg };
     }
@@ -223,16 +225,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const data = response?.data || {};
       const isSuccess = data.status === 'success' || data.success === true;
       if (isSuccess) {
-        toast.success(data.message || 'Password updated successfully');
+        toast.success('Password changed');
         return { success: true };
       }
 
-      const message = data.message || data.error || 'Failed to update password';
+      const message = friendlyError(data, "Couldn't change your password. Please try again.");
       toast.error(message);
       return { success: false, error: message };
     } catch (error: any) {
       console.error('Change password error:', error);
-      const message = error.response?.data?.message || error.response?.data?.error || 'Failed to update password';
+      const message = friendlyError(error, "Couldn't change your password. Please try again.");
       toast.error(message);
       return { success: false, error: message };
     }
@@ -256,10 +258,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Get user's role display name
   const getRoleDisplayName = (role: string | undefined = user?.role) => {
     const roleNames: Record<string, string> = {
-      admin: 'Administrator',
-      cashier: 'Cashier'
+      admin: 'Manager',
+      cashier: 'Cashier',
+      fb_manager: 'Food & drinks manager',
+      cafe_waiter: 'Waiter',
+      kitchen_staff: 'Kitchen',
+      owner: 'Owner',
     };
-    return roleNames[role || ''] || role || '';
+    return roleNames[role || ''] || (role ? humanize(role) : '');
   };
 
   // Context value

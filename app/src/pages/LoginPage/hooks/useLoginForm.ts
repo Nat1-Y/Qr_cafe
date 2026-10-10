@@ -82,18 +82,18 @@ export const useLoginForm = (initialPhase: string) => {
 
     if (phase === "pin-entry" || phase === "waiter-username-pin") {
       if (!formData.pin || formData.pin.length !== 4) {
-        newErrors.pin = "Please enter a 4-digit PIN";
+        newErrors.pin = "Enter your 4-number PIN.";
       }
       if (!formData.username.trim()) {
-        newErrors.username = "Username is required";
+        newErrors.username = "Enter your username.";
       }
     } else if (phase === "admin") {
       if (!formData.username.trim()) {
-        newErrors.username = "Username is required";
+        newErrors.username = "Enter your username.";
       }
 
       if (!formData.password) {
-        newErrors.password = "Password is required";
+        newErrors.password = "Enter your password.";
       }
     }
 

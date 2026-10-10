@@ -17,6 +17,7 @@ import { AuthSplitLayout } from "@/components/auth-split-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { friendlyError } from "@/lib/errors";
 
 /**
  * Enrollment QR codes encode the branch's plain enrollment code. Tolerate a
@@ -76,7 +77,7 @@ export default function CashierEnrollPage() {
       if (submitting) return;
       const trimmed = rawCode.trim();
       if (!trimmed) {
-        setError("Please enter the enrollment code.");
+        setError("Enter the setup code.");
         return;
       }
 
@@ -86,9 +87,7 @@ export default function CashierEnrollPage() {
         await enrollDevice(trimmed, deviceName);
         router.replace("/cashier/login");
       } catch (err: any) {
-        const message =
-          err?.message || "Enrollment failed. Check the code and try again.";
-        setError(Array.isArray(message) ? message.join(", ") : message);
+        setError(friendlyError(err, "That code didn't work. Check it and try again."));
       } finally {
         setSubmitting(false);
       }
@@ -115,21 +114,21 @@ export default function CashierEnrollPage() {
 
   return (
     <AuthSplitLayout
-      headline="Link this cashier station to its branch."
-      subline="You only do this once per device. Ask your manager for the QR code or enrollment code.">
+      headline="Link this till to its branch."
+      subline="You only do this once. Ask your manager for the QR code or setup code.">
       {!isOnline && (
         <div className="mb-6 flex items-start gap-3 rounded-card bg-destructive-soft px-4 py-3 text-destructive">
           <WifiOff className="mt-0.5 size-5 shrink-0" />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">No internet connection</p>
-            <p className="mt-0.5 text-meta">Enrolling needs a connection. Connect and try again.</p>
+            <p className="text-sm font-semibold">No internet</p>
+            <p className="mt-0.5 text-meta">Setting up needs internet. Connect and try again.</p>
           </div>
           <button
             onClick={checkConnection}
             disabled={checkingConn}
             className="flex size-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-destructive/10 disabled:opacity-50"
-            title="Retry connection"
-            aria-label="Retry connection">
+            title="Try again"
+            aria-label="Try again">
             <RefreshCw className={`size-4 ${checkingConn ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -139,7 +138,7 @@ export default function CashierEnrollPage() {
         <p className="eyebrow mb-1">First-time setup</p>
         <h1 className="text-title text-foreground">Set up this device</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Scan the QR code from your administrator, or type the enrollment code.
+          Scan the QR code from your manager, or type the setup code.
         </p>
       </div>
 
@@ -150,7 +149,7 @@ export default function CashierEnrollPage() {
               onScan={handleScan}
               onError={() =>
                 setError(
-                  "Couldn't access the camera. Allow camera access or enter the code manually.",
+                  "Can't open the camera. Allow the camera, or type the code.",
                 )
               }
               formats={["qr_code"]}
@@ -188,7 +187,7 @@ export default function CashierEnrollPage() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="enrollment-code">Enrollment code</Label>
+          <Label htmlFor="enrollment-code">Setup code</Label>
           <Input
             id="enrollment-code"
             type="text"
@@ -229,10 +228,10 @@ export default function CashierEnrollPage() {
           {submitting ? (
             <>
               <Loader2 className="animate-spin" />
-              Enrolling…
+              Setting up…
             </>
           ) : (
-            "Enroll device"
+            "Set up this device"
           )}
         </Button>
       </form>

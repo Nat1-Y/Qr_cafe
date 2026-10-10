@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { formatOrderNumber } from "@/lib/utils";
 import { cashierServices } from "@/lib/cashier/api";
+import { friendlyError } from "@/lib/errors";
 
 interface AddItemsToOrderDialogProps {
   order: any;
@@ -59,7 +60,7 @@ export const AddItemsToOrderDialog: React.FC<AddItemsToOrderDialogProps> = ({
           payload?.data?.menuItems ?? payload?.menuItems ?? payload?.data ?? [];
         setMenuItems(Array.isArray(items) ? items : []);
       } catch {
-        toast.error("Failed to load menu items");
+        toast.error("Couldn't load the menu. Please try again.");
       } finally {
         setMenuLoading(false);
       }
@@ -139,7 +140,7 @@ export const AddItemsToOrderDialog: React.FC<AddItemsToOrderDialogProps> = ({
       const message =
         err?.response?.status === 403
           ? "Only the staff member who created this order can add items to it."
-          : err?.message || "Failed to add items. Please try again.";
+          : friendlyError(err, "Couldn't add the items. Please try again.");
       toast.error(message);
     } finally {
       setSaving(false);
@@ -160,7 +161,7 @@ export const AddItemsToOrderDialog: React.FC<AddItemsToOrderDialogProps> = ({
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search menu..."
+              placeholder="Search the menu"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full h-9 pl-8 pr-3 text-sm rounded-md border bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -170,11 +171,11 @@ export const AddItemsToOrderDialog: React.FC<AddItemsToOrderDialogProps> = ({
           <div className="max-h-52 overflow-y-auto space-y-1 border rounded-md p-1.5">
             {menuLoading ? (
               <div className="flex items-center justify-center py-6 text-muted-foreground text-xs gap-1.5">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading menu...
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading the menu…
               </div>
             ) : filteredMenuItems.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-6">
-                No items found
+                Nothing matches. Try another word.
               </p>
             ) : (
               filteredMenuItems.map((m: any) => (
@@ -240,7 +241,7 @@ export const AddItemsToOrderDialog: React.FC<AddItemsToOrderDialogProps> = ({
             Cancel
           </Button>
           <Button onClick={save} disabled={saving || pendingItems.length === 0}>
-            {saving ? "Saving..." : "Save"}
+            {saving ? "Saving…" : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>

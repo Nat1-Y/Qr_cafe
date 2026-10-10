@@ -16,7 +16,7 @@ export default function AppUpdateSettings() {
     <div className="space-y-6 p-4 md:p-8">
       <PageHeader
         title="App updates"
-        description="Check for and install the latest version of the desktop app."
+        description="Get the newest version of the Buna app."
       />
 
       <Card className="max-w-xl">
@@ -46,7 +46,7 @@ export default function AppUpdateSettings() {
           {!isDesktop && (
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
               <AlertTriangle className="h-4 w-4" />
-              Updates are only available in the installed desktop app.
+              Updates only work in the installed Buna app.
             </p>
           )}
 

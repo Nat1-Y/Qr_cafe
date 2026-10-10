@@ -30,6 +30,7 @@ import {
 import { NormalizedInventoryItem, StockLocation, StockTransfer, InventoryMovement } from '../types';
 import api from '@/application';
 import { humanize } from '@/lib/format';
+import { formatOrderNumber } from '@/lib/utils';
 
 interface StockLocationsTabProps {
   items: NormalizedInventoryItem[];
@@ -82,7 +83,7 @@ const StockByLocationGrid: React.FC<{
     return (
       <div className="text-center py-12 text-muted-foreground">
         <MapPin className="mx-auto h-10 w-10 mb-2 opacity-40" />
-        <p className="text-sm">No stock locations configured.</p>
+        <p className="text-sm">No stock places set up yet.</p>
       </div>
     );
   }
@@ -181,11 +182,11 @@ const StockByLocationGrid: React.FC<{
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-3 h-3 rounded bg-destructive/20" />
-          Below minimum
+          Running low
         </span>
         <span className="flex items-center gap-1.5">
           <AlertTriangle className="h-3 w-3 text-destructive" />
-          Low stock alert
+          Running low
         </span>
       </div>
     </div>
@@ -221,7 +222,7 @@ const TransferHistoryPanel: React.FC<{
     return (
       <div className="text-center py-12 text-muted-foreground">
         <History className="mx-auto h-10 w-10 mb-2 opacity-40" />
-        <p className="text-sm">No stock transfers recorded yet.</p>
+        <p className="text-sm">No stock moved yet.</p>
       </div>
     );
   }
@@ -281,9 +282,9 @@ const TransferHistoryPanel: React.FC<{
               <TableHead>Date</TableHead>
               <TableHead>From → to</TableHead>
               <TableHead>Item</TableHead>
-              <TableHead className="text-right">Transferred</TableHead>
-              <TableHead className="text-right">Source qty after</TableHead>
-              <TableHead className="text-right">Dest qty after</TableHead>
+              <TableHead className="text-right">Moved</TableHead>
+              <TableHead className="text-right">Left in &quot;from&quot;</TableHead>
+              <TableHead className="text-right">Left in &quot;to&quot;</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -313,7 +314,7 @@ const TransferHistoryPanel: React.FC<{
                     </TableCell>
                   ) : null}
                   <TableCell className="text-sm font-medium">
-                    {item?.name ?? `Item #${row.transfer.items?.[0]?.inventory_item_id}`}
+                    {item?.name ?? 'Stock item'}
                   </TableCell>
                   <TableCell className="text-right">
                     {baseQty != null ? (
@@ -413,7 +414,8 @@ const TransferHistoryPanel: React.FC<{
 ──────────────────────────────────────────────────────────── */
 const OrderDeductionPanel: React.FC<{
   items: NormalizedInventoryItem[];
-}> = ({ items }) => {
+  stockLocations: StockLocation[];
+}> = ({ items, stockLocations }) => {
   const [movements, setMovements] = useState<(InventoryMovement & { item_name: string; item: NormalizedInventoryItem })[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(false);
@@ -483,7 +485,7 @@ const OrderDeductionPanel: React.FC<{
     return (
       <div className="text-center py-12 text-muted-foreground">
         <RefreshCw className="mx-auto h-8 w-8 mb-2 animate-spin opacity-50" />
-        <p className="text-sm">Loading order deductions…</p>
+        <p className="text-sm">Loading stock used by orders…</p>
       </div>
     );
   }
@@ -492,7 +494,7 @@ const OrderDeductionPanel: React.FC<{
     return (
       <div className="text-center py-12 text-muted-foreground space-y-2">
         <ShoppingCart className="mx-auto h-10 w-10 opacity-40" />
-        <p className="text-sm">No order deductions recorded yet.</p>
+        <p className="text-sm">No stock used by orders yet.</p>
         <Button variant="ghost" size="sm" onClick={loadMovements}>Refresh</Button>
       </div>
     );
@@ -501,7 +503,7 @@ const OrderDeductionPanel: React.FC<{
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{totalCount} total deductions</p>
+        <p className="text-sm text-muted-foreground">{totalCount} in total</p>
         <Button variant="ghost" size="sm" className="h-7 gap-1.5" onClick={loadMovements}>
           <RefreshCw className="h-3.5 w-3.5" /> Refresh
         </Button>
@@ -512,12 +514,12 @@ const OrderDeductionPanel: React.FC<{
           <TableHeader>
             <TableRow>
               <TableHead>Date & time</TableHead>
-              <TableHead>Inventory item</TableHead>
+              <TableHead>Stock item</TableHead>
               <TableHead>Menu item</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead className="text-right">Deducted (base/purchase)</TableHead>
-              <TableHead className="text-right">Remaining (base/purchase)</TableHead>
-              <TableHead>Order ID</TableHead>
+              <TableHead>Stock place</TableHead>
+              <TableHead className="text-right">Used (small / buying unit)</TableHead>
+              <TableHead className="text-right">Left (small / buying unit)</TableHead>
+              <TableHead>Order</TableHead>
               <TableHead>By</TableHead>
             </TableRow>
           </TableHeader>
@@ -532,7 +534,9 @@ const OrderDeductionPanel: React.FC<{
                   {m.menu_item_name || '—'}
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {m.location_name || (m.location_id ? `#${m.location_id}` : '—')}
+                  {m.location_name ||
+                    stockLocations.find((l) => String(l.id) === String(m.location_id))?.name ||
+                    '—'}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="text-sm">
@@ -559,7 +563,9 @@ const OrderDeductionPanel: React.FC<{
                   </div>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {m.order_id ? `#${m.order_id}` : '—'}
+                  {m.order_id
+                    ? formatOrderNumber({ order_number: (m as { order_number?: number | null }).order_number, id: String(m.order_id) })
+                    : '—'}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {m.user_name ?? '—'}
@@ -574,7 +580,7 @@ const OrderDeductionPanel: React.FC<{
       {totalPages >= 0 && (
         <div className="flex items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground">
-            Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of {totalCount} deductions
+            Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of {totalCount} entries
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -663,7 +669,7 @@ export const StockLocationsTab: React.FC<StockLocationsTabProps> = ({
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-2 text-info mb-1">
               <MapPin className="h-4 w-4" />
-              <span className="text-xs font-medium">Locations</span>
+              <span className="text-xs font-medium">Stock places</span>
             </div>
             <p className="text-2xl font-semibold">{totalLocations}</p>
           </CardContent>
@@ -672,7 +678,7 @@ export const StockLocationsTab: React.FC<StockLocationsTabProps> = ({
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-2 text-warning mb-1">
               <History className="h-4 w-4" />
-              <span className="text-xs font-medium">Pending transfers</span>
+              <span className="text-xs font-medium">Moves not received yet</span>
             </div>
             <p className="text-2xl font-semibold">{pendingTransfers}</p>
           </CardContent>
@@ -684,21 +690,21 @@ export const StockLocationsTab: React.FC<StockLocationsTabProps> = ({
         <TabsList className="w-full sm:w-auto">
           <TabsTrigger value="transfers" className="flex items-center gap-1.5">
             <History className="h-3.5 w-3.5" />
-            Transfer history
+            Stock moves
             {pendingTransfers > 0 && (
               <Badge variant="secondary" className="ml-1">{pendingTransfers}</Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="deductions" className="flex items-center gap-1.5">
             <ShoppingCart className="h-3.5 w-3.5" />
-            Order deductions
+            Stock used by orders
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="transfers" className="mt-4">
           <Card>
             <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <CardTitle>Transfer history</CardTitle>
+              <CardTitle>Stock moves</CardTitle>
               <span className="text-xs text-muted-foreground">{transferTotalCount} total</span>
             </CardHeader>
             <CardContent>
@@ -721,13 +727,13 @@ export const StockLocationsTab: React.FC<StockLocationsTabProps> = ({
         <TabsContent value="deductions" className="mt-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle>Order deduction history</CardTitle>
+              <CardTitle>Stock used by orders</CardTitle>
               <p className="text-xs text-muted-foreground mt-1">
-                Inventory quantities deducted when orders were fulfilled.
+                Stock that was used up when orders were made.
               </p>
             </CardHeader>
             <CardContent>
-              <OrderDeductionPanel items={items} />
+              <OrderDeductionPanel items={items} stockLocations={stockLocations} />
             </CardContent>
           </Card>
         </TabsContent>

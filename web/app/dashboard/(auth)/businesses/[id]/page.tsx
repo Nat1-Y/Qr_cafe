@@ -37,6 +37,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api";
 import { impersonateOwner, roleLabel } from "@/lib/auth";
 import { formatETB, humanize } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
 
 type Branch = { id: string; name: string; slug: string; is_active: boolean };
 type User = {
@@ -73,11 +74,11 @@ type Business = {
 // Roles a super admin may create here. Branch-scoped roles require a branch.
 const BRANCH_SCOPED_ROLES = ["cashier", "kitchen_staff", "cafe_waiter"];
 const ROLE_OPTIONS = [
-  { value: "owner", label: "Owner (business-wide)" },
-  { value: "admin", label: "Admin (business-wide)" },
-  { value: "cashier", label: "Cashier (branch)" },
-  { value: "kitchen_staff", label: "Kitchen staff (branch)" },
-  { value: "cafe_waiter", label: "Waiter (branch)" },
+  { value: "owner", label: `${roleLabel("owner")} (all branches)` },
+  { value: "admin", label: `${roleLabel("admin")} (all branches)` },
+  { value: "cashier", label: `${roleLabel("cashier")} (one branch)` },
+  { value: "kitchen_staff", label: `${roleLabel("kitchen_staff")} (one branch)` },
+  { value: "cafe_waiter", label: `${roleLabel("cafe_waiter")} (one branch)` },
 ];
 
 export default function BusinessDetailPage() {
@@ -102,7 +103,7 @@ export default function BusinessDetailPage() {
   function load() {
     return apiFetch<Business>(`/platform/businesses/${id}`)
       .then(setBiz)
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }
 
@@ -124,14 +125,14 @@ export default function BusinessDetailPage() {
       toast.success("Branch added");
       await load();
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(friendlyError(err));
     } finally {
       setBusy(false);
     }
   }
 
   async function deleteBranch(branchId: string, name: string) {
-    if (!confirm(`Delete branch "${name}"? This removes its devices and cannot be undone.`)) return;
+    if (!confirm(`Delete branch "${name}"? Its devices are removed too. You can't undo this.`)) return;
     setBusy(true);
     try {
       await apiFetch(`/platform/businesses/${id}/branches/${branchId}`, {
@@ -140,7 +141,7 @@ export default function BusinessDetailPage() {
       toast.success("Branch deleted");
       await load();
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(friendlyError(err));
     } finally {
       setBusy(false);
     }
@@ -150,7 +151,7 @@ export default function BusinessDetailPage() {
     if (!biz) return;
     if (
       !confirm(
-        `Delete "${biz.name}"? This permanently removes the business, its ${biz.branches.length} branch(es) and all of its staff. This cannot be undone.`,
+        `Delete "${biz.name}"? This deletes the business, its ${biz.branches.length} branch(es) and all its staff for good. You can't undo this.`,
       )
     )
       return;
@@ -160,7 +161,7 @@ export default function BusinessDetailPage() {
       toast.success("Business deleted");
       router.push("/dashboard/businesses");
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(friendlyError(err));
       setBusy(false);
     }
   }
@@ -173,7 +174,7 @@ export default function BusinessDetailPage() {
       toast.success(`Signed in as ${biz.owner.username ?? biz.owner.name}`);
       router.push("/dashboard/home");
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(friendlyError(err));
       setBusy(false);
     }
   }
@@ -186,10 +187,10 @@ export default function BusinessDetailPage() {
         method: "PATCH",
         body: JSON.stringify({ is_active: !biz.is_active }),
       });
-      toast.success(biz.is_active ? "Business suspended" : "Business activated");
+      toast.success(biz.is_active ? "Business paused" : "Business turned on");
       await load();
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(friendlyError(err));
     } finally {
       setBusy(false);
     }
@@ -200,11 +201,11 @@ export default function BusinessDetailPage() {
   async function submitUser(e: React.FormEvent) {
     e.preventDefault();
     if (!form.username.trim() || form.password.length < 4) {
-      toast.error("Username and a password of 4+ characters are required");
+      toast.error("Enter a username and a password with at least 4 characters.");
       return;
     }
     if (roleNeedsBranch && !form.branch_id) {
-      toast.error("This role must be assigned to a branch");
+      toast.error("Pick a branch for this role.");
       return;
     }
     setSavingUser(true);
@@ -220,12 +221,12 @@ export default function BusinessDetailPage() {
           role: form.role,
         }),
       });
-      toast.success(`User "${form.username.trim()}" created`);
+      toast.success(`User "${form.username.trim()}" added`);
       setAddUserOpen(false);
       setForm({ name: "", username: "", password: "", role: "cashier", branch_id: "" });
       await load();
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(friendlyError(err));
     } finally {
       setSavingUser(false);
     }
@@ -238,24 +239,24 @@ export default function BusinessDetailPage() {
         method: "PATCH",
         body: JSON.stringify({ is_active: !u.is_active }),
       });
-      toast.success(u.is_active ? "User disabled" : "User enabled");
+      toast.success(u.is_active ? "User turned off" : "User turned on");
       await load();
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(friendlyError(err));
     } finally {
       setBusy(false);
     }
   }
 
   async function deleteUser(u: User) {
-    if (!confirm(`Delete user "${u.username ?? u.name}"? This cannot be undone.`)) return;
+    if (!confirm(`Delete user "${u.username ?? u.name}"? You can't undo this.`)) return;
     setBusy(true);
     try {
       await apiFetch(`/platform/users/${u.id}`, { method: "DELETE" });
       toast.success("User deleted");
       await load();
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(friendlyError(err));
     } finally {
       setBusy(false);
     }
@@ -275,7 +276,6 @@ export default function BusinessDetailPage() {
           </Button>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">{biz.name}</h1>
-            <p className="text-muted-foreground text-sm">{biz.slug}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -283,15 +283,15 @@ export default function BusinessDetailPage() {
             variant="outline"
             onClick={loginAsOwner}
             disabled={busy || !biz.owner}
-            title={!biz.owner ? "This business has no owner account yet" : undefined}>
+            title={!biz.owner ? "This business has no owner account yet." : undefined}>
             <LogInIcon />
-            Log in as owner
+            Sign in as owner
           </Button>
           <Button
             variant={biz.is_active ? "outline" : "default"}
             onClick={toggleActive}
             disabled={busy}>
-            {biz.is_active ? "Suspend" : "Activate"}
+            {biz.is_active ? "Pause" : "Turn on"}
           </Button>
           <Button variant="destructive" onClick={deleteBusiness} disabled={busy}>
             <Trash2Icon />
@@ -309,7 +309,7 @@ export default function BusinessDetailPage() {
           sub={`${biz.stats.orders_today.toLocaleString()} today`}
         />
         <StatCard
-          label="Revenue"
+          label="Money in"
           icon={BanknoteIcon}
           value={formatETB(biz.stats.revenue)}
           sub={`${formatETB(biz.stats.revenue_today)} today`}
@@ -333,7 +333,7 @@ export default function BusinessDetailPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-muted-foreground">Plan</CardTitle>
+            <CardTitle className="text-muted-foreground">Package</CardTitle>
           </CardHeader>
           <CardContent className="text-lg font-medium">{humanize(biz.plan)}</CardContent>
         </Card>
@@ -353,7 +353,7 @@ export default function BusinessDetailPage() {
       <Card>
         <CardHeader>
           <CardTitle>Branches</CardTitle>
-          <CardDescription>Each branch is an independent POS install.</CardDescription>
+          <CardDescription>Each branch has its own tills.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={addBranch} className="flex gap-2">
@@ -381,10 +381,9 @@ export default function BusinessDetailPage() {
                   </div>
                   <div className="flex-1">
                     <div className="font-medium">{br.name}</div>
-                    <div className="text-muted-foreground text-xs">{br.slug}</div>
                   </div>
                   <span className="text-muted-foreground text-xs">
-                    {br.is_active ? "Active" : "Inactive"}
+                    {br.is_active ? "Active" : "Not active"}
                   </span>
                   <Button
                     variant="ghost"
@@ -414,7 +413,7 @@ export default function BusinessDetailPage() {
             disabled={busy || biz.branches.length === 0}
             title={
               biz.branches.length === 0
-                ? "Add a branch before creating staff"
+                ? "Add a branch before you add staff"
                 : undefined
             }>
             <UserPlusIcon />
@@ -440,17 +439,17 @@ export default function BusinessDetailPage() {
                     {roleLabel(u.role)}
                   </Badge>
                   <span className="text-muted-foreground hidden text-xs sm:inline">
-                    {u.branch_name ?? "Business-wide"}
+                    {u.branch_name ?? "All branches"}
                   </span>
                   <Badge variant={u.is_active ? "success" : "muted"}>
-                    {u.is_active ? "Active" : "Disabled"}
+                    {u.is_active ? "Active" : "Turned off"}
                   </Badge>
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={busy}
                     onClick={() => toggleUser(u)}>
-                    {u.is_active ? "Disable" : "Enable"}
+                    {u.is_active ? "Turn off" : "Turn on"}
                   </Button>
                   <Button
                     variant="ghost"
@@ -488,7 +487,7 @@ export default function BusinessDetailPage() {
                   value={form.username}
                   onChange={(e) => setForm({ ...form, username: e.target.value })}
                   autoComplete="off"
-                  placeholder="login name"
+                  placeholder="Name they sign in with"
                 />
               </div>
               <div className="space-y-1.5">
@@ -498,7 +497,7 @@ export default function BusinessDetailPage() {
                   autoComplete="new-password"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="min 4 characters"
+                  placeholder="At least 4 characters"
                 />
               </div>
             </div>
@@ -525,7 +524,7 @@ export default function BusinessDetailPage() {
                   disabled={!roleNeedsBranch}
                   value={form.branch_id}
                   onChange={(e) => setForm({ ...form, branch_id: e.target.value })}>
-                  <option value="">Select branch…</option>
+                  <option value="">Pick a branch</option>
                   {biz.branches.map((br) => (
                     <option key={br.id} value={br.id}>
                       {br.name}
@@ -542,7 +541,7 @@ export default function BusinessDetailPage() {
                 Cancel
               </Button>
               <Button type="submit" disabled={savingUser}>
-                {savingUser ? "Creating…" : "Create user"}
+                {savingUser ? "Adding…" : "Add user"}
               </Button>
             </DialogFooter>
           </form>

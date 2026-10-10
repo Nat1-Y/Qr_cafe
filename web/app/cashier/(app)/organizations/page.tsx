@@ -15,6 +15,7 @@ import { formatETB } from "@/lib/format";
 import { SearchInput } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cashierServices } from "@/lib/cashier/api";
+import { formatOrderNumber } from "@/lib/utils";
 
 type PaymentFilter = "active" | "paid" | "all";
 
@@ -85,7 +86,7 @@ export default function CashierOrganizationOrdersPage() {
       );
       setOrders(merged);
     } catch {
-      toast.error("Failed to load organization orders");
+      toast.error("Couldn't load company orders. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -116,8 +117,8 @@ export default function CashierOrganizationOrdersPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-8">
       <PageHeader
-        title="Organization orders"
-        description={`${activeCount} open · billed to the organization's credit account, not paid in cash. Only the owner can confirm one.`}
+        title="Company account orders"
+        description={`${activeCount} open · the company pays later, not in cash now. Only the owner can mark one as paid.`}
         action={
           <>
             <Button variant="outline" onClick={load} disabled={loading}>
@@ -137,7 +138,7 @@ export default function CashierOrganizationOrdersPage() {
         <CardContent className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
             <SearchInput
-              placeholder="Order #, organization or customer"
+              placeholder="Order number, company or customer"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               wrapperClassName="w-full sm:max-w-xs"
@@ -148,7 +149,7 @@ export default function CashierOrganizationOrdersPage() {
               onChange={(e) => setOrgFilter(e.target.value)}
               className="h-10 rounded-full border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50"
             >
-              <option value="all">All organizations</option>
+              <option value="all">All companies</option>
               {organizations.map((org) => (
                 <option key={org.id} value={String(org.id)}>
                   {org.name}
@@ -174,7 +175,7 @@ export default function CashierOrganizationOrdersPage() {
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <p className="py-12 text-center text-sm text-muted-foreground">No organization orders match these filters.</p>
+            <p className="py-12 text-center text-sm text-muted-foreground">No company orders match. Try other filters.</p>
           ) : (
             <div className="space-y-3">
               {filtered.map((order) => (
@@ -185,7 +186,7 @@ export default function CashierOrganizationOrdersPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-xs font-semibold text-foreground">
-                        #{order.order_number ?? String(order.id).slice(0, 8)}
+                        {formatOrderNumber(order)}
                         <span className="ml-2 font-medium text-muted-foreground">
                           {order.__orgName}
                         </span>
@@ -211,7 +212,7 @@ export default function CashierOrganizationOrdersPage() {
                       </span>
                       {isOrderUnpaid(order) ? (
                         <Badge variant="warning">
-                          Awaiting owner
+                          Waiting for owner
                         </Badge>
                       ) : (
                         <Badge variant="success">

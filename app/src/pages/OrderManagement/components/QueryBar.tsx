@@ -38,7 +38,7 @@ export const QueryBar: React.FC<QueryBarProps> = ({
         <div className="md:col-span-2">
           <Label className="mb-1.5 block">Search orders</Label>
           <SearchInput
-              placeholder="Search by order ID, table, or waiter..."
+              placeholder="Search by order number, table or waiter"
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)} />
         </div>
@@ -53,17 +53,17 @@ export const QueryBar: React.FC<QueryBarProps> = ({
               <SelectItem value="all">All statuses</SelectItem>
               {useDerivedStatus ? (
                 <>
-                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="pending">Waiting</SelectItem>
                   <SelectItem value="paid">Paid</SelectItem>
-                  <SelectItem value="voided">Voided</SelectItem>
+                  <SelectItem value="voided">Cancelled</SelectItem>
                 </>
               ) : (
                 <>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="preparing">Preparing</SelectItem>
+                  <SelectItem value="pending">Waiting</SelectItem>
+                  <SelectItem value="preparing">Being made</SelectItem>
                   <SelectItem value="ready">Ready</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="voided">Voided</SelectItem>
+                  <SelectItem value="completed">Done</SelectItem>
+                  <SelectItem value="voided">Cancelled (after paying)</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </>
               )}

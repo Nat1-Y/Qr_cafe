@@ -31,6 +31,7 @@ import { PageHeader } from "@/components/page-header";
 import { StatCards, type StatCard } from "@/components/stat-cards";
 import { Inventory, StockLocations } from "@/lib/resources";
 import { shortDate, humanize } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
 
 type Line = { inventory_item_id: string; quantity: string };
 type TransferItem = {
@@ -66,7 +67,7 @@ const STATUS_BADGE: Record<string, "success" | "warning" | "destructive" | "mute
 };
 
 const STATUS_LABEL: Record<string, string> = {
-  sent: "Awaiting receipt",
+  sent: "Not received yet",
   received: "Received",
   cancelled: "Cancelled",
 };
@@ -110,7 +111,7 @@ export default function TransfersPage() {
         setCount(res.count);
         setStats(res.stats as Record<string, number>);
       })
-      .catch((e: any) => toast.error(e.message))
+      .catch((e: any) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, [page, debouncedSearch, statusFilter]);
 
@@ -124,7 +125,7 @@ export default function TransfersPage() {
         setLocations(l);
         setItems(i);
       })
-      .catch((e: any) => toast.error(e.message));
+      .catch((e: any) => toast.error(friendlyError(e)));
   }, []);
 
   async function submit() {
@@ -132,28 +133,28 @@ export default function TransfersPage() {
       .filter((l) => l.inventory_item_id && Number(l.quantity) > 0)
       .map((l) => ({ inventory_item_id: l.inventory_item_id, quantity: Number(l.quantity) }));
     if (!from || !to || validLines.length === 0) {
-      toast.error("Pick locations and at least one item.");
+      toast.error("Pick both places and at least one item.");
       return;
     }
     try {
       await Inventory.createTransfer({ from_location_id: from, to_location_id: to, items: validLines });
-      toast.success("Transfer created");
+      toast.success("Stock moved");
       setOpen(false);
       setLines([{ inventory_item_id: "", quantity: "" }]);
       setFrom("");
       setTo("");
       await reload();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
   const cards: StatCard[] = [
-    { label: "Total transfers", value: stats.total ?? 0, icon: ArrowLeftRightIcon },
+    { label: "Total stock moves", value: stats.total ?? 0, icon: ArrowLeftRightIcon },
     {
-      label: "Awaiting receipt",
+      label: "Not received yet",
       value: stats.sent ?? 0,
-      hint: "Sent, not yet received",
+      hint: "Sent, not received yet",
       icon: ClockIcon,
       valueClass: "text-warning",
     },
@@ -166,7 +167,7 @@ export default function TransfersPage() {
     {
       label: "Units moved",
       value: (stats.total_quantity ?? 0).toLocaleString(),
-      hint: "All-time volume",
+      hint: "Since you started",
       icon: PackageIcon,
     },
   ];
@@ -174,7 +175,7 @@ export default function TransfersPage() {
   const columns: Column<Transfer>[] = [
     {
       key: "route",
-      label: "Route",
+      label: "From → to",
       searchValue: (t) => `${t.from_location_name ?? ""} ${t.to_location_name ?? ""}`,
       render: (t) => (
         <div className="flex items-center gap-1.5 font-medium">
@@ -238,19 +239,19 @@ export default function TransfersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Stock transfers"
-        description="Move stock between locations — every transfer keeps the exact balance left at each end."
+        title="Move stock"
+        description="Move stock between places. We keep how much is left in each place."
         action={
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild>
               <Link href="/dashboard/inventory/links">
                 <Link2Icon />
-                Item links
+                Pack contents
               </Link>
             </Button>
             <Button onClick={() => setOpen(true)}>
               <PlusIcon />
-              New transfer
+              Move stock
             </Button>
           </div>
         }
@@ -262,7 +263,7 @@ export default function TransfersPage() {
         columns={columns}
         rows={transfers}
         loading={loading}
-        searchPlaceholder="Search by location or notes…"
+        searchPlaceholder="Search by place or notes"
         server={{
           total: count,
           page,
@@ -274,13 +275,13 @@ export default function TransfersPage() {
             if (key === "status") setStatusFilter(value);
           },
         }}
-        emptyMessage="No transfers yet."
+        emptyMessage="No stock moved yet."
         filters={[
           {
             key: "status",
             label: "Status",
             options: [
-              { value: "sent", label: "Awaiting receipt" },
+              { value: "sent", label: "Not received yet" },
               { value: "received", label: "Received" },
               { value: "cancelled", label: "Cancelled" },
             ],
@@ -299,7 +300,7 @@ export default function TransfersPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New transfer</DialogTitle>
+            <DialogTitle>Move stock</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -347,7 +348,7 @@ export default function TransfersPage() {
                           next[idx].inventory_item_id = e.target.value;
                           setLines(next);
                         }}>
-                        <option value="">Select item…</option>
+                        <option value="">Pick an item</option>
                         {items.map((i) => (
                           <option key={i.id} value={i.id}>{i.name}</option>
                         ))}
@@ -372,7 +373,7 @@ export default function TransfersPage() {
                     </div>
                     {link && (
                       <p className="text-xs text-primary">
-                        Linked item — received as{" "}
+                        Pack — the other place gets{" "}
                         <strong>{link.target_item_name ?? "linked item"}</strong>
                         {received > 0 ? <> (+{received})</> : <> (×{linkFactor})</>}
                       </p>
@@ -385,13 +386,13 @@ export default function TransfersPage() {
                 size="sm"
                 onClick={() => setLines([...lines, { inventory_item_id: "", quantity: "" }])}>
                 <PlusIcon />
-                Add line
+                Add item
               </Button>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={submit}>Create transfer</Button>
+            <Button onClick={submit}>Move stock</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

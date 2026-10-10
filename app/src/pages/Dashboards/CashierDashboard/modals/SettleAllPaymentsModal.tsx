@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import api from '@/application';
 import toast from 'react-hot-toast';
+import { humanize } from '@/lib/format';
 
 interface PaymentMethodOption {
   id: number;
@@ -64,10 +65,10 @@ const SettleAllPaymentsModal: React.FC<SettleAllPaymentsModalProps> = ({
         if (active.length > 0 && !active.some((m: any) => m.name === paymentMethod)) {
           setPaymentMethod(active[0].name);
         } else if (active.length === 0) {
-          toast.error('No active payment methods. Please contact an administrator.');
+          toast.error('No payment types are set up. Ask your manager.');
         }
       } catch {
-        toast.error('Failed to load payment methods');
+        toast.error("Couldn't load payment types. Please try again.");
       } finally {
         setLoadingMethods(false);
       }
@@ -76,7 +77,7 @@ const SettleAllPaymentsModal: React.FC<SettleAllPaymentsModalProps> = ({
 
   const selectedMethodLabel =
     paymentMethods.find((method) => method.name === paymentMethod)?.display_name ||
-    paymentMethod.replace('_', ' ');
+    humanize(paymentMethod);
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!isProcessing) onOpenChange(o); }}>
@@ -85,7 +86,7 @@ const SettleAllPaymentsModal: React.FC<SettleAllPaymentsModalProps> = ({
           <p className="eyebrow">Charge all</p>
           <DialogTitle className="text-[22px] leading-tight">{employeeName || 'Every order shown'}</DialogTitle>
           <DialogDescription>
-            {count} {count === 1 ? 'order' : 'orders'} will be marked paid. This can&apos;t be undone.
+            {count} {count === 1 ? 'order' : 'orders'} will be marked paid. You can&apos;t undo this.
           </DialogDescription>
         </DialogHeader>
 
@@ -104,9 +105,9 @@ const SettleAllPaymentsModal: React.FC<SettleAllPaymentsModalProps> = ({
                 ))}
               </div>
             ) : paymentMethods.length === 0 ? (
-              <p className="text-meta text-muted-foreground">No payment methods are set up yet.</p>
+              <p className="text-meta text-muted-foreground">No payment types are set up yet.</p>
             ) : (
-              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Payment method">
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Paid with">
                 {paymentMethods.map((method) => {
                   const selected = method.name === paymentMethod;
                   return (
@@ -126,14 +127,14 @@ const SettleAllPaymentsModal: React.FC<SettleAllPaymentsModalProps> = ({
               </div>
             )}
             <p className="mt-2 text-meta text-muted-foreground">
-              Each order is recorded as {selectedMethodLabel} in the payment history.
+              Each order is saved as paid with {selectedMethodLabel}.
             </p>
           </div>
 
           {progress ? (
             <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-              Settling {progress.done} of {progress.total}…
+              Paying {progress.done} of {progress.total}…
             </p>
           ) : null}
         </div>
@@ -153,7 +154,7 @@ const SettleAllPaymentsModal: React.FC<SettleAllPaymentsModalProps> = ({
             {isProcessing ? (
               <>
                 <RefreshCw className="animate-spin" />
-                Settling…
+                Paying…
               </>
             ) : (
               `Charge ${count} ${count === 1 ? 'order' : 'orders'}`

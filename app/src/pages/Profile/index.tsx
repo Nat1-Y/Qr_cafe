@@ -50,7 +50,7 @@ export const Profile: React.FC = () => {
           isWaiter && (
             <Button variant="outline" size="sm" onClick={handleLogout} disabled={isLoading}>
               <LogOut />
-              Logout
+              Sign out
             </Button>
           )
         }

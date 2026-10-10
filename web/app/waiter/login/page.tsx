@@ -12,6 +12,7 @@ import { AuthSplitLayout } from "@/components/auth-split-layout";
 import { PinDots, PinKeypad } from "@/components/pin-keypad";
 import { StatusBadge } from "@/components/status-badge";
 import { cn } from "@/lib/utils";
+import { friendlyError } from "@/lib/errors";
 
 type Waiter = {
   id: string;
@@ -178,7 +179,7 @@ export default function WaiterLoginPage() {
         toast.success(`Signed in as ${user.full_name || user.username}`);
         router.replace("/waiter/create-order");
       } catch (err: any) {
-        toast.error(err?.message || "Login failed");
+        toast.error(friendlyError(err, "Couldn't sign in. Please try again."));
         setPin("");
         triggerShake();
       } finally {
@@ -250,7 +251,7 @@ export default function WaiterLoginPage() {
             </div>
           ) : waiters.length === 0 ? (
             <p className="py-10 text-sm text-muted-foreground">
-              No waiters for this branch yet. Ask an admin to add one, then try again.
+              No waiters here yet. Ask your manager to add you, then try again.
             </p>
           ) : (
             <div className="grid max-h-[22rem] grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">

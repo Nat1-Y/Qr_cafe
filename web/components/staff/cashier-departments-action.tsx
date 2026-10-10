@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Menu, Users } from "@/lib/resources";
+import { friendlyError } from "@/lib/errors";
 
 type Dept = { slug: string; name: string };
 
@@ -60,7 +61,7 @@ export function CashierDepartmentsAction({
           : [];
         setSelected(new Set(current.map((s) => String(s).toLowerCase())));
       } catch (e: any) {
-        toast.error(e?.message || "Failed to load departments");
+        toast.error(friendlyError(e, "Couldn't load sections. Please try again."));
       } finally {
         if (active) setLoading(false);
       }
@@ -83,10 +84,10 @@ export function CashierDepartmentsAction({
     setSaving(true);
     try {
       await Users.setCashierDepartments(userId, Array.from(selected));
-      toast.success("Departments updated");
+      toast.success("Sections saved");
       setOpen(false);
     } catch (e: any) {
-      toast.error(e?.message || "Failed to update departments");
+      toast.error(friendlyError(e, "Couldn't save the sections. Please try again."));
     } finally {
       setSaving(false);
     }
@@ -96,17 +97,17 @@ export function CashierDepartmentsAction({
     <>
       <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
         <Layers />
-        Departments
+        Sections
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Departments — {userName}</DialogTitle>
+            <DialogTitle>Sections — {userName}</DialogTitle>
             <DialogDescription>
-              Attach this cashier to specific departments. They&apos;ll only see
-              and confirm payment for their share of each order. Leave all
-              unchecked to let them settle whole orders.
+              Pick the sections this cashier takes payment for. They only see their
+              section&apos;s part of each order. Leave all empty to let them take payment
+              for whole orders.
             </DialogDescription>
           </DialogHeader>
 
@@ -117,7 +118,7 @@ export function CashierDepartmentsAction({
             </div>
           ) : departments.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No departments found. Add menu main categories first.
+              No sections yet. Add sections in the Menu page first.
             </p>
           ) : (
             <div className="flex flex-wrap gap-2 py-2">

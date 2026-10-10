@@ -12,6 +12,7 @@ import { AuthSplitLayout } from "@/components/auth-split-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { friendlyError } from "@/lib/errors";
 
 type Cashier = {
   id: string;
@@ -105,7 +106,7 @@ export default function CashierLoginPage() {
       toast.success(`Signed in as ${user.full_name || user.username}`);
       router.replace("/cashier");
     } catch (err: any) {
-      toast.error(err?.message || "Login failed");
+      toast.error(friendlyError(err, "Couldn't sign in. Please try again."));
       setPassword("");
       triggerShake();
     } finally {
@@ -122,7 +123,7 @@ export default function CashierLoginPage() {
   return (
     <AuthSplitLayout
       headline="Take the payment, print the receipt, next."
-      subline="Cashiers sign in here to confirm payments for incoming orders.">
+      subline="Cashiers sign in here to take payment for orders.">
       <style>{`
         @keyframes cp-shake {
           0%, 100% { transform: translateX(0); }
@@ -147,7 +148,7 @@ export default function CashierLoginPage() {
             </div>
           ) : cashiers.length === 0 ? (
             <p className="py-10 text-sm text-muted-foreground">
-              No cashiers for this branch yet. Ask an admin to add one, then try again.
+              No cashiers here yet. Ask your manager to add you, then try again.
             </p>
           ) : (
             <div className="grid max-h-[22rem] grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">

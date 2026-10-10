@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Expense, ExpenseFilters, ExpenseFormData, DashboardData, ReportsData } from '../types';
 import { INITIAL_FILTERS, DEFAULT_CATEGORIES, DEFAULT_PAYMENT_METHODS } from '../constants';
 import { getDefaultFormState, mapExpenseToFormData } from '../utils';
+import { friendlyError } from '@/lib/errors';
 
 export const useExpenseData = () => {
   const { user } = useAuth();
@@ -91,7 +92,7 @@ export const useExpenseData = () => {
       });
     } catch (error: any) {
       console.error('Failed to load expense data:', error);
-      toast.error(error?.response?.data?.message || 'Failed to load expense data');
+      toast.error(friendlyError(error, "Couldn't load expenses. Please try again."));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -122,15 +123,15 @@ export const useExpenseData = () => {
 
     const amount = Number.parseFloat(formData.amount);
     if (!formData.title.trim()) {
-      toast.error('Title is required');
+      toast.error('Enter what it was for.');
       return;
     }
     if (!Number.isFinite(amount) || amount <= 0) {
-      toast.error('Enter a valid amount');
+      toast.error('Enter an amount.');
       return;
     }
     if (!formData.paid_to.trim()) {
-      toast.error('Paid to is required');
+      toast.error('Enter who was paid.');
       return;
     }
 
@@ -144,17 +145,17 @@ export const useExpenseData = () => {
 
       if (editingExpenseId) {
         await api.expenses.update(editingExpenseId, payload);
-        toast.success('Expense updated successfully');
+        toast.success('Expense saved');
       } else {
         await api.expenses.create(payload);
-        toast.success('Expense saved successfully');
+        toast.success('Expense saved');
       }
 
       resetExpenseForm();
       await loadExpenseData(filters);
     } catch (error: any) {
       console.error('Save expense failed:', error);
-      toast.error(error?.response?.data?.message || 'Failed to save expense');
+      toast.error(friendlyError(error, "Couldn't save the expense. Please try again."));
     } finally {
       setSubmitting(false);
     }
@@ -173,14 +174,14 @@ export const useExpenseData = () => {
     try {
       setDeletingExpenseId(expense.id);
       await api.expenses.delete(expense.id);
-      toast.success('Expense deleted successfully');
+      toast.success('Expense deleted');
       if (editingExpenseId === expense.id) {
         resetExpenseForm();
       }
       await loadExpenseData(filters);
     } catch (error: any) {
       console.error('Delete expense failed:', error);
-      toast.error(error?.response?.data?.message || 'Failed to delete expense');
+      toast.error(friendlyError(error, "Couldn't delete the expense. Please try again."));
     } finally {
       setDeletingExpenseId(null);
     }

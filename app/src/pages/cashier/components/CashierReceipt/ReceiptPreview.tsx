@@ -43,12 +43,12 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
 
   const handlePrint = async () => {
     if (!order) {
-      toast.error('No order selected');
+      toast.error('Pick an order first.');
       return;
     }
 
     if (!selectedPrinter) {
-      toast.error('No printer selected');
+      toast.error('Pick a printer first.');
       return;
     }
 
@@ -115,10 +115,10 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
         sections,
       } as any);
 
-      toast.success('Receipt printed successfully');
+      toast.success('Receipt printed');
     } catch (error) {
       console.error('Print error:', error);
-      toast.error('Failed to print receipt');
+      toast.error("The receipt didn't print. Check the printer is on and has paper.");
     }
   };
 
@@ -176,7 +176,7 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
     return (
       <div className="rounded-card border border-border bg-card p-6">
         <div className="text-center text-muted-foreground py-12">
-          <p className="text-lg">Loading order details...</p>
+          <p className="text-lg">Loading the order…</p>
         </div>
       </div>
     );
@@ -186,7 +186,7 @@ export const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({
     return (
       <div className="rounded-card border border-border bg-card p-6">
         <div className="text-center text-muted-foreground py-12">
-          <p className="text-lg">Select a payment or order to preview receipt</p>
+          <p className="text-lg">Pick an order to see its receipt</p>
         </div>
       </div>
     );

@@ -51,13 +51,13 @@ export class OrganizationService {
       .from(organizations)
       .where(and(eq(organizations.id, id), eq(organizations.branch_id, requireBranchId())))
       .limit(1);
-    if (!row) throw new NotFoundException("Organization not found");
+    if (!row) throw new NotFoundException("Company account not found.");
     return row;
   }
 
   async create(input: any) {
     const name = String(input?.name || "").trim();
-    if (!name) throw new BadRequestException("Organization name is required");
+    if (!name) throw new BadRequestException("Enter the company name.");
 
     return db.transaction(async (tx) => {
       const [created] = await tx
@@ -95,7 +95,7 @@ export class OrganizationService {
 
     if (input?.name !== undefined) {
       const name = String(input.name).trim();
-      if (!name) throw new BadRequestException("Organization name is required");
+      if (!name) throw new BadRequestException("Enter the company name.");
       updates.name = name;
     }
     if (input?.contact_name !== undefined)
@@ -117,7 +117,7 @@ export class OrganizationService {
         .set(updates)
         .where(and(eq(organizations.id, id), eq(organizations.branch_id, requireBranchId())))
         .returning();
-      if (!updated) throw new NotFoundException("Organization not found");
+      if (!updated) throw new NotFoundException("Company account not found.");
 
       await emitUpdated(
         tx as any,
@@ -191,7 +191,7 @@ export class OrganizationService {
 
     const amount = Number(input?.amount);
     if (!Number.isFinite(amount) || amount <= 0) {
-      throw new BadRequestException("Payment amount must be a positive number");
+      throw new BadRequestException("Enter an amount more than 0.");
     }
 
     return db.transaction(async (tx) => {
@@ -274,7 +274,7 @@ export class OrganizationService {
 
     const total = services.reduce((sum, s) => sum + Number(s.cost || 0), 0);
     if (!Number.isFinite(total) || total < 0) {
-      throw new BadRequestException("Invalid service costs");
+      throw new BadRequestException("Check the service prices and try again.");
     }
 
     return db.transaction(async (tx) => {

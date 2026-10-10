@@ -82,9 +82,9 @@ export async function checkOrderInventoryAvailability(
     const shortfalls: InventoryShortfall[] = rawShortfalls.map((s) => ({
       inventory_item_id: Number(s?.inventory_item_id),
       inventory_item_name:
-        s?.name ?? s?.inventory_item_name ?? `Item ${s?.inventory_item_id}`,
+        s?.name ?? s?.inventory_item_name ?? "Stock item",
       location_id: Number(s?.location_id),
-      location_name: s?.location_name ?? `Location ${s?.location_id}`,
+      location_name: s?.location_name ?? "Stock place",
       required: asNumber(s?.required),
       available: asNumber(s?.available),
       unit: s?.unit ?? "piece",

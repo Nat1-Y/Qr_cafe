@@ -15,9 +15,9 @@ export const LocationStats: React.FC<LocationStatsProps> = ({ locations }) => {
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-      <StatsCard title="Active locations" value={activeCount} />
-      <StatsCard title="Default location" value={defaultLocation?.name || 'Not set'} />
-      <StatsCard title="Prep stations" value={prepStations} />
+      <StatsCard title="Places in use" value={activeCount} />
+      <StatsCard title="Main stock place" value={defaultLocation?.name || 'Not set'} />
+      <StatsCard title="Prep areas" value={prepStations} />
     </div>
   );
 };

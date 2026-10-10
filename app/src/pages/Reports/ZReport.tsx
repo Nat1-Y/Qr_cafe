@@ -12,6 +12,7 @@ import { formatETB, humanize } from '@/lib/format';
 import StatsCard from '@/components/common/StatsCard';
 import EmptyState from '@/components/common/EmptyState';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { friendlyError } from '@/lib/errors';
 interface ZReportData {
   report_date: string;
   period_start: string;
@@ -80,7 +81,7 @@ const ZReport = () => {
       setZReport(zReportData);
     } catch (err: any) {
       console.error('Z-Report error:', err);
-      setError(err.message || 'Failed to generate Z-report');
+      setError(friendlyError(err, "Couldn't make the end of day report. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -106,7 +107,7 @@ const ZReport = () => {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="eyebrow mb-1">End of day</p>
-          <h2 className="text-section text-foreground">Z-Report</h2>
+          <h2 className="text-section text-foreground">End of day report</h2>
           {zReport && (
             <p className="mt-1 text-sm text-muted-foreground">
               {formatDate(zReport.period_start)} – {formatDate(zReport.period_end)} · generated {formatDate(zReport.report_date)}
@@ -142,7 +143,7 @@ const ZReport = () => {
         <EmptyState
           className="rounded-card border border-dashed border-border"
           title="Pick the dates, then build the report"
-          description="It totals orders, payments and staff sales for the period."
+          description="It adds up orders, payments and staff sales for those dates."
         />
       )}
 
@@ -150,9 +151,9 @@ const ZReport = () => {
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatsCard title="Orders" value={zReport.summary.total_orders} />
-            <StatsCard title="Gross sales" value={formatCurrency(zReport.summary.gross_sales)} />
-            <StatsCard title="Refunds" value={formatCurrency(zReport.summary.refunds)} variant="destructive" />
-            <StatsCard title="Net sales" value={formatCurrency(zReport.summary.net_sales)} variant="success" />
+            <StatsCard title="Total sales" value={formatCurrency(zReport.summary.gross_sales)} />
+            <StatsCard title="Cancelled" value={formatCurrency(zReport.summary.refunds)} variant="destructive" />
+            <StatsCard title="Sales after discounts" value={formatCurrency(zReport.summary.net_sales)} variant="success" />
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -163,7 +164,7 @@ const ZReport = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Employee</TableHead>
+                    <TableHead>Staff</TableHead>
                     <TableHead className="text-right">Orders</TableHead>
                     <TableHead className="text-right">Sales</TableHead>
                   </TableRow>
@@ -182,12 +183,12 @@ const ZReport = () => {
 
             <Card className="overflow-hidden">
               <CardHeader className="border-b border-border">
-                <CardTitle>By payment method</CardTitle>
+                <CardTitle>Paid with</CardTitle>
               </CardHeader>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Method</TableHead>
+                    <TableHead>Paid with</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
                     <TableHead className="text-right">Share</TableHead>
                   </TableRow>
@@ -224,7 +225,7 @@ const ZReport = () => {
                 <TableBody>
                   {zReport.category_breakdown.map((category, idx) => (
                     <TableRow key={idx}>
-                      <TableCell className="capitalize text-foreground">{category.category}</TableCell>
+                      <TableCell className="text-foreground">{humanize(category.category)}</TableCell>
                       <TableCell className="text-right">{category.count}</TableCell>
                       <TableCell className="text-right">{formatCurrency(category.amount)}</TableCell>
                     </TableRow>
@@ -235,14 +236,20 @@ const ZReport = () => {
 
             <Card className="overflow-hidden">
               <CardHeader className="border-b border-border">
-                <CardTitle>Voided</CardTitle>
+                <CardTitle>Cancelled</CardTitle>
               </CardHeader>
               {zReport.voided_transactions.length > 0 ? (
                 <ul className="divide-y divide-border">
                   {zReport.voided_transactions.map((txn, idx) => (
                     <li key={idx} className="flex items-start justify-between gap-3 px-6 py-3">
                       <div className="min-w-0">
-                        <p className="font-semibold text-foreground">#{txn.order_id}</p>
+                        <p className="font-semibold text-foreground">
+                          {(txn as { order_number?: number | null }).order_number != null
+                            ? `#${(txn as { order_number?: number | null }).order_number}`
+                            : Number.isFinite(Number(txn.order_id)) && txn.order_id != null
+                              ? `#${txn.order_id}`
+                              : 'Order'}
+                        </p>
                         <p className="text-meta text-muted-foreground">
                           {txn.employee_name} · {formatDate(txn.created_at)}
                         </p>
@@ -252,7 +259,7 @@ const ZReport = () => {
                   ))}
                 </ul>
               ) : (
-                <p className="px-6 py-10 text-center text-sm text-muted-foreground">Nothing voided.</p>
+                <p className="px-6 py-10 text-center text-sm text-muted-foreground">Nothing cancelled.</p>
               )}
             </Card>
           </div>

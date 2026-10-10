@@ -34,10 +34,10 @@ const OfflineBanner = ({ online, message, className }: OfflineBannerProps) => {
     >
       <WifiOff className="mt-0.5 h-5 w-5 shrink-0" />
       <div className="text-sm">
-        <p className="font-medium">You're offline</p>
+        <p className="font-medium">No internet</p>
         <p className="text-warning/90">
           {message ??
-            'Admin changes require an internet connection. You can still view existing data — reconnect to make changes.'}
+            'You can still look at everything. Connect to the internet to make changes.'}
         </p>
       </div>
     </div>

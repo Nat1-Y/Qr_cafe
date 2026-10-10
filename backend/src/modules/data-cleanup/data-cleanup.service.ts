@@ -50,7 +50,7 @@ export class DataCleanupService {
         "Only an owner or platform admin can review cleanup requests.",
       );
     }
-    if (!branchId) throw new BadRequestException("Branch id is required");
+    if (!branchId) throw new BadRequestException("Choose a branch.");
 
     const [branch] = await db
       .select()
@@ -141,7 +141,7 @@ export class DataCleanupService {
       .limit(1);
     if (!request) throw new NotFoundException("Cleanup request not found");
     if (device && request.device_id && request.device_id !== device.id) {
-      throw new ForbiddenException("Request belongs to a different device.");
+      throw new ForbiddenException("This request came from another device.");
     }
     if (request.status !== "approved") {
       throw new BadRequestException(
@@ -174,7 +174,7 @@ export class DataCleanupService {
    */
   async pushToDevice(branchId: string, deviceId: string, reason?: string) {
     const branch = await this.getManageableBranch(branchId);
-    if (!deviceId) throw new BadRequestException("Device id is required");
+    if (!deviceId) throw new BadRequestException("Choose a device.");
 
     const [device] = await db
       .select()
@@ -265,7 +265,7 @@ export class DataCleanupService {
 
   /** Loads a pending request and asserts the owner may manage its branch. */
   private async loadReviewable(id: string) {
-    if (!id) throw new BadRequestException("Request id is required");
+    if (!id) throw new BadRequestException("Choose a request.");
     const [request] = await db
       .select()
       .from(dataCleanupRequests)

@@ -29,11 +29,11 @@ interface PaymentFiltersProps {
 
 const statusOptions = [
   { id: 'all', label: 'All statuses' },
-  { id: 'pending', label: 'Pending' },
+  { id: 'pending', label: 'Not paid yet' },
   { id: 'paid', label: 'Paid' },
-  { id: 'failed', label: 'Failed' },
+  { id: 'failed', label: "Didn't go through" },
   { id: 'refunded', label: 'Refunded' },
-  { id: 'deleted', label: 'Deleted' }
+  { id: 'deleted', label: 'Cancelled' }
 ];
 
 export const PaymentFilters: React.FC<PaymentFiltersProps> = ({
@@ -60,7 +60,7 @@ export const PaymentFilters: React.FC<PaymentFiltersProps> = ({
   // doesn't.
   const allowPast = lookbackDays == null || lookbackDays >= 1;
   const dateOptions = [
-    { id: 'all', label: lookbackDays == null ? 'All dates' : 'All visible' },
+    { id: 'all', label: lookbackDays == null ? 'All dates' : 'All shown' },
     { id: 'today', label: 'Today' },
     ...(allowPast
       ? [
@@ -105,7 +105,7 @@ export const PaymentFilters: React.FC<PaymentFiltersProps> = ({
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search payments..."
+              placeholder="Search payments…"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="pl-9"
@@ -146,7 +146,7 @@ export const PaymentFilters: React.FC<PaymentFiltersProps> = ({
           </Select>
           <Select value={filterMethod} onValueChange={setFilterMethod}>
             <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="All methods" />
+              <SelectValue placeholder="All payment types" />
             </SelectTrigger>
             <SelectContent>
               {paymentMethodOptions.map((option) => (

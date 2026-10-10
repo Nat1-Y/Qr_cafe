@@ -3,6 +3,7 @@ import api from '@/application';
 import toast from 'react-hot-toast';
 import { getLocalDb, localDbTables } from '@/db/localDb';
 import { useHistoryLookbackDays } from '@/shared/hooks/useHistoryLookbackDays';
+import { humanize } from '@/lib/format';
 
 // Back-office roles see every order (not just the ones they placed) and use the
 // derived paid/pending/voided view. Waiters only see their own orders.
@@ -69,7 +70,7 @@ export const useOrderData = (showCreateModal: boolean, user: any) => {
         setOrders(sortedOrders);
       } catch (error) {
         console.error('Error fetching orders:', error);
-        toast.error('Failed to load orders');
+        toast.error("Couldn't load orders. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -145,7 +146,7 @@ export const useOrderData = (showCreateModal: boolean, user: any) => {
         setMenuItems(available);
       } catch (error) {
         console.error('Error fetching menu items:', error);
-        toast.error('Failed to load menu items');
+        toast.error("Couldn't load the menu. Please try again.");
       }
     };
 
@@ -186,7 +187,7 @@ export const useOrderData = (showCreateModal: boolean, user: any) => {
         updated_by: user?.id
       });
 
-      toast.success(`Order ${newStatus} successfully`);
+      toast.success(`Order marked as ${humanize(newStatus).toLowerCase()}`);
 
       const response = await api.orders.getAll(buildOrderParams());
 
@@ -199,7 +200,7 @@ export const useOrderData = (showCreateModal: boolean, user: any) => {
       setOrders(sortedOrders);
     } catch (error) {
       console.error('Error updating order status:', error);
-      toast.error('Failed to update order status');
+      toast.error("Couldn't change the order. Please try again.");
     }
   };
 

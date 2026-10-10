@@ -124,7 +124,7 @@ export function tabularToRawRows<R extends Record<string, unknown>>(
     }
     if (!list) {
       throw new Error(
-        "JSON must be an array of records (or an object wrapping one).",
+        "This JSON file isn't in the right shape. Start from the example file.",
       );
     }
     return list.map((entry) => {

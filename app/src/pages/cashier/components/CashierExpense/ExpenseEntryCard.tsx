@@ -28,7 +28,7 @@ export const ExpenseEntryCard: React.FC<ExpenseEntryCardProps> = ({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <CardTitle>New expense entry</CardTitle>
+        <CardTitle>New expense</CardTitle>
         <div className="text-sm font-semibold rounded-md border bg-muted/50 px-3 py-1.5">
           Total: {formatETB(total)}
         </div>
@@ -39,7 +39,7 @@ export const ExpenseEntryCard: React.FC<ExpenseEntryCardProps> = ({
         <div className="flex flex-col sm:flex-row gap-3 border-t pt-4">
           <Button type="button" onClick={onSubmit} disabled={saving}>
             <Save />
-            {saving ? 'Saving...' : 'Save expenses'}
+            {saving ? 'Saving…' : 'Save expenses'}
           </Button>
         </div>
       </CardContent>

@@ -22,7 +22,7 @@ export const OrderHistoryHeader: React.FC<OrderHistoryHeaderProps> = ({
         </h1>
         <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <span>
-            {totalOrdersCount} {totalOrdersCount === 1 ? "order" : "orders"} under your name
+            {totalOrdersCount} {totalOrdersCount === 1 ? "order" : "orders"} taken by you
           </span>
           <BranchBadge />
         </div>

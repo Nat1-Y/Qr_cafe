@@ -107,7 +107,7 @@ export const OrganizationOrders: React.FC<OrganizationOrdersProps> = ({
       setOrders(merged);
     } catch (error) {
       console.error('[OrganizationOrders] load failed', error);
-      toast.error('Failed to load organization orders');
+      toast.error("Couldn't load company orders. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -155,13 +155,13 @@ export const OrganizationOrders: React.FC<OrganizationOrdersProps> = ({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1">
-            <label className="text-xs text-muted-foreground">Organization</label>
+            <label className="text-xs text-muted-foreground">Company</label>
             <Select value={orgFilter} onValueChange={setOrgFilter}>
               <SelectTrigger className="w-48">
-                <SelectValue placeholder="All organizations" />
+                <SelectValue placeholder="All companies" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All organizations</SelectItem>
+                <SelectItem value="all">All companies</SelectItem>
                 {organizations.map((org) => (
                   <SelectItem
                     key={org.id ?? org.localId}
@@ -184,7 +184,7 @@ export const OrganizationOrders: React.FC<OrganizationOrdersProps> = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="active">Active (unpaid)</SelectItem>
+                <SelectItem value="active">Not paid yet</SelectItem>
                 <SelectItem value="paid">Paid</SelectItem>
                 <SelectItem value="all">All</SelectItem>
               </SelectContent>
@@ -213,7 +213,7 @@ export const OrganizationOrders: React.FC<OrganizationOrdersProps> = ({
             <SearchInput
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Order # or org" />
+                placeholder="Order number or company" />
           </div>
         </div>
 
@@ -234,7 +234,7 @@ export const OrganizationOrders: React.FC<OrganizationOrdersProps> = ({
             <TableHeader>
               <TableRow>
                 <TableHead>Order #</TableHead>
-                <TableHead>Organization</TableHead>
+                <TableHead>Company</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Payment</TableHead>
@@ -250,7 +250,7 @@ export const OrganizationOrders: React.FC<OrganizationOrdersProps> = ({
                     colSpan={8}
                     className="text-center py-8 text-muted-foreground"
                   >
-                    Loading...
+                    Loading…
                   </TableCell>
                 </TableRow>
               ) : filtered.length === 0 ? (
@@ -259,7 +259,7 @@ export const OrganizationOrders: React.FC<OrganizationOrdersProps> = ({
                     colSpan={8}
                     className="text-center py-8 text-muted-foreground"
                   >
-                    No organization orders match these filters.
+                    No company orders match. Try other filters.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -312,11 +312,11 @@ export const OrganizationOrders: React.FC<OrganizationOrdersProps> = ({
                             disabled={payment.processingOrderId === numericId}
                           >
                             {payment.processingOrderId === numericId
-                              ? 'Confirming...'
-                              : 'Confirm'}
+                              ? 'Confirming…'
+                              : 'Mark paid'}
                           </Button>
                         ) : (
-                          <Badge variant="outline">Awaiting owner</Badge>
+                          <Badge variant="outline">Waiting for owner</Badge>
                         )}
                       </TableCell>
                     </TableRow>

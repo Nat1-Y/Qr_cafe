@@ -18,6 +18,7 @@ import {
 import { DataTable, type Column } from "@/components/data-table";
 import { apiFetch } from "@/lib/api";
 import { roleLabel } from "@/lib/auth";
+import { friendlyError } from "@/lib/errors";
 
 type User = {
   id: string;
@@ -45,11 +46,11 @@ type Row = User & {
 // Roles a super admin may create. Branch-scoped roles must be pinned to a branch.
 const BRANCH_SCOPED_ROLES = ["cashier", "kitchen_staff", "cafe_waiter"];
 const ROLE_OPTIONS = [
-  { value: "owner", label: "Owner (business-wide)" },
-  { value: "admin", label: "Admin (business-wide)" },
-  { value: "cashier", label: "Cashier (branch)" },
-  { value: "kitchen_staff", label: "Kitchen staff (branch)" },
-  { value: "cafe_waiter", label: "Waiter (branch)" },
+  { value: "owner", label: `${roleLabel("owner")} (all branches)` },
+  { value: "admin", label: `${roleLabel("admin")} (all branches)` },
+  { value: "cashier", label: `${roleLabel("cashier")} (one branch)` },
+  { value: "kitchen_staff", label: `${roleLabel("kitchen_staff")} (one branch)` },
+  { value: "cafe_waiter", label: `${roleLabel("cafe_waiter")} (one branch)` },
 ];
 
 const emptyForm = {
@@ -83,7 +84,7 @@ export default function PlatformUsersPage() {
         setGroups(d.groups ?? []);
         setTotal(d.total_users ?? 0);
       })
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, []);
 
@@ -95,15 +96,15 @@ export default function PlatformUsersPage() {
   async function submitCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!form.business_id) {
-      toast.error("Select a business");
+      toast.error("Pick a business.");
       return;
     }
     if (!form.username.trim() || form.password.length < 4) {
-      toast.error("Username and a password of 4+ characters are required");
+      toast.error("Enter a username and a password with at least 4 characters.");
       return;
     }
     if (roleNeedsBranch && !form.branch_id) {
-      toast.error("This role must be assigned to a branch");
+      toast.error("Pick a branch for this role.");
       return;
     }
     setCreating(true);
@@ -119,12 +120,12 @@ export default function PlatformUsersPage() {
           role: form.role,
         }),
       });
-      toast.success(`User "${form.username.trim()}" created`);
+      toast.success(`User "${form.username.trim()}" added`);
       setAddOpen(false);
       setForm(emptyForm);
       await load();
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(friendlyError(err));
     } finally {
       setCreating(false);
     }
@@ -133,7 +134,7 @@ export default function PlatformUsersPage() {
   async function submitReset() {
     if (!resetTarget) return;
     if (newPassword.length < 4) {
-      toast.error("Password must be at least 4 characters long");
+      toast.error("Password needs at least 4 characters.");
       return;
     }
     setResetting(true);
@@ -148,7 +149,7 @@ export default function PlatformUsersPage() {
       setResetTarget(null);
       setNewPassword("");
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setResetting(false);
     }
@@ -164,12 +165,12 @@ export default function PlatformUsersPage() {
         g.users.map((u) => ({
           ...u,
           business_id: g.business?.id ?? "",
-          business_name: g.business?.name ?? "Platform / unassigned",
+          business_name: g.business?.name ?? "Platform (no business)",
           // Branch-scoped staff show their branch; cross-branch accounts (owners,
           // super admins) have no branch_id.
           branch_label:
             u.branch_name ??
-            (u.role === "super_admin" ? "Platform" : "Business-wide"),
+            (u.role === "super_admin" ? "Platform" : "All branches"),
         })),
       ),
     [groups],
@@ -228,7 +229,7 @@ export default function PlatformUsersPage() {
       searchValue: (r) => (r.is_active ? "active" : "inactive"),
       render: (r) => (
         <Badge variant={r.is_active ? "success" : "muted"}>
-          {r.is_active ? "Active" : "Inactive"}
+          {r.is_active ? "Active" : "Not active"}
         </Badge>
       ),
     },
@@ -301,10 +302,10 @@ export default function PlatformUsersPage() {
             key: "role",
             label: "Role",
             options: [
-              { value: "admin", label: "Admin" },
-              { value: "cashier", label: "Cashier" },
-              { value: "kitchen_staff", label: "Kitchen staff" },
-              { value: "cafe_waiter", label: "Waiter" },
+              { value: "admin", label: roleLabel("admin") },
+              { value: "cashier", label: roleLabel("cashier") },
+              { value: "kitchen_staff", label: roleLabel("kitchen_staff") },
+              { value: "cafe_waiter", label: roleLabel("cafe_waiter") },
             ],
           },
           {
@@ -312,7 +313,7 @@ export default function PlatformUsersPage() {
             label: "Status",
             options: [
               { value: "active", label: "Active" },
-              { value: "inactive", label: "Inactive" },
+              { value: "inactive", label: "Not active" },
             ],
             match: (r, v) => (v === "active" ? r.is_active : !r.is_active),
           },
@@ -333,7 +334,7 @@ export default function PlatformUsersPage() {
                 onChange={(e) =>
                   setForm({ ...form, business_id: e.target.value, branch_id: "" })
                 }>
-                <option value="">Select business…</option>
+                <option value="">Pick a business</option>
                 {groups
                   .filter((g) => g.business)
                   .map((g) => (
@@ -366,7 +367,7 @@ export default function PlatformUsersPage() {
                   disabled={!roleNeedsBranch || !selectedBusiness}
                   value={form.branch_id}
                   onChange={(e) => setForm({ ...form, branch_id: e.target.value })}>
-                  <option value="">Select branch…</option>
+                  <option value="">Pick a branch</option>
                   {selectedBusiness?.branches.map((br) => (
                     <option key={br.id} value={br.id}>
                       {br.name}
@@ -390,7 +391,7 @@ export default function PlatformUsersPage() {
                   value={form.username}
                   autoComplete="off"
                   onChange={(e) => setForm({ ...form, username: e.target.value })}
-                  placeholder="login name"
+                  placeholder="Name they sign in with"
                 />
               </div>
               <div className="space-y-1.5">
@@ -400,7 +401,7 @@ export default function PlatformUsersPage() {
                   autoComplete="new-password"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="min 4 characters"
+                  placeholder="At least 4 characters"
                 />
               </div>
             </div>
@@ -412,7 +413,7 @@ export default function PlatformUsersPage() {
                 Cancel
               </Button>
               <Button type="submit" disabled={creating}>
-                {creating ? "Creating…" : "Create user"}
+                {creating ? "Adding…" : "Add user"}
               </Button>
             </DialogFooter>
           </form>
@@ -449,8 +450,7 @@ export default function PlatformUsersPage() {
               }}
             />
             <p className="text-muted-foreground text-xs">
-              The user will sign in with this password immediately. They are not
-              notified automatically.
+              They can sign in with this password right away. We don&apos;t tell them, so let them know.
             </p>
           </div>
           <DialogFooter>

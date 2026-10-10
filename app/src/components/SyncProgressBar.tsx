@@ -85,7 +85,7 @@ export const SyncProgressBar = () => {
       >
         <div className="flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-          Syncing {percent}%
+          Updating {percent}%
         </div>
       </div>
     </>

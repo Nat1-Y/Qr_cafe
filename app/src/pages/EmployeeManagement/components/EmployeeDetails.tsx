@@ -9,6 +9,7 @@ import EmptyState from '@/components/common/EmptyState';
 import { OrderDetailsDialog } from '@/components/common/OrderDetailsDialog';
 import { EmployeeDetailsData } from '../types';
 import { formatETB, humanize } from '@/lib/format';
+import StatusBadge from '@/components/common/StatusBadge';
 
 
 interface EmployeeDetailsProps {
@@ -22,13 +23,13 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ details }) => 
     <div className="grid grid-cols-1 gap-6">
       <Card>
         <CardHeader>
-          <CardTitle>Live orders</CardTitle>
+          <CardTitle>Latest orders</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Order #</TableHead>
+                <TableHead>Order</TableHead>
                 <TableHead>Created by</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Table</TableHead>
@@ -43,25 +44,19 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ details }) => 
               {(details?.orders || []).length > 0 ? details?.orders?.map((o: any) => (
                 <TableRow key={o.id}>
                   <TableCell className="font-semibold">#{uuidToDisplayId(o.id)}</TableCell>
-                  <TableCell>{o.employee_name || `Employee #${o.employee_id}`}</TableCell>
+                  <TableCell>{o.employee_name || 'Staff member'}</TableCell>
                   <TableCell>{humanize(o.type)}</TableCell>
-                  <TableCell>{o.table_number ?? 'N/A'}</TableCell>
+                  <TableCell>{o.table_number ?? '—'}</TableCell>
                   <TableCell className="text-right font-medium">{formatETB(o.total_amount)}</TableCell>
                   <TableCell>
-                    <Badge 
-                      variant={
-                        o.status === 'done' ? 'success' : o.status === 'pending' ? 'warning' : 'secondary'
-                      }
-                    >
-                      {o.status}
-                    </Badge>
+                    <StatusBadge kind="order" status={o.status} />
                   </TableCell>
                   <TableCell>
                     <Badge variant={String(o.payment_status || '').toLowerCase() === 'paid' ? 'success' : 'secondary'}>
-                      {o.payment_status || 'unpaid'}
+                      {String(o.payment_status || '').toLowerCase() === 'paid' ? 'Paid' : 'Not paid yet'}
                     </Badge>
                   </TableCell>
-                  <TableCell>{o.created_at ? new Date(o.created_at).toLocaleString() : 'N/A'}</TableCell>
+                  <TableCell>{o.created_at ? new Date(o.created_at).toLocaleString() : '—'}</TableCell>
                   <TableCell className="text-center">
                     <Button variant="ghost" size="icon" onClick={() => setSelectedOrder(o)} className="h-8 w-8 hover:bg-muted hover:text-foreground">
                       <Eye />
@@ -71,7 +66,7 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ details }) => 
               )) : (
                 <TableRow>
                   <TableCell colSpan={9}>
-                    <EmptyState title="No orders" description="No orders for this employee" />
+                    <EmptyState title="No orders" description="This person has no orders yet" />
                   </TableCell>
                 </TableRow>
               )}

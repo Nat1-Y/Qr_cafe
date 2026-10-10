@@ -14,7 +14,7 @@ export function CreditSummary({
 }) {
   const stats = [
     {
-      label: "Credit balance",
+      label: "Credit left",
       value: creditBalance,
       tone:
         creditBalance < 0

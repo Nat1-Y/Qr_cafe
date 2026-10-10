@@ -39,7 +39,7 @@ const PaymentReportsModal: React.FC<PaymentReportsModalProps> = ({
         <div className="space-y-6 pt-2">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <StatsCard title="Payments" value={todayStats.paymentsProcessed} />
-            <StatsCard title="Revenue" value={formatCurrency(todayStats.totalRevenue)} variant="success" />
+            <StatsCard title="Money in" value={formatCurrency(todayStats.totalRevenue)} variant="success" />
           </div>
 
           <div className="divide-y divide-border text-sm">

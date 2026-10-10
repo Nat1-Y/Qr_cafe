@@ -49,7 +49,7 @@ export const DateFilter: React.FC<DateFilterProps> = ({ selectedDate, onDateChan
     ? lookbackDays === 0
       ? 'Today only'
       : `Last ${lookbackDays + 1} days`
-    : 'All history';
+    : 'All dates';
 
   return (
     <div className="rounded-card border border-border bg-card p-4">
@@ -58,7 +58,7 @@ export const DateFilter: React.FC<DateFilterProps> = ({ selectedDate, onDateChan
           <div className="rounded-lg bg-primary/10 p-1.5 text-primary">
             <Calendar className="h-4 w-4" />
           </div>
-          <h3 className="font-semibold text-sm">Date filter</h3>
+          <h3 className="font-semibold text-sm">Dates</h3>
         </div>
         <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
           restricted ? 'bg-warning-soft text-warning border border-warning/30' : 'bg-muted text-muted-foreground'

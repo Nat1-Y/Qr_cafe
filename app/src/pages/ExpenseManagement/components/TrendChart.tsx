@@ -26,7 +26,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({ title, data, colorClass 
       <CardContent className="flex-1 flex flex-col justify-end min-h-[200px]">
         {normalized.length === 0 ? (
           <div className="flex-1 flex items-center justify-center border border-dashed rounded-xl bg-muted/40 text-xs text-muted-foreground font-semibold p-6">
-            No trend data available
+            Not enough expenses to show a chart yet
           </div>
         ) : (
           <div className="flex items-end gap-2 overflow-x-auto bg-muted/40 rounded-xl p-3 h-48">

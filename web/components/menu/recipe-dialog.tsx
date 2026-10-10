@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Recipes, Inventory, StockLocations } from "@/lib/resources";
+import { friendlyError } from "@/lib/errors";
 
 type MenuItem = { id: string; name: string };
 
@@ -29,9 +30,9 @@ type IngredientRow = {
 };
 
 const STRATEGIES = [
-  { value: "by_menu_category", label: "By Menu Category (auto)" },
-  { value: "fixed_location", label: "Fixed location" },
-  { value: "default_location", label: "Default location" },
+  { value: "by_menu_category", label: "From the section that makes it (auto)" },
+  { value: "fixed_location", label: "Always from one stock place" },
+  { value: "default_location", label: "From the main stock place" },
 ];
 
 let keyCounter = 0;
@@ -106,7 +107,7 @@ export function RecipeDialog({
           setIngredients([]);
         }
       })
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, [open, menuItem]);
 
@@ -138,7 +139,7 @@ export function RecipeDialog({
       (i) => i.inventory_item_id !== "" && Number(i.quantity) > 0,
     );
     if (validIngredients.length === 0) {
-      toast.error("Add at least one ingredient with a quantity.");
+      toast.error("Add at least one ingredient with an amount.");
       return;
     }
     const payload = {
@@ -168,7 +169,7 @@ export function RecipeDialog({
       onOpenChange(false);
       onSaved?.();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setSaving(false);
     }
@@ -176,7 +177,7 @@ export function RecipeDialog({
 
   async function deleteRecipe() {
     if (!recipeId) return;
-    if (!confirm("Delete this recipe? Stock will no longer auto-deduct.")) return;
+    if (!confirm("Delete this recipe? Orders for this item will stop using stock.")) return;
     setSaving(true);
     try {
       await Recipes.remove(recipeId);
@@ -184,7 +185,7 @@ export function RecipeDialog({
       onOpenChange(false);
       onSaved?.();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setSaving(false);
     }
@@ -208,8 +209,8 @@ export function RecipeDialog({
                   : "border-warning/30 bg-warning/10 text-warning"
               }`}>
               {recipeId
-                ? `Recipe configured — ${ingredients.length} ingredient(s)`
-                : "No recipe yet — stock won't auto-deduct on sale"}
+                ? `Recipe set: ${ingredients.length} ingredient(s)`
+                : "No recipe yet, so stock is not used up by orders"}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -233,7 +234,7 @@ export function RecipeDialog({
             </div>
 
             <div className="space-y-2">
-              <Label>Stock deduction strategy</Label>
+              <Label>Use stock from</Label>
               <select
                 className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={strategy}
@@ -248,12 +249,12 @@ export function RecipeDialog({
 
             {strategy === "fixed_location" && (
               <div className="space-y-2">
-                <Label>Deduct from location</Label>
+                <Label>Stock place</Label>
                 <select
                   className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                   value={fixedLocationId}
                   onChange={(e) => setFixedLocationId(e.target.value)}>
-                  <option value="">Select location…</option>
+                  <option value="">Pick a stock place</option>
                   {locations.map((loc) => (
                     <option key={loc.id} value={String(loc.id)}>
                       {loc.name}
@@ -265,7 +266,7 @@ export function RecipeDialog({
 
             <div className="flex items-center gap-3">
               <Switch checked={isActive} onCheckedChange={setIsActive} />
-              <Label>Active (deduct on sale)</Label>
+              <Label>On (use stock when sold)</Label>
             </div>
 
             <div className="space-y-2">
@@ -279,7 +280,7 @@ export function RecipeDialog({
 
               {ingredients.length === 0 && (
                 <p className="text-muted-foreground rounded-md border border-dashed py-4 text-center text-xs">
-                  No ingredients yet. Click "Add" to begin.
+                  No ingredients yet. Tap "Add" to start.
                 </p>
               )}
 
@@ -300,14 +301,14 @@ export function RecipeDialog({
                       </Button>
                     </div>
                     <div className="space-y-1">
-                      <Label>Inventory item</Label>
+                      <Label>Stock item</Label>
                       <select
                         className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                         value={ing.inventory_item_id}
                         onChange={(e) =>
                           updateIngredient(ing.key, "inventory_item_id", e.target.value)
                         }>
-                        <option value="">Select item…</option>
+                        <option value="">Pick an item</option>
                         {inventory.map((item) => (
                           <option key={item.id} value={String(item.id)}>
                             {item.name}
@@ -320,7 +321,7 @@ export function RecipeDialog({
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-1">
-                        <Label>Qty (base units)</Label>
+                        <Label>Amount (small unit)</Label>
                         <Input
                           type="number"
                           min="0"
@@ -334,7 +335,7 @@ export function RecipeDialog({
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label>Waste factor</Label>
+                        <Label>Extra for waste</Label>
                         <Input
                           type="number"
                           min="1"
@@ -379,7 +380,7 @@ export function RecipeDialog({
               Cancel
             </Button>
             <Button onClick={save} disabled={saving || loading}>
-              {saving ? "Saving…" : recipeId ? "Update recipe" : "Create recipe"}
+              {saving ? "Saving…" : recipeId ? "Save recipe" : "Add recipe"}
             </Button>
           </div>
         </DialogFooter>

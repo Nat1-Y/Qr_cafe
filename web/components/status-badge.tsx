@@ -1,7 +1,7 @@
 import { CheckIcon, ClockIcon, PlusIcon, XIcon, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { displayStatus } from "@/lib/format";
+import { displayStatus, humanize } from "@/lib/format";
 
 export type StatusKind =
   | "order"
@@ -26,10 +26,6 @@ const TONE_CLASS: Record<Tone, string> = {
 
 type Resolved = { tone: Tone; label: string; icon?: LucideIcon };
 
-const humanize = (s: string) => {
-  const t = s.replace(/[_-]+/g, " ").trim();
-  return t ? t.charAt(0).toUpperCase() + t.slice(1) : "—";
-};
 
 function resolve(kind: StatusKind, raw: string): Resolved {
   const s = raw.trim().toLowerCase();
@@ -41,7 +37,7 @@ function resolve(kind: StatusKind, raw: string): Resolved {
       if (d === "paid") return { tone: "success", label: "Paid", icon: CheckIcon };
       if (d === "done") return { tone: "success", label: "Served", icon: CheckIcon };
       if (d === "deleted") return { tone: "destructive", label: "Cancelled", icon: XIcon };
-      return { tone: "warning", label: "Pending", icon: ClockIcon };
+      return { tone: "warning", label: kind === "payment" ? "Not paid yet" : "Waiting", icon: ClockIcon };
     }
     case "delivery":
       if (s === "delivered" || s === "completed") return { tone: "success", label: "Delivered", icon: CheckIcon };
@@ -54,7 +50,7 @@ function resolve(kind: StatusKind, raw: string): Resolved {
       if (s === "received" || s === "completed") return { tone: "success", label: "Received", icon: CheckIcon };
       if (s === "approved" || s === "in_transit") return { tone: "info", label: humanize(s), icon: ClockIcon };
       if (["rejected", "cancelled", "canceled"].includes(s)) return { tone: "destructive", label: humanize(s), icon: XIcon };
-      return { tone: "warning", label: "Pending", icon: ClockIcon };
+      return { tone: "warning", label: "Sent", icon: ClockIcon };
     case "stock":
       if (["out", "out_of_stock", "empty"].includes(s)) return { tone: "destructive", label: "Out of stock", icon: XIcon };
       if (s === "low" || s === "low_stock") return { tone: "warning", label: "Low stock", icon: ClockIcon };
@@ -66,7 +62,7 @@ function resolve(kind: StatusKind, raw: string): Resolved {
     case "device":
       if (["approved", "active", "enrolled"].includes(s)) return { tone: "success", label: humanize(s), icon: CheckIcon };
       if (["rejected", "revoked", "disabled", "blocked"].includes(s)) return { tone: "destructive", label: humanize(s), icon: XIcon };
-      if (s === "pending") return { tone: "warning", label: "Pending", icon: ClockIcon };
+      if (s === "pending") return { tone: "warning", label: "Waiting for approval", icon: ClockIcon };
       return { tone: "neutral", label: humanize(s) };
     default:
       if (["paid", "done", "completed", "approved", "received", "delivered", "active", "success"].includes(s))

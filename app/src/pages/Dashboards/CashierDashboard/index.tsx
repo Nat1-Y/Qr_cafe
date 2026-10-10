@@ -267,7 +267,7 @@ const CashierDashboard = () => {
       variant: 'default' as const
     },
     {
-      title: 'Revenue',
+      title: 'Money in',
       subtitle: rangeHint,
       value: showStatsValues ? formatCurrency(todayStats.totalRevenue) : HIDDEN_STATS_PLACEHOLDER,
       variant: 'success' as const
@@ -308,7 +308,7 @@ const CashierDashboard = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-overlay" style={{ zIndex: 2147483647 }}>
           <div className="mx-4 flex w-full max-w-xs flex-col items-center gap-4 rounded-card border border-border bg-card p-6 shadow-pop">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
-            <p className="text-sm font-medium text-foreground">Recording payment…</p>
+            <p className="text-sm font-medium text-foreground">Saving payment…</p>
           </div>
         </div>,
         document.body

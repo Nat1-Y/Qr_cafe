@@ -36,8 +36,8 @@ export const RolesTable: React.FC<RolesTableProps> = ({
   return (
     <Card>
       <CardHeader className="pb-3 border-b">
-        <CardTitle>Defined roles</CardTitle>
-        <CardDescription>Roles available for assignment during user account creation</CardDescription>
+        <CardTitle>Roles</CardTitle>
+        <CardDescription>Roles you can give staff when you add them</CardDescription>
       </CardHeader>
       <CardContent className="pt-6 space-y-2">
         {roles.map(role => {
@@ -58,7 +58,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({
                     <Badge variant="outline" className="border-none text-muted-foreground">default</Badge>
                   )}
                 </div>
-                <div className="text-xs text-muted-foreground font-medium">Key: {role.name}</div>
+                <div className="text-xs text-muted-foreground font-medium">Code name: {role.name}</div>
                 {role.description && (
                   <div className="text-xs text-muted-foreground mt-0.5">{role.description}</div>
                 )}
@@ -72,7 +72,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({
                     : 'bg-muted/30 text-muted-foreground font-semibold text-xs'
                 }
               >
-                {role.is_active ? 'Active' : 'Disabled'}
+                {role.is_active ? 'Active' : 'Off'}
               </Badge>
 
               <div className="flex items-center gap-1 shrink-0">
@@ -82,7 +82,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({
                   className="h-8 w-8 p-0"
                   onClick={() => onEdit(role)}
                   disabled={isDefault}
-                  title={isDefault ? 'Default roles cannot be edited' : 'Edit role'}
+                  title={isDefault ? "Built-in roles can't be changed" : 'Edit role'}
                 >
                   <Edit3 />
                 </Button>
@@ -92,7 +92,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({
                   className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                   onClick={() => onDelete(role)}
                   disabled={isDefault}
-                  title={isDefault ? 'Default roles cannot be disabled' : 'Disable role'}
+                  title={isDefault ? "Built-in roles can't be turned off" : 'Turn off role'}
                 >
                   <Trash2 />
                 </Button>
@@ -103,7 +103,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({
 
         {roles.length === 0 && (
           <div className="p-8 text-center text-xs text-muted-foreground font-semibold border border-dashed rounded-xl bg-muted/20">
-            No roles configured. Click "Add Role" to create one.
+            No roles yet. Tap "Add role" to add one.
           </div>
         )}
       </CardContent>

@@ -33,6 +33,7 @@ import { can } from "@/lib/permissions";
 import { formatETB, shortDate, humanize } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { formatOrderNumber } from "@/lib/utils";
+import { friendlyError } from "@/lib/errors";
 
 type OrderItem = {
   id: string;
@@ -129,7 +130,7 @@ export default function OrdersPage() {
         setServerStats(res.stats);
         setMethods(m);
       })
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, [page, debouncedSearch, status, paid, dateFrom, dateTo, sort]);
 
@@ -168,11 +169,11 @@ export default function OrdersPage() {
         processed_by: uid,
       });
       await Payments.confirm(payment.id, uid);
-      toast.success("Payment recorded");
+      toast.success("Payment saved");
       setPaying(null);
       await reload();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setBusy(false);
     }
@@ -195,7 +196,7 @@ export default function OrdersPage() {
       setCancelling(null);
       await reload();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setCancelBusy(false);
     }
@@ -211,23 +212,23 @@ export default function OrdersPage() {
         icon: ReceiptTextIcon,
       },
       {
-        label: "Revenue collected",
+        label: "Money in",
         value: formatETB(serverStats.collected ?? 0),
         hint: "Paid orders",
         icon: TrendingUpIcon,
         valueClass: "text-success",
       },
       {
-        label: "Outstanding",
+        label: "Still owed",
         value: formatETB(serverStats.outstanding ?? 0),
-        hint: "Unpaid orders",
+        hint: "Orders not paid yet",
         icon: ClockIcon,
         valueClass: "text-warning",
       },
       {
-        label: "Pending",
+        label: "Waiting",
         value: serverStats.pending ?? 0,
-        hint: "Awaiting completion",
+        hint: "Not done yet",
         icon: HourglassIcon,
       },
     ],
@@ -321,7 +322,7 @@ export default function OrdersPage() {
     <div className="space-y-6">
       <PageHeader
         title="Orders"
-        description="Orders recorded at this branch."
+        description="Every order at this branch."
         action={
           <Button asChild>
             <Link href="/dashboard/orders/new">
@@ -339,7 +340,7 @@ export default function OrdersPage() {
         rows={orders}
         loading={loading}
         searchPlaceholder="Search orders…"
-        emptyMessage="No orders yet. Create your first order."
+        emptyMessage="No orders yet. Take your first order."
         server={{
           total: count,
           page,
@@ -366,8 +367,8 @@ export default function OrdersPage() {
             key: "status",
             label: "Status",
             options: [
-              { value: "pending", label: "Pending" },
-              { value: "completed", label: "Completed" },
+              { value: "pending", label: "Waiting" },
+              { value: "completed", label: "Done" },
               { value: "paid", label: "Paid" },
               { value: "cancelled", label: "Cancelled" },
             ],
@@ -377,7 +378,7 @@ export default function OrdersPage() {
             label: "Payment",
             options: [
               { value: "paid", label: "Paid" },
-              { value: "unpaid", label: "Unpaid" },
+              { value: "unpaid", label: "Not paid yet" },
             ],
             match: (o, v) => (v === "paid" ? isPaid(o) : !isPaid(o)),
           },
@@ -421,7 +422,7 @@ export default function OrdersPage() {
               <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Payment method</Label>
+              <Label>Paid with</Label>
               <select
                 className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={method}
@@ -436,7 +437,7 @@ export default function OrdersPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setPaying(null)}>Cancel</Button>
             <Button onClick={takePayment} disabled={busy}>
-              {busy ? "Processing…" : "Confirm payment"}
+              {busy ? "Saving…" : "Take payment"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -451,8 +452,8 @@ export default function OrdersPage() {
           </DialogHeader>
           <div className="text-muted-foreground space-y-2 text-sm">
             <p>
-              This voids the pending order and reverses any stock it consumed.
-              The change syncs to the POS. This cannot be undone.
+              This cancels the order and puts back any stock it used. The till
+              gets the change. You can&apos;t undo this.
             </p>
           </div>
           <DialogFooter>
@@ -528,7 +529,7 @@ export default function OrdersPage() {
                 </div>
                 {(viewing.items ?? []).length === 0 ? (
                   <div className="text-muted-foreground px-3 py-4 text-center text-sm">
-                    No items recorded for this order.
+                    No items on this order.
                   </div>
                 ) : (
                   (viewing.items ?? []).map((it) => (

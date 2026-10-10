@@ -17,7 +17,7 @@ export const ExpenseReports: React.FC<ExpenseReportsProps> = ({ reports }) => {
       {/* Grid of Reports */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="flex flex-col">
-          <CardHeader><CardTitle>Report totals</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Totals</CardTitle></CardHeader>
           <CardContent className="flex-1 grid grid-cols-2 gap-3">
             <div className="rounded-xl bg-success/5 border border-success/20 p-3">
               <p className="text-xs font-semibold text-success">Daily</p>
@@ -39,10 +39,10 @@ export const ExpenseReports: React.FC<ExpenseReportsProps> = ({ reports }) => {
         </Card>
 
         <Card className="flex flex-col">
-          <CardHeader><CardTitle>Category spend</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Spent by category</CardTitle></CardHeader>
           <CardContent className="flex-1 max-h-[220px] overflow-y-auto space-y-2 pr-1">
             {(reports.category_totals || []).length === 0 ? (
-              <p className="text-xs text-muted-foreground font-medium text-center py-8">No category totals available.</p>
+              <p className="text-xs text-muted-foreground font-medium text-center py-8">No expenses yet.</p>
             ) : (
               reports.category_totals.map((item: any) => (
                 <div key={item.category_key} className="flex items-center justify-between border-b border-border py-3 last:border-b-0">
@@ -61,7 +61,7 @@ export const ExpenseReports: React.FC<ExpenseReportsProps> = ({ reports }) => {
           <CardHeader><CardTitle>Top 5 biggest expenses</CardTitle></CardHeader>
           <CardContent className="flex-1 max-h-[220px] overflow-y-auto space-y-2 pr-1">
             {(reports.top_expenses || []).length === 0 ? (
-              <p className="text-xs text-muted-foreground font-medium text-center py-8">No expenses available.</p>
+              <p className="text-xs text-muted-foreground font-medium text-center py-8">No expenses yet.</p>
             ) : (
               reports.top_expenses.map((expense: any) => (
                 <div key={expense.id} className="flex items-center justify-between border-b border-border py-3 last:border-b-0">
@@ -80,7 +80,7 @@ export const ExpenseReports: React.FC<ExpenseReportsProps> = ({ reports }) => {
       {/* Expenses vs Sales Comparison */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle>Expenses vs sales summary</CardTitle>
+          <CardTitle>Expenses and sales</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -99,12 +99,12 @@ export const ExpenseReports: React.FC<ExpenseReportsProps> = ({ reports }) => {
               </p>
             </div>
             <div className="rounded-card border border-border bg-card px-4 py-3">
-              <p className="text-xs font-semibold text-muted-foreground">Expense ratio</p>
+              <p className="text-xs font-semibold text-muted-foreground">Expenses as part of sales</p>
               <p className="mt-1 font-semibold text-base text-foreground">{Number.parseFloat(String(expenseVsSales?.expense_ratio || 0)).toFixed(1)}%</p>
             </div>
           </div>
           <p className="text-xs text-muted-foreground font-medium mt-3 text-right">
-            Comparison window: {expenseVsSales?.date_from ? formatDateTime(expenseVsSales.date_from) : '—'} to {expenseVsSales?.date_to ? formatDateTime(expenseVsSales.date_to) : '—'}
+            Dates: {expenseVsSales?.date_from ? formatDateTime(expenseVsSales.date_from) : '—'} to {expenseVsSales?.date_to ? formatDateTime(expenseVsSales.date_to) : '—'}
           </p>
         </CardContent>
       </Card>

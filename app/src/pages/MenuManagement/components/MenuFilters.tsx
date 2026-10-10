@@ -49,7 +49,7 @@ export const MenuFilters: React.FC<MenuFiltersProps> = ({
       <CardContent className="pt-6">
         <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
           <SearchInput 
-              placeholder="Search menu items..." 
+              placeholder="Search the menu" 
               value={searchTerm} 
               onChange={e => setSearchTerm(e.target.value)} wrapperClassName="flex-1 min-w-48" />
           <Select value={filterType} onValueChange={setFilterType}>
@@ -71,10 +71,10 @@ export const MenuFilters: React.FC<MenuFiltersProps> = ({
             disabled={!isFastingType}
           >
             <SelectTrigger className="w-full sm:w-44">
-              <SelectValue placeholder="All sub categories" />
+              <SelectValue placeholder="All kinds" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All sub categories</SelectItem>
+              <SelectItem value="all">All kinds</SelectItem>
               {fastingSubCategories.map(c => (
                 <SelectItem key={c} value={c}>{c}</SelectItem>
               ))}

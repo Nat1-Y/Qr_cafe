@@ -19,8 +19,9 @@ import { DataTable, type Column } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
 import { ProfitSummary } from "@/components/reports/profit-summary";
 import { Expenses, Orders, Payments } from "@/lib/resources";
-import { formatETB, shortDate } from "@/lib/format";
+import { formatETB, shortDate, humanize } from "@/lib/format";
 import { EXPENSE_CATEGORIES, categoryLabel, expenseAmount, ymd } from "@/lib/profit";
+import { friendlyError } from "@/lib/errors";
 
 type Expense = {
   id: string;
@@ -64,7 +65,7 @@ export default function ExpensesPage() {
       setOrders(Array.isArray(ord) ? ord : []);
       setPayments(Array.isArray(pay) ? pay : []);
     } catch (e: any) {
-      toast.error(e.message || "Failed to load expenses");
+      toast.error(friendlyError(e, "Couldn't load expenses. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -98,7 +99,7 @@ export default function ExpensesPage() {
       return;
     }
     if (form.amount === "" || Number(form.amount) < 0) {
-      toast.error("Enter a valid amount");
+      toast.error("Enter an amount.");
       return;
     }
     const payload = {
@@ -111,15 +112,15 @@ export default function ExpensesPage() {
     try {
       if (editingId) {
         await Expenses.update(editingId, payload);
-        toast.success("Expense updated");
+        toast.success("Expense saved");
       } else {
         await Expenses.create(payload);
-        toast.success("Expense recorded");
+        toast.success("Expense added");
       }
       setOpen(false);
       await reload();
     } catch (e: any) {
-      toast.error(e.message || "Failed to save expense");
+      toast.error(friendlyError(e, "Couldn't save the expense. Please try again."));
     }
   }
 
@@ -130,7 +131,7 @@ export default function ExpensesPage() {
       toast.success("Deleted");
       await reload();
     } catch (e: any) {
-      toast.error(e.message || "Failed to delete expense");
+      toast.error(friendlyError(e, "Couldn't delete the expense. Please try again."));
     }
   }
 
@@ -158,8 +159,8 @@ export default function ExpensesPage() {
     },
     {
       key: "payment_method",
-      label: "Paid via",
-      render: (r) => r.payment_method || "—",
+      label: "Paid with",
+      render: (r) => (r.payment_method ? humanize(r.payment_method) : "—"),
     },
     {
       key: "amount",
@@ -182,7 +183,7 @@ export default function ExpensesPage() {
     <div className="space-y-6">
       <PageHeader
         title="Expenses"
-        description="Record house expenses and track profit (paid sales − expenses)."
+        description="Write down what the cafe spends, and see profit (paid sales minus expenses)."
         action={
           <Button onClick={openCreate}>
             <PlusIcon />
@@ -259,7 +260,7 @@ export default function ExpensesPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Paid via (optional)</Label>
+              <Label>Paid with (optional)</Label>
               <Input
                 value={form.payment_method ?? ""}
                 placeholder="Cash, bank transfer…"

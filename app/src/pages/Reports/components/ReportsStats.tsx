@@ -14,21 +14,21 @@ export const ReportsStats: React.FC<ReportsStatsProps> = ({ reportData }) => {
       <StatsCard
         title="Today's orders"
         value={reportData.dailyStats.totalOrders}
-        subtitle={`Cafe: ${reportData.dailyStats.cafeOrders} | Rest: ${reportData.dailyStats.restaurantOrders} | Bar: ${reportData.dailyStats.baristaOrders}`}
+        subtitle={`Cafe: ${reportData.dailyStats.cafeOrders} | Restaurant: ${reportData.dailyStats.restaurantOrders} | Barista: ${reportData.dailyStats.baristaOrders}`}
         icon={<BarChart2 className="w-5 h-5" />}
         variant="info"
       />
       <StatsCard
-        title="Today's revenue"
+        title="Money in today"
         value={`${formatETB((reportData.dailyStats.paidRevenue || 0))}`}
-        subtitle="Paid settlement orders only"
+        subtitle="Paid orders only"
         icon={<DollarSign className="w-5 h-5" />}
         variant="success"
       />
       <StatsCard
         title="Weekly orders"
         value={reportData.weeklyStats.totalOrders}
-        subtitle={`Avg paid: ${formatETB((reportData.weeklyStats.avgPaidOrderValue || 0))}`}
+        subtitle={`Average order: ${formatETB((reportData.weeklyStats.avgPaidOrderValue || 0))}`}
         icon={<TrendingUp className="w-5 h-5" />}
         variant="default"
       />

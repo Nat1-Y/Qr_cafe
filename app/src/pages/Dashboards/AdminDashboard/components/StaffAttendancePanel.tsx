@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock } from 'lucide-react';
+import { humanize } from '@/lib/format';
 
 interface StaffAttendancePanelProps {
   attendanceData: any[];
@@ -14,8 +15,8 @@ export const StaffAttendancePanel: React.FC<StaffAttendancePanelProps> = ({
     <Card>
       <CardHeader className="pb-3 border-b flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Active floor staff</CardTitle>
-          <CardDescription>Shift logs and live active workers</CardDescription>
+          <CardTitle>Staff on shift</CardTitle>
+          <CardDescription>Who clocked in today</CardDescription>
         </div>
         <Badge variant="info">
           {attendanceData.length} on duty
@@ -42,7 +43,7 @@ export const StaffAttendancePanel: React.FC<StaffAttendancePanelProps> = ({
                     {attendance.full_name}
                   </p>
                   <p className="text-xs font-semibold text-muted-foreground">
-                    {attendance.role?.replace('_', ' ')}
+                    {humanize(attendance.role)}
                   </p>
                 </div>
               </div>
@@ -59,14 +60,14 @@ export const StaffAttendancePanel: React.FC<StaffAttendancePanelProps> = ({
                   variant={attendance.clock_out_time ? 'secondary' : 'success'}
                  
                 >
-                  {attendance.clock_out_time ? 'Shift Ended' : 'Live'}
+                  {attendance.clock_out_time ? 'Clocked out' : 'Working now'}
                 </Badge>
               </div>
             </div>
           ))
         ) : (
           <div className="p-8 text-center text-xs text-muted-foreground font-semibold border border-dashed rounded-xl bg-muted/20">
-            Team not clocked in today
+            No one has clocked in today
           </div>
         )}
       </CardContent>

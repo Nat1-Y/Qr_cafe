@@ -1,7 +1,7 @@
 import { formatOrderNumber } from "@/lib/utils";
 import React from 'react';
 import { Order } from '@/types/api.types';
-import { formatETB } from '@/lib/format';
+import { formatETB, humanize } from '@/lib/format';
 
 interface ReceiptSelectorProps {
   loading: boolean;
@@ -24,22 +24,22 @@ export const ReceiptSelector: React.FC<ReceiptSelectorProps> = ({
 
   return (
     <div className="bg-card rounded-lg p-4 space-y-4">
-      <h3 className="font-semibold text-lg">Select order</h3>
+      <h3 className="font-semibold text-lg">Pick an order</h3>
 
       <input
         type="text"
-        placeholder="Search by order ID or table..."
+        placeholder="Search by order number or table"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-info/30"
       />
 
       {loading ? (
-        <div className="text-center py-4 text-muted-foreground">Loading...</div>
+        <div className="text-center py-4 text-muted-foreground">Loading…</div>
       ) : (
         <div className="space-y-3 max-h-96 overflow-y-auto">
           {orders.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No paid orders available</p>
+            <p className="text-sm text-muted-foreground">No paid orders yet</p>
           ) : (
             <div className="space-y-2">
               {orders.map((order) => (
@@ -58,7 +58,7 @@ export const ReceiptSelector: React.FC<ReceiptSelectorProps> = ({
                     </span>
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    {order.table_number && `Table ${order.table_number}`} • {order.status}
+                    {order.table_number && `Table ${order.table_number}`} • {humanize(order.status)}
                   </div>
                 </button>
               ))}

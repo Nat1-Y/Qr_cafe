@@ -31,7 +31,7 @@ export class TablesService {
   async create(payload: any) {
     const tableNumber = Number(payload?.table_number ?? payload?.number);
     if (!tableNumber || tableNumber < 1)
-      throw new BadRequestException("Valid table_number is required");
+      throw new BadRequestException("Enter a table number.");
 
     const [created] = await db
       .insert(diningTables)
@@ -52,7 +52,7 @@ export class TablesService {
 
     if (payload?.table_number !== undefined) {
       const n = Number(payload.table_number);
-      if (!n || n < 1) throw new BadRequestException("Valid table_number is required");
+      if (!n || n < 1) throw new BadRequestException("Enter a table number.");
       updates.table_number = n;
     }
 

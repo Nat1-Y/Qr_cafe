@@ -47,7 +47,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
               <TableRow>
                 <TableHead>Order</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="hidden sm:table-cell">Method</TableHead>
+                <TableHead className="hidden sm:table-cell">Paid with</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden md:table-cell">Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -112,7 +112,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
                   <TableCell colSpan={7}>
                     <EmptyState
                       icon={<CreditCard />}
-                      title="No payments found"
+                      title="No payments match"
                       description="Try clearing the filters."
                     />
                   </TableCell>

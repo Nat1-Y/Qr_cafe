@@ -5,6 +5,7 @@ import { syncEngine } from "@/infrastructure/sync/sync-engine";
 import { useSyncRefetch } from "@/hooks/useSyncRefetch";
 import { Table, TableFormData } from "../types";
 import { INITIAL_FORM } from "../constants";
+import { friendlyError } from '@/lib/errors';
 
 export const useTableData = () => {
   const [loading, setLoading] = useState(true);
@@ -28,18 +29,18 @@ export const useTableData = () => {
   const handleManualSync = async () => {
     if (syncStatus.syncing) return;
     if (!syncStatus.online) {
-      toast.error("You are offline. Cannot sync right now.");
+      toast.error("No internet. Connect and try again.");
       return;
     }
-    toast.loading("Synchronizing tables...", { id: "manual-sync-progress" });
+    toast.loading("Updating tables…", { id: "manual-sync-progress" });
     const success = await syncEngine.sync(["tables_pull"]);
     if (success) {
-      toast.success("Synchronization completed successfully!", {
+      toast.success("Tables are up to date", {
         id: "manual-sync-progress",
       });
       await fetchTables();
     } else {
-      toast.error("Synchronization failed or nothing to sync.", {
+      toast.error("Couldn't update tables, or there was nothing new. Please try again.", {
         id: "manual-sync-progress",
       });
     }
@@ -58,7 +59,7 @@ export const useTableData = () => {
       ).sort((a, b) => a.number - b.number);
       setTables(data);
     } catch {
-      toast.error("Failed to load tables");
+      toast.error("Couldn't load tables. Please try again.");
     } finally {
       setLoading(false);
       hasLoadedRef.current = true;
@@ -79,11 +80,11 @@ export const useTableData = () => {
     const num = parseInt(formData.number, 10);
     const cap = parseInt(formData.capacity, 10);
     if (!Number.isFinite(num) || num <= 0) {
-      toast.error("Invalid table number");
+      toast.error("Enter a table number.");
       return;
     }
     if (!Number.isFinite(cap) || cap <= 0) {
-      toast.error("Invalid capacity");
+      toast.error("Enter how many people fit.");
       return;
     }
     if (tables.find((t) => t.number === num)) {
@@ -92,27 +93,27 @@ export const useTableData = () => {
     }
     try {
       await api.tables.create({ number: num, capacity: cap });
-      toast.success(`Table ${num} created`);
+      toast.success(`Table ${num} added`);
       setDialogOpen(false);
       setFormData(INITIAL_FORM);
       fetchTables();
     } catch (e: any) {
-      toast.error(e.response?.data?.message || "Failed to create table");
+      toast.error(friendlyError(e, "Couldn't add the table. Please try again."));
     }
   };
 
   const handleDelete = async (table: Table) => {
     if (table.status === "occupied") {
-      toast.error(`Cannot delete occupied Table ${table.number}`);
+      toast.error(`Table ${table.number} is in use. You can't delete it now.`);
       return;
     }
-    if (!window.confirm(`Delete Table ${table.number}?`)) return;
+    if (!window.confirm(`Delete table ${table.number}?`)) return;
     try {
       await api.tables.delete(table.id);
       toast.success(`Table ${table.number} deleted`);
       fetchTables();
     } catch (e: any) {
-      toast.error(e.response?.data?.message || "Failed to delete table");
+      toast.error(friendlyError(e, "Couldn't delete the table. Please try again."));
     }
   };
 

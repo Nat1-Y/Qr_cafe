@@ -19,8 +19,8 @@ export const EmployeeManagement: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Employees"
-        description="Orders each employee has taken."
+        title="Staff"
+        description="Orders each staff member has taken."
       />
 
       <EmployeeFilters

@@ -45,12 +45,12 @@ export default function UpdateManager() {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Update available
+            New version ready
           </DialogTitle>
           <DialogDescription>
             {update
-              ? `Version ${update.version} is ready to install. You're currently on ${update.currentVersion}.`
-              : 'A new version is ready to install.'}
+              ? `Version ${update.version} is ready. You have ${update.currentVersion}.`
+              : 'A new version is ready.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -79,7 +79,7 @@ export default function UpdateManager() {
         ) : null}
 
         {status === 'error' && error ? (
-          <p className="text-xs text-destructive">Update failed: {error}</p>
+          <p className="text-xs text-destructive">Update didn&apos;t finish: {error}</p>
         ) : null}
 
         <DialogFooter>
@@ -91,7 +91,7 @@ export default function UpdateManager() {
           <Button onClick={() => void install()} disabled={busy}>
             {status === 'error' ? (
               <>
-                <RefreshCw /> Retry
+                <RefreshCw /> Try again
               </>
             ) : busy ? (
               <>

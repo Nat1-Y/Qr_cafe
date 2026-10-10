@@ -12,8 +12,8 @@ export const PaymentMethodsBreakdown: React.FC<PaymentMethodsBreakdownProps> = (
   return (
     <Card className="transition-shadow">
       <CardHeader className="pb-3 border-b">
-        <CardTitle>Payment channel breakdown</CardTitle>
-        <CardDescription>Method shares for paid orders</CardDescription>
+        <CardTitle>Paid with</CardTitle>
+        <CardDescription>How customers paid</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="space-y-4 max-h-64 overflow-y-auto pr-1">
@@ -28,7 +28,7 @@ export const PaymentMethodsBreakdown: React.FC<PaymentMethodsBreakdownProps> = (
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-muted-foreground font-semibold">
-                    {count} transaction{count !== 1 ? 's' : ''}
+                    {count} payment{count !== 1 ? 's' : ''}
                   </span>
                   <div className="w-24 bg-muted rounded-full h-2">
                     <div 
@@ -43,7 +43,7 @@ export const PaymentMethodsBreakdown: React.FC<PaymentMethodsBreakdownProps> = (
             ))
           ) : (
             <p className="text-xs text-muted-foreground font-semibold text-center py-12">
-              No transactions settled in the selected window.
+              No payments in these dates.
             </p>
           )}
         </div>

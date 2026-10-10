@@ -40,15 +40,15 @@ export const OrganizationManagement: React.FC = () => {
   if (!isAdmin) {
     return (
       <div className="p-6">
-        <PageHeader title="Organizations" />
-        <Card className="mt-6"><CardContent className="py-10 text-center text-muted-foreground">Admin access required.</CardContent></Card>
+        <PageHeader title="Company accounts" />
+        <Card className="mt-6"><CardContent className="py-10 text-center text-muted-foreground">Only managers can open this page.</CardContent></Card>
       </div>
     );
   }
 
   return (
     <div className="p-4 md:p-8 space-y-6">
-      <PageHeader title="Organizations" description="Companies that order on credit, and what they owe." actions={
+      <PageHeader title="Company accounts" description="Companies that order on credit, and what they owe." actions={
         <Button onClick={load} variant="outline" size="sm"><RefreshCw />Refresh</Button>
       } />
 
@@ -56,7 +56,7 @@ export const OrganizationManagement: React.FC = () => {
         <div className="overflow-x-auto rounded-md border bg-card p-1">
           <TabsList className="h-auto w-max min-w-full justify-start bg-transparent p-0">
             <TabsTrigger value="organizations" className="gap-2 rounded-md px-4 py-2.5 text-xs">
-              <Building2 className="h-4 w-4" />Organizations
+              <Building2 className="h-4 w-4" />Company accounts
             </TabsTrigger>
             <TabsTrigger value="orders" className="gap-2 rounded-md px-4 py-2.5 text-xs">
               <ClipboardCheck className="h-4 w-4" />Orders
@@ -65,13 +65,13 @@ export const OrganizationManagement: React.FC = () => {
               Add payment
             </TabsTrigger>
             <TabsTrigger value="transactions" className="gap-2 rounded-md px-4 py-2.5 text-xs">
-              Record transaction
+              Use credit
             </TabsTrigger>
             <TabsTrigger value="payment-list" className="gap-2 rounded-md px-4 py-2.5 text-xs">
               <List className="h-4 w-4" />Payment list
             </TabsTrigger>
             <TabsTrigger value="transaction-history" className="gap-2 rounded-md px-4 py-2.5 text-xs">
-              <RefreshCw className="h-4 w-4" />Transaction history
+              <RefreshCw className="h-4 w-4" />Credit used
             </TabsTrigger>
           </TabsList>
         </div>
@@ -79,7 +79,7 @@ export const OrganizationManagement: React.FC = () => {
         {/* ── TAB 1: Organizations ── */}
         <TabsContent value="organizations" className="space-y-4">
           <div className="flex justify-end">
-            <Button onClick={openAdd}><Plus />Add organization</Button>
+            <Button onClick={openAdd}><Plus />Add company account</Button>
           </div>
           <Card>
             <CardContent className="p-0">

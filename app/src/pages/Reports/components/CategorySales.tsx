@@ -14,7 +14,7 @@ export const CategorySales: React.FC<CategorySalesProps> = ({ items }) => {
     <Card className="transition-shadow">
       <CardHeader className="pb-3 border-b">
         <CardTitle>Category sales</CardTitle>
-        <CardDescription>Revenue and quantity by menu category</CardDescription>
+        <CardDescription>Money in and amount sold for each menu category</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
@@ -33,7 +33,7 @@ export const CategorySales: React.FC<CategorySalesProps> = ({ items }) => {
             </div>
           )) : (
             <p className="text-xs text-muted-foreground font-semibold text-center py-12">
-              No category sales in the selected window.
+              No sales in these dates.
             </p>
           )}
         </div>

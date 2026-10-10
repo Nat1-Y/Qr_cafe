@@ -30,7 +30,7 @@ export function NavUser() {
     setUser(getUser());
   }, []);
 
-  const name = user?.full_name || user?.username || "Administrator";
+  const name = user?.full_name || user?.username || "Manager";
   const initials = name
     .split(/\s+/)
     .map((p) => p.charAt(0))
@@ -81,7 +81,7 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={onLogout} variant="destructive">
               <LogOutIcon />
-              Log out
+              Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

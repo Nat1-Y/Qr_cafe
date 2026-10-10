@@ -17,8 +17,8 @@ export const AdminUtilitiesBar: React.FC<AdminUtilitiesBarProps> = ({
   return (
     <Card>
       <CardHeader className="pb-3 border-b">
-        <CardTitle>Drawer administrative utilities</CardTitle>
-        <CardDescription>Shortcut workflows for active cashier operators</CardDescription>
+        <CardTitle>Shortcuts</CardTitle>
+        <CardDescription>Quick buttons for the cashier</CardDescription>
       </CardHeader>
       <CardContent className="pt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
         <Button
@@ -27,7 +27,7 @@ export const AdminUtilitiesBar: React.FC<AdminUtilitiesBarProps> = ({
           onClick={onProcessPayments}
         >
           <DollarSign className="w-5 h-5 text-primary" />
-          <span className="font-semibold text-xs">Process payments</span>
+          <span className="font-semibold text-xs">Take payments</span>
         </Button>
 
 
@@ -37,7 +37,7 @@ export const AdminUtilitiesBar: React.FC<AdminUtilitiesBarProps> = ({
           onClick={onViewReports}
         >
           <TrendingUp className="w-5 h-5 text-primary" />
-          <span className="font-semibold text-xs">View reports</span>
+          <span className="font-semibold text-xs">See reports</span>
         </Button>
 
         <Button

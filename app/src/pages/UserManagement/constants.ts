@@ -1,7 +1,7 @@
 import { UserFormData } from './types';
 
 export const ROLE_DISPLAY: Record<string, string> = {
-  admin: 'Administrator',
+  admin: 'Manager',
   cashier: 'Cashier',
 };
 

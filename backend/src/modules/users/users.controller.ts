@@ -42,7 +42,7 @@ export class UsersController {
     @Query("is_active") isActive?: string,
   ) {
     if (appClient !== "tauri-pos-app") {
-      throw new ForbiddenException("Access denied. Restricted to the local POS application.");
+      throw new ForbiddenException("This only works in the Buna till app.");
     }
 
     const params: { role?: string; is_active?: boolean } = {};
@@ -243,7 +243,7 @@ export class UsersController {
   async changePassword(@Param("id") id: string, @Body() body: any) {
     const { current_password, new_password } = body;
     if (!current_password || !new_password) {
-      throw new BadRequestException("current_password and new_password are required");
+      throw new BadRequestException("Enter your current password and a new password.");
     }
     try {
       await this.usersService.changePassword(id, current_password, new_password);
@@ -263,7 +263,7 @@ export class UsersController {
   async resetPassword(@Param("id") id: string, @Body() body: any) {
     const { password, pin } = body || {};
     if (!password && !pin) {
-      throw new BadRequestException("Either password or pin is required");
+      throw new BadRequestException("Enter a password or a PIN.");
     }
     try {
       await this.usersService.resetCredentials(id, { password, pin });
@@ -280,7 +280,7 @@ export class UsersController {
   @Patch(":id/role")
   async changeRole(@Param("id") id: string, @Body() body: any) {
     const role = body?.role;
-    if (!role) throw new BadRequestException("role is required");
+    if (!role) throw new BadRequestException("Choose a role.");
     try {
       const updated = await this.usersService.changeRole(id, role);
       return {
@@ -301,10 +301,10 @@ export class UsersController {
   async changePin(@Param("id") id: string, @Body() body: any) {
     const { current_pin, new_pin } = body;
     if (!current_pin || !new_pin) {
-      throw new BadRequestException("current_pin and new_pin are required");
+      throw new BadRequestException("Enter your current PIN and a new PIN.");
     }
     if (!/^\d{4}$/.test(new_pin)) {
-      throw new BadRequestException("new_pin must be exactly 4 digits");
+      throw new BadRequestException("PIN must be 4 numbers.");
     }
     try {
       await this.usersService.changePin(id, current_pin, new_pin);

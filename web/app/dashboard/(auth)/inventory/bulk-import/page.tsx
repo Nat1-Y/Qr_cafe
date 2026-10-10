@@ -38,6 +38,7 @@ import {
   parseInventoryFile,
   rowToInventoryPayload,
 } from "@/lib/inventory-import";
+import { friendlyError } from "@/lib/errors";
 
 export default function BulkInventoryImportPage() {
   const router = useRouter();
@@ -124,18 +125,18 @@ export default function BulkInventoryImportPage() {
 
   async function handleImport() {
     if (validRows.length === 0) {
-      toast.error("There are no valid rows to import.");
+      toast.error("No rows are ready to add. Fix the file and try again.");
       return;
     }
     setSubmitting(true);
     try {
       await Inventory.bulkSync(validRows.map(rowToInventoryPayload));
       toast.success(
-        `Imported ${validRows.length} item${validRows.length === 1 ? "" : "s"} successfully.`,
+        `Added ${validRows.length} stock item${validRows.length === 1 ? "" : "s"}.`,
       );
       router.push("/dashboard/inventory");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Bulk import failed");
+      toast.error(friendlyError(e, "Couldn't add the items. Please try again."));
     } finally {
       setSubmitting(false);
     }
@@ -151,14 +152,14 @@ export default function BulkInventoryImportPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Bulk inventory import"
-        description="Add many inventory items at once from a CSV or JSON file."
+        title="Add many stock items"
+        description="Add many stock items at once from a spreadsheet (CSV) or JSON file."
         action={
           <Button
             variant="outline"
             onClick={() => router.push("/dashboard/inventory")}>
             <ArrowLeftIcon />
-            Back to inventory
+            Back to stock
           </Button>
         }
       />
@@ -167,7 +168,7 @@ export default function BulkInventoryImportPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            1. Get a template &amp; upload your file
+            1. Get the example file, fill it in, and upload it
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -197,9 +198,12 @@ export default function BulkInventoryImportPage() {
           </div>
 
           <p className="text-muted-foreground text-xs">
-            Required column: <strong>name</strong>. Optional: unit, base_unit,
-            pieces_per_unit, min_quantity, quantity (opening stock), location
-            (an existing stock location — otherwise the default is used), notes.
+            Must have: item name (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">name</code>). Can also have: buying unit, e.g. kg bag{" "}
+            (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">unit</code>), small unit, e.g. gram (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">base_unit</code>), how many small
+            units in one buying unit (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">pieces_per_unit</code>), warn me when below{" "}
+            (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">min_quantity</code>), starting amount (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">quantity</code>), stock place
+            (one you already have, or the main one is used) (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">location</code>), and notes{" "}
+            (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">notes</code>).
           </p>
 
           <div
@@ -212,7 +216,7 @@ export default function BulkInventoryImportPage() {
             className="border-muted-foreground/25 bg-muted/20 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-8 text-center">
             <FileUpIcon className="text-muted-foreground size-8" />
             <p className="text-sm font-medium">
-              {fileName ?? "Drag & drop a .csv or .json file here"}
+              {fileName ?? "Drag a .csv or .json file here"}
             </p>
             <p className="text-muted-foreground text-xs">or</p>
             <Button
@@ -271,7 +275,7 @@ export default function BulkInventoryImportPage() {
       {result && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-            <CardTitle>2. Review &amp; confirm</CardTitle>
+            <CardTitle>2. Check and add</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="gap-1">
                 <CheckCircle2Icon className="size-3 text-success" />
@@ -280,13 +284,13 @@ export default function BulkInventoryImportPage() {
               {warningCount > 0 && (
                 <Badge variant="secondary" className="gap-1">
                   <AlertTriangleIcon className="size-3 text-warning" />
-                  {warningCount} warning{warningCount === 1 ? "" : "s"}
+                  {warningCount} to check
                 </Badge>
               )}
               {errorCount > 0 && (
                 <Badge variant="destructive" className="gap-1">
                   <XCircleIcon className="size-3" />
-                  {errorCount} error{errorCount === 1 ? "" : "s"}
+                  {errorCount} with problems
                 </Badge>
               )}
             </div>
@@ -301,8 +305,7 @@ export default function BulkInventoryImportPage() {
               <>
                 {errorCount > 0 && (
                   <p className="text-muted-foreground text-xs">
-                    Rows with errors are skipped. Fix them in your file and
-                    re-upload to include them.
+                    Rows with problems are skipped. Fix them in your file and upload it again to add them.
                   </p>
                 )}
                 <div className="max-h-[460px] overflow-auto rounded-md border">
@@ -313,8 +316,8 @@ export default function BulkInventoryImportPage() {
                         <TableHead>Name</TableHead>
                         <TableHead>Unit</TableHead>
                         <TableHead className="text-right">Qty</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead className="text-right">Min</TableHead>
+                        <TableHead>Stock place</TableHead>
+                        <TableHead className="text-right">Warn below</TableHead>
                         <TableHead>Status</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -370,7 +373,7 @@ function RowView({ row }: { row: ParsedInventoryRow }) {
         {row.quantity ?? "—"}
       </TableCell>
       <TableCell className="text-muted-foreground">
-        {row.location || (row.quantity !== null ? "Default" : "—")}
+        {row.location || (row.quantity !== null ? "Main place" : "—")}
       </TableCell>
       <TableCell className="text-right tabular-nums">{row.min_quantity}</TableCell>
       <TableCell>

@@ -52,7 +52,7 @@ export const PlaceOrgOrder: React.FC = () => {
         if (!cancelled) setOrgs(Array.isArray(list) ? list.filter((o: any) => o.is_active !== false) : []);
       } catch (error) {
         console.error('[PlaceOrgOrder] load failed', error);
-        toast.error('Failed to load organizations');
+        toast.error("Couldn't load companies. Please try again.");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -69,11 +69,10 @@ export const PlaceOrgOrder: React.FC = () => {
   if (!loading && !allowed) {
     return (
       <div className="p-4 md:p-8 space-y-6">
-        <PageHeader title="Organization orders" />
+        <PageHeader title="Company account orders" />
         <Card>
           <CardContent className="py-10 text-center text-muted-foreground">
-            You're not allowed to place organization orders. Ask the owner to
-            add you to the allow-list.
+            You can&apos;t take company orders yet. Ask the owner to allow you.
           </CardContent>
         </Card>
       </div>
@@ -83,22 +82,22 @@ export const PlaceOrgOrder: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Organization orders"
-        description="Pick which organization this order is for."
+        title="Company account orders"
+        description="Pick the company this order is for."
       />
 
       <SearchInput
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search organizations..." wrapperClassName="max-w-sm" />
+          placeholder="Search companies" wrapperClassName="max-w-sm" />
 
       <Card>
         <CardContent className="p-0">
           {loading ? (
-            <p className="text-muted-foreground text-center py-10">Loading...</p>
+            <p className="text-muted-foreground text-center py-10">Loading…</p>
           ) : filtered.length === 0 ? (
             <p className="text-muted-foreground text-center py-10">
-              No organizations found.
+              No companies match.
             </p>
           ) : (
             <div className="divide-y">

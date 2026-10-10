@@ -96,11 +96,11 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
 
   const handleAddLine = () => {
     setAddError('');
-    if (!draftLine.inventory_item_id) { setAddError('Select an item'); return; }
+    if (!draftLine.inventory_item_id) { setAddError('Pick an item.'); return; }
     const qty = parseFloat(draftLine.quantity);
-    if (!Number.isFinite(qty) || qty <= 0) { setAddError('Enter a valid quantity'); return; }
+    if (!Number.isFinite(qty) || qty <= 0) { setAddError('Enter an amount.'); return; }
     if (draftBaseQty > Number(draftAvailable)) {
-      setAddError(`Only ${draftAvailable} ${draftItem?.base_unit || 'pieces'} available at source`);
+      setAddError(`Only ${draftAvailable} ${draftItem?.base_unit || 'pieces'} left in the "from" place`);
       return;
     }
     setTransferData(p => ({ ...p, lines: [...p.lines, { ...draftLine }] }));
@@ -127,7 +127,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5 text-primary" />
-            Transfer stock between locations
+            Move stock between places
           </DialogTitle>
         </DialogHeader>
 
@@ -136,14 +136,14 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
           {/* ── Location row ── */}
           <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-end">
             <div className="space-y-1.5">
-              <Label>From location</Label>
+              <Label>From</Label>
               <select
                 value={transferData.from_location}
                 onChange={e => setTransferData(p => ({ ...p, from_location: e.target.value }))}
                 className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 required
               >
-                <option value="">Source…</option>
+                <option value="">Pick a place</option>
                 {locations.map((loc: any) => (
                   <option key={loc.id} value={loc.id}>{loc.name}</option>
                 ))}
@@ -155,14 +155,14 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
             </div>
 
             <div className="space-y-1.5">
-              <Label>To location</Label>
+              <Label>To</Label>
               <select
                 value={transferData.to_location}
                 onChange={e => setTransferData(p => ({ ...p, to_location: e.target.value }))}
                 className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 required
               >
-                <option value="">Destination…</option>
+                <option value="">Pick a place</option>
                 {locations
                   .filter((loc: any) => String(loc.id) !== transferData.from_location)
                   .map((loc: any) => (
@@ -174,7 +174,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
 
           {/* ── Add item row ── */}
           <div className="rounded-lg border border-dashed border-muted-foreground/40 bg-muted/20 p-3 space-y-3">
-            <p className="text-xs font-medium text-muted-foreground">Add items to transfer</p>
+            <p className="text-xs font-medium text-muted-foreground">Add items to move</p>
 
             <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-end">
               {/* Item selector */}
@@ -188,7 +188,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
                   }}
                   className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 >
-                  <option value="">Choose item…</option>
+                  <option value="">Pick an item</option>
                   {availableItems.map(item => {
                     const avail = getStockAtLocation(item, fromLocationId);
                     return (
@@ -243,10 +243,10 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
             )}
             {draftItem?.transfer_link && (
               <p className="text-xs text-primary">
-                Linked item: received as{' '}
+                Pack: the other place gets{' '}
                 <strong>{draftItem.transfer_link.target_item_name ?? 'linked item'}</strong>
                 {draftLine.quantity && Number.isFinite(draftBaseQty) ? (
-                  <> — destination gains <strong>
+                  <> — it gets <strong>
                     {draftBaseQty * Math.max(1, Number(draftItem.transfer_link.conversion_factor) || 1)}
                   </strong></>
                 ) : (
@@ -264,7 +264,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
           {transferData.lines.length > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-medium text-muted-foreground">
-                Items to Transfer ({transferData.lines.length})
+                Items to move ({transferData.lines.length})
               </p>
 
               {/* Summary badge */}
@@ -292,7 +292,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium truncate">{lineItem?.name ?? 'Unknown'}</span>
                           {overStock && (
-                            <Badge variant="destructive">Over stock</Badge>
+                            <Badge variant="destructive">More than you have</Badge>
                           )}
                         </div>
                         <div className="text-xs text-muted-foreground mt-0.5">
@@ -349,7 +349,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
             <Input
               value={transferData.notes}
               onChange={e => setTransferData(p => ({ ...p, notes: e.target.value }))}
-              placeholder="Reason for transfer, batch number, etc."
+              placeholder="Why you are moving it, batch number, etc."
             />
           </div>
 
@@ -362,8 +362,8 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
               disabled={isSubmitting || transferData.lines.length === 0 || !transferData.from_location || !transferData.to_location}
             >
               {isSubmitting
-                ? 'Transferring…'
-                : `Transfer${transferData.lines.length > 0 ? ` (${transferData.lines.length} item${transferData.lines.length > 1 ? 's' : ''})` : ''}`}
+                ? 'Moving…'
+                : `Move stock${transferData.lines.length > 0 ? ` (${transferData.lines.length} item${transferData.lines.length > 1 ? 's' : ''})` : ''}`}
             </Button>
           </DialogFooter>
         </form>

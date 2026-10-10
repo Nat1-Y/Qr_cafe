@@ -228,10 +228,10 @@ export class InventoryService {
       Number.isFinite(factorRaw) && factorRaw >= 1 ? Math.round(factorRaw) : 1;
 
     if (!sourceId || !targetId) {
-      throw new BadRequestException("Source and target items are required");
+      throw new BadRequestException("Choose both items.");
     }
     if (sourceId === targetId) {
-      throw new BadRequestException("An item cannot be linked to itself");
+      throw new BadRequestException("Choose two different items.");
     }
 
     const branchId = requireBranchId();
@@ -1475,7 +1475,7 @@ export class InventoryService {
         .where(and(eq(stockLocations.is_default, true), eq(stockLocations.branch_id, branchId)))
         .limit(1);
       if (!defaultLoc)
-        throw new BadRequestException("No default stock location defined");
+        throw new BadRequestException("Set a main stock place first.");
       locationId = defaultLoc.id;
     }
     const allowedLocations = await this.rolePermissions.getAllowedLocations("inventory");
@@ -1619,7 +1619,7 @@ export class InventoryService {
         const itemId = String(line.inventory_item_id || "");
         const quantity = numberOrZero(line.quantity);
         if (!itemId || quantity <= 0) {
-          throw new BadRequestException("Invalid transfer item or quantity");
+          throw new BadRequestException("Check the items and amounts and try again.");
         }
 
         const [item] = await tx
@@ -1628,7 +1628,7 @@ export class InventoryService {
           .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.branch_id, branchId)))
           .limit(1);
         if (!item)
-          throw new NotFoundException(`Inventory item ID ${itemId} not found`);
+          throw new NotFoundException("We couldn't find that stock item.");
 
         // One-to-many link: a linked source item is received as its target
         // item at the destination (quantity × conversion_factor). Unlinked

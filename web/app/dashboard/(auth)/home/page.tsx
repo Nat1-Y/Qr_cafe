@@ -17,6 +17,7 @@ import { RevenueTrend } from "@/components/reports/revenue-trend";
 import { TopItems } from "@/components/top-items";
 import { StatusBadge } from "@/components/status-badge";
 import { formatOrderNumber } from "@/lib/utils";
+import { friendlyError } from "@/lib/errors";
 const withinRange = (value: any, fromDt: Date | null, toDt: Date | null) => {
   if (!fromDt && !toDt) return true;
   const dt = new Date(value);
@@ -54,7 +55,7 @@ export default function HomePage() {
         setOrders(Array.isArray(ords) ? ords : []);
         setPayments(Array.isArray(pays) ? pays : []);
       })
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, []);
 
@@ -123,9 +124,9 @@ export default function HomePage() {
       <StatCards
         loading={loading}
         cards={[
-          { label: "Revenue", value: formatETB(sales.paid), hint: "Collected", valueClass: "text-accent" },
-          { label: "Not paid yet", value: formatETB(sales.unpaid), hint: "Outstanding", valueClass: "text-warning" },
-          { label: "Total sales", value: formatETB(sales.total), hint: "Paid and unpaid" },
+          { label: "Money in", value: formatETB(sales.paid), hint: "Paid", valueClass: "text-accent" },
+          { label: "Not paid yet", value: formatETB(sales.unpaid), hint: "Still owed", valueClass: "text-warning" },
+          { label: "Total sales", value: formatETB(sales.total), hint: "Paid and not paid yet" },
           { label: "Orders", value: inRange.length, hint: `${stats.orders} all time` },
         ]}
       />

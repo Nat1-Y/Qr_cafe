@@ -73,7 +73,7 @@ const requireOnline = () =>
   isOnline()
     ? null
     : Promise.reject(
-      new Error("Inventory management requires an internet connection"),
+      new Error("No internet. Connect to change stock."),
     );
 
 // Stock locations keep their own local mirror (a separate, in-scope domain), so

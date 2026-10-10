@@ -493,7 +493,7 @@ export class PlatformService {
       .where(eq(businesses.slug, slug))
       .limit(1);
     if (existing) {
-      throw new BadRequestException(`Business slug "${slug}" already exists`);
+      throw new BadRequestException(`A business with the short name "${slug}" already exists.`);
     }
 
     const passwordHash = await hash(input.owner.password, BCRYPT_ROUNDS);

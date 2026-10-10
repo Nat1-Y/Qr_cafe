@@ -59,7 +59,7 @@ const CashierEmployees = () => {
   } = useCashierEmployeesData();
 
   if (loading && employees.length === 0) {
-    return <LoadingSpinner text="Loading employee operations..." />;
+    return <LoadingSpinner text="Loading waiters…" />;
   }
 
   // FIRST VIEW: employees select view with built-in search filter
@@ -68,7 +68,7 @@ const CashierEmployees = () => {
       <div className="p-4 md:p-8 space-y-6">
         <PageHeader
           title="Waiters"
-          description="Pick a waiter to see their orders and check them out."
+          description="Pick a waiter to see their orders and take payment."
           actions={<BranchBadge />}
         />
 
@@ -87,7 +87,7 @@ const CashierEmployees = () => {
         <PageHeader
           eyebrow="Waiter"
           title={selectedEmployee?.full_name || selectedEmployeeId}
-          description="Orders, payments and checkout for this waiter."
+          description="This waiter's orders and payments."
           actions={
             <Button variant="outline" onClick={() => setSelectedEmployeeId('')}>
               <ArrowLeft /> All waiters

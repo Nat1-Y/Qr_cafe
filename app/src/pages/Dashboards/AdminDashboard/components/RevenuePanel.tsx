@@ -1,4 +1,5 @@
-import { uuidToDisplayId } from "@/lib/utils";
+import { formatOrderNumber, uuidToDisplayId } from "@/lib/utils";
+import { humanize } from "@/lib/format";
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -22,9 +23,9 @@ export const RevenuePanel: React.FC<RevenuePanelProps> = ({
     <Card>
       <CardHeader className="pb-3 border-b flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Revenue & settlement ledger</CardTitle>
+          <CardTitle>Money in</CardTitle>
           <CardDescription>
-            Payout timeline logs across all gateway accounts
+            Latest payments, newest first
           </CardDescription>
         </div>
         <Button
@@ -32,17 +33,17 @@ export const RevenuePanel: React.FC<RevenuePanelProps> = ({
           variant="outline"
           onClick={() => navigate('/dashboard/payments')}
         >
-          Full audit
+          See all payments
         </Button>
       </CardHeader>
       <CardContent className="pt-6 overflow-x-auto">
         <div className="min-w-[600px] space-y-2">
           <div className="grid grid-cols-5 text-xs font-semibold text-muted-foreground pb-2 border-b">
-            <div>Ref ID</div>
-            <div>Order #</div>
-            <div>Settled amount</div>
-            <div>Gateway channel</div>
-            <div className="text-right">Settlement timeline</div>
+            <div>Payment</div>
+            <div>Order</div>
+            <div>Amount paid</div>
+            <div>Paid with</div>
+            <div className="text-right">Status and time</div>
           </div>
 
           {payments.length > 0 ? (
@@ -54,7 +55,9 @@ export const RevenuePanel: React.FC<RevenuePanelProps> = ({
                 <div className="text-muted-foreground font-semibold">
                   P-{uuidToDisplayId(payment.id)}
                 </div>
-                <div className="text-foreground">#{payment.order_id}</div>
+                <div className="text-foreground">
+                  {formatOrderNumber({ order_number: payment.order_number, id: payment.order_id })}
+                </div>
                 <div>
                   <span className="font-semibold text-success bg-success/10 px-2 py-0.5 rounded-md border border-success/30">
                     {formatETB(getPaymentAmount(payment))}
@@ -62,12 +65,12 @@ export const RevenuePanel: React.FC<RevenuePanelProps> = ({
                 </div>
                 <div>
                   <Badge variant="secondary">
-                    {payment.payment_method?.replace('_', ' ')}
+                    {humanize(payment.payment_method)}
                   </Badge>
                 </div>
                 <div className="text-right flex flex-col items-end gap-1">
                   <Badge variant="success">
-                    {payment.status}
+                    {humanize(payment.status)}
                   </Badge>
                   <span className="text-xs text-muted-foreground font-semibold">
                     {formatDate(payment.created_at)}
@@ -77,7 +80,7 @@ export const RevenuePanel: React.FC<RevenuePanelProps> = ({
             ))
           ) : (
             <div className="p-8 text-center text-xs text-muted-foreground font-semibold border border-dashed rounded-xl bg-muted/20">
-              No recent transactions settled in this range
+              No payments in this time yet
             </div>
           )}
         </div>

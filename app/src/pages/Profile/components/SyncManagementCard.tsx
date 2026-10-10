@@ -6,6 +6,30 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Globe, RefreshCw, UploadCloud, DownloadCloud } from 'lucide-react';
 import { SyncFormData, SyncMetaData } from '../types';
+import { friendlyError, messageForStatus } from '@/lib/errors';
+
+// The interval is stored in milliseconds; people see and type minutes.
+const MS_PER_MINUTE = 60000;
+const toMinutes = (ms: number) => Math.round((ms / MS_PER_MINUTE) * 100) / 100;
+
+// Plain words for the last send result instead of a raw HTTP code.
+const lastSendLabel = (status: number | null) => {
+  if (status == null) return '—';
+  if (status >= 200 && status < 300) return 'Sent';
+  return messageForStatus(status) ?? "Didn't send";
+};
+
+// Friendly sentence on screen, raw text tucked away for support staff.
+const ErrorWithDetails: React.FC<{ raw: string }> = ({ raw }) => (
+  <div className="space-y-1">
+    <div>{friendlyError(raw)}</div>
+    <details className="text-[11px] font-normal">
+      <summary className="cursor-pointer">Details for support</summary>
+      <code className="block break-all pt-1">{raw}</code>
+    </details>
+  </div>
+);
+
 
 interface SyncManagementCardProps {
   syncForm: SyncFormData;
@@ -34,9 +58,9 @@ export const SyncManagementCard: React.FC<SyncManagementCardProps> = ({
         <div className="space-y-1">
           <CardTitle className="flex items-center gap-2">
             <Globe className="w-5 h-5 text-primary" />
-            <span>Desktop sync to hosted domain</span>
+            <span>Send updates online</span>
           </CardTitle>
-          <CardDescription>Provision backend sync status</CardDescription>
+          <CardDescription>This till sends its orders and payments to your online account.</CardDescription>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -46,14 +70,14 @@ export const SyncManagementCard: React.FC<SyncManagementCardProps> = ({
             disabled={syncBusy !== ''}
           >
             <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${syncBusy === 'remote-status' ? 'animate-spin' : ''}`} />
-            Test domain
+            Connection check
           </Button>
           <Button
             size="sm"
             onClick={saveSyncConfig}
             disabled={syncBusy !== ''}
           >
-            {syncBusy === 'save-sync' ? 'Saving...' : 'Save Sync Settings'}
+            {syncBusy === 'save-sync' ? 'Saving…' : 'Save settings'}
           </Button>
         </div>
       </CardHeader>
@@ -70,12 +94,12 @@ export const SyncManagementCard: React.FC<SyncManagementCardProps> = ({
                 onChange={(e) => setSyncForm((prev: any) => ({ ...prev, enabled: e.target.checked }))}
               />
               <Label htmlFor="sync-enabled" className="cursor-pointer">
-                Enable background sync from desktop to hosted domain
+                Send updates by itself in the background
               </Label>
             </div>
 
             <div className="space-y-2">
-              <Label>Hosted domain URL</Label>
+              <Label>Online address</Label>
               <Input
                 type="url"
                 value={syncForm.remoteUrl}
@@ -85,27 +109,32 @@ export const SyncManagementCard: React.FC<SyncManagementCardProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label>Sync token</Label>
+              <Label>Connection password</Label>
               <Input
                 type="password"
                 value={syncForm.token}
                 onChange={(e) => setSyncForm((prev) => ({ ...prev, token: e.target.value }))}
-                placeholder={syncMeta.hasToken ? 'Leave blank to keep existing token' : 'Optional shared sync token'}
+                placeholder={syncMeta.hasToken ? 'Leave empty to keep the saved password' : 'Connection password (if you have one)'}
               />
               <p className="text-xs text-muted-foreground font-semibold">
-                {syncMeta.hasToken ? 'A token is already saved locally.' : 'If your hosted server requires a sync token, enter it here.'}
+                {syncMeta.hasToken ? 'A connection password is already saved on this till.' : 'Only needed if your online account gave you one.'}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label>Sync interval (milliseconds)</Label>
+              <Label>Send updates every (minutes)</Label>
               <Input
                 type="number"
-                min="10000"
-                max="900000"
-                step="1000"
-                value={syncForm.intervalMs}
-                onChange={(e) => setSyncForm((prev) => ({ ...prev, intervalMs: Number(e.target.value || 30000) }))}
+                min="0.5"
+                max="15"
+                step="0.5"
+                value={toMinutes(syncForm.intervalMs)}
+                onChange={(e) =>
+                  setSyncForm((prev) => ({
+                    ...prev,
+                    intervalMs: e.target.value ? Math.round(Number(e.target.value) * MS_PER_MINUTE) : 30000,
+                  }))
+                }
               />
             </div>
           </div>
@@ -113,38 +142,49 @@ export const SyncManagementCard: React.FC<SyncManagementCardProps> = ({
           <div className="space-y-4">
             <div className="rounded-xl border p-4 bg-muted/40 space-y-2.5">
               <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-muted-foreground">Background sync</span>
+                <span className="text-muted-foreground">Send updates by itself</span>
                 <Badge variant={syncForm.enabled ? 'success' : 'secondary'}>
-                  {syncForm.enabled ? 'Enabled' : 'Disabled'}
+                  {syncForm.enabled ? 'On' : 'Off'}
                 </Badge>
               </div>
               <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-muted-foreground">Pending local changes</span>
+                <span className="text-muted-foreground">Not sent yet</span>
                 <Badge variant={syncMeta.hasPendingChanges ? 'warning' : 'success'}>
-                  {syncMeta.hasPendingChanges ? 'Yes' : 'No'}
+                  {syncMeta.hasPendingChanges ? 'Some changes' : 'All sent'}
                 </Badge>
               </div>
               <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-muted-foreground">Last push status</span>
-                <span className="font-semibold text-foreground">{syncMeta.lastResponseStatus ?? '—'}</span>
+                <span className="text-muted-foreground">Last send</span>
+                <span className="font-semibold text-foreground">{lastSendLabel(syncMeta.lastResponseStatus)}</span>
               </div>
               <div className="text-xs text-muted-foreground font-semibold pt-2 border-t space-y-1">
-                <div>Last attempt: {syncMeta.lastAttemptAt ? new Date(syncMeta.lastAttemptAt).toLocaleString() : 'Never'}</div>
-                <div>Last success: {syncMeta.lastSuccessAt ? new Date(syncMeta.lastSuccessAt).toLocaleString() : 'Never'}</div>
-                <div>Last error: {syncMeta.lastError || 'None'}</div>
+                <div>Last tried: {syncMeta.lastAttemptAt ? new Date(syncMeta.lastAttemptAt).toLocaleString() : 'Never'}</div>
+                <div>Last sent: {syncMeta.lastSuccessAt ? new Date(syncMeta.lastSuccessAt).toLocaleString() : 'Never'}</div>
+                <div>
+                  Last problem:{' '}
+                  {syncMeta.lastError ? <ErrorWithDetails raw={syncMeta.lastError} /> : 'None'}
+                </div>
               </div>
             </div>
 
             <div className="rounded-xl border p-4 bg-muted/40 space-y-1.5">
               <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-foreground">Hosted domain health</span>
+                <span className="text-foreground">Connection check</span>
                 <Badge variant={remoteStatus?.success ? 'success' : remoteStatus ? 'destructive' : 'secondary'}>
-                  {remoteStatus?.success ? 'Reachable' : remoteStatus ? 'Unavailable' : 'Not tested'}
+                  {remoteStatus?.success ? 'Connected' : remoteStatus ? 'Not connected' : 'Not checked yet'}
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground">
-                {remoteStatus?.error || remoteStatus?.remote?.message || remoteStatus?.remote?.status || 'Use Test Domain to verify the deployed server.'}
-              </p>
+              <div className="text-xs text-muted-foreground">
+                {remoteStatus?.success ? (
+                  'Your online account can be reached.'
+                ) : remoteStatus?.error || remoteStatus?.remote?.message ? (
+                  <ErrorWithDetails raw={String(remoteStatus?.error || remoteStatus?.remote?.message)} />
+                ) : remoteStatus ? (
+                  'No internet or wrong online address. Check and try again.'
+                ) : (
+                  'Tap Connection check to test the online address.'
+                )}
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-2 pt-2">
@@ -154,7 +194,7 @@ export const SyncManagementCard: React.FC<SyncManagementCardProps> = ({
                 size="sm"
               >
                 <UploadCloud />
-                {syncBusy === 'push' ? 'Pushing...' : 'Push Desktop Data'}
+                {syncBusy === 'push' ? 'Sending…' : 'Send now'}
               </Button>
               <Button
                 onClick={() => runSyncAction('pull')}
@@ -163,7 +203,7 @@ export const SyncManagementCard: React.FC<SyncManagementCardProps> = ({
                 size="sm"
               >
                 <DownloadCloud />
-                {syncBusy === 'pull' ? 'Pulling...' : 'Pull Hosted Data'}
+                {syncBusy === 'pull' ? 'Getting…' : 'Get latest from online'}
               </Button>
             </div>
           </div>

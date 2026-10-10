@@ -37,7 +37,7 @@ export const NumberKeypad: React.FC<NumberKeypadProps> = ({
       className={cn(KEY, QUIET_KEY)}
       onClick={onBackspace}
       disabled={isLoading}
-      aria-label="Delete last digit"
+      aria-label="Delete last number"
     >
       <Delete className="h-6 w-6" />
     </button>

@@ -16,7 +16,7 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
     <Card>
       <CardContent className="pt-6">
         <SearchInput
-            placeholder="Search inventory..."
+            placeholder="Search stock"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)} wrapperClassName="max-w-sm" />
       </CardContent>

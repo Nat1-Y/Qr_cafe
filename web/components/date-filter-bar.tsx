@@ -50,7 +50,7 @@ export function DateFilterBar({
   defaultPreset = "all",
   onChange,
   allLabel = "All",
-  viewingPrefix = "Viewing:",
+  viewingPrefix = "Showing:",
   showViewingBadge = true,
   className = "",
 }: {
@@ -117,7 +117,7 @@ export function DateFilterBar({
               variant={customMode === "specific" ? "selected" : "ghost"}
               size="sm"
               onClick={() => setCustomMode("specific")}>
-              Specific date
+              One day
             </Button>
             <Button
               type="button"

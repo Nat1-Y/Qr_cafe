@@ -33,8 +33,9 @@ const SESSION_MAX_AGE = 7 * 24 * 3600;
 // on /branch. The role gate below is what keeps the wrong tier out of each page.
 const OWNER_PORTAL_ROLES = ["super_admin", "owner", "business_admin"];
 // Every configurable (operation-level) role signs in through the branch portal;
-// what they can then see is governed by their role's permissions.
-const OPERATOR_PORTAL_ROLES = CONFIGURABLE_ROLES.map((r) => r.value);
+// what they can then see is governed by their role's permissions. Resolved
+// lazily because permissions.ts imports roleLabel from here (circular import).
+const operatorPortalRoles = () => CONFIGURABLE_ROLES.map((r) => r.value);
 
 // Token lives in a JS-readable cookie so middleware can guard routes and the API
 // client can attach it. This is a back-office tool; if you later need stronger
@@ -50,7 +51,7 @@ async function authenticate(
     body: JSON.stringify({ username, password }),
   });
   const token = data?.token?.access_token;
-  if (!token) throw new Error("Login failed: no token returned");
+  if (!token) throw new Error("We couldn't sign you in. Please try again.");
 
   if (!allowedRoles.includes(data.user?.role)) {
     throw new Error(rejectionMessage);
@@ -70,7 +71,7 @@ export function login(username: string, password: string): Promise<SessionUser> 
     username,
     password,
     OWNER_PORTAL_ROLES,
-    "This sign-in is for platform admins and business owners. Branch admins, F&B managers and finance staff should use the branch sign-in.",
+    "This sign-in is for owners. Staff, please use the branch sign-in.",
   );
 }
 
@@ -83,8 +84,8 @@ export function operatorLogin(
   return authenticate(
     username,
     password,
-    OPERATOR_PORTAL_ROLES,
-    "This sign-in is for branch staff. Owners and platform admins should use the main sign-in.",
+    operatorPortalRoles(),
+    "This sign-in is for branch staff. Owners, please use the main sign-in.",
   );
 }
 
@@ -101,13 +102,13 @@ export function logout() {
 export async function impersonateOwner(businessId: string): Promise<SessionUser> {
   const adminToken = getToken();
   const adminUser = getUser();
-  if (!adminToken || !adminUser) throw new Error("Not signed in");
+  if (!adminToken || !adminUser) throw new Error("Please sign in again.");
 
   const data = await apiFetch<any>(`/platform/businesses/${businessId}/impersonate`, {
     method: "POST",
   });
   const token = data?.token?.access_token;
-  if (!token) throw new Error("Impersonation failed: no token returned");
+  if (!token) throw new Error("We couldn't open this business. Please try again.");
 
   setCookie("pa_admin_token", adminToken, SESSION_MAX_AGE);
   localStorage.setItem("pa_admin_user", JSON.stringify(adminUser));
@@ -155,16 +156,29 @@ export function setUser(user: SessionUser) {
   localStorage.setItem("pa_user", JSON.stringify(user));
 }
 
+// The one place role keys become words people see. Every badge, role picker
+// and profile goes through roleLabel().
 const ROLE_LABELS: Record<string, string> = {
-  ...Object.fromEntries(CONFIGURABLE_ROLES.map((r) => [r.value, r.label])),
   super_admin: "Platform admin",
   owner: "Owner",
-  business_admin: "Business admin",
-  admin: "Administrator",
+  business_admin: "Owner",
+  admin: "Manager",
+  fb_manager: "Food & drinks manager",
+  finance: "Finance",
+  cashier: "Cashier",
   cafe_cashier: "Cashier",
+  cafe_waiter: "Waiter",
+  waiter: "Waiter",
+  kitchen_staff: "Kitchen",
+  kitchen: "Kitchen",
+  barista: "Barista",
+  host: "Host",
+  storekeeper: "Storekeeper",
+  accountant: "Accountant",
+  housekeeping: "Housekeeping",
 };
 
-export function roleLabel(role?: string): string {
+export function roleLabel(role?: string | null): string {
   if (!role) return "—";
   const label = ROLE_LABELS[role] ?? role.replace(/_/g, " ");
   return label.charAt(0).toUpperCase() + label.slice(1);

@@ -5,6 +5,7 @@ import { syncEngine } from "@/infrastructure/sync/sync-engine";
 import { useSyncRefetch } from "@/hooks/useSyncRefetch";
 import { UserItem, UserFormData, SyncStatusData, RoleOption } from "../types";
 import { DEFAULT_FORM } from "../constants";
+import { friendlyError } from '@/lib/errors';
 
 export const useUserData = () => {
   const [loading, setLoading] = useState(true);
@@ -40,7 +41,7 @@ export const useUserData = () => {
       const response = await api.users.getAll();
       setUsers((response as any).data?.data?.users || []);
     } catch {
-      toast.error("Failed to load users");
+      toast.error("Couldn't load staff. Please try again.");
     } finally {
       setLoading(false);
       hasLoadedRef.current = true;
@@ -74,18 +75,18 @@ export const useUserData = () => {
   const handleManualSync = async () => {
     if (syncStatus.syncing) return;
     if (!syncStatus.online) {
-      toast.error("You are offline. Cannot sync right now.");
+      toast.error("No internet. Connect and try again.");
       return;
     }
-    toast.loading("Synchronizing users...", { id: "manual-sync-progress" });
+    toast.loading("Updating staff…", { id: "manual-sync-progress" });
     const success = await syncEngine.sync(['users_pull', 'roles_pull']);
     if (success) {
-      toast.success("Synchronization completed successfully!", {
+      toast.success("Staff list is up to date", {
         id: "manual-sync-progress",
       });
       fetchUsers();
     } else {
-      toast.error("Synchronization failed or nothing to sync.", {
+      toast.error("Couldn't update staff, or there was nothing new. Please try again.", {
         id: "manual-sync-progress",
       });
     }
@@ -143,16 +144,16 @@ export const useUserData = () => {
         if (!data.password) delete data.password;
         if (!data.pin) delete data.pin;
         await api.users.update(selectedUser.id, data);
-        toast.success("User updated");
+        toast.success("Staff account saved");
       } else {
         await api.users.create(data);
-        toast.success("User created");
+        toast.success("Staff account added");
       }
       setDialogOpen(false);
       fetchUsers();
     } catch (err: any) {
       toast.error(
-        err?.response?.data?.message || err.message || "Failed to save user",
+        friendlyError(err, "Couldn't save the account. Please try again."),
       );
     }
   };
@@ -163,18 +164,18 @@ export const useUserData = () => {
       toast.success("Status updated");
       fetchUsers();
     } catch {
-      toast.error("Failed to update status");
+      toast.error("Couldn't change it. Please try again.");
     }
   };
 
   const deleteUser = async (userId: number) => {
-    if (!window.confirm("Delete this user?")) return;
+    if (!window.confirm("Delete this staff account?")) return;
     try {
       await api.users.delete(userId);
-      toast.success("User deleted");
+      toast.success("Staff account deleted");
       fetchUsers();
     } catch {
-      toast.error("Failed to delete user");
+      toast.error("Couldn't delete the account. Please try again.");
     }
   };
 

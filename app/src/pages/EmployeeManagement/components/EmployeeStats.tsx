@@ -26,9 +26,9 @@ export const EmployeeStats: React.FC<EmployeeStatsProps> = ({ activeSummary }) =
         variant="success"
       />
       <StatsCard
-        title="Unpaid total"
+        title="Not paid yet"
         value={`${formatETB(activeSummary?.unpaid_total)}`}
-        subtitle="Unpaid balance"
+        subtitle="Still owed"
         icon={<TrendingDown className="h-5 w-5" />}
         variant="destructive"
       />

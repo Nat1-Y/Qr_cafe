@@ -54,7 +54,7 @@ export function PermissionGate({ children }: { children: React.ReactNode }) {
     }
     const resource = resourceForPath(pathname);
     if (resource && !can(resource, "read")) {
-      toast.error("You don't have access to that page.");
+      toast.error("You don't have permission to open that page. Ask your manager.");
       router.replace(landingRoute(role));
     }
   }, [ready, pathname, router]);

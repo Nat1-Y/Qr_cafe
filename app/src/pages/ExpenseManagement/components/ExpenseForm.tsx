@@ -38,7 +38,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <div>
           <CardTitle>{isEditMode ? 'Edit expense' : 'New expense'}</CardTitle>
-          <CardDescription>Enter details of the outgoing spend</CardDescription>
+          <CardDescription>What you spent money on</CardDescription>
         </div>
         {isEditMode && (
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onCancel}>
@@ -49,7 +49,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Expense title *</Label>
+            <Label>What was it for? *</Label>
             <Input
               name="title"
               value={formData.title}
@@ -94,7 +94,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
               />
             </div>
             <div className="space-y-2">
-              <Label>Payment method</Label>
+              <Label>Paid with</Label>
               <Select value={formData.payment_method} onValueChange={onPaymentMethodChange}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -111,13 +111,13 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
               onChange={onFormChange}
               rows={3}
               className="resize-none"
-              placeholder="Audit context..."
+              placeholder="Anything to remember about this"
             />
           </div>
           <div className="flex gap-2 pt-2 border-t">
             <Button type="submit" className="flex-1" disabled={submitting}>
               {isEditMode ? <Edit3 /> : <Plus />}
-              {submitting ? 'Saving...' : (isEditMode ? 'Update' : 'Save')}
+              {submitting ? 'Saving…' : (isEditMode ? 'Save changes' : 'Save')}
             </Button>
             {isEditMode && (
               <Button type="button" variant="outline" className="flex-1" onClick={onCancel}>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatETB, humanize } from "@/lib/format";
 import { Orders } from "@/lib/resources";
+import { friendlyError } from "@/lib/errors";
 
 interface ZReportData {
   report_date: string;
@@ -56,7 +57,7 @@ const fmtDay = (d: string) =>
 const rangeLabel = (from: string, to: string) => {
   if (from && to) return from === to ? fmtDay(from) : `${fmtDay(from)} – ${fmtDay(to)}`;
   if (from) return `From ${fmtDay(from)}`;
-  if (to) return `Through ${fmtDay(to)}`;
+  if (to) return `Up to ${fmtDay(to)}`;
   return "Today";
 };
 
@@ -75,7 +76,7 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
       });
       setZReport(data ?? null);
     } catch (err: any) {
-      setError(err.message || "Failed to generate Z-report");
+      setError(friendlyError(err, "Couldn't make the end of day report. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -93,7 +94,7 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
           <div className="flex flex-wrap items-center justify-between gap-3">
             <CardTitle className="flex items-center gap-2">
               <CalendarRange className="size-5" />
-              Z-Report · {rangeLabel(dateFrom, dateTo)}
+              End of day report · {rangeLabel(dateFrom, dateTo)}
             </CardTitle>
             <Button variant="outline" size="sm" onClick={fetchZReport} disabled={loading}>
               <RefreshCw className={`mr-2 size-4 ${loading ? "animate-spin" : ""}`} />
@@ -103,8 +104,7 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-sm">
-            Sales settlement summary for the selected date range. Adjust the range using the date
-            picker at the top of the page.
+            Sales and payments for these dates. Change the dates at the top of the page.
           </p>
         </CardContent>
       </Card>
@@ -131,21 +131,21 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
             <CardContent>
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 <div>
-                  <p className="text-muted-foreground text-sm">Total Orders</p>
+                  <p className="text-muted-foreground text-sm">Total orders</p>
                   <p className="text-2xl font-semibold">{zReport.summary.total_orders}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-sm">Gross Sales</p>
+                  <p className="text-muted-foreground text-sm">Total sales</p>
                   <p className="text-2xl font-semibold">{formatETB(zReport.summary.gross_sales)}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-sm">Refunds</p>
+                  <p className="text-muted-foreground text-sm">Cancelled</p>
                   <p className="text-destructive text-2xl font-semibold">
                     {formatETB(zReport.summary.refunds)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-sm">Net Sales</p>
+                  <p className="text-muted-foreground text-sm">Sales after discounts</p>
                   <p className="text-2xl font-semibold text-success">
                     {formatETB(zReport.summary.net_sales)}
                   </p>
@@ -155,14 +155,14 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
                 <p>
                   Period: {fmtDate(zReport.period_start)} – {fmtDate(zReport.period_end)}
                 </p>
-                <p>Generated: {fmtDate(zReport.report_date)}</p>
+                <p>Made: {fmtDate(zReport.report_date)}</p>
               </div>
             </CardContent>
           </Card>
 
           <ZTable
-            title="Payment Breakdown"
-            head={["Method", "Count", "Amount", "%"]}
+            title="Paid with"
+            head={["Paid with", "Count", "Amount", "%"]}
             align={["left", "right", "right", "right"]}
             rows={zReport.payment_breakdown.map((p) => [
               <span key="m">
@@ -175,8 +175,8 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
           />
 
           <ZTable
-            title="Employee Activity"
-            head={["Employee", "Orders", "Sales"]}
+            title="Staff sales"
+            head={["Staff", "Orders", "Sales"]}
             align={["left", "right", "right"]}
             rows={zReport.employee_activity.map((e) => [
               e.employee_name,
@@ -186,12 +186,12 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
           />
 
           <ZTable
-            title="Category Breakdown"
+            title="Sales by category"
             head={["Category", "Count", "Amount"]}
             align={["left", "right", "right"]}
             rows={zReport.category_breakdown.map((c) => [
-              <span key="c" className="capitalize">
-                {c.category}
+              <span key="c">
+                {humanize(c.category)}
               </span>,
               c.count,
               formatETB(c.amount),
@@ -200,11 +200,15 @@ export function ZReport({ dateFrom = "", dateTo = "" }: { dateFrom?: string; dat
 
           {zReport.voided_transactions.length > 0 && (
             <ZTable
-              title="Voided Transactions"
-              head={["Order ID", "Employee", "Amount", "Time"]}
+              title="Cancelled orders"
+              head={["Order", "Staff", "Amount", "Time"]}
               align={["left", "left", "right", "left"]}
               rows={zReport.voided_transactions.map((t) => [
-                `#${t.order_id}`,
+                (t as { order_number?: number | string | null }).order_number != null
+                  ? `#${(t as { order_number?: number | string | null }).order_number}`
+                  : Number.isFinite(Number(t.order_id)) && t.order_id != null
+                    ? `#${t.order_id}`
+                    : "Order",
                 t.employee_name,
                 <span key="a" className="text-destructive">
                   {formatETB(t.amount)}

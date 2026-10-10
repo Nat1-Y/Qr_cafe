@@ -11,20 +11,20 @@ export const PaymentStats: React.FC<PaymentStatsProps> = ({ stats }) => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
       <StatsCard
-        title="Pending"
+        title="Not paid yet"
         value={stats.pendingCount}
         icon={<CreditCard className="h-5 w-5" />}
         variant="warning"
       />
       <StatsCard
-        title="Today's revenue"
+        title="Money in today"
         value={stats.todayRevenue}
         icon={<DollarSign className="h-5 w-5" />}
         variant="success"
       />
   
       <StatsCard
-        title="Completed"
+        title="Paid"
         value={stats.completedCount}
         icon={<CheckCircle className="h-5 w-5" />}
         variant="success"

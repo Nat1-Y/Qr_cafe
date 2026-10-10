@@ -54,7 +54,7 @@ const MenuManagement = () => {
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Menu"
-        description={isAdmin ? 'Manage bakery and café menu items' : 'Browse available café menu items'}
+        description={isAdmin ? 'Add and change what you sell' : 'What you sell'}
         actions={isAdmin ? (
           <div className="flex items-center gap-2">
             <Button
@@ -63,7 +63,7 @@ const MenuManagement = () => {
               disabled={!syncStatus.online}
             >
               <Upload />
-              Bulk import
+              Add many
             </Button>
             <Button onClick={openAdd} disabled={!syncStatus.online}>
               <Plus />

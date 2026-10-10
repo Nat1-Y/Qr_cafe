@@ -29,7 +29,7 @@ export default function WaiterDashboardPage() {
   // Attendance has no backend module in the web deployment; surface a friendly
   // note rather than failing silently.
   const handleAttendanceUnavailable = () =>
-    toast.message("Attendance / clock-in is handled in-store, not in the web portal.");
+    toast.message("Clock in at the till in the cafe, not on this phone.");
 
   const handleLogout = () => {
     logout();

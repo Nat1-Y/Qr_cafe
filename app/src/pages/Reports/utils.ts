@@ -360,7 +360,7 @@ export const calculateReportData = (
         if (unit !== 'all' && dept !== unit) return;
         const qty = parseFloat(it?.quantity || 0) || 0;
         const revenue = paid ? getItemSubtotal(it) : 0;
-        const category = String(it?.category || it?.sub_category || dept || 'Uncategorized').trim() || 'Uncategorized';
+        const category = String(it?.category || it?.sub_category || dept || 'No category').trim() || 'No category';
         const key = category.toLowerCase();
         const existing = categorySalesMap.get(key) || { name: category, quantity: 0, revenue: 0 };
         existing.quantity += qty;
@@ -459,24 +459,24 @@ export const calculateReportData = (
 };
 
 export const generateCSVReport = (metricsData: ReportData): string => {
-  const headers = ['Metric', 'Value', 'Period'];
+  const headers = ['What', 'Value', 'Period'];
   const rows = [
-    ['Total Orders Today', metricsData.dailyStats.totalOrders, 'Daily'],
-    ['Paid Revenue Today', `$${(metricsData.dailyStats.paidRevenue || 0).toFixed(2)}`, 'Daily'],
-    ['Paid Orders Today', metricsData.dailyStats.paidOrders, 'Daily'],
-    ['Pending Orders Today', metricsData.dailyStats.pendingOrders, 'Daily'],
-    ['Voided Orders Today', metricsData.dailyStats.voidedOrders, 'Daily'],
-    ['Cafe Orders Today', metricsData.dailyStats.cafeOrders, 'Daily'],
-    ['Restaurant Orders Today', metricsData.dailyStats.restaurantOrders, 'Daily'],
-    ['Barista Orders Today', metricsData.dailyStats.baristaOrders, 'Daily'],
-    ['Weekly Orders', metricsData.weeklyStats.totalOrders, 'Weekly'],
-    ['Weekly Paid Revenue', `$${(metricsData.weeklyStats.paidRevenue || 0).toFixed(2)}`, 'Weekly'],
-    ['Weekly Paid Orders', metricsData.weeklyStats.paidOrders, 'Weekly'],
-    ['Weekly Pending Orders', metricsData.weeklyStats.pendingOrders, 'Weekly'],
-    ['Weekly Avg Paid Order', `$${(metricsData.weeklyStats.avgPaidOrderValue || 0).toFixed(2)}`, 'Weekly'],
-    ['Monthly Orders', metricsData.monthlyStats.totalOrders, 'Monthly'],
-    ['Monthly Paid Revenue', `$${(metricsData.monthlyStats.paidRevenue || 0).toFixed(2)}`, 'Monthly'],
-    ['Monthly Growth', `${metricsData.monthlyStats.growth}%`, 'Monthly']
+    ['Total orders today', metricsData.dailyStats.totalOrders, 'Daily'],
+    ['Money in today', `$${(metricsData.dailyStats.paidRevenue || 0).toFixed(2)}`, 'Daily'],
+    ['Paid orders today', metricsData.dailyStats.paidOrders, 'Daily'],
+    ['Waiting orders today', metricsData.dailyStats.pendingOrders, 'Daily'],
+    ['Cancelled orders today', metricsData.dailyStats.voidedOrders, 'Daily'],
+    ['Cafe orders today', metricsData.dailyStats.cafeOrders, 'Daily'],
+    ['Restaurant orders today', metricsData.dailyStats.restaurantOrders, 'Daily'],
+    ['Barista orders today', metricsData.dailyStats.baristaOrders, 'Daily'],
+    ['Orders this week', metricsData.weeklyStats.totalOrders, 'Weekly'],
+    ['Money in this week', `$${(metricsData.weeklyStats.paidRevenue || 0).toFixed(2)}`, 'Weekly'],
+    ['Paid orders this week', metricsData.weeklyStats.paidOrders, 'Weekly'],
+    ['Waiting orders this week', metricsData.weeklyStats.pendingOrders, 'Weekly'],
+    ['Average paid order this week', `$${(metricsData.weeklyStats.avgPaidOrderValue || 0).toFixed(2)}`, 'Weekly'],
+    ['Orders this month', metricsData.monthlyStats.totalOrders, 'Monthly'],
+    ['Money in this month', `$${(metricsData.monthlyStats.paidRevenue || 0).toFixed(2)}`, 'Monthly'],
+    ['Growth this month', `${metricsData.monthlyStats.growth}%`, 'Monthly']
   ];
 
   Object.entries(metricsData.paymentMethods || {}).forEach(([method, count]) => {

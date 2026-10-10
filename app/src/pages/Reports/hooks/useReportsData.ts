@@ -141,11 +141,11 @@ export const useReportsData = () => {
 
     try {
       if (dateFrom && dateTo && dateFrom > dateTo) {
-        toast.error('Invalid date range: From date must be before To date');
+        toast.error('The From date must be before the To date.');
         return;
       }
 
-      const loadingToastId = toast.loading('Preparing export...');
+      const loadingToastId = toast.loading('Making the Excel file…');
       const latestSourceData = await fetchLatestSourceData(sourceData);
 
       const filteredSourceData = filterSourceDataByDateRange(
@@ -236,7 +236,7 @@ export const useReportsData = () => {
             
             const existing = itemSummaryMap.get(key) || {
               menu_item_id: Number.isFinite(mid) ? mid : null,
-              menu_item_name: it?.menu_item_name || it?.name || 'Unknown Item',
+              menu_item_name: it?.menu_item_name || it?.name || 'Item',
               category: it?.category || it?.sub_category || null,
               main_category: it?.main_category || null,
               business_unit: dept || normalizeOrderType(o?.type) || 'unknown',
@@ -286,21 +286,21 @@ export const useReportsData = () => {
       const wb = XLSX.utils.book_new();
 
       const summaryAoa = [
-        ['Report', 'Business Data Export'],
-        ['Business Unit', selectedUnit === 'all' ? 'All' : selectedUnit],
-        ['Date From', dateFrom || 'All'],
-        ['Date To', dateTo || 'All'],
-        ['Generated At', getApproximateServerDateString()],
+        ['Report', 'Sales and reports'],
+        ['Section', selectedUnit === 'all' ? 'All' : selectedUnit],
+        ['From', dateFrom || 'All'],
+        ['To', dateTo || 'All'],
+        ['Made at', getApproximateServerDateString()],
         
-        ['Summary Metric', 'Value'],
-        ['Total Orders', exportSummary.totalOrders],
-        ['Paid Orders', exportSummary.paidOrders],
-        ['Pending Orders', exportSummary.pendingOrders],
-        ['Voided Orders', exportSummary.voidedOrders],
-        ['Paid Revenue (Orders Total)', exportSummary.paidRevenue],
-        ['Payments Count', exportSummary.totalPayments],
-        ['Paid Payments Count', exportSummary.paidPayments],
-        ['Paid Payments Total', exportSummary.paymentsTotal],
+        ['What', 'Value'],
+        ['Total orders', exportSummary.totalOrders],
+        ['Paid orders', exportSummary.paidOrders],
+        ['Waiting orders', exportSummary.pendingOrders],
+        ['Cancelled orders', exportSummary.voidedOrders],
+        ['Money in (paid orders)', exportSummary.paidRevenue],
+        ['Number of payments', exportSummary.totalPayments],
+        ['Number of paid payments', exportSummary.paidPayments],
+        ['Total of paid payments', exportSummary.paymentsTotal],
       ];
       const summarySheet = XLSX.utils.aoa_to_sheet(summaryAoa);
       XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
@@ -445,28 +445,28 @@ export const useReportsData = () => {
       const itemSummaryRows = Array.from(itemSummaryMap.values())
         .sort((a, b) => (b.ordered_qty || 0) - (a.ordered_qty || 0));
       const itemSummarySheet = buildSheetFromRows(itemSummaryRows, itemSummaryHeaders);
-      XLSX.utils.book_append_sheet(wb, itemSummarySheet, 'Items Summary');
+      XLSX.utils.book_append_sheet(wb, itemSummarySheet, 'Items sold');
 
       const categorySheet = buildSheetFromRows(exportMetrics.categorySales || [], [
         'name',
         'quantity',
         'revenue'
       ]);
-      XLSX.utils.book_append_sheet(wb, categorySheet, 'Category Sales');
+      XLSX.utils.book_append_sheet(wb, categorySheet, 'Category sales');
 
       const hourlySheet = buildSheetFromRows(exportMetrics.hourlyPerformance || [], [
         'hour',
         'orders',
         'revenue'
       ]);
-      XLSX.utils.book_append_sheet(wb, hourlySheet, 'Hourly Performance');
+      XLSX.utils.book_append_sheet(wb, hourlySheet, 'Sales by hour');
 
       const trendSheet = buildSheetFromRows(exportMetrics.revenueTrend || [], [
         'label',
         'orders',
         'revenue'
       ]);
-      XLSX.utils.book_append_sheet(wb, trendSheet, 'Revenue Trend');
+      XLSX.utils.book_append_sheet(wb, trendSheet, 'Money in over time');
 
       const metricsCsv = generateCSVReport(exportMetrics);
       const metricsAoa = String(metricsCsv || '')
@@ -474,7 +474,7 @@ export const useReportsData = () => {
         .filter((line) => line.trim().length > 0)
         .map((line) => line.split(',').map((cell) => String(cell || '').replace(/^"|"$/g, '').replace(/""/g, '"')));
       const metricsSheet = XLSX.utils.aoa_to_sheet(metricsAoa);
-      XLSX.utils.book_append_sheet(wb, metricsSheet, 'Metrics');
+      XLSX.utils.book_append_sheet(wb, metricsSheet, 'Numbers');
 
       const today = getApproximateServerDateString();
       const fromSlug = dateFrom || 'all';
@@ -485,11 +485,11 @@ export const useReportsData = () => {
       downloadXlsx(wb, filename);
 
       toast.dismiss(loadingToastId);
-      toast.success('Export downloaded successfully!');
+      toast.success('Excel file downloaded');
     } catch (error) {
       console.error('Error exporting report:', error);
       toast.dismiss();
-      toast.error('Failed to export report');
+      toast.error("Couldn't make the Excel file. Please try again.");
     }
   };
 
@@ -498,7 +498,7 @@ export const useReportsData = () => {
   };
 
   const handleCustomerAnalytics = () => {
-    toast('Customer Analytics feature coming soon!');
+    toast('Customer reports are coming soon.');
   };
 
   const handlePerformanceMetrics = () => {
@@ -507,7 +507,7 @@ export const useReportsData = () => {
 
   const handleGenerateReport = async () => {
     try {
-      toast.loading('Generating fresh report...');
+      toast.loading('Making the report…');
       const [ordersResponse, paymentsResponse, menuResponse] = await Promise.all([
         api.orders.getAll({ exclude_organization: '1' }),
         api.payments.getAll(),
@@ -525,11 +525,11 @@ export const useReportsData = () => {
       });
 
       toast.dismiss();
-      toast.success('Report generated successfully!');
+      toast.success('Report ready');
     } catch (error) {
       console.error('Error generating report:', error);
       toast.dismiss();
-      toast.error('Failed to generate report');
+      toast.error("Couldn't make the report. Please try again.");
     }
   };
 

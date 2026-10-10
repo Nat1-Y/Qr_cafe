@@ -240,7 +240,7 @@ class SimpleSyncEngine {
 
       const pushed = results.reduce((sum, result) => sum + result.pushed, 0);
       if (pushed > 0 && !opts?.silent) {
-        toast.success(`Synced ${pushed} change${pushed === 1 ? "" : "s"}.`, {
+        toast.success(`Sent ${pushed} update${pushed === 1 ? "" : "s"}.`, {
           id: "sync-success",
         });
       }
@@ -248,7 +248,7 @@ class SimpleSyncEngine {
       return true;
     } catch (error) {
       console.error("[sync] Failed to complete sync cycle", error);
-      if (!opts?.silent) toast.error("Sync failed. Please try again.");
+      if (!opts?.silent) toast.error("Couldn't send updates. Your work is saved and will send later.");
       return false;
     } finally {
       this.syncing = false;
@@ -340,7 +340,7 @@ class SimpleSyncEngine {
     if (this.online === next) return;
     this.online = next;
     if (next) {
-      toast.success("You are back online.", { id: "sync-online" });
+      toast.success("Internet is back. Sending your updates.", { id: "sync-online" });
       // Flush offline-created orders as soon as connectivity returns so they
       // can never be stranded locally. Fire-and-forget; sync() self-guards
       // against overlapping runs and re-verifies the connection.

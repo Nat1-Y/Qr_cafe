@@ -88,15 +88,15 @@ export const useCreditManagement = (orgs: any[]) => {
   }, [paymentListOrgId]);
 
   const handleAddPayment = async (loadOrgs: () => void) => {
-    if (!payOrgId) { toast.error('Select an organization'); return; }
+    if (!payOrgId) { toast.error('Pick a company.'); return; }
     const amt = Number(payAmount);
-    if (!Number.isFinite(amt) || amt <= 0) { toast.error('Enter a valid amount'); return; }
+    if (!Number.isFinite(amt) || amt <= 0) { toast.error('Enter an amount.'); return; }
     try {
       setPaySubmitting(true);
       await api.organizations.addPayment(payOrgId, { amount: amt, payment_date: payDate, notes: payNotes });
-      toast.success('Payment added successfully');
+      toast.success('Money added to credit');
       setPayAmount(''); setPayNotes(''); loadOrgs();
-    } catch { toast.error('Failed to add payment'); }
+    } catch { toast.error("Couldn't add the money. Please try again."); }
     finally { setPaySubmitting(false); }
   };
 
@@ -107,15 +107,15 @@ export const useCreditManagement = (orgs: any[]) => {
   const txTotal = txServices.reduce((s, r) => s + (Number(r.cost) || 0), 0);
 
   const handleAddTransaction = async (loadOrgs: () => void) => {
-    if (!txOrgId) { toast.error('Select an organization'); return; }
+    if (!txOrgId) { toast.error('Pick a company.'); return; }
     const services = txServices.map(s => ({ description: s.description.trim(), cost: Number(s.cost) || 0 })).filter(s => s.description);
-    if (services.length === 0) { toast.error('Add at least one service with a description'); return; }
+    if (services.length === 0) { toast.error('Add at least one thing they used.'); return; }
     try {
       setTxSubmitting(true);
       await api.organizations.addTransaction(txOrgId, {
         transaction_date: txDate, notes: txNotes, services,
       });
-      toast.success('Transaction recorded (automatically linked to payment)');
+      toast.success("Saved and taken from the company's credit");
       setTxServices([{ description: '', cost: '' }]); setTxNotes('');
       // Refresh credit data
       const res = await api.organizations.getCreditSummary(txOrgId);
@@ -124,7 +124,7 @@ export const useCreditManagement = (orgs: any[]) => {
       setTxOrgTransactions(Array.isArray(d?.transactions) ? d.transactions : []);
       setTxCreditBalance(typeof d?.credit_balance === 'number' ? d.credit_balance : Number(d?.organization?.credit_balance ?? 0));
       loadOrgs();
-    } catch { toast.error('Failed to record transaction'); }
+    } catch { toast.error("Couldn't save. Please try again."); }
     finally { setTxSubmitting(false); }
   };
 

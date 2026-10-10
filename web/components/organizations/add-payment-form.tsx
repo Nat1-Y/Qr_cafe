@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Organizations } from "@/lib/resources";
+import { friendlyError } from "@/lib/errors";
 
 export function AddPaymentForm({
   orgId,
@@ -24,7 +25,7 @@ export function AddPaymentForm({
   async function submit() {
     const amt = Number(amount);
     if (!Number.isFinite(amt) || amt <= 0) {
-      toast.error("Enter a positive amount.");
+      toast.error("Enter an amount more than 0.");
       return;
     }
     setSaving(true);
@@ -34,13 +35,13 @@ export function AddPaymentForm({
         payment_date: date ? new Date(date).toISOString() : undefined,
         notes: notes || undefined,
       });
-      toast.success("Payment added");
+      toast.success("Money added to credit");
       setAmount("");
       setDate("");
       setNotes("");
       onAdded();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setSaving(false);
     }
@@ -49,7 +50,7 @@ export function AddPaymentForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Add credit payment</CardTitle>
+        <CardTitle>Add money to credit</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -73,7 +74,7 @@ export function AddPaymentForm({
           <Input value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
         <Button onClick={submit} disabled={saving}>
-          {saving ? "Saving…" : "Add payment"}
+          {saving ? "Saving…" : "Add money"}
         </Button>
       </CardContent>
     </Card>

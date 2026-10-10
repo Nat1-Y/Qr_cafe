@@ -15,21 +15,21 @@ type Loc = {
 
 const columns: Column<Loc>[] = [
   { key: "name", label: "Name", render: (r) => <span className="font-medium">{r.name}</span> },
-  { key: "slug", label: "Slug", className: "text-muted-foreground" },
+
   { key: "location_type", label: "Type", render: (r) => <span>{humanize(r.location_type)}</span> },
   {
     key: "is_default",
-    label: "Default",
-    render: (r) => (r.is_default ? <Badge variant="success">Default</Badge> : "—"),
+    label: "Main place",
+    render: (r) => (r.is_default ? <Badge variant="success">Main</Badge> : "—"),
   },
 ];
 
 export default function StockLocationsPage() {
   return (
     <ResourceManager<Loc>
-      title="Stock locations"
-      description="Where inventory is held for this branch."
-      createLabel="New location"
+      title="Stock places"
+      description="Where this branch keeps its stock."
+      createLabel="Add stock place"
       columns={columns}
       fields={[
         { key: "name", label: "Name", required: true },
@@ -39,8 +39,8 @@ export default function StockLocationsPage() {
           type: "select",
           default: "storage",
           options: [
-            { value: "storage", label: "Storage" },
-            { value: "service", label: "Service" },
+            { value: "storage", label: "Store room" },
+            { value: "service", label: "Service area" },
             { value: "kitchen", label: "Kitchen" },
           ],
         },

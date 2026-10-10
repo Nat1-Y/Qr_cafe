@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import EmptyState from '@/components/common/EmptyState';
 import { Expense } from '../types';
 import { formatDateTime } from '../utils';
-import { formatETB } from '@/lib/format';
+import { formatETB, humanize } from '@/lib/format';
 
 interface ExpenseTableProps {
   expenses: Expense[];
@@ -25,7 +25,7 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Expense records</CardTitle>
+        <CardTitle>Expenses</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <Table>
@@ -34,7 +34,7 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
               <TableHead>Title</TableHead>
               <TableHead className="hidden sm:table-cell">Category</TableHead>
               <TableHead className="hidden md:table-cell">Paid to</TableHead>
-              <TableHead className="hidden sm:table-cell">Payment method</TableHead>
+              <TableHead className="hidden sm:table-cell">Paid with</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead className="hidden md:table-cell">Created</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -44,7 +44,7 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
             {expenses.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7}>
-                  <EmptyState icon={<DollarSign />} title="No ledger records" description="No expense entries found matching filters" />
+                  <EmptyState icon={<DollarSign />} title="No expenses" description="No expenses match. Try other filters." />
                 </TableCell>
               </TableRow>
             ) : (
@@ -70,7 +70,7 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{expense.paid_to || '—'}</TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    <Badge variant="info">{expense.payment_method || '—'}</Badge>
+                    <Badge variant="info">{humanize(expense.payment_method)}</Badge>
                   </TableCell>
                   <TableCell className="text-right font-semibold text-destructive">{formatETB(expense.amount || expense.total)}</TableCell>
                   <TableCell className="hidden md:table-cell text-muted-foreground">{formatDateTime(expense.created_at)}</TableCell>

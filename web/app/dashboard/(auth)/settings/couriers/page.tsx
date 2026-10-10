@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ResourceManager, type Column } from "@/components/resource-manager";
 import { Settings } from "@/lib/resources";
+import { friendlyError } from "@/lib/errors";
 
 type Courier = {
   id: string;
@@ -23,7 +24,7 @@ const columns: Column<Courier>[] = [
     label: "Status",
     render: (r) => (
       <Badge variant={r.is_active ? "success" : "muted"}>
-        {r.is_active ? "Active" : "Disabled"}
+        {r.is_active ? "Active" : "Turned off"}
       </Badge>
     ),
   },
@@ -32,10 +33,10 @@ const columns: Column<Courier>[] = [
 export default function CouriersPage() {
   return (
     <ResourceManager<Courier>
-      title="Couriers"
-      description="Preconfigured courier profiles. The cashier picks one from a dropdown when managing a delivery order, or still enters new details by hand for a one-off courier."
-      createLabel="New courier"
-      editLabel="Edit courier"
+      title="Drivers"
+      description="Saved delivery drivers. The cashier picks one for a delivery order, or types new details for a one-time driver."
+      createLabel="Add driver"
+      editLabel="Edit driver"
       columns={columns}
       fields={[
         { key: "name", label: "Name", required: true },
@@ -55,11 +56,11 @@ export default function CouriersPage() {
               await Settings.updateCourier(row.id, { is_active: !row.is_active });
               await reload();
             } catch (e: any) {
-              toast.error(e.message);
+              toast.error(friendlyError(e));
             }
           }}
         >
-          {row.is_active ? "Disable" : "Enable"}
+          {row.is_active ? "Turn off" : "Turn on"}
         </Button>
       )}
     />

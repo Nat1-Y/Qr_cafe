@@ -36,7 +36,7 @@ export default function OrderHistoryPage() {
   } = useWaiterOrderHistory();
 
   if (loading) {
-    return <LoadingSpinner text="Loading orders history..." />;
+    return <LoadingSpinner text="Loading your orders…" />;
   }
 
   const setTodayPreset = () => {

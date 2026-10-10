@@ -8,6 +8,7 @@ import { Link2, Trash2, ArrowRight, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { NormalizedInventoryItem, InventoryItemLink } from '../types';
 import api from '@/application';
+import { friendlyError } from '@/lib/errors';
 
 interface ItemLinksTabProps {
   items: NormalizedInventoryItem[];
@@ -56,7 +57,7 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
 
   const handleCreate = async () => {
     if (!sourceId || !targetId) {
-      toast.error('Choose both a source and a target item');
+      toast.error('Pick both items.');
       return;
     }
     setSaving(true);
@@ -66,14 +67,14 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
         target_item_id: targetId,
         conversion_factor: factorNum,
       });
-      toast.success('Item link saved');
+      toast.success('Pack contents saved');
       setSourceId('');
       setTargetId('');
       setFactor('1');
       await fetchLinks();
       onChanged();
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || e?.message || 'Failed to save link');
+      toast.error(friendlyError(e, "Couldn't save. Please try again."));
     } finally {
       setSaving(false);
     }
@@ -82,11 +83,11 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
   const handleDelete = async (link: InventoryItemLink) => {
     try {
       await api.inventory.deleteLink(String(link.id));
-      toast.success('Item link removed');
+      toast.success('Pack contents removed');
       await fetchLinks();
       onChanged();
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || e?.message || 'Failed to remove link');
+      toast.error(friendlyError(e, "Couldn't remove it. Please try again."));
     }
   };
 
@@ -98,7 +99,7 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
   }
 
   const itemName = (id: string, fallback?: string | null) =>
-    fallback ?? items.find(it => String(it.id) === id)?.name ?? 'Unknown item';
+    fallback ?? items.find(it => String(it.id) === id)?.name ?? 'Item';
 
   return (
     <div className="space-y-6">
@@ -106,24 +107,23 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Link2 className="h-4 w-4 text-primary" />
-            Link items for transfers
+            Pack contents (e.g. 1 crate = 24 bottles)
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            A linked item is received as its target item when transferred: the target's
-            quantity increases at the destination instead of the item's own. Several items
-            can share one target (one-to-many). Unlinked items transfer as themselves.
+            When you move a pack, the place it goes to gets the items inside it instead.
+            Many packs can hold the same item. Items with no pack contents move as they are.
           </p>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr_auto_auto] gap-3 items-end">
             <div className="space-y-1.5">
-              <Label>When this item is transferred…</Label>
+              <Label>When you move this pack…</Label>
               <select
                 value={sourceId}
                 onChange={e => setSourceId(e.target.value)}
                 className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
               >
-                <option value="">Choose source item…</option>
+                <option value="">Pick the pack</option>
                 {sourceOptions.map(item => (
                   <option key={item.id} value={String(item.id)}>{item.name}</option>
                 ))}
@@ -135,13 +135,13 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
             </div>
 
             <div className="space-y-1.5">
-              <Label>…receive it as</Label>
+              <Label>…the other place gets</Label>
               <select
                 value={targetId}
                 onChange={e => setTargetId(e.target.value)}
                 className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
               >
-                <option value="">Choose target item…</option>
+                <option value="">Pick the item inside</option>
                 {targetOptions.map(item => (
                   <option key={item.id} value={String(item.id)}>{item.name}</option>
                 ))}
@@ -149,7 +149,7 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
             </div>
 
             <div className="space-y-1.5 w-28">
-              <Label>Units per unit</Label>
+              <Label>How many inside</Label>
               <Input
                 type="number"
                 min="1"
@@ -174,9 +174,9 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
 
           {sourceItem && targetItem && (
             <p className="text-xs text-muted-foreground mt-3">
-              Transferring 1 {sourceItem.base_unit || 'unit'} of <strong>{sourceItem.name}</strong> will
+              Moving 1 {sourceItem.base_unit || 'unit'} of <strong>{sourceItem.name}</strong> will
               add <strong>{factorNum} {targetItem.base_unit || 'unit'}</strong> of{' '}
-              <strong>{targetItem.name}</strong> at the destination.
+              <strong>{targetItem.name}</strong> to the other place.
             </p>
           )}
         </CardContent>
@@ -184,26 +184,26 @@ export const ItemLinksTab: React.FC<ItemLinksTabProps> = ({ items, online, onCha
 
       <Card>
         <CardHeader>
-          <CardTitle>Configured links ({links.length})</CardTitle>
+          <CardTitle>Saved pack contents ({links.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : links.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No item links yet. All transfers use the default one-to-one behavior.
+              None yet. Every item moves as it is.
             </p>
           ) : (
             <div className="space-y-4">
               {Array.from(byTarget.entries()).map(([tId, group]) => (
                 <div key={tId} className="rounded-md border">
                   <div className="flex items-center gap-2 border-b bg-muted/30 px-3 py-2">
-                    <Badge variant="secondary">Target</Badge>
+                    <Badge variant="secondary">Item inside</Badge>
                     <span className="text-sm font-medium">
                       {itemName(tId, group[0]?.target_item_name)}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      receives {group.length} linked item{group.length > 1 ? 's' : ''}
+                      comes from {group.length} pack{group.length > 1 ? 's' : ''}
                     </span>
                   </div>
                   <div className="divide-y">

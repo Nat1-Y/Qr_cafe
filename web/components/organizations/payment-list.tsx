@@ -43,7 +43,7 @@ export function PaymentList({
     return (
       <Card>
         <CardContent className="text-muted-foreground py-8 text-center text-sm">
-          No payments recorded.
+          No payments yet.
         </CardContent>
       </Card>
     );
@@ -97,7 +97,7 @@ export function PaymentList({
             <CollapsibleContent className="bg-muted/30 rounded-b-lg border border-t-0 px-4 py-3">
               {linked.length === 0 ? (
                 <p className="text-muted-foreground text-xs italic">
-                  No transactions linked to this payment.
+                  Nothing used from this payment yet.
                 </p>
               ) : (
                 <Table>

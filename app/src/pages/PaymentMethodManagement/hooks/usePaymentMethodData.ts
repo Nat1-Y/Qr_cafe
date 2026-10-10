@@ -29,7 +29,7 @@ export const usePaymentMethodData = () => {
         [];
       setMethods(Array.isArray(list) ? list : []);
     } catch {
-      toast.error("Failed to load payment methods");
+      toast.error("Couldn't load payment types. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -60,22 +60,22 @@ export const usePaymentMethodData = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.display_name.trim() || !formData.name.trim()) {
-      toast.error("Display name and system name are required");
+      toast.error("Enter a name and a code name.");
       return;
     }
     try {
       setSaving(true);
       if (selectedMethod) {
         await api.settings.updatePaymentMethod(selectedMethod.id, formData);
-        toast.success("Payment method updated");
+        toast.success("Payment type saved");
       } else {
         await api.settings.createPaymentMethod(formData);
-        toast.success("Payment method created");
+        toast.success("Payment type added");
       }
       setDialogOpen(false);
       fetchMethods();
     } catch {
-      toast.error("Failed to save payment method");
+      toast.error("Couldn't save the payment type. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -84,16 +84,16 @@ export const usePaymentMethodData = () => {
   const handleDelete = async (method: PaymentMethod) => {
     if (
       !window.confirm(
-        `Disable "${method.display_name}"? This hides it from the cashier payment selection.`,
+        `Turn off "${method.display_name}"? Cashiers won't see it when they take payment.`,
       )
     )
       return;
     try {
       await api.settings.deletePaymentMethod(method.id);
-      toast.success("Payment method disabled");
+      toast.success("Payment type turned off");
       fetchMethods();
     } catch {
-      toast.error("Failed to disable payment method");
+      toast.error("Couldn't turn off the payment type. Please try again.");
     }
   };
 

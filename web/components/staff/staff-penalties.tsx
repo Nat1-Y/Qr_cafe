@@ -32,6 +32,7 @@ import { DateFilterBar } from "@/components/date-filter-bar";
 import { formatETB, shortDate } from "@/lib/format";
 import { StaffPenalties as StaffPenaltiesApi, Users as UsersResource } from "@/lib/resources";
 import { can } from "@/lib/permissions";
+import { friendlyError } from "@/lib/errors";
 
 const SEVERITY_OPTIONS = [
   { value: "verbal_warning", label: "Verbal warning" },
@@ -127,7 +128,7 @@ export function StaffPenalties() {
       setPenalties(Array.isArray(rows) ? rows : []);
       setSummary(summaryData ?? null);
     } catch (e: any) {
-      toast.error(e.message || "Failed to load staff penalties");
+      toast.error(friendlyError(e, "Couldn't load penalties. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -167,15 +168,15 @@ export function StaffPenalties() {
 
   async function submit() {
     if (!form.employee_id) {
-      toast.error("Pick an employee");
+      toast.error("Pick a staff member.");
       return;
     }
     if (!form.reason.trim()) {
-      toast.error("Enter a reason");
+      toast.error("Enter a reason.");
       return;
     }
     if (form.amount !== "" && Number(form.amount) < 0) {
-      toast.error("Enter a valid amount");
+      toast.error("Enter an amount.");
       return;
     }
 
@@ -191,28 +192,28 @@ export function StaffPenalties() {
     try {
       if (editingId) {
         await StaffPenaltiesApi.update(editingId, payload);
-        toast.success("Penalty updated");
+        toast.success("Penalty saved");
       } else {
         await StaffPenaltiesApi.create(payload);
-        toast.success("Penalty recorded");
+        toast.success("Penalty added");
       }
       setOpen(false);
       await reload();
     } catch (e: any) {
-      toast.error(e.message || "Failed to save penalty");
+      toast.error(friendlyError(e, "Couldn't save the penalty. Please try again."));
     } finally {
       setSaving(false);
     }
   }
 
   async function onDelete(id: string) {
-    if (!confirm("Delete this penalty record?")) return;
+    if (!confirm("Delete this penalty?")) return;
     try {
       await StaffPenaltiesApi.remove(id);
       toast.success("Deleted");
       await reload();
     } catch (e: any) {
-      toast.error(e.message || "Failed to delete penalty");
+      toast.error(friendlyError(e, "Couldn't delete the penalty. Please try again."));
     }
   }
 
@@ -224,10 +225,10 @@ export function StaffPenalties() {
       sortValue: (r) => new Date(r.occurred_at),
       render: (r) => shortDate(r.occurred_at),
     },
-    { key: "employee_name", label: "Employee", render: (r) => r.employee_name || "—" },
+    { key: "employee_name", label: "Staff", render: (r) => r.employee_name || "—" },
     {
       key: "severity",
-      label: "Severity",
+      label: "How serious",
       render: (r) => (
         <Badge variant={severityVariant(r.severity)} className="capitalize">
           {severityLabel(r.severity)}
@@ -258,7 +259,7 @@ export function StaffPenalties() {
           {canWrite && (
             <Button onClick={openCreate}>
               <PlusIcon />
-              Log penalty
+              Add penalty
             </Button>
           )}
         </CardHeader>
@@ -266,7 +267,7 @@ export function StaffPenalties() {
           <DateFilterBar
             defaultPreset="all"
             allLabel="All time"
-            viewingPrefix="Viewing:"
+            viewingPrefix="Showing:"
             onChange={(range) => {
               setDateFrom(range.from ?? "");
               setDateTo(range.to ?? "");
@@ -279,19 +280,19 @@ export function StaffPenalties() {
         <StatCard
           title="Total penalties"
           value={summary?.count ?? 0}
-          subtitle={dateFrom || dateTo ? "In selected range" : "All time"}
+          subtitle={dateFrom || dateTo ? "In these dates" : "All time"}
           icon={<AlertTriangle className="size-5" />}
           variant="warning"
         />
         <StatCard
-          title="Total fine amount"
+          title="Total fines"
           value={formatETB(summary?.total ?? 0)}
-          subtitle="Sum of monetary penalties"
+          subtitle="All money penalties added up"
           icon={<DollarSign className="size-5" />}
           variant="destructive"
         />
         <StatCard
-          title="Most penalized"
+          title="Most penalties"
           value={topEmployee?.employee_name || "—"}
           subtitle={topEmployee ? `${topEmployee.count} penalt${topEmployee.count === 1 ? "y" : "ies"}` : "No penalties yet"}
         />
@@ -299,13 +300,13 @@ export function StaffPenalties() {
 
       <Card>
         <CardHeader>
-          <CardTitle>By employee</CardTitle>
+          <CardTitle>By staff member</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Employee</TableHead>
+                <TableHead>Staff</TableHead>
                 <TableHead className="text-right">Count</TableHead>
                 <TableHead className="text-right">Total amount</TableHead>
               </TableRow>
@@ -324,7 +325,7 @@ export function StaffPenalties() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={3} className="text-muted-foreground py-10 text-center text-sm">
-                    No penalties recorded for this range.
+                    No penalties in these dates.
                   </TableCell>
                 </TableRow>
               )}
@@ -338,12 +339,12 @@ export function StaffPenalties() {
         rows={penalties}
         loading={loading}
         searchKeys={["employee_name", "reason", "recorded_by_name"]}
-        searchPlaceholder="Search penalties…"
+        searchPlaceholder="Search penalties"
         filters={[
-          { key: "severity", label: "Severity", options: SEVERITY_OPTIONS },
-          { key: "employee_id", label: "Employee", options: employeeOptions },
+          { key: "severity", label: "How serious", options: SEVERITY_OPTIONS },
+          { key: "employee_id", label: "Staff", options: employeeOptions },
         ]}
-        emptyMessage="No penalties recorded yet."
+        emptyMessage="No penalties yet."
         rowActions={
           canWrite || canDelete
             ? (row) => (
@@ -367,20 +368,20 @@ export function StaffPenalties() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? "Edit penalty" : "Log penalty"}</DialogTitle>
+            <DialogTitle>{editingId ? "Edit penalty" : "Add penalty"}</DialogTitle>
             <DialogDescription>
-              Record a disciplinary action against an employee. Amount is optional — only fill
-              it in for fines or cost deductions (e.g. cash shortage, breakage).
+              Write down a warning or fine for a staff member. Only fill in the amount for
+              money taken (e.g. missing cash, broken items).
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Employee</Label>
+              <Label>Staff</Label>
               <select
                 className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={form.employee_id}
                 onChange={(e) => setForm({ ...form, employee_id: e.target.value })}>
-                <option value="">Select employee…</option>
+                <option value="">Pick a staff member</option>
                 {employeeOptions.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
@@ -389,7 +390,7 @@ export function StaffPenalties() {
               </select>
             </div>
             <div className="space-y-2">
-              <Label>Severity</Label>
+              <Label>How serious</Label>
               <select
                 className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={form.severity}

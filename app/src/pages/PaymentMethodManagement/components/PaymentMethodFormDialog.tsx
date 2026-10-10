@@ -12,7 +12,7 @@ const AVAILABLE_ICONS = [
   { label: 'Cash', value: 'dollar-sign', icon: <DollarSign className="w-4 h-4" /> },
   { label: 'Card', value: 'credit-card', icon: <CreditCard className="w-4 h-4" /> },
   { label: 'QR', value: 'square', icon: <Square className="w-4 h-4" /> },
-  { label: 'Mobile', value: 'smartphone', icon: <Smartphone className="w-4 h-4" /> },
+  { label: 'Mobile money', value: 'smartphone', icon: <Smartphone className="w-4 h-4" /> },
 ];
 
 interface PaymentMethodFormDialogProps {
@@ -38,7 +38,7 @@ export const PaymentMethodFormDialog: React.FC<PaymentMethodFormDialogProps> = (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{selectedMethod ? 'Edit Payment Method' : 'Add Payment Method'}</DialogTitle>
+          <DialogTitle>{selectedMethod ? 'Edit payment type' : 'Add payment type'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -47,12 +47,12 @@ export const PaymentMethodFormDialog: React.FC<PaymentMethodFormDialogProps> = (
               id="display_name"
               value={formData.display_name}
               onChange={e => setFormData(p => ({ ...p, display_name: e.target.value }))}
-              placeholder="e.g. Cash payment"
+              placeholder="e.g. Cash"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="name">System key (lowercase, no spaces)</Label>
+            <Label htmlFor="name">Code name (small letters, no spaces)</Label>
             <Input
               id="name"
               value={formData.name}
@@ -86,7 +86,7 @@ export const PaymentMethodFormDialog: React.FC<PaymentMethodFormDialogProps> = (
               id="description"
               value={formData.description}
               onChange={e => setFormData(p => ({ ...p, description: e.target.value }))}
-              placeholder="Optional description shown to cashier"
+              placeholder="Short note the cashier sees (optional)"
               className="resize-none h-16"
             />
           </div>
@@ -102,7 +102,7 @@ export const PaymentMethodFormDialog: React.FC<PaymentMethodFormDialogProps> = (
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={saving}>{saving ? 'Saving…' : selectedMethod ? 'Update' : 'Create'}</Button>
+            <Button type="submit" disabled={saving}>{saving ? 'Saving…' : selectedMethod ? 'Save' : 'Add'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

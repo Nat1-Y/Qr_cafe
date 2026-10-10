@@ -36,11 +36,9 @@ const ConfirmOrgPaymentModal: React.FC<ConfirmOrgPaymentModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Confirm organization order</DialogTitle>
+          <DialogTitle>Mark company order as paid</DialogTitle>
           <DialogDescription>
-            Posts this order as a charge against the organization's credit
-            balance. It's never collected as cash and doesn't affect today's
-            revenue.
+            This takes the order amount from the company&apos;s credit. No cash is taken, and it doesn&apos;t change today&apos;s money in.
           </DialogDescription>
         </DialogHeader>
 
@@ -79,7 +77,7 @@ const ConfirmOrgPaymentModal: React.FC<ConfirmOrgPaymentModalProps> = ({
             Cancel
           </Button>
           <Button disabled={isProcessing} onClick={onConfirm}>
-            {isProcessing ? 'Confirming...' : 'Confirm'}
+            {isProcessing ? 'Confirming…' : 'Confirm'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -36,7 +36,7 @@ export const ExpenseStats: React.FC<ExpenseStatsProps> = ({ dashboard, summary }
       <StatsCard
         title="Top category"
         value={topCategory?.category || '—'}
-        subtitle={topCategory ? formatETB(topCategory.total) : 'No category data'}
+        subtitle={topCategory ? formatETB(topCategory.total) : 'No expenses yet'}
         icon={<PieChart className="h-5 w-5" />}
       />
     </div>

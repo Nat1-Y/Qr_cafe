@@ -38,9 +38,9 @@ const CleanupApprovalWatcher = () => {
         const unsynced = await syncEngine.getUnsyncedCount();
         if (unsynced > 0) {
           toast(
-            `Data cleanup approved — finishing sync (${unsynced} record${
+            `The owner said yes. Sending ${unsynced} update${
               unsynced === 1 ? "" : "s"
-            } pending) before clearing.`,
+            } first, then clearing this device.`,
           );
           return; // retry on the next poll
         }
@@ -48,11 +48,11 @@ const CleanupApprovalWatcher = () => {
         // Backend drops this branch's orders/payments and marks it completed.
         await completeCleanupRequest(id);
         await wipeAllLocalDataKeepEnrollment();
-        toast.success("Local data cleared. Reloading…");
+        toast.success("Data on this device cleared. Restarting…");
         setTimeout(() => window.location.reload(), 800);
       } catch (error) {
         console.error("[CleanupApprovalWatcher] Wipe failed:", error);
-        toast.error("Data cleanup failed. It will retry shortly.");
+        toast.error("Couldn't clear the data. We'll try again soon.");
       } finally {
         wipingRef.current = false;
       }

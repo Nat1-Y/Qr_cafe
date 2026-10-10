@@ -74,7 +74,7 @@ export const OrganizationDetail: React.FC = () => {
       }
     } catch (error) {
       console.error('[OrganizationDetail] load failed', error);
-      toast.error('Failed to load organization');
+      toast.error("Couldn't load this company. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -89,11 +89,11 @@ export const OrganizationDetail: React.FC = () => {
   if (!allowed) {
     return (
       <div className="p-6">
-        <PageHeader title="Organization orders" />
+        <PageHeader title="Company account orders" />
         <Card className="mt-6">
           <CardContent className="py-10 text-center text-muted-foreground">
-            Managing organization orders is currently disabled for cashiers.
-            Ask an administrator to enable it.
+            Cashiers can&apos;t manage company orders right now. Ask your manager
+            to turn it on.
           </CardContent>
         </Card>
       </div>
@@ -103,8 +103,8 @@ export const OrganizationDetail: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title={organization?.name || 'Organization'}
-        description="Orders placed under this organization."
+        title={organization?.name || 'Company account'}
+        description="Orders for this company."
         actions={
           <div className="flex items-center gap-2">
             <Button
@@ -125,7 +125,7 @@ export const OrganizationDetail: React.FC = () => {
                 }
               >
                 <Plus />
-                Create order
+                New order
               </Button>
             )}
           </div>
@@ -182,13 +182,13 @@ export const OrganizationDetail: React.FC = () => {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    Loading...
+                    Loading…
                   </TableCell>
                 </TableRow>
               ) : orders.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    No orders for this organization yet.
+                    No orders for this company yet.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -232,11 +232,11 @@ export const OrganizationDetail: React.FC = () => {
                         >
                           {payment.processingOrderId ===
                           String(order.id ?? order.localId)
-                            ? 'Confirming...'
-                            : 'Confirm'}
+                            ? 'Confirming…'
+                            : 'Mark paid'}
                         </Button>
                       ) : (
-                        <Badge variant="outline">Awaiting owner</Badge>
+                        <Badge variant="outline">Waiting for owner</Badge>
                       )}
                     </TableCell>
                   </TableRow>

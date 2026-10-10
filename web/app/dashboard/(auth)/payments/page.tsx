@@ -18,7 +18,9 @@ import { PageHeader } from "@/components/page-header";
 import { StatCards, type StatCard } from "@/components/stat-cards";
 import { Payments } from "@/lib/resources";
 import { formatETB, shortDate, humanize } from "@/lib/format";
+import { uuidToDisplayId } from "@/lib/utils";
 import { StatusBadge } from "@/components/status-badge";
+import { friendlyError } from "@/lib/errors";
 
 type Payment = {
   id: string;
@@ -46,7 +48,7 @@ type Payment = {
 const paymentDate = (r: Payment) => r.paid_at || r.created_at;
 
 const columns: Column<Payment>[] = [
-  { key: "id", label: "Payment", render: (r) => <span className="font-mono text-xs">{r.id.slice(0, 8)}</span> },
+  { key: "id", label: "Payment", render: (r) => <span className="text-xs">#{uuidToDisplayId(r.id)}</span> },
   {
     key: "order_number",
     label: "Order",
@@ -71,9 +73,9 @@ const columns: Column<Payment>[] = [
       r.meta?.amount_mismatch ? (
         <span
           className="inline-flex items-center gap-1.5 text-warning"
-          title={`Till sent ${formatETB(r.meta.client_sent_amount ?? null)}; order total was ${formatETB(
+          title={`The till sent ${formatETB(r.meta.client_sent_amount ?? null)}, but the order total was ${formatETB(
             r.meta.order_total_at_payment ?? null,
-          )}. Recorded amount was corrected to the order total.`}
+          )}. We saved the order total.`}
         >
           <TriangleAlertIcon className="size-3.5 shrink-0" />
           {formatETB(r.amount)}
@@ -82,7 +84,7 @@ const columns: Column<Payment>[] = [
         formatETB(r.amount)
       ),
   },
-  { key: "payment_method", label: "Method", render: (r) => humanize(r.payment_method) },
+  { key: "payment_method", label: "Paid with", render: (r) => humanize(r.payment_method) },
   { key: "status", label: "Status", render: (r) => <StatusBadge kind="payment" status={r.status} /> },
   { key: "paid_at", label: "Date", render: (r) => shortDate(paymentDate(r)) },
 ];
@@ -130,7 +132,7 @@ export default function PaymentsPage() {
         setCount(res.count);
         setServerStats(res.stats);
       })
-      .catch((e: any) => toast.error(e.message))
+      .catch((e: any) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, [page, debouncedSearch, status, flag, dateFrom, dateTo, sort]);
 
@@ -145,29 +147,29 @@ export default function PaymentsPage() {
     return [
       { label: "Total payments", value: serverStats.total_payments ?? 0, icon: WalletIcon },
       {
-        label: "Collected",
+        label: "Paid",
         value: formatETB(collected),
         hint: `${paidCount} paid`,
         icon: BanknoteIcon,
         valueClass: "text-success",
       },
       {
-        label: "Pending",
+        label: "Not paid yet",
         value: serverStats.pending ?? 0,
-        hint: "Awaiting confirmation",
+        hint: "Waiting to be confirmed",
         icon: ClockIcon,
         valueClass: "text-warning",
       },
       {
-        label: "Avg payment",
+        label: "Average payment",
         value: formatETB(serverStats.avg ?? 0),
         hint: "Paid only",
         icon: CalculatorIcon,
       },
       {
-        label: "Flagged",
+        label: "Amount didn't match",
         value: serverStats.mismatch_count ?? 0,
-        hint: "Till amount ≠ order total",
+        hint: "Till amount was not the order total",
         icon: TriangleAlertIcon,
         valueClass:
           (serverStats.mismatch_count ?? 0) > 0
@@ -220,9 +222,9 @@ export default function PaymentsPage() {
           },
           {
             key: "flag",
-            label: "Flag",
+            label: "Problems",
             options: [
-              { value: "amount_mismatch", label: "Amount mismatch" },
+              { value: "amount_mismatch", label: "Amount didn't match" },
             ],
           },
         ]}

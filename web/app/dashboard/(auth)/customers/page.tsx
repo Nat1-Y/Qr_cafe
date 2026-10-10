@@ -25,6 +25,8 @@ import { getUser } from "@/lib/auth";
 import { isAllAccessRole } from "@/lib/permissions";
 import { formatETB, shortDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
+import { friendlyError } from "@/lib/errors";
+import { formatOrderNumber } from "@/lib/utils";
 
 type Org = {
   id: string;
@@ -45,7 +47,7 @@ const columns: Column<Org>[] = [
     label: "Status",
     render: (r) => (
       <Badge variant={r.is_active ? "success" : "muted"}>
-        {r.is_active ? "Active" : "Inactive"}
+        {r.is_active ? "Active" : "Not active"}
       </Badge>
     ),
   },
@@ -91,7 +93,7 @@ function OrgOrderAccessCard() {
       setEmployees(eligible);
       setSelected(new Set((allowed ?? []).map(String)));
     } catch (e: any) {
-      toast.error(e?.message || "Failed to load organization order access");
+      toast.error(friendlyError(e, "Couldn't load who can take company orders. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -114,9 +116,9 @@ function OrgOrderAccessCard() {
     setSaving(true);
     try {
       await Settings.updateOrganizationOrderAllowedUsers(Array.from(selected));
-      toast.success("Organization order access updated");
+      toast.success("Saved who can take company orders");
     } catch (e: any) {
-      toast.error(e?.message || "Failed to save organization order access");
+      toast.error(friendlyError(e, "Couldn't save who can take company orders. Please try again."));
     } finally {
       setSaving(false);
     }
@@ -125,11 +127,11 @@ function OrgOrderAccessCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Organization order access</CardTitle>
+        <CardTitle>Who can take company orders</CardTitle>
         <CardDescription>
-          Only these waiters and cashiers can attach an order to an
-          organization while placing it. Everyone else's order screen won't
-          offer the option. Owners/admins are never restricted.
+          Only these waiters and cashiers can put an order on a company
+          account. Other staff won&apos;t see the option. Owners and managers
+          can always do it.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -140,7 +142,7 @@ function OrgOrderAccessCard() {
           </div>
         ) : employees.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">
-            No waiters or cashiers found for this branch.
+            No waiters or cashiers at this branch yet.
           </p>
         ) : (
           <div className="flex flex-wrap gap-2">
@@ -181,19 +183,19 @@ function OrganizationsTab() {
   return (
     <div className="space-y-6">
       <ResourceManager<Org>
-        title="Customers"
-        description="Corporate / credit accounts (organizations)."
-        createLabel="New customer"
+        title="Company accounts"
+        description="Companies that order on credit and pay later."
+        createLabel="Add company account"
         columns={columns}
         searchKeys={["name", "contact_name", "phone"]}
-        searchPlaceholder="Search customers…"
+        searchPlaceholder="Search companies"
         filters={[
           {
             key: "is_active",
             label: "Status",
             options: [
               { value: "active", label: "Active" },
-              { value: "inactive", label: "Inactive" },
+              { value: "inactive", label: "Not active" },
             ],
             match: (r, v) => (v === "active" ? r.is_active : !r.is_active),
           },
@@ -280,7 +282,7 @@ function OrganizationOrdersTab() {
       );
       setOrders(merged);
     } catch (e: any) {
-      toast.error(e.message || "Failed to load organization orders");
+      toast.error(friendlyError(e, "Couldn't load company orders. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -319,10 +321,10 @@ function OrganizationOrdersTab() {
     setConfirmingId(orderId);
     try {
       await Orders.confirmOrganizationPayment(orderId, getUser()?.id);
-      toast.success("Order confirmed");
+      toast.success("Marked as paid");
       await load();
     } catch (e: any) {
-      toast.error(e.message || "Failed to confirm order");
+      toast.error(friendlyError(e, "Couldn't mark it as paid. Please try again."));
     } finally {
       setConfirmingId(null);
     }
@@ -333,13 +335,13 @@ function OrganizationOrdersTab() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1">
-            <label className="text-muted-foreground text-xs">Organization</label>
+            <label className="text-muted-foreground text-xs">Company</label>
             <select
               className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-48"
               value={orgFilter}
               onChange={(e) => setOrgFilter(e.target.value)}
             >
-              <option value="all">All organizations</option>
+              <option value="all">All companies</option>
               {organizations.map((org) => (
                 <option key={org.id} value={String(org.id)}>
                   {org.name}
@@ -355,7 +357,7 @@ function OrganizationOrdersTab() {
               value={paymentFilter}
               onChange={(e) => setPaymentFilter(e.target.value as PaymentFilter)}
             >
-              <option value="active">Active (unpaid)</option>
+              <option value="active">Not paid yet</option>
               <option value="paid">Paid</option>
               <option value="all">All</option>
             </select>
@@ -382,7 +384,7 @@ function OrganizationOrdersTab() {
             <SearchInput
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Order #, org, or customer" />
+                placeholder="Order number, company or customer" />
           </div>
         </div>
 
@@ -401,7 +403,7 @@ function OrganizationOrdersTab() {
             <TableHeader>
               <TableRow>
                 <TableHead>Order #</TableHead>
-                <TableHead>Organization</TableHead>
+                <TableHead>Company</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Payment</TableHead>
@@ -420,7 +422,7 @@ function OrganizationOrdersTab() {
               ) : filtered.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-muted-foreground py-8 text-center">
-                    No organization orders match these filters.
+                    No company orders match. Try other filters.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -431,7 +433,7 @@ function OrganizationOrdersTab() {
                         href={`/dashboard/customers/${order.__orgId}`}
                         className="hover:underline"
                       >
-                        #{order.order_number ?? order.id?.slice(0, 8)}
+                        {formatOrderNumber(order)}
                       </Link>
                     </TableCell>
                     <TableCell>{order.__orgName || "—"}</TableCell>
@@ -460,10 +462,10 @@ function OrganizationOrdersTab() {
                           disabled={confirmingId === order.id}
                           onClick={() => confirmPayment(order.id)}
                         >
-                          {confirmingId === order.id ? "Confirming…" : "Confirm"}
+                          {confirmingId === order.id ? "Confirming…" : "Mark paid"}
                         </Button>
                       ) : (
-                        <Badge variant="outline">Awaiting owner</Badge>
+                        <Badge variant="outline">Waiting for owner</Badge>
                       )}
                     </TableCell>
                   </TableRow>
@@ -481,7 +483,7 @@ export default function CustomersPage() {
   return (
     <Tabs defaultValue="organizations" className="space-y-6">
       <TabsList>
-        <TabsTrigger value="organizations">Organizations</TabsTrigger>
+        <TabsTrigger value="organizations">Company accounts</TabsTrigger>
         <TabsTrigger value="orders">Orders</TabsTrigger>
       </TabsList>
       <TabsContent value="organizations">

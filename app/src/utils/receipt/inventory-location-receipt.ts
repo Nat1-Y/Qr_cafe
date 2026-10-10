@@ -25,7 +25,7 @@ export async function printInventoryLocationReceipt(
 ) {
   if (!location || !inventoryItems) return;
 
-  const locationName = location.name || `Location #${location.id}`;
+  const locationName = location.name || "Stock place";
   const timestamp = new Date().toLocaleString();
 
   // Filter items that have stock at this location

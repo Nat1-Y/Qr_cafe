@@ -62,7 +62,7 @@ export const tablesAdapter = {
   create: async (tableData: any) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Table management requires an internet connection"),
+        new Error("No internet. Connect to change tables."),
       );
     }
 
@@ -76,7 +76,7 @@ export const tablesAdapter = {
   delete: async (id: any) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Table management requires an internet connection"),
+        new Error("No internet. Connect to change tables."),
       );
     }
 

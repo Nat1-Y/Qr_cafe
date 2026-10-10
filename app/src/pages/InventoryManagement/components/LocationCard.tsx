@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Warehouse, Coffee, ChefHat, MapPin, ChevronRight, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { StockLocation } from '../types';
+import { humanize } from '@/lib/format';
 
 interface LocationCardProps {
   location: StockLocation;
@@ -40,15 +41,15 @@ export const LocationCard: React.FC<LocationCardProps> = ({ location, stats, onC
             </div>
             <div>
               <CardTitle className="group-hover:text-primary transition-colors">{location.name}</CardTitle>
-              <span className="text-xs text-muted-foreground font-semibold">{location.type}</span>
+              <span className="text-xs text-muted-foreground font-semibold">{humanize(location.type)}</span>
             </div>
           </div>
           <div className="flex flex-col gap-1 items-end">
             {location.is_default && (
-              <Badge variant="default">Default</Badge>
+              <Badge variant="default">Main</Badge>
             )}
             {!location.active && (
-              <Badge variant="outline" className="bg-muted">Inactive</Badge>
+              <Badge variant="outline" className="bg-muted">Not active</Badge>
             )}
           </div>
         </div>
@@ -60,7 +61,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({ location, stats, onC
             <span className="text-lg font-semibold">{stats.inStock}</span>
           </div>
           <div className="p-2 rounded-md bg-background border text-center">
-            <span className="text-xs text-muted-foreground block font-medium">Tracked items</span>
+            <span className="text-xs text-muted-foreground block font-medium">Items counted</span>
             <span className="text-lg font-semibold">{stats.totalItems}</span>
           </div>
         </div>
@@ -68,17 +69,17 @@ export const LocationCard: React.FC<LocationCardProps> = ({ location, stats, onC
         {stats.lowStock > 0 ? (
           <div className="flex items-center gap-2 text-xs font-medium text-warning bg-warning/10 p-2 rounded-md">
             <AlertTriangle className="h-4 w-4 shrink-0" />
-            <span>{stats.lowStock} items are below minimum stock limit!</span>
+            <span>{stats.lowStock} items are running low</span>
           </div>
         ) : (
           <div className="flex items-center gap-2 text-xs font-medium text-success bg-success/10 p-2 rounded-md">
             <CheckCircle2 className="h-4 w-4 shrink-0" />
-            <span>All tracked items are healthy</span>
+            <span>All items have enough stock</span>
           </div>
         )}
 
         <div className="flex items-center justify-end text-xs text-primary font-semibold pt-1 group-hover:translate-x-1 transition-transform">
-          <span>Explore inventory</span>
+          <span>See stock</span>
           <ChevronRight className="h-3.5 w-3.5 ml-1" />
         </div>
       </CardContent>

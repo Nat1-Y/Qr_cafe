@@ -4,6 +4,7 @@ import api from "@/application";
 import { useAuth } from "@/context/AuthContext";
 import { getApproximateServerDate } from "@/shared/utils/serverTime";
 import { formatETB } from '@/lib/format';
+import { friendlyError } from '@/lib/errors';
 
 // Resolve a stats range key into concrete [from, to] Date bounds. Returns null
 // for "all" (no window). Shared by the stats calculation and by the backend
@@ -338,7 +339,7 @@ export const useCashierEmployeesData = () => {
         await fetchEmployees();
       } catch (e) {
         console.error("Cashier employees load error:", e);
-        toast.error("Failed to load employees");
+        toast.error("Couldn't load waiters. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -361,7 +362,7 @@ export const useCashierEmployeesData = () => {
         await fetchEmployeeData(id);
       } catch (e) {
         console.error("Cashier employee data error:", e);
-        toast.error("Failed to load employee payments");
+        toast.error("Couldn't load this waiter's payments. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -497,7 +498,7 @@ export const useCashierEmployeesData = () => {
           });
         }
 
-        toast.success("Payment confirmed");
+        toast.success("Payment saved");
         if (selectedEmployeeId) {
           await fetchEmployeeData(selectedEmployeeId);
         }
@@ -507,12 +508,12 @@ export const useCashierEmployeesData = () => {
           e.response?.status === 400 &&
           e.response?.data?.message?.includes("already exists")
         ) {
-          toast.error("Payment already created for this order");
+          toast.error("This order is already paid.");
           if (selectedEmployeeId) {
             await fetchEmployeeData(selectedEmployeeId);
           }
         } else {
-          toast.error("Failed to create payment record");
+          toast.error(friendlyError(e, "Couldn't save the payment. Please try again."));
           if (selectedEmployeeId) {
             await fetchEmployeeData(selectedEmployeeId);
           }
@@ -618,10 +619,10 @@ export const useCashierEmployeesData = () => {
     setShowSettleAllModal(false);
     setSettleAllProgress(null);
 
-    if (fail === 0) toast.success(`Settled ${ok} payment${ok === 1 ? "" : "s"}`);
+    if (fail === 0) toast.success(`Paid ${ok} order${ok === 1 ? "" : "s"}`);
     else if (ok === 0)
-      toast.error(`Failed to settle ${fail} payment${fail === 1 ? "" : "s"}`);
-    else toast(`Settled ${ok}, ${fail} failed`);
+      toast.error(`Couldn't take payment for ${fail} order${fail === 1 ? "" : "s"}. Please try again.`);
+    else toast(`Paid ${ok}. ${fail} didn't go through. Please try again.`);
 
     if (selectedEmployeeId) {
       await fetchEmployeeData(selectedEmployeeId).catch(() => {});

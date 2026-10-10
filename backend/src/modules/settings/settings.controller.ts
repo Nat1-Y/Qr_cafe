@@ -407,7 +407,7 @@ export class SettingsController {
     if (appClient !== "tauri-pos-app") {
       throw new ForbiddenException("Access denied.");
     }
-    if (!userIdHeader) throw new UnauthorizedException("User ID required");
+    if (!userIdHeader) throw new UnauthorizedException("Please sign in again.");
     const settings =
       await this.settingsService.getCurrentUserSettings(userIdHeader);
     return { status: "success", data: settings };
@@ -427,7 +427,7 @@ export class SettingsController {
     if (appClient !== "tauri-pos-app") {
       throw new ForbiddenException("Access denied.");
     }
-    if (!userIdHeader) throw new UnauthorizedException("User ID required");
+    if (!userIdHeader) throw new UnauthorizedException("Please sign in again.");
     try {
       const result = await this.settingsService.updateCancelPassword(
         userIdHeader,
@@ -454,7 +454,7 @@ export class SettingsController {
     if (appClient !== "tauri-pos-app") {
       throw new ForbiddenException("Access denied.");
     }
-    if (!userIdHeader) throw new UnauthorizedException("User ID required");
+    if (!userIdHeader) throw new UnauthorizedException("Please sign in again.");
     const result = await this.settingsService.updatePrintCopies(
       userIdHeader,
       String(body.print_copies),

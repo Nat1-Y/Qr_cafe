@@ -19,7 +19,7 @@ export const PaymentMethodStats: React.FC<PaymentMethodStatsProps> = ({ methods 
 
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-      <StatsCard title="Payment methods" value={methods.length} />
+      <StatsCard title="Payment types" value={methods.length} />
       <StatsCard title="On" value={activeCount} variant="success" />
       <StatsCard title="Off" value={methods.length - activeCount} />
     </div>

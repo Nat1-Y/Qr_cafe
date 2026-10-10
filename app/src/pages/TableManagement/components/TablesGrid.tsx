@@ -67,7 +67,7 @@ export const TablesGrid: React.FC<TablesGridProps> = ({
                 className="-mr-1.5 -mt-1.5 text-muted-foreground hover:bg-destructive-soft hover:text-destructive disabled:opacity-0"
                 onClick={() => onDelete(table)}
                 disabled={occupied}
-                title={occupied ? 'Can’t delete a table that’s in use' : 'Delete table'}
+                title={occupied ? "You can't delete a table while it's in use" : 'Delete table'}
                 aria-label={`Delete table ${table.number}`}
               >
                 <Trash2 />

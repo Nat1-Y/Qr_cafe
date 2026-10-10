@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCashierAuth } from "@/components/cashier/auth-context";
 import { cashierServices } from "@/lib/cashier/api";
+import { friendlyError } from "@/lib/errors";
 
 export default function CashierProfilePage() {
   const { user } = useCashierAuth();
@@ -34,7 +35,7 @@ export default function CashierProfilePage() {
     if (!user?.id) return;
     const name = fullName.trim();
     if (!name) {
-      toast.error("Full name is required");
+      toast.error("Enter your full name.");
       return;
     }
     setSavingProfile(true);
@@ -49,9 +50,9 @@ export default function CashierProfilePage() {
       } catch {
         /* ignore cache write errors */
       }
-      toast.success("Profile updated");
+      toast.success("Profile saved");
     } catch (e: any) {
-      toast.error(e?.message || "Failed to update profile");
+      toast.error(friendlyError(e, "Couldn't save your profile. Please try again."));
     } finally {
       setSavingProfile(false);
     }
@@ -60,22 +61,22 @@ export default function CashierProfilePage() {
   const savePassword = async () => {
     if (!user?.id) return;
     if (!currentPassword || !newPassword) {
-      toast.error("Enter your current and new password");
+      toast.error("Enter your current password and a new password.");
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error("New passwords do not match");
+      toast.error("The two new passwords don't match.");
       return;
     }
     setSavingPassword(true);
     try {
       await cashierServices.account.changePassword(user.id, currentPassword, newPassword);
-      toast.success("Password updated");
+      toast.success("Password changed");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (e: any) {
-      toast.error(e?.message || "Failed to change password");
+      toast.error(friendlyError(e, "Couldn't change your password. Please try again."));
     } finally {
       setSavingPassword(false);
     }
@@ -128,7 +129,7 @@ export default function CashierProfilePage() {
       <Card>
         <CardHeader className="pb-3 border-b">
           <CardTitle>Change password</CardTitle>
-          <CardDescription>Update the password you sign in with</CardDescription>
+          <CardDescription>Change the password you sign in with</CardDescription>
         </CardHeader>
         <CardContent className="pt-6 space-y-4">
           <div className="space-y-1.5">
@@ -166,7 +167,7 @@ export default function CashierProfilePage() {
           </div>
           <Button onClick={savePassword} disabled={savingPassword}>
             {savingPassword ? <Loader2 className="animate-spin" /> : <KeyRound />}
-            Update password
+            Save password
           </Button>
         </CardContent>
       </Card>

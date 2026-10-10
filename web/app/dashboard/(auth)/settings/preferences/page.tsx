@@ -20,17 +20,8 @@ import { PageHeader } from "@/components/page-header";
 import { DataTable, type Column } from "@/components/data-table";
 import { Inventory, Settings } from "@/lib/resources";
 import { getBranchId } from "@/lib/api";
-import { CONFIGURABLE_ROLES } from "@/lib/permissions";
-
-// Human label for a role slug, falling back to a title-cased slug.
-function roleLabel(role: string): string {
-  const found = CONFIGURABLE_ROLES.find((r) => r.value === role);
-  if (found) return found.label;
-  return role
-    .split("_")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
+import { roleLabel } from "@/lib/auth";
+import { friendlyError } from "@/lib/errors";
 
 // Preset lookback windows (days back from today). -1 = unlimited.
 const LOOKBACK_OPTIONS: { value: number; label: string }[] = [
@@ -40,7 +31,7 @@ const LOOKBACK_OPTIONS: { value: number; label: string }[] = [
   { value: 6, label: "Last 7 days" },
   { value: 13, label: "Last 14 days" },
   { value: 29, label: "Last 30 days" },
-  { value: -1, label: "All history (no limit)" },
+  { value: -1, label: "Everything (no limit)" },
 ];
 
 // Per-role history lookback: how far back each staff role can see payments/orders
@@ -54,7 +45,7 @@ function HistoryLookbackCard() {
   useEffect(() => {
     Settings.roleHistoryLookback()
       .then((d) => setMap(d ?? {}))
-      .catch((e: any) => toast.error(e.message))
+      .catch((e: any) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, []);
 
@@ -69,7 +60,7 @@ function HistoryLookbackCard() {
       toast.success("Saved");
     } catch (e: any) {
       setMap(prev);
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setSaving(null);
     }
@@ -82,12 +73,10 @@ function HistoryLookbackCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <HistoryIcon className="size-5" />
-          History visibility per role
+          How far back each role can see
         </CardTitle>
         <CardDescription>
-          How many days of past payments and orders each role can see. Applies to
-          the desktop POS and the web cashier / waiter portals on the staff
-          member&apos;s next login. Managers and owners always see all history.
+          How many days of past orders and payments each role can see. This works on the till and the cashier and waiter screens the next time the person signs in. Managers and owners always see everything.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-1">
@@ -147,9 +136,9 @@ type Rule = {
 const RULES: Rule[] = [
   {
     key: "force_table_selection",
-    title: "Allow orders without a table",
+    title: "Allow orders with no table",
     description:
-      "When on, staff can leave an order unassigned to a table with no explicit choice needed. Turn off to require staff to either pick a table or explicitly choose Take Away — Take Away itself is always allowed either way.",
+      "When on, staff can send an order without picking a table. When off, they must pick a table or Takeaway. Takeaway is always allowed.",
     load: () =>
       Settings.tableSelection().then((d) => !d.force_table_selection),
     save: (enabled) =>
@@ -157,18 +146,18 @@ const RULES: Rule[] = [
   },
   {
     key: "allow_low_stock_orders",
-    title: "Allow orders with low inventory",
+    title: "Allow orders when stock is low",
     description:
-      "When on, items can still be ordered after their ingredients run low. Turn off to block ordering items that are out of stock.",
+      "When on, staff can still order items when ingredients run low. When off, items that are out of stock can't be ordered.",
     load: () => Settings.inventory().then((d) => d.allow_low_stock_orders),
     save: (enabled) =>
       Settings.updateInventory({ allow_low_stock_orders: enabled }),
   },
   {
     key: "show_menu_inventory_availability",
-    title: "Show inventory availability to waiters",
+    title: "Show waiters what is in stock",
     description:
-      "When on, the waiter order screen flags each menu item as out of stock or running low based on current ingredient inventory. Turn off to hide stock hints from waiters.",
+      "When on, waiters see which menu items are out of stock or running low. When off, waiters don't see stock.",
     load: () =>
       Settings.menuAvailability().then(
         (d) => d.show_menu_inventory_availability,
@@ -180,9 +169,9 @@ const RULES: Rule[] = [
   },
   {
     key: "allow_cashier_manage_org_orders",
-    title: "Cashiers can manage organization orders",
+    title: "Cashiers can take company account orders",
     description:
-      "When on, cashiers (not just admins) can create and settle credit orders for organizations.",
+      "When on, cashiers (not only managers) can take and pay company account orders.",
     load: () =>
       Settings.organizations().then((d) => d.allow_cashier_manage_org_orders),
     save: (enabled) =>
@@ -194,7 +183,7 @@ const RULES: Rule[] = [
     key: "enable_cashier_receipt",
     title: "Print cashier receipt",
     description:
-      "When on, a receipt is printed at the cashier station when an order is paid.",
+      "When on, the till prints a receipt when an order is paid.",
     load: () => Settings.receipt().then((d) => d.enable_cashier_receipt),
     save: (enabled) =>
       Settings.updateReceipt({ enable_cashier_receipt: enabled }),
@@ -203,7 +192,7 @@ const RULES: Rule[] = [
     key: "print_cancelled_order_tickets",
     title: "Print a ticket when an order is cancelled",
     description:
-      "When on, the POS prints a void \"DO NOT PREPARE\" ticket to the kitchen printers whenever an order that already reached the kitchen is cancelled. Off by default.",
+      "When on, the till prints a \"DO NOT PREPARE\" ticket in the kitchen when an order the kitchen already got is cancelled. Off at first.",
     load: () =>
       Settings.cancellationPrint().then(
         (d) => d.print_cancelled_order_tickets,
@@ -229,18 +218,18 @@ function CancelPasswordCard() {
   useEffect(() => {
     Settings.cancelPassword()
       .then((d) => setIsSet(!!d.is_set))
-      .catch((e: any) => toast.error(e.message))
+      .catch((e: any) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, []);
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+      setError("Needs at least 6 characters.");
       return;
     }
     if (password !== confirm) {
-      setError("Passwords do not match.");
+      setError("The two entries don't match.");
       return;
     }
     setError(null);
@@ -250,9 +239,9 @@ function CancelPasswordCard() {
       setIsSet(true);
       setPassword("");
       setConfirm("");
-      toast.success("Cancel password updated");
+      toast.success("Manager PIN for cancelling saved");
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(friendlyError(err));
     } finally {
       setSaving(false);
     }
@@ -263,14 +252,14 @@ function CancelPasswordCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <KeyRoundIcon className="size-5" />
-          Cancel order password
+          Manager PIN for cancelling
         </CardTitle>
         <CardDescription>
-          Staff must enter this password to cancel an order on the POS.{" "}
+          Staff must type this to cancel an order on the till.{" "}
           {!loading &&
             (isSet
               ? "A password is currently set. Enter a new one to change it."
-              : "No password is set yet for this branch.")}
+              : "Not set yet for this branch.")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -313,7 +302,7 @@ function CancelPasswordCard() {
                 {saving
                   ? "Saving…"
                   : isSet
-                    ? "Update password"
+                    ? "Save password"
                     : "Set password"}
               </Button>
             </div>
@@ -338,18 +327,18 @@ function PrinterPasswordCard() {
   useEffect(() => {
     Settings.printerPassword()
       .then((d) => setIsSet(!!d.is_set))
-      .catch((e: any) => toast.error(e.message))
+      .catch((e: any) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, []);
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (password.length < 4) {
-      setError("Password must be at least 4 characters.");
+      setError("Needs at least 4 characters.");
       return;
     }
     if (password !== confirm) {
-      setError("Passwords do not match.");
+      setError("The two entries don't match.");
       return;
     }
     setError(null);
@@ -359,9 +348,9 @@ function PrinterPasswordCard() {
       setIsSet(true);
       setPassword("");
       setConfirm("");
-      toast.success("Printer settings password updated");
+      toast.success("Printer settings password saved");
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(friendlyError(err));
     } finally {
       setSaving(false);
     }
@@ -375,12 +364,11 @@ function PrinterPasswordCard() {
           Printer settings password
         </CardTitle>
         <CardDescription>
-          Cashiers must enter this password to open the printer settings on the
-          POS.{" "}
+          Cashiers must type this password to open printer settings on the till.{" "}
           {!loading &&
             (isSet
               ? "A password is currently set. Enter a new one to change it."
-              : "No password is set yet for this branch — printer settings are open.")}
+              : "No password yet, so anyone can open printer settings.")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -423,7 +411,7 @@ function PrinterPasswordCard() {
                 {saving
                   ? "Saving…"
                   : isSet
-                    ? "Update password"
+                    ? "Save password"
                     : "Set password"}
               </Button>
             </div>
@@ -459,7 +447,7 @@ function WaiterVisibleInventoryCard() {
   useEffect(() => {
     Settings.waiterVisibleInventory()
       .then((ids) => setSelected(new Set(ids)))
-      .catch((e: any) => toast.error(e.message))
+      .catch((e: any) => toast.error(friendlyError(e)))
       .finally(() => setSettingsLoaded(true));
   }, []);
 
@@ -483,7 +471,7 @@ function WaiterVisibleInventoryCard() {
         setRows(res.rows as WaiterPickerItem[]);
         setCount(res.count);
       })
-      .catch((e: any) => toast.error(e.message))
+      .catch((e: any) => toast.error(friendlyError(e)))
       .finally(() => setItemsLoading(false));
   }, [page, debouncedSearch]);
 
@@ -523,7 +511,7 @@ function WaiterVisibleInventoryCard() {
       setSelected(new Set(saved));
       toast.success("Saved");
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setSaving(false);
     }
@@ -557,12 +545,10 @@ function WaiterVisibleInventoryCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <BoxesIcon className="size-5" />
-          Inventory visible to waiters
+          Stock waiters can see
         </CardTitle>
         <CardDescription>
-          Choose which inventory items appear on the waiter sign-in page&apos;s
-          Inventory tab, along with their current quantity remaining. Waiters
-          can view this list without logging in.
+          Pick which stock items show on the waiter sign-in page, with how much is left. Waiters can see this list without signing in.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -587,7 +573,7 @@ function WaiterVisibleInventoryCard() {
                 onPageChange: setPage,
                 onSearchChange: setSearch,
               }}
-              emptyMessage="No inventory items found for this branch yet."
+              emptyMessage="No stock items at this branch yet."
               toolbar={
                 <div className="flex items-center gap-2">
                   <Button
@@ -596,7 +582,7 @@ function WaiterVisibleInventoryCard() {
                     onClick={selectPage}
                     disabled={saving}
                   >
-                    Select page
+                    Pick all on this page
                   </Button>
                   <Button
                     variant="outline"
@@ -604,7 +590,7 @@ function WaiterVisibleInventoryCard() {
                     onClick={clearPage}
                     disabled={saving}
                   >
-                    Clear page
+                    Clear this page
                   </Button>
                   <span className="text-muted-foreground text-xs">
                     {selected.size} selected
@@ -642,7 +628,7 @@ export default function PreferencesPage() {
       );
       setValues(Object.fromEntries(entries));
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setLoading(false);
     }
@@ -661,7 +647,7 @@ export default function PreferencesPage() {
       toast.success("Saved");
     } catch (e: any) {
       setValues((v) => ({ ...v, [rule.key]: !next }));
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setSaving(null);
     }
@@ -671,23 +657,23 @@ export default function PreferencesPage() {
     <div className="space-y-6">
       <PageHeader
         title="Order rules"
-        description="Per-branch POS behavior. These apply to the branch selected in the switcher above."
+        description="How the tills work. These apply to the branch picked at the top."
       />
 
       <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <SlidersHorizontalIcon className="size-5" />
-            Branch behavior
+            Branch settings
           </CardTitle>
           <CardDescription>
-            Changes take effect on the desktop POS after its next sync.
+            Tills get these changes the next time they update.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-1">
           {!hasBranch && (
             <p className="text-muted-foreground py-6 text-sm">
-              Select a branch in the switcher above to configure its rules.
+              Pick a branch at the top to change its rules.
             </p>
           )}
 

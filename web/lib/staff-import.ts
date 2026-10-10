@@ -110,32 +110,32 @@ const normalizeRow = (
   const warnings: string[] = [];
 
   const full_name = str(raw.full_name);
-  if (!full_name) errors.push("Full name is required");
+  if (!full_name) errors.push("Enter a full name");
 
   const username = str(raw.username);
-  if (!username) errors.push("Username is required");
+  if (!username) errors.push("Enter a username");
 
   const role = str(raw.role).toLowerCase() || "cashier";
   if (!STAFF_ROLES.includes(role as (typeof STAFF_ROLES)[number])) {
-    warnings.push(`Unknown role "${role}" — it will be saved as-is`);
+    warnings.push(`Role "${role}" is not one we know. It will be saved as it is.`);
   }
 
   const pin = str(raw.pin);
   if (pin && !/^\d{4}$/.test(pin)) {
-    errors.push("PIN must be exactly 4 digits");
+    errors.push("PIN must be 4 numbers");
   }
 
   const password = str(raw.password);
   if (!password && !pin) {
-    warnings.push("No password/PIN — a default password will be set");
+    warnings.push("No password or PIN. We will set a starting password.");
   }
 
   const lowerUser = username.toLowerCase();
   if (lowerUser) {
     if (seenUsernames.has(lowerUser)) {
-      errors.push("Duplicate username within this file");
+      errors.push("This username is in the file twice");
     } else if (ctx.existingUsernames.has(lowerUser)) {
-      warnings.push("Username already exists — this account will be updated");
+      warnings.push("This username already exists. The account will be updated.");
     }
     seenUsernames.add(lowerUser);
   }
@@ -173,12 +173,12 @@ export const parseStaffFile = (
   } catch (e) {
     return {
       rows: [],
-      fatalError: e instanceof Error ? e.message : "Failed to parse file",
+      fatalError: e instanceof Error ? e.message : "We couldn't read this file. Start from the example file.",
     };
   }
 
   if (rawRows.length === 0) {
-    return { rows: [], fatalError: "No data rows found in the file" };
+    return { rows: [], fatalError: "The file has no people in it." };
   }
 
   const seenUsernames = new Set<string>();

@@ -1,5 +1,7 @@
 // Thin client for the NestJS backend. The super-admin app is online-only and
 // talks to the same API the desktop app syncs against.
+import { ERROR_TEXT, messageForStatus } from "./errors";
+
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -78,7 +80,7 @@ export async function apiFetch<T = any>(
   }
 
   if (!res.ok) {
-    let message = `Request failed (${res.status})`;
+    let message = messageForStatus(res.status) ?? ERROR_TEXT.generic;
     try {
       const body = await res.json();
       message = body.message || message;
@@ -86,7 +88,8 @@ export async function apiFetch<T = any>(
     } catch {
       /* non-JSON error body */
     }
-    throw new Error(message);
+    // Keep the status on the error so friendlyError() can word it for people.
+    throw Object.assign(new Error(message), { status: res.status });
   }
 
   if (res.status === 204) return undefined as T;

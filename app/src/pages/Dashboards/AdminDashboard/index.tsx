@@ -68,8 +68,8 @@ const AdminDashboard = () => {
           dateRange.timeRange === 'today'
             ? "Today's orders"
             : dateRange.timeRange === 'all'
-              ? 'Total Orders'
-              : `${dateRange.timeRangeLabel} Orders`,
+              ? 'Total orders'
+              : `${dateRange.timeRangeLabel} orders`,
         value: useGlobalTotals
           ? (dateRange.timeRange === 'today'
             ? dashboardData.stats.todayOrders
@@ -83,10 +83,10 @@ const AdminDashboard = () => {
       {
         title:
           dateRange.timeRange === 'today'
-            ? "Today's revenue"
+            ? "Money in today"
             : dateRange.timeRange === 'all'
-              ? 'Total Revenue'
-              : `${dateRange.timeRangeLabel} Revenue`,
+              ? 'Total money in'
+              : `${dateRange.timeRangeLabel} money in`,
         value:
           dateRange.timeRange === 'today'
             ? formatETB(
@@ -169,8 +169,8 @@ const AdminDashboard = () => {
         <div className="max-w-full overflow-x-auto">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="inventory">Inventory</TabsTrigger>
-            <TabsTrigger value="reports">Z-Report</TabsTrigger>
+            <TabsTrigger value="inventory">Stock</TabsTrigger>
+            <TabsTrigger value="reports">End of day report</TabsTrigger>
             <TabsTrigger value="management">Shortcuts</TabsTrigger>
           </TabsList>
         </div>

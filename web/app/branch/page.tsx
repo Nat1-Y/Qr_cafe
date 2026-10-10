@@ -20,6 +20,7 @@ import {
   getDeviceEnrollment,
   type DeviceEnrollment,
 } from "@/lib/device";
+import { friendlyError } from "@/lib/errors";
 
 /**
  * Enrollment QR codes encode the branch's plain enrollment code. Tolerate a
@@ -65,9 +66,9 @@ export default function BranchLoginPage() {
       setEnrollment(result);
       setCode("");
       setDeviceName("");
-      toast.success("Device enrolled — you can now sign in.");
+      toast.success("Device set up. You can sign in now.");
     } catch (err: any) {
-      toast.error(err.message || "Enrollment failed");
+      toast.error(friendlyError(err, "That code didn't work. Check it and try again."));
     } finally {
       setEnrolling(false);
     }
@@ -92,7 +93,7 @@ export default function BranchLoginPage() {
   function onChangeDevice() {
     clearDeviceEnrollment();
     setEnrollment(null);
-    toast.success("Device removed — enter a new enrollment code.");
+    toast.success("Device removed. Enter a new setup code.");
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -103,7 +104,7 @@ export default function BranchLoginPage() {
       toast.success("Signed in");
       router.push(landingRoute(user.role));
     } catch (err: any) {
-      toast.error(err.message || "Login failed");
+      toast.error(friendlyError(err, "Couldn't sign in. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -118,7 +119,7 @@ export default function BranchLoginPage() {
           <div className="mb-8">
             <h1 className="text-title text-foreground">Sign in</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Branch admins and F&amp;B managers sign in here.
+              Branch managers and food &amp; drinks managers sign in here.
             </p>
           </div>
 
@@ -188,7 +189,7 @@ export default function BranchLoginPage() {
             <p className="eyebrow mb-1">First-time setup</p>
             <h1 className="text-title text-foreground">Set up this device</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Scan the QR code from your owner or admin, or type the enrollment code.
+              Scan the QR code from your owner or manager, or type the setup code.
             </p>
           </div>
 
@@ -199,7 +200,7 @@ export default function BranchLoginPage() {
                   onScan={onScan}
                   onError={() =>
                     toast.error(
-                      "Couldn't access the camera. Allow camera access or enter the code manually.",
+                      "Can't open the camera. Allow the camera, or type the code.",
                     )
                   }
                   formats={["qr_code"]}
@@ -234,7 +235,7 @@ export default function BranchLoginPage() {
 
           <form onSubmit={onEnroll} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="enroll-code">Enrollment code</Label>
+              <Label htmlFor="enroll-code">Setup code</Label>
               <Input
                 id="enroll-code"
                 value={code}
@@ -261,14 +262,14 @@ export default function BranchLoginPage() {
               />
             </div>
             <Button type="submit" variant="outline" size="lg" className="w-full" disabled={enrolling || !code.trim()}>
-              {enrolling ? "Enrolling…" : "Enroll device"}
+              {enrolling ? "Setting up…" : "Set up this device"}
             </Button>
           </form>
         </>
       )}
 
       <p className="mt-6 text-sm text-muted-foreground">
-        Owner or platform admin?{" "}
+        Owner?{" "}
         <Link href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
           Owner sign-in
         </Link>

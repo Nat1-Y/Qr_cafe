@@ -38,7 +38,7 @@ export const InventoryPanel: React.FC<InventoryPanelProps> = ({ items, compact =
       <Card className="overflow-hidden">
         <CardHeader className="border-b border-border">
           <CardTitle>Running low</CardTitle>
-          <CardDescription>Below their minimum level.</CardDescription>
+          <CardDescription>Below their warning level.</CardDescription>
         </CardHeader>
         {low.length > 0 ? (
           <ul className="divide-y divide-border">
@@ -55,11 +55,11 @@ export const InventoryPanel: React.FC<InventoryPanelProps> = ({ items, compact =
             ))}
           </ul>
         ) : (
-          <p className="px-6 py-10 text-center text-sm text-muted-foreground">Everything is above its minimum.</p>
+          <p className="px-6 py-10 text-center text-sm text-muted-foreground">Everything has enough stock.</p>
         )}
         <div className="border-t border-border px-6 py-3">
           <Button size="sm" variant="ghost" className="-ml-3" onClick={() => navigate('/dashboard/inventory')}>
-            Open inventory
+            Open stock
           </Button>
         </div>
       </Card>
@@ -71,10 +71,10 @@ export const InventoryPanel: React.FC<InventoryPanelProps> = ({ items, compact =
       <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 border-b border-border">
         <div>
           <CardTitle>Stock levels</CardTitle>
-          <CardDescription>On hand against each item&apos;s minimum.</CardDescription>
+          <CardDescription>How much you have, and the warning level for each item.</CardDescription>
         </div>
         <Button size="sm" variant="outline" onClick={() => navigate('/dashboard/inventory')}>
-          Manage inventory
+          Manage stock
         </Button>
       </CardHeader>
       {rows.length > 0 ? (
@@ -84,7 +84,7 @@ export const InventoryPanel: React.FC<InventoryPanelProps> = ({ items, compact =
               <TableHead>Item</TableHead>
               <TableHead className="text-right">On hand</TableHead>
               <TableHead>Unit</TableHead>
-              <TableHead className="text-right">Minimum</TableHead>
+              <TableHead className="text-right">Warning level</TableHead>
               <TableHead className="text-right">Status</TableHead>
             </TableRow>
           </TableHeader>

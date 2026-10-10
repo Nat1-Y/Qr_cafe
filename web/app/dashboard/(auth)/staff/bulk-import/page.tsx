@@ -39,6 +39,7 @@ import {
   rowToStaffPayload,
 } from "@/lib/staff-import";
 import { roleLabel } from "@/lib/auth";
+import { friendlyError } from "@/lib/errors";
 
 export default function BulkStaffImportPage() {
   const router = useRouter();
@@ -118,18 +119,18 @@ export default function BulkStaffImportPage() {
 
   async function handleImport() {
     if (validRows.length === 0) {
-      toast.error("There are no valid rows to import.");
+      toast.error("No rows are ready to add. Fix the file and try again.");
       return;
     }
     setSubmitting(true);
     try {
       await Users.bulkSync(validRows.map(rowToStaffPayload));
       toast.success(
-        `Imported ${validRows.length} staff member${validRows.length === 1 ? "" : "s"} successfully.`,
+        `Added ${validRows.length} staff member${validRows.length === 1 ? "" : "s"}.`,
       );
       router.push("/dashboard/staff");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Bulk import failed");
+      toast.error(friendlyError(e, "Couldn't add the staff. Please try again."));
     } finally {
       setSubmitting(false);
     }
@@ -145,8 +146,8 @@ export default function BulkStaffImportPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Bulk staff import"
-        description="Add many staff accounts at once from a CSV or JSON file."
+        title="Add many staff"
+        description="Add many staff at once from a spreadsheet (CSV) or JSON file."
         action={
           <Button
             variant="outline"
@@ -161,7 +162,7 @@ export default function BulkStaffImportPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            1. Get a template &amp; upload your file
+            1. Get the example file, fill it in, and upload it
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -191,12 +192,14 @@ export default function BulkStaffImportPage() {
           </div>
 
           <p className="text-muted-foreground text-xs">
-            Required columns: <strong>full_name</strong> and{" "}
-            <strong>username</strong>. Optional: role (admin, fb_manager,
-            finance, cashier, kitchen_staff, cafe_waiter, barista, host,
-            storekeeper, accountant, housekeeping), phone, password, pin (4
-            digits), is_active. If neither password nor PIN is given, a default
-            password is set.
+            Must have: full name (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">full_name</code>) and the name they sign in with{" "}
+            (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">username</code>). Can also have: role (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">role</code>): one of{" "}
+            <code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">admin</code>, <code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">fb_manager</code>, <code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">finance</code>,{" "}
+            <code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">cashier</code>, <code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">kitchen_staff</code>, <code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">cafe_waiter</code>,{" "}
+            <code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">barista</code>, <code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">host</code>, <code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">storekeeper</code>,{" "}
+            <code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">accountant</code>, <code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">housekeeping</code>; phone (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">phone</code>),
+            password (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">password</code>), 4-number PIN (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">pin</code>), and can sign in{" "}
+            (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">is_active</code>). If there is no password or PIN, we set a starting password.
           </p>
 
           <div
@@ -209,7 +212,7 @@ export default function BulkStaffImportPage() {
             className="border-muted-foreground/25 bg-muted/20 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-8 text-center">
             <FileUpIcon className="text-muted-foreground size-8" />
             <p className="text-sm font-medium">
-              {fileName ?? "Drag & drop a .csv or .json file here"}
+              {fileName ?? "Drag a .csv or .json file here"}
             </p>
             <p className="text-muted-foreground text-xs">or</p>
             <Button
@@ -268,7 +271,7 @@ export default function BulkStaffImportPage() {
       {result && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-            <CardTitle>2. Review &amp; confirm</CardTitle>
+            <CardTitle>2. Check and add</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="gap-1">
                 <CheckCircle2Icon className="size-3 text-success" />
@@ -277,13 +280,13 @@ export default function BulkStaffImportPage() {
               {warningCount > 0 && (
                 <Badge variant="secondary" className="gap-1">
                   <AlertTriangleIcon className="size-3 text-warning" />
-                  {warningCount} warning{warningCount === 1 ? "" : "s"}
+                  {warningCount} to check
                 </Badge>
               )}
               {errorCount > 0 && (
                 <Badge variant="destructive" className="gap-1">
                   <XCircleIcon className="size-3" />
-                  {errorCount} error{errorCount === 1 ? "" : "s"}
+                  {errorCount} with problems
                 </Badge>
               )}
             </div>
@@ -298,8 +301,7 @@ export default function BulkStaffImportPage() {
               <>
                 {errorCount > 0 && (
                   <p className="text-muted-foreground text-xs">
-                    Rows with errors are skipped. Fix them in your file and
-                    re-upload to include them.
+                    Rows with problems are skipped. Fix them in your file and upload it again to add them.
                   </p>
                 )}
                 <div className="max-h-[460px] overflow-auto rounded-md border">
@@ -310,7 +312,7 @@ export default function BulkStaffImportPage() {
                         <TableHead>Full name</TableHead>
                         <TableHead>Username</TableHead>
                         <TableHead>Role</TableHead>
-                        <TableHead>Auth</TableHead>
+                        <TableHead>Signs in with</TableHead>
                         <TableHead>Active</TableHead>
                         <TableHead>Status</TableHead>
                       </TableRow>
@@ -353,7 +355,7 @@ export default function BulkStaffImportPage() {
 function RowView({ row }: { row: ParsedStaffRow }) {
   const hasError = row.errors.length > 0;
   const hasWarning = row.warnings.length > 0;
-  const auth = row.pin ? "PIN" : row.password ? "Password" : "Default";
+  const auth = row.pin ? "PIN" : row.password ? "Password" : "Starting password";
   return (
     <TableRow className={hasError ? "bg-destructive/5" : undefined}>
       <TableCell className="text-muted-foreground">

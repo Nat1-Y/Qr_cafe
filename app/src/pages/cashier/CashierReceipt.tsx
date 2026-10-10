@@ -24,7 +24,7 @@ export const CashierReceipt: React.FC = () => {
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Cashier receipt"
-        description="Print payment receipts with custom formatting"
+        description="Print receipts for paid orders."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -43,7 +43,7 @@ export const CashierReceipt: React.FC = () => {
             onClick={() => setShowSettings(!showSettings)}
             className="w-full px-4 py-2 bg-card border border-border hover:bg-row-hover rounded-lg text-sm font-medium transition-colors"
           >
-            {showSettings ? 'Hide Format Settings' : 'Show Format Settings'}
+            {showSettings ? 'Hide receipt layout' : 'Change receipt layout'}
           </button>
 
           {showSettings && (

@@ -47,7 +47,7 @@ export const ExpenseRowEditor: React.FC<ExpenseRowEditorProps> = ({
           <Input
             type="text"
             value={r.item}
-            placeholder="Item purchased"
+            placeholder="What you bought"
             onChange={(e) => updateRow(idx, 'item', e.target.value)}
             className="flex-1"
             disabled={disabled}

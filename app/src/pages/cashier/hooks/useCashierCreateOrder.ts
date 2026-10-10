@@ -7,6 +7,7 @@ import { syncEngine } from "@/infrastructure/sync/sync-engine";
 import { useSyncRefetch } from "@/hooks/useSyncRefetch";
 import { useAuth } from "@/context/AuthContext";
 import { generateLocalId } from "@/db/localDb";
+import { friendlyError } from '@/lib/errors';
 
 // Cheap content fingerprint of the menu list — lets a background refetch detect
 // "nothing changed" and skip the state update (and the re-render/flash).
@@ -170,7 +171,7 @@ export const useCashierCreateOrder = () => {
 
   useEffect(() => {
     if (!waiter?.id && !deliveryMode) {
-      toast.error("Please select a waiter first");
+      toast.error("Pick a waiter first.");
       navigate("/dashboard/cashier/select-waiter", { replace: true });
     }
   }, [navigate, waiter?.id, deliveryMode]);
@@ -273,7 +274,7 @@ export const useCashierCreateOrder = () => {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast.error("Failed to load menu items or table status");
+        toast.error("Couldn't load the menu. Please try again.");
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -467,12 +468,12 @@ export const useCashierCreateOrder = () => {
       setCreatingOrder(true);
 
       if (!waiter?.id && !deliveryMode) {
-        toast.error("Please select a waiter first");
+        toast.error("Pick a waiter first.");
         return;
       }
 
       if (orderItems.length === 0) {
-        toast.error("Please add at least one item to the order");
+        toast.error("Add at least one item first.");
         return;
       }
 
@@ -500,7 +501,7 @@ export const useCashierCreateOrder = () => {
           addition_id: addItemsIdRef.current,
         });
         addItemsIdRef.current = null;
-        toast.success("Items added to order successfully!");
+        toast.success("Items added to the order");
         setOrderItems([]);
         setNotes("");
         navigate("/dashboard");
@@ -542,7 +543,7 @@ export const useCashierCreateOrder = () => {
         : null;
 
       if (deliveryMode && !selectedDeliveryMethod) {
-        toast.error("Select a delivery method");
+        toast.error("Pick a delivery service.");
         return;
       }
 
@@ -550,7 +551,7 @@ export const useCashierCreateOrder = () => {
       // design — force_table_selection only blocks placing an order with no
       // choice made at all, same as the backend.
       if (forceTableSelection && !selectedTable && !selectedDeliveryMethod) {
-        toast.error("Table selection is mandatory.");
+        toast.error("Pick a table first.");
         return;
       }
 
@@ -571,7 +572,7 @@ export const useCashierCreateOrder = () => {
       }
 
       await api.orders.createCafe(orderData);
-      toast.success("Order created successfully!");
+      toast.success("Order sent");
 
       setSelectedTable("");
       setSelectedDeliveryMethodIdRaw("");
@@ -581,14 +582,19 @@ export const useCashierCreateOrder = () => {
     } catch (e: any) {
       console.error(isAddMode ? "Add items error:" : "Create order error:", e);
       if (e?.response?.status === 409) {
-        toast.error(e?.response?.data?.message || "Not enough inventory");
+        toast.error(friendlyError(e, "Not enough stock for this item."));
       } else if (isAddMode && e?.response?.status === 403) {
         toast.error(
           "Only the staff member who created this order can add items to it.",
         );
       } else {
         toast.error(
-          isAddMode ? "Failed to add items" : "Failed to create order",
+          friendlyError(
+            e,
+            isAddMode
+              ? "Couldn't add the items. Please try again."
+              : "Couldn't send the order. Please try again.",
+          ),
         );
       }
     } finally {

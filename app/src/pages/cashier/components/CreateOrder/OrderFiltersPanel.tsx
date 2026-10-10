@@ -34,7 +34,7 @@ interface OrderFiltersPanelProps {
 const OrderFiltersPanel: React.FC<OrderFiltersPanelProps> = ({
   searchQuery,
   onSearchChange,
-  searchPlaceholder = 'Search menu items, categories, or sub-items...',
+  searchPlaceholder = 'Search the menu',
   allTables,
   selectedTable,
   onSelectTable,
@@ -81,7 +81,7 @@ const OrderFiltersPanel: React.FC<OrderFiltersPanelProps> = ({
       !showSubCategories
         ? []
         : [
-          { id: 'all', label: 'All sub-items', count: totalSubItemsCount },
+          { id: 'all', label: 'All kinds', count: totalSubItemsCount },
           ...subCategories
         ],
     [showSubCategories, subCategories, totalSubItemsCount]
@@ -236,7 +236,7 @@ const OrderFiltersPanel: React.FC<OrderFiltersPanelProps> = ({
               aria-label="Delivery method"
               className={cn(pill, 'appearance-none pr-4', selectedDeliveryMethodId && pillOn)}
             >
-              <option value="">Delivery…</option>
+              <option value="">Delivery</option>
               {deliveryMethods.map((m) => (
                 <option key={m.id} value={m.id}>{m.display_name}</option>
               ))}
@@ -288,14 +288,14 @@ const OrderFiltersPanel: React.FC<OrderFiltersPanelProps> = ({
                   type="button"
                   className={cn(pill, 'min-w-[160px] flex-1 justify-between sm:flex-none', selectedSubCategory !== 'all' && pillOn)}
                 >
-                  <span className="truncate">{formatTriggerLabel(selectedSubOption, 'All sub-items')}</span>
+                  <span className="truncate">{formatTriggerLabel(selectedSubOption, 'All kinds')}</span>
                   <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[calc(100vw-2rem)] max-w-sm p-0 sm:w-[22rem]">
                 <div className="px-4 pt-4">
-                  <p className="text-sm font-semibold text-foreground">Sub-categories</p>
-                  <p className="text-meta text-muted-foreground">Narrow down the fasting menu.</p>
+                  <p className="text-sm font-semibold text-foreground">Kinds</p>
+                  <p className="text-meta text-muted-foreground">Pick a kind to see fewer items.</p>
                 </div>
                 <div className="mt-3 px-4 pb-4">
                   <ScrollArea className="max-h-60 overflow-auto">

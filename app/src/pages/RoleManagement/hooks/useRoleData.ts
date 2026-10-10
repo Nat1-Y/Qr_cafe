@@ -32,7 +32,7 @@ export const useRoleData = () => {
         setRoles(Array.isArray(list) ? list : []);
       }
     } catch {
-      toast.error("Failed to load roles");
+      toast.error("Couldn't load roles. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ export const useRoleData = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.display_name.trim() || !formData.name.trim()) {
-      toast.error("Display name and system key are required");
+      toast.error("Enter a name and a code name.");
       return;
     }
     try {
@@ -74,12 +74,12 @@ export const useRoleData = () => {
         const key = nameToKey(formData.display_name);
         const payload = { ...formData, name: key };
         await api.settings.createRole(payload);
-        toast.success("Role created");
+        toast.success("Role added");
       }
       setDialogOpen(false);
       fetchRoles();
     } catch {
-      toast.error("Failed to save role");
+      toast.error("Couldn't save the role. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -88,16 +88,16 @@ export const useRoleData = () => {
   const handleDelete = async (role: Role) => {
     if (
       !window.confirm(
-        `Disable role "${role.display_name}"? Users with this role will keep it but it cannot be reassigned.`,
+        `Turn off the role "${role.display_name}"? Staff who have it keep it, but you can't give it to anyone new.`,
       )
     )
       return;
     try {
       await api.settings.deleteRole(role.id);
-      toast.success("Role disabled");
+      toast.success("Role turned off");
       fetchRoles();
     } catch {
-      toast.error("Failed to disable role");
+      toast.error("Couldn't turn off the role. Please try again.");
     }
   };
 

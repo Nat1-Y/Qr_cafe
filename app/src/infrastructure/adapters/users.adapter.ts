@@ -101,7 +101,7 @@ export const usersAdapter = {
       };
     }
     return {
-      data: { status: "error", message: "User not found locally" },
+      data: { status: "error", message: "We couldn't find that person on this till." },
       status: 404,
       statusText: "Not Found",
       headers: {},
@@ -112,7 +112,7 @@ export const usersAdapter = {
   create: async (userData: any) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("User creation is only allowed when online"),
+        new Error("No internet. Connect to add staff."),
       );
     }
     const response = await api.post("/users", userData);
@@ -121,7 +121,7 @@ export const usersAdapter = {
   update: async (id: string, userData: any) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("User management requires an internet connection"),
+        new Error("No internet. Connect to change staff."),
       );
     }
 
@@ -131,7 +131,7 @@ export const usersAdapter = {
   delete: async (id: string) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("User management requires an internet connection"),
+        new Error("No internet. Connect to change staff."),
       );
     }
 
@@ -141,7 +141,7 @@ export const usersAdapter = {
   toggleStatus: async (id: string) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("User management requires an internet connection"),
+        new Error("No internet. Connect to change staff."),
       );
     }
 

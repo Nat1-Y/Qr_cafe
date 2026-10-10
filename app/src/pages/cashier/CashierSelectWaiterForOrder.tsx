@@ -38,7 +38,7 @@ const CashierSelectWaiterForOrder = () => {
       } catch (e) {
         console.error('Failed to load waiters:', e);
         if (!cancelled) {
-          toast.error('Failed to load waiters');
+          toast.error("Couldn't load waiters. Please try again.");
           setUsers([]);
         }
       } finally {
@@ -125,7 +125,7 @@ const CashierSelectWaiterForOrder = () => {
     navigate('/dashboard/cashier/create-order', { state: { deliveryMode: true } });
   };
 
-  if (loading) return <LoadingSpinner text="Loading waiters..." />;
+  if (loading) return <LoadingSpinner text="Loading waiters…" />;
 
   return (
     <div className="p-4 md:p-8 space-y-6">
@@ -158,7 +158,7 @@ const CashierSelectWaiterForOrder = () => {
           <Bike className="h-5 w-5 shrink-0 text-primary" />
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-foreground">Delivery order</p>
-            <p className="text-sm text-muted-foreground">No waiter needed. Pick the delivery method on the next screen.</p>
+            <p className="text-sm text-muted-foreground">No waiter needed. Pick the delivery service on the next screen.</p>
           </div>
         </button>
       )}
@@ -167,7 +167,7 @@ const CashierSelectWaiterForOrder = () => {
         <EmptyState
           className="rounded-card border border-dashed border-border"
           title={search ? 'No waiter by that name' : 'No waiters yet'}
-          description={search ? 'Check the spelling or clear the search.' : 'Add waiters in Employees first.'}
+          description={search ? 'Check the spelling or clear the search.' : 'Add waiters in Staff first.'}
         />
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -197,7 +197,7 @@ const CashierSelectWaiterForOrder = () => {
                   <span className="block truncate font-semibold text-foreground">{name}</span>
                   {username && <span className="block truncate text-meta text-muted-foreground">@{username}</span>}
                 </span>
-                {inactive && <StatusBadge status="inactive" label="Inactive" />}
+                {inactive && <StatusBadge status="inactive" label="Not active" />}
               </button>
             );
           })}

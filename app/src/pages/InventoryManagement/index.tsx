@@ -143,8 +143,8 @@ export const InventoryManagement: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Inventory"
-        description="Stock on hand, and moves between locations."
+        title="Stock"
+        description="What you have, and moving it between places."
         actions={
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={fetchAll}>
@@ -153,7 +153,7 @@ export const InventoryManagement: React.FC = () => {
             </Button>
             <Button variant="outline" onClick={openTransfer} disabled={!syncStatus.online}>
               <ArrowLeftRight />
-              Transfer stock
+              Move stock
             </Button>
             <Button onClick={() => openAdd(selectedLocationId)} disabled={!syncStatus.online}>
               <Plus />
@@ -167,11 +167,11 @@ export const InventoryManagement: React.FC = () => {
 
       <Tabs defaultValue="inventory" className="w-full">
         <TabsList>
-          <TabsTrigger value="inventory">Inventory</TabsTrigger>
+          <TabsTrigger value="inventory">Stock</TabsTrigger>
           <TabsTrigger value="stock-history">
-            Stock &amp; History
+            Stock history
           </TabsTrigger>
-          <TabsTrigger value="item-links">Item links</TabsTrigger>
+          <TabsTrigger value="item-links">Pack contents</TabsTrigger>
         </TabsList>
 
         {/* ── Tab 1: Inventory ── */}
@@ -185,8 +185,8 @@ export const InventoryManagement: React.FC = () => {
               />
 
               <div>
-                <h3 className="text-lg font-semibold mb-1">Select an inventory location</h3>
-                <p className="text-sm text-muted-foreground">Click a location to explore, adjust quantities, and manage configured items.</p>
+                <h3 className="text-lg font-semibold mb-1">Pick a stock place</h3>
+                <p className="text-sm text-muted-foreground">Tap a place to see and change its stock.</p>
               </div>
 
               <LocationsGrid
@@ -288,6 +288,7 @@ export const InventoryManagement: React.FC = () => {
         movements={movements}
         loading={movementLoading}
         itemName={selectedItem?.name || ''}
+        locations={stockLocations}
       />
     </div>
   );

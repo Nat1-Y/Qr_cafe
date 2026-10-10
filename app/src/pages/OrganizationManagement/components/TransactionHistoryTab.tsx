@@ -32,14 +32,14 @@ export const TransactionHistoryTab = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Transaction history</CardTitle>
-        <CardDescription>View all service transactions with backend pagination.</CardDescription>
+        <CardTitle>Credit used</CardTitle>
+        <CardDescription>Everything companies used from their credit.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-1.5">
-          <Label>Organization *</Label>
+          <Label>Company *</Label>
           <Select value={historyOrgId} onValueChange={(val) => { setHistoryOrgId(val); setHistoryPage(1); }}>
-            <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder="Pick a company" /></SelectTrigger>
             <SelectContent>
               {orgs.filter(o => o.is_active !== false && o.is_active !== 0).map(o => (
                 <SelectItem key={o.id} value={String(o.id)}>
@@ -53,9 +53,9 @@ export const TransactionHistoryTab = ({
         {historyOrgId && (
           <>
             {historyLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading...</div>
+              <div className="text-center py-8 text-muted-foreground">Loading…</div>
             ) : !historyData ? (
-              <div className="text-center py-8 text-muted-foreground">No data available.</div>
+              <div className="text-center py-8 text-muted-foreground">Nothing yet.</div>
             ) : (
               <>
                 <Table>
@@ -64,7 +64,7 @@ export const TransactionHistoryTab = ({
                       <TableHead>Date</TableHead>
                       <TableHead>Services</TableHead>
                       <TableHead>Total</TableHead>
-                      <TableHead>Linked payment</TableHead>
+                      <TableHead>From payment</TableHead>
                       <TableHead>Notes</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -72,7 +72,7 @@ export const TransactionHistoryTab = ({
                     {historyData.transactions.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                          No transactions found.
+                          Nothing used yet.
                         </TableCell>
                       </TableRow>
                     ) : historyData.transactions.map((txn) => (
@@ -92,7 +92,7 @@ export const TransactionHistoryTab = ({
                           {txn.payment_id ? (
                             <Badge variant="secondary">Payment #{txn.payment_id}</Badge>
                           ) : (
-                            <span className="text-muted-foreground text-sm">Unlinked</span>
+                            <span className="text-muted-foreground text-sm">Not from a payment</span>
                           )}
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">

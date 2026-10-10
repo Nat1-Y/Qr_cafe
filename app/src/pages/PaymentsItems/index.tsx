@@ -48,8 +48,8 @@ export const PaymentsItems: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Foods &amp; drinks sold"
-        description="Aggregated breakdown of individual sold items matching paid transactions"
+        title="Food &amp; drinks sold"
+        description="Every item sold in paid orders, added up"
         actions={
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
             <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />

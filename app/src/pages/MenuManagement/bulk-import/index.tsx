@@ -38,6 +38,7 @@ import {
   rowToMenuItemPayload,
   ValidationContext,
 } from "./parser";
+import { friendlyError } from '@/lib/errors';
 
 const downloadFile = (filename: string, content: string, mime: string) => {
   const blob = new Blob([content], { type: mime });
@@ -158,11 +159,11 @@ const BulkMenuImport = () => {
 
   const handleImport = async () => {
     if (!online) {
-      toast.error("Bulk import requires an internet connection.");
+      toast.error("No internet. Connect to add many items at once.");
       return;
     }
     if (validRows.length === 0) {
-      toast.error("There are no valid rows to import.");
+      toast.error("No rows are ready to add. Fix the file and try again.");
       return;
     }
     setSubmitting(true);
@@ -170,12 +171,12 @@ const BulkMenuImport = () => {
       const payload = { menuItems: validRows.map(rowToMenuItemPayload) };
       await api.menu.syncBulk(payload);
       toast.success(
-        `Imported ${validRows.length} item${validRows.length === 1 ? "" : "s"} successfully.`,
+        `Added ${validRows.length} item${validRows.length === 1 ? "" : "s"} to the menu.`,
       );
       navigate("/dashboard/menu");
     } catch (e: any) {
       toast.error(
-        e?.response?.data?.message || e?.message || "Bulk import failed",
+        friendlyError(e, "Couldn't add the items. Please try again."),
       );
     } finally {
       setSubmitting(false);
@@ -193,8 +194,8 @@ const BulkMenuImport = () => {
     return (
       <div className="p-6">
         <PageHeader
-          title="Bulk menu import"
-          description="You don't have permission to import menu items."
+          title="Add many menu items"
+          description="You don't have permission to do this. Ask your manager."
         />
       </div>
     );
@@ -203,8 +204,8 @@ const BulkMenuImport = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Bulk menu import"
-        description="Add many menu items at once from a CSV or JSON file."
+        title="Add many menu items"
+        description="Add many items at once from a spreadsheet (CSV) or JSON file."
         actions={
           <Button
             variant="outline"
@@ -221,7 +222,7 @@ const BulkMenuImport = () => {
       {/* Step 1 — template + upload */}
       <Card>
         <CardHeader>
-          <CardTitle>1. Get a template & upload your file</CardTitle>
+          <CardTitle>1. Get the example file, fill it in, and upload it</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-2">
@@ -252,10 +253,13 @@ const BulkMenuImport = () => {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Required columns: <strong>name</strong> and <strong>price</strong> (whole birr).
-            Optional: category, main_category (printing department), tags (separate
-            with <code>;</code>), description, is_available (true/false),
-            prep_time_minutes, sku, barcode.
+            Must have: item name (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">name</code>) and price in birr (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">price</code>).
+            Can also have: category (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">category</code>), section that prints it{" "}
+            (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">main_category</code>), extra tags (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">tags</code>) (put <code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">;</code> between
+            them), description (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">description</code>), can be ordered{" "}
+            (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">is_available</code>) (true or false), minutes to make{" "}
+            (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">prep_time_minutes</code>), product code (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">sku</code>), barcode{" "}
+            (<code className="rounded bg-muted px-1 font-mono text-[11px] text-foreground">barcode</code>).
           </p>
 
           <div
@@ -269,7 +273,7 @@ const BulkMenuImport = () => {
           >
             <FileUp className="h-8 w-8 text-muted-foreground" />
             <p className="text-sm font-medium">
-              {fileName ? fileName : "Drag & drop a .csv or .json file here"}
+              {fileName ? fileName : "Drag a .csv or .json file here"}
             </p>
             <p className="text-xs text-muted-foreground">or</p>
             <Button
@@ -330,7 +334,7 @@ const BulkMenuImport = () => {
       {result && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-            <CardTitle>2. Review & confirm</CardTitle>
+            <CardTitle>2. Check and add</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="gap-1">
                 <CheckCircle2 className="h-3 w-3 text-success" />
@@ -339,13 +343,13 @@ const BulkMenuImport = () => {
               {warningCount > 0 && (
                 <Badge variant="secondary" className="gap-1">
                   <AlertTriangle className="h-3 w-3 text-warning" />
-                  {warningCount} warning{warningCount === 1 ? "" : "s"}
+                  {warningCount} to check
                 </Badge>
               )}
               {errorCount > 0 && (
                 <Badge variant="destructive" className="gap-1">
                   <XCircle className="h-3 w-3" />
-                  {errorCount} error{errorCount === 1 ? "" : "s"}
+                  {errorCount} with problems
                 </Badge>
               )}
             </div>
@@ -360,8 +364,8 @@ const BulkMenuImport = () => {
               <>
                 {errorCount > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    Rows with errors are skipped. Fix them in your file and
-                    re-upload to include them.
+                    Rows with problems are skipped. Fix them in your file and
+                    upload it again to add them.
                   </p>
                 )}
                 <div className="max-h-[460px] overflow-auto rounded-md border">
@@ -372,7 +376,7 @@ const BulkMenuImport = () => {
                         <TableHead>Name</TableHead>
                         <TableHead className="text-right">Price</TableHead>
                         <TableHead>Category</TableHead>
-                        <TableHead>Department</TableHead>
+                        <TableHead>Section</TableHead>
                         <TableHead>Tags</TableHead>
                         <TableHead>Avail.</TableHead>
                         <TableHead>Status</TableHead>

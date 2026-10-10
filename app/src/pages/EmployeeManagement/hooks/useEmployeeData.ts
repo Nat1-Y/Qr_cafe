@@ -28,7 +28,7 @@ const getEmployeeIdFromOrder = (order: any): string | null => {
   return id ? id : null;
 };
 
-const getEmployeeName = (user: any, fallbackId: string) => {
+const getEmployeeName = (user: any) => {
   const name = [user?.first_name, user?.last_name]
     .filter(Boolean)
     .join(" ")
@@ -39,7 +39,7 @@ const getEmployeeName = (user: any, fallbackId: string) => {
     user?.full_name ||
     user?.name ||
     user?.username ||
-    `Employee #${fallbackId}`
+    'Staff member'
   );
 };
 
@@ -110,7 +110,7 @@ export const useEmployeeData = () => {
           id: String(order?.id ?? ""),
           employee_id: employeeId,
           employee_name:
-            order?.employee_name || getEmployeeName(user, employeeId),
+            order?.employee_name || getEmployeeName(user),
           total_amount: parseNumber(order?.total_amount),
           status: String(order?.status || "pending"),
           payment_status: order?.payment_status
@@ -129,7 +129,7 @@ export const useEmployeeData = () => {
       const employeeId = order.employee_id;
       const existing = summaryByEmployee.get(employeeId) || {
         employee_id: employeeId,
-        employee_name: order.employee_name || `Employee #${employeeId}`,
+        employee_name: order.employee_name || 'Staff member',
         orders_total: 0,
         paid_total: 0,
         unpaid_total: 0,
@@ -184,8 +184,8 @@ export const useEmployeeData = () => {
       } catch {
         toast.error(
           isOnline()
-            ? "Failed to load employee orders"
-            : "Offline data unavailable",
+            ? "Couldn't load staff orders. Please try again."
+            : "No internet. Connect to see staff orders.",
         );
       } finally {
         setLoading(false);

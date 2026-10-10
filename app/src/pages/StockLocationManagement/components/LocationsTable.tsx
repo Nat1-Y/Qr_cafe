@@ -37,9 +37,9 @@ export const LocationsTable: React.FC<LocationsTableProps> = ({
   return (
     <Card>
       <CardHeader className="pb-3 border-b">
-        <CardTitle>Stock locations</CardTitle>
+        <CardTitle>Stock places</CardTitle>
         <CardDescription>
-          Physical and prep locations where inventory is stored and deducted from
+          Where you keep stock, and where orders take it from
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6 space-y-2">
@@ -62,14 +62,14 @@ export const LocationsTable: React.FC<LocationsTableProps> = ({
                 )}
               </div>
               <div className="text-xs text-muted-foreground font-medium">
-                Slug: {location.slug} · {typeLabel(location.location_type)}
+                Short name: {location.slug} · {typeLabel(location.location_type)}
               </div>
               {location.description && (
                 <div className="text-xs text-muted-foreground mt-0.5">{location.description}</div>
               )}
               {location.linked_main_category_slug && (
                 <div className="text-xs text-muted-foreground mt-1">
-                  Linked department: {location.linked_main_category_slug}
+                  Section: {location.linked_main_category_slug}
                 </div>
               )}
             </div>
@@ -82,7 +82,7 @@ export const LocationsTable: React.FC<LocationsTableProps> = ({
                   : 'bg-muted/30 text-muted-foreground font-semibold text-xs'
               }
             >
-              {location.is_active ? 'Active' : 'Inactive'}
+              {location.is_active ? 'Active' : 'Not active'}
             </Badge>
 
             <div className="flex items-center gap-1 shrink-0">
@@ -92,7 +92,7 @@ export const LocationsTable: React.FC<LocationsTableProps> = ({
                 className="h-8 w-8 p-0"
                 onClick={() => onEdit(location)}
                 disabled={!location.is_active}
-                title="Edit location"
+                title="Edit stock place"
               >
                 <Edit3 />
               </Button>
@@ -104,8 +104,8 @@ export const LocationsTable: React.FC<LocationsTableProps> = ({
                 disabled={!location.is_active || location.is_default}
                 title={
                   location.is_default
-                    ? 'Default location cannot be deactivated'
-                    : 'Deactivate location'
+                    ? "You can't turn off the main stock place"
+                    : 'Turn off this place'
                 }
               >
                 <Trash2 />
@@ -116,7 +116,7 @@ export const LocationsTable: React.FC<LocationsTableProps> = ({
 
         {locations.length === 0 && (
           <div className="p-8 text-center text-xs text-muted-foreground font-semibold border border-dashed rounded-xl bg-muted/20">
-            No stock locations configured. Click &quot;Add Location&quot; to create one.
+            No stock places yet. Tap &quot;Add stock place&quot; to add one.
           </div>
         )}
       </CardContent>

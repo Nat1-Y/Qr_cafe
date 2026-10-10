@@ -60,14 +60,14 @@ export const RecordTransactionTab = ({
       {/* Left: Transaction form */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><TrendingDown className="h-4 w-4 text-destructive" />Record service transaction</CardTitle>
-          <CardDescription>Deduct services used from the organization's credit balance.</CardDescription>
+          <CardTitle className="flex items-center gap-2"><TrendingDown className="h-4 w-4 text-destructive" />Use company credit</CardTitle>
+          <CardDescription>Take what the company used from its credit.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <Label>Organization *</Label>
+            <Label>Company *</Label>
             <Select value={txOrgId} onValueChange={setTxOrgId}>
-              <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Pick a company" /></SelectTrigger>
               <SelectContent>
                 {orgs.filter(o => o.is_active !== false && o.is_active !== 0).map(o => (
                   <SelectItem key={o.id} value={String(o.id)}>
@@ -80,25 +80,25 @@ export const RecordTransactionTab = ({
 
           {txOrgId && txCreditBalance !== null && (
             <div className="flex items-center gap-2 text-sm p-2 rounded-lg bg-muted/50">
-              <span className="text-muted-foreground">Available credit:</span>
+              <span className="text-muted-foreground">Credit left:</span>
               <CreditBadge balance={txCreditBalance} />
             </div>
           )}
 
           <div className="space-y-1.5">
-            <Label>Transaction date</Label>
+            <Label>Date</Label>
             <Input type="date" value={txDate} onChange={e => setTxDate(e.target.value)} />
           </div>
 
           {/* Services list */}
           <div className="space-y-2">
-            <Label>Services used *</Label>
+            <Label>What they used *</Label>
             <div className="space-y-2">
               {txServices.map((svc, i) => (
                 <div key={i} className="flex gap-2 items-center">
                   <Input
                     className="flex-1"
-                    placeholder="Service description..."
+                    placeholder="What they used"
                     value={svc.description}
                     onChange={e => updateServiceRow(i, 'description', e.target.value)}
                   />
@@ -123,16 +123,16 @@ export const RecordTransactionTab = ({
 
           <div className="space-y-1.5">
             <Label>Notes (optional)</Label>
-            <Textarea value={txNotes} onChange={e => setTxNotes(e.target.value)} rows={2} placeholder="Any additional context..." />
+            <Textarea value={txNotes} onChange={e => setTxNotes(e.target.value)} rows={2} placeholder="Anything to remember" />
           </div>
 
           <div className="flex items-center justify-between border-t pt-3">
-            <span className="text-sm text-muted-foreground">Total deduction</span>
+            <span className="text-sm text-muted-foreground">Total to take from credit</span>
             <span className="font-semibold text-destructive">{formatETB(txTotal)}</span>
           </div>
 
           <Button className="w-full" onClick={onSubmit} disabled={txSubmitting || !txOrgId}>
-            {txSubmitting ? 'Recording...' : 'Record Transaction'}
+            {txSubmitting ? 'Saving…' : 'Save'}
           </Button>
         </CardContent>
       </Card>
@@ -141,7 +141,7 @@ export const RecordTransactionTab = ({
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-muted-foreground">Payment history</h3>
         {!txOrgId ? (
-          <p className="text-sm text-muted-foreground italic">Select an organization to see payment history.</p>
+          <p className="text-sm text-muted-foreground italic">Pick a company to see its payments.</p>
         ) : txOrgPayments.length === 0 ? (
           <p className="text-sm text-muted-foreground italic">No payments recorded yet.</p>
         ) : txOrgPayments.map(payment => {
@@ -165,7 +165,7 @@ export const RecordTransactionTab = ({
               </CollapsibleTrigger>
               <CollapsibleContent className="border border-t-0 rounded-b-lg bg-muted/30 px-4 py-3 space-y-2">
                 {linkedTxns.length === 0 ? (
-                  <p className="text-xs text-muted-foreground italic">No transactions linked to this payment.</p>
+                  <p className="text-xs text-muted-foreground italic">Nothing used from this payment yet.</p>
                 ) : linkedTxns.map(txn => (
                   <div key={txn.id} className="space-y-1">
                     <div className="flex justify-between text-xs">

@@ -394,7 +394,7 @@ export function DataTable<T>({
                   colSpan={colSpan}
                   className="py-12 text-center text-sm text-muted-foreground">
                   {filtered.length === 0 && rows.length > 0
-                    ? "No matches for your filters."
+                    ? "Nothing matches. Try other filters."
                     : emptyMessage}
                 </TableCell>
               </TableRow>

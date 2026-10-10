@@ -6,6 +6,8 @@ import { getApproximateServerDate } from "@/shared/utils/serverTime";
 import { ReceiptBlock } from "@/utils/receiptImage";
 import { AMHARIC_FONT_STACK, printHTML } from "./html-printer";
 import { escapeHtml, formatQtyBothUnits } from "./format";
+import { humanize } from "@/lib/format";
+import { uuidToDisplayId } from "@/lib/utils";
 import {
   isTauriRuntime,
   resolveThermalPrinterName,
@@ -26,7 +28,7 @@ export async function printStockTransferReceipts(
 
   const locationById = new Map<string, string>();
   (stockLocations || []).forEach((loc) => {
-    locationById.set(String(loc.id), loc.name || `Location #${loc.id}`);
+    locationById.set(String(loc.id), loc.name || "Stock place");
   });
 
   const getLocationName = (locationId: string | number | null | undefined, fallback: string): string => {
@@ -38,7 +40,9 @@ export async function printStockTransferReceipts(
   const timestamp = transfer.created_at
     ? new Date(transfer.created_at).toLocaleString()
     : getApproximateServerDate();
-  const transferId = transfer.id || "N/A";
+  // Short readable number instead of the raw id on the printed slip.
+  const rawTransferId = String(transfer.id ?? "");
+  const transferId = !rawTransferId ? "—" : /^\d+$/.test(rawTransferId) ? rawTransferId : String(uuidToDisplayId(rawTransferId));
 
   const toNumber = (value: any) => {
     const parsed = Number(value);
@@ -100,7 +104,7 @@ export async function printStockTransferReceipts(
               text: `From: ${getLocationName(transfer.from_location_id, transfer.from_location || "store")}`,
             },
             { kind: "text", text: `To: ${getLocationName(transfer.to_location_id, transfer.to_location || "barista")}` },
-            { kind: "text", text: `Status: ${transfer.status || "sent"}` },
+            { kind: "text", text: `Status: ${humanize(transfer.status || "sent")}` },
             { kind: "divider" },
             {
               kind: "row",
@@ -196,7 +200,7 @@ export async function printStockTransferReceipts(
 
       <div class="pair"><span>From</span><strong>${escapeHtml(getLocationName(transfer.from_location_id, transfer.from_location || "store"))}</strong></div>
       <div class="pair"><span>To</span><strong>${escapeHtml(getLocationName(transfer.to_location_id, transfer.to_location || "barista"))}</strong></div>
-      <div class="pair"><span>Status</span><strong>${escapeHtml(transfer.status || "sent")}</strong></div>
+      <div class="pair"><span>Status</span><strong>${escapeHtml(humanize(transfer.status || "sent"))}</strong></div>
 
       <div class="rule"></div>
 

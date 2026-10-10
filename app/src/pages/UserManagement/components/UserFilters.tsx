@@ -28,7 +28,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
       <CardContent className="pt-6">
         <div className="flex flex-col sm:flex-row gap-3">
           <SearchInput
-              placeholder="Search users..."
+              placeholder="Search staff"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)} wrapperClassName="flex-1" />
           <Select value={filterRole} onValueChange={setFilterRole}>
@@ -37,18 +37,18 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All roles</SelectItem>
-              <SelectItem value="admin">Administrator</SelectItem>
+              <SelectItem value="admin">Manager</SelectItem>
               <SelectItem value="cashier">Cashier</SelectItem>
             </SelectContent>
           </Select>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="All status" />
+              <SelectValue placeholder="Active or not" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All status</SelectItem>
+              <SelectItem value="all">Active or not</SelectItem>
               <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
+              <SelectItem value="inactive">Not active</SelectItem>
             </SelectContent>
           </Select>
           <div className="flex items-center text-sm text-muted-foreground whitespace-nowrap">

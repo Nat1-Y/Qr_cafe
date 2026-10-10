@@ -36,7 +36,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
             <TableHeader>
               <TableRow>
                 <TableHead>Item</TableHead>
-                <TableHead>Stock by location</TableHead>
+                <TableHead>Stock in each place</TableHead>
                 <TableHead className="hidden sm:table-cell">Min</TableHead>
                 <TableHead className="hidden sm:table-cell">Unit</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -116,7 +116,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                     <TableCell>
                       <div className="flex items-center justify-end gap-1">
                         <Button variant="outline" size="sm" className="h-7" onClick={() => openQty(it)}>
-                          Update qty
+                          Change amount
                         </Button>
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openHistory(it)}>
                           <History className="h-3.5 w-3.5" />

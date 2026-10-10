@@ -13,7 +13,7 @@ import { formatETB, humanize } from "@/lib/format";
 import type { RevenueTrendPoint } from "@/lib/reports";
 
 const chartConfig = {
-  revenue: { label: "Revenue", color: "var(--chart-1)" },
+  revenue: { label: "Money in", color: "var(--chart-1)" },
   orders: { label: "Orders", color: "var(--chart-2)" },
 } satisfies ChartConfig;
 
@@ -26,9 +26,9 @@ export function RevenueTrend({ points }: { points: RevenueTrendPoint[] }) {
   return (
     <Card>
       <CardHeader className="border-b pb-3">
-        <CardTitle>Revenue trend</CardTitle>
+        <CardTitle>Money in over time</CardTitle>
         <CardDescription>
-          Paid sales by business day · {formatETB(total)} total
+          Paid sales each day · {formatETB(total)} total
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
@@ -77,7 +77,7 @@ export function RevenueTrend({ points }: { points: RevenueTrendPoint[] }) {
           </ChartContainer>
         ) : (
           <div className="bg-muted/20 text-muted-foreground flex h-64 items-center justify-center rounded-md border border-dashed text-xs font-medium">
-            No paid revenue found for the selected filters.
+            No paid sales for these filters.
           </div>
         )}
       </CardContent>

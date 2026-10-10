@@ -28,11 +28,12 @@ import {
   type Action,
   type PermissionMatrix,
 } from "@/lib/permissions";
+import { friendlyError } from "@/lib/errors";
 
 const ACTION_LABELS: Record<Action, string> = {
-  read: "Read",
-  write: "Create",
-  update: "Update",
+  read: "See",
+  write: "Add",
+  update: "Change",
   delete: "Delete",
 };
 
@@ -78,7 +79,7 @@ export default function RolesPermissionsPage() {
         setByRole(map);
         setLocations(locs);
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : "Failed to load permissions");
+        toast.error(friendlyError(e, "Couldn't load permissions. Please try again."));
       } finally {
         setLoading(false);
       }
@@ -171,7 +172,7 @@ export default function RolesPermissionsPage() {
       await Permissions.save(role, matrix);
       toast.success(`Saved permissions for ${roleLabel}`);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to save");
+      toast.error(friendlyError(e, "Couldn't save. Please try again."));
     } finally {
       setSaving(false);
     }
@@ -180,8 +181,8 @@ export default function RolesPermissionsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Roles & permissions"
-        description="Choose what each role can see and do. Owners and platform admins always have full access."
+        title="Roles and access"
+        description="Choose what each role can see and do. Owners can always do everything."
         action={
           <Button onClick={save} disabled={saving || loading} size="sm">
             <SaveIcon />
@@ -206,14 +207,14 @@ export default function RolesPermissionsPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="flex items-center gap-2">
-            <ShieldCheckIcon className="size-4" /> {roleLabel} permissions
+            <ShieldCheckIcon className="size-4" /> What a {roleLabel} can do
           </CardTitle>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setAll(true)} disabled={loading}>
               Allow all
             </Button>
             <Button variant="outline" size="sm" onClick={() => setAll(false)} disabled={loading}>
-              Deny all
+              Allow none
             </Button>
           </div>
         </CardHeader>
@@ -221,20 +222,20 @@ export default function RolesPermissionsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[28%]">Area</TableHead>
+                <TableHead className="w-[28%]">What they can do</TableHead>
                 {ACTIONS.map((a) => (
                   <TableHead key={a} className="text-center">
                     <button
                       type="button"
                       className="hover:text-foreground text-muted-foreground text-xs font-medium"
                       onClick={() => setColumn(a, true)}
-                      title={`Allow ${ACTION_LABELS[a]} for all areas`}>
+                      title={`Allow "${ACTION_LABELS[a]}" for everything`}>
                       {ACTION_LABELS[a]}
                     </button>
                   </TableHead>
                 ))}
                 <TableHead className="w-[18%] text-center">
-                  Locations
+                  Stock places
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -282,8 +283,8 @@ export default function RolesPermissionsPage() {
       </Card>
 
       <p className="text-muted-foreground text-xs">
-        Changes apply the next time the user signs in or reloads. The desktop POS
-        app is not affected by these settings.
+        Changes work the next time the person signs in or reloads the page. These
+        settings don&apos;t change the desktop till app.
       </p>
     </div>
   );
@@ -310,7 +311,7 @@ function LocationPicker({
 
   const summary =
     locations.length === 0
-      ? "No locations"
+      ? "No stock places"
       : allSelected
         ? `All ${locations.length}`
         : noneSelected
@@ -333,7 +334,7 @@ function LocationPicker({
       <PopoverContent className="w-64" align="end">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium">Stock locations</p>
+            <p className="text-xs font-medium">Stock places</p>
             <div className="flex gap-1">
               <button
                 type="button"

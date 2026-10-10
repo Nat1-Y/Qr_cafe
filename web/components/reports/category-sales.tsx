@@ -13,7 +13,7 @@ import { formatETB } from "@/lib/format";
 import type { CategorySalesItem } from "@/lib/reports";
 
 const chartConfig = {
-  revenue: { label: "Revenue", color: "var(--chart-1)" },
+  revenue: { label: "Money in", color: "var(--chart-1)" },
 } satisfies ChartConfig;
 
 const compact = (value: number) =>
@@ -29,7 +29,7 @@ export function CategorySales({ items }: { items: CategorySalesItem[] }) {
     <Card>
       <CardHeader className="border-b pb-3">
         <CardTitle>Category sales</CardTitle>
-        <CardDescription>Revenue and quantity by menu category</CardDescription>
+        <CardDescription>Money in and amount sold for each menu category</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
         {data.length > 0 ? (
@@ -76,7 +76,7 @@ export function CategorySales({ items }: { items: CategorySalesItem[] }) {
           </ChartContainer>
         ) : (
           <p className="text-muted-foreground py-16 text-center text-xs font-medium">
-            No category sales in the selected window.
+            No sales in these dates.
           </p>
         )}
       </CardContent>

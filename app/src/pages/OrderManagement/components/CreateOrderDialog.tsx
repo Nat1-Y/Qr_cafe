@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { formatOrderNumber } from '@/lib/utils';
 import { generateLocalId } from '@/db/localDb';
 import { formatETB } from '@/lib/format';
+import { friendlyError } from '@/lib/errors';
 
 interface CreateOrderDialogProps {
   open: boolean;
@@ -93,12 +94,12 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
 
   const handleSubmitOrder = async () => {
     if (selectedItems.length === 0) {
-      toast.error('Please add at least one item');
+      toast.error('Add at least one item first.');
       return;
     }
 
     if (!isAddMode && forceTableSelection && !tableNumber) {
-      toast.error('Table selection is mandatory to create an order.');
+      toast.error('Pick a table first.');
       return;
     }
 
@@ -125,7 +126,7 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
           addition_id: addItemsIdRef.current,
         });
         addItemsIdRef.current = null;
-        toast.success('Items added to order successfully!');
+        toast.success('Items added to order');
         onSuccess();
         setSelectedItems([]);
         submitLockRef.current = false;
@@ -154,7 +155,7 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
       }
 
       await api.orders.createCafe(orderData);
-      toast.success('Order created successfully!');
+      toast.success('Order created');
       onSuccess();
       setSelectedItems([]);
       setTableNumber('');
@@ -167,9 +168,9 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
       const fallbackMessage = isAddMode
         ? (error?.response?.status === 403
             ? 'Only the staff member who created this order can add items to it.'
-            : 'Failed to add items')
-        : 'Failed to create order';
-      toast.error(error.response?.data?.message || fallbackMessage);
+            : "Couldn't add the items. Please try again.")
+        : "Couldn't send the order. Please try again.";
+      toast.error(friendlyError(error, fallbackMessage));
     } finally {
       submitLockRef.current = false;
       setCreating(false);
@@ -186,8 +187,8 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
         <DialogHeader>
           <DialogTitle>
             {isAddMode
-              ? `Add Items to Order ${formatOrderNumber(existingOrder)}`
-              : `Create New ${orderType === 'cafe' ? 'Café' : 'Bakery'} Order`}
+              ? `Add items to order ${formatOrderNumber(existingOrder)}`
+              : `New ${orderType === 'cafe' ? 'café' : 'bakery'} order`}
           </DialogTitle>
         </DialogHeader>
 
@@ -219,7 +220,7 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
                 </Label>
                 <Select value={tableNumber} onValueChange={setTableNumber}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select table" />
+                    <SelectValue placeholder="Pick a table" />
                   </SelectTrigger>
                   <SelectContent>
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(num => (
@@ -228,7 +229,7 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
                   </SelectContent>
                 </Select>
                 {forceTableSelection && (
-                  <p className="text-xs text-muted-foreground">A table is required to create an order.</p>
+                  <p className="text-xs text-muted-foreground">Pick a table to send this order.</p>
                 )}
               </div>
             )}
@@ -252,11 +253,11 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
             {/* Selected Items */}
             <div className="space-y-3 pt-2">
               <Label className="text-sm">
-                {isAddMode ? 'New Items' : 'Selected Items'}
+                {isAddMode ? 'New items' : 'Picked items'}
               </Label>
               {selectedItems.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-8 border border-dashed rounded-xl bg-muted/20">
-                  No items selected
+                  No items picked yet
                 </p>
               ) : (
                 <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
@@ -321,8 +322,8 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
           </Button>
           <Button onClick={handleSubmitOrder} disabled={selectedItems.length === 0 || creating || (!isAddMode && forceTableSelection && !tableNumber)}>
             {isAddMode
-              ? (creating ? 'Adding...' : 'Add Items')
-              : (creating ? 'Creating...' : 'Create Order')}
+              ? (creating ? 'Adding…' : 'Add items')
+              : (creating ? 'Sending…' : 'Send order')}
           </Button>
         </DialogFooter>
       </DialogContent>

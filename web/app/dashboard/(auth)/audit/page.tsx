@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable, type Column } from "@/components/data-table";
 import { apiFetch } from "@/lib/api";
 import { humanize } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
 
 type Log = {
   id: string;
@@ -27,22 +28,22 @@ function actionVariant(action: string): "muted" | "destructive" | "success" {
 const columns: Column<Log>[] = [
   {
     key: "action",
-    label: "Action",
+    label: "What happened",
     render: (l) => (
-      <Badge variant={actionVariant(l.action)} className="font-mono">
-        {l.action}
+      <Badge variant={actionVariant(l.action)}>
+        {humanize(l.action)}
       </Badge>
     ),
   },
   {
     key: "actor_username",
-    label: "Actor",
-    searchValue: (l) => l.actor_username ?? "system",
-    render: (l) => <span className="font-medium">{l.actor_username ?? "system"}</span>,
+    label: "Done by",
+    searchValue: (l) => l.actor_username ?? "System",
+    render: (l) => <span className="font-medium">{l.actor_username ?? "System"}</span>,
   },
   {
     key: "target_label",
-    label: "Target",
+    label: "Done to",
     searchValue: (l) => `${l.target_type ?? ""} ${l.target_label ?? ""}`,
     render: (l) =>
       l.target_label ? (
@@ -70,16 +71,16 @@ export default function PlatformAuditPage() {
   useEffect(() => {
     apiFetch<{ logs: Log[] }>("/platform/audit")
       .then((d) => setLogs(d.logs ?? []))
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, []);
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Audit log</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Activity history</h1>
         <p className="text-muted-foreground text-sm">
-          Recent platform super-admin actions, newest first.
+          What platform admins did, newest first.
         </p>
       </div>
 
@@ -89,7 +90,7 @@ export default function PlatformAuditPage() {
         loading={loading}
         searchKeys={["action", "actor_username", "target_label"]}
         searchPlaceholder="Search activity…"
-        emptyMessage="No activity recorded yet."
+        emptyMessage="Nothing has happened yet."
         pageSize={15}
       />
     </div>

@@ -10,6 +10,7 @@ import {
   StockLocation,
   StockLocationFormData,
 } from '../types';
+import { friendlyError } from '@/lib/errors';
 
 const dtoToUi = (dto: any): StockLocation => ({
   id: dto.id,
@@ -57,17 +58,17 @@ export const useStockLocationData = () => {
   const handleManualSync = async () => {
     if (syncStatus.syncing) return;
     if (!syncStatus.online) {
-      toast.error('You are offline. Cannot sync right now.');
+      toast.error('No internet. Connect and try again.');
       return;
     }
-    toast.loading('Refreshing stock locations...', { id: 'manual-sync-progress' });
+    toast.loading('Updating stock places…', { id: 'manual-sync-progress' });
     try {
       await refresh();
-      toast.success('Stock locations refreshed!', {
+      toast.success('Stock places up to date', {
         id: 'manual-sync-progress',
       });
     } catch (e) {
-      toast.error('Refresh failed.', {
+      toast.error("Couldn't update. Please try again.", {
         id: 'manual-sync-progress',
       });
     }
@@ -124,7 +125,7 @@ export const useStockLocationData = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      toast.error('Location name is required');
+      toast.error('Enter a name.');
       return;
     }
 
@@ -144,15 +145,15 @@ export const useStockLocationData = () => {
       setSaving(true);
       if (selectedLocation?.id) {
         await update({ id: String(selectedLocation.id), ...payload });
-        toast.success('Stock location updated');
+        toast.success('Stock place saved');
       } else {
         await create(payload);
-        toast.success('Stock location created');
+        toast.success('Stock place added');
       }
       setDialogOpen(false);
       await refresh();
     } catch (error: any) {
-      toast.error(error?.message ?? 'Failed to save stock location');
+      toast.error(friendlyError(error, "Couldn't save the stock place. Please try again."));
     } finally {
       setSaving(false);
     }
@@ -161,7 +162,7 @@ export const useStockLocationData = () => {
   const handleDeactivate = async (location: StockLocation) => {
     if (
       !window.confirm(
-        `Deactivate "${location.name}"? It will no longer appear in stock operations.`,
+        `Turn off "${location.name}"? It won't show up when you move or count stock.`,
       )
     ) {
       return;
@@ -169,10 +170,10 @@ export const useStockLocationData = () => {
 
     try {
       await deactivate(String(location.id));
-      toast.success('Stock location deactivated');
+      toast.success('Stock place turned off');
       await refresh();
     } catch (error: any) {
-      toast.error(error?.message ?? 'Failed to deactivate stock location');
+      toast.error(friendlyError(error, "Couldn't turn off the stock place. Please try again."));
     }
   };
 

@@ -17,6 +17,7 @@ import { apiFetch } from "@/lib/api";
 import { formatETB } from "@/lib/format";
 import { StatCards } from "@/components/stat-cards";
 import { PageHeader } from "@/components/page-header";
+import { friendlyError } from "@/lib/errors";
 
 type Overview = {
   businesses: number;
@@ -44,7 +45,7 @@ const cards: CardDef[] = [
   { key: "active_businesses", label: "Active", icon: CheckCircle2Icon },
   { key: "branches", label: "Branches", icon: StoreIcon },
   { key: "users", label: "Users", icon: UsersIcon },
-  { key: "devices", label: "Enrolled devices", icon: MonitorSmartphoneIcon },
+  { key: "devices", label: "Devices set up", icon: MonitorSmartphoneIcon },
   {
     key: "orders",
     label: "Total orders",
@@ -54,7 +55,7 @@ const cards: CardDef[] = [
   },
   {
     key: "revenue",
-    label: "Total revenue",
+    label: "Total money in",
     icon: BanknoteIcon,
     format: formatETB,
     sub: (d) => `${formatETB(d.revenue_today)} today`,
@@ -68,7 +69,7 @@ export default function OverviewPage() {
   useEffect(() => {
     apiFetch<Overview>("/platform/overview")
       .then(setData)
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, []);
 

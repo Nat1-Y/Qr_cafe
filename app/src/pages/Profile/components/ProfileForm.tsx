@@ -35,8 +35,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
     <Card className="transition-shadow">
       <CardHeader className="pb-3 border-b flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Account information</CardTitle>
-          <CardDescription>Verify or edit your profile fields</CardDescription>
+          <CardTitle>Your details</CardTitle>
+          <CardDescription>Check or change your details</CardDescription>
         </div>
         {!isEditing ? (
           <Button 
@@ -70,7 +70,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
         {!isOnline && (
           <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-xl flex items-center gap-3 text-xs font-semibold">
             <WifiOff className="w-4.5 h-4.5 shrink-0" />
-            <span>Profile updates are disabled because you are currently offline. Please reconnect to change your profile settings.</span>
+            <span>No internet. Connect to change your profile.</span>
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -125,7 +125,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
               />
             </div>
             <p className="text-xs text-muted-foreground font-semibold">
-              Role cannot be changed. Contact an administrator for role changes.
+              Only your manager can change your role.
             </p>
           </div>
         </form>

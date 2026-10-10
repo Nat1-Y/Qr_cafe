@@ -39,14 +39,14 @@ export const AddPaymentTab = ({
     <div className="max-w-lg">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><TrendingUp className="h-4 w-4 text-success" />Add credit payment</CardTitle>
-          <CardDescription>Top up an organization's credit balance.</CardDescription>
+          <CardTitle className="flex items-center gap-2"><TrendingUp className="h-4 w-4 text-success" />Add money to company credit</CardTitle>
+          <CardDescription>Add money the company paid you, so they can order on credit.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <Label>Organization *</Label>
+            <Label>Company *</Label>
             <Select value={payOrgId} onValueChange={setPayOrgId}>
-              <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Pick a company" /></SelectTrigger>
               <SelectContent>
                 {orgs.filter(o => o.is_active !== false && o.is_active !== 0).map(o => (
                   <SelectItem key={o.id} value={String(o.id)}>
@@ -68,10 +68,10 @@ export const AddPaymentTab = ({
           </div>
           <div className="space-y-1.5">
             <Label>Notes (optional)</Label>
-            <Textarea value={payNotes} onChange={e => setPayNotes(e.target.value)} rows={2} placeholder="Bank transfer ref, etc." />
+            <Textarea value={payNotes} onChange={e => setPayNotes(e.target.value)} rows={2} placeholder="Bank transfer number, etc." />
           </div>
           <Button className="w-full" onClick={onSubmit} disabled={paySubmitting}>
-            {paySubmitting ? 'Adding...' : 'Add Payment'}
+            {paySubmitting ? 'Adding…' : 'Add money'}
           </Button>
         </CardContent>
       </Card>

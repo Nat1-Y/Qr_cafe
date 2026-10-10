@@ -56,7 +56,7 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ payments, getPayment
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
         <div>
-          <CardTitle>Revenue</CardTitle>
+          <CardTitle>Money in</CardTitle>
           <CardDescription>{byHour ? 'Paid, by hour' : 'Paid, by day'}</CardDescription>
         </div>
         <p className="text-kpi text-foreground">{formatETB(total)}</p>
@@ -67,7 +67,7 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ payments, getPayment
         ) : (
           <div
             role="img"
-            aria-label={`Revenue ${byHour ? 'by hour' : 'by day'}: ${buckets
+            aria-label={`Money in ${byHour ? 'by hour' : 'by day'}: ${buckets
               .filter((b) => b.value > 0)
               .map((b) => `${b.label} ${formatETB(b.value)}`)
               .join(', ')}`}

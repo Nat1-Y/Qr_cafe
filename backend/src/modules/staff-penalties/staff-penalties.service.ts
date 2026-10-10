@@ -44,7 +44,7 @@ export class StaffPenaltiesService {
     if (value === undefined || value === null || value === "") return null;
     const amount = Math.round(Number(value));
     if (!Number.isFinite(amount) || amount < 0) {
-      throw new BadRequestException("Amount must be a non-negative number");
+      throw new BadRequestException("Enter an amount of 0 or more.");
     }
     return amount;
   }
@@ -53,14 +53,14 @@ export class StaffPenaltiesService {
     if (value === undefined || value === null || value === "") return null;
     const dt = new Date(value);
     if (Number.isNaN(dt.getTime())) {
-      throw new BadRequestException("Invalid date");
+      throw new BadRequestException("Check the date and try again.");
     }
     return dt;
   }
 
   private async resolveEmployee(employeeId: any) {
     if (typeof employeeId !== "string" || !UUID_RE.test(employeeId)) {
-      throw new BadRequestException("A valid employee_id is required");
+      throw new BadRequestException("Choose a staff member.");
     }
     const [employee] = await db
       .select()

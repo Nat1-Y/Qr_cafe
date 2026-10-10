@@ -35,7 +35,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>User</TableHead>
+                <TableHead>Staff</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden sm:table-cell">Created</TableHead>
@@ -65,7 +65,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   </TableCell>
                   <TableCell>
                     <Badge variant={user.is_active ? 'success' : 'destructive'}>
-                      {user.is_active ? 'Active' : 'Inactive'}
+                      {user.is_active ? 'Active' : 'Not active'}
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
@@ -73,7 +73,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => toggleStatus(user.id)} title={user.is_active ? 'Deactivate' : 'Activate'}>
+                      <Button variant="ghost" size="icon" onClick={() => toggleStatus(user.id)} title={user.is_active ? 'Turn off' : 'Turn on'}>
                         {user.is_active ? <ToggleRight className="text-success" /> : <ToggleLeft className="text-muted-foreground" />}
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => openEdit(user)}>
@@ -90,7 +90,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   <TableCell colSpan={6}>
                     <EmptyState
                       icon={<Filter />}
-                      title="No users found"
+                      title="No staff match"
                       description="Try another word, or clear the filters."
                     />
                   </TableCell>

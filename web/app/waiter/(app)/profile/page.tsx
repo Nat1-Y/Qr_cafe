@@ -34,16 +34,11 @@ import { useWaiterAuth } from "@/components/waiter/auth-context";
 import { waiterServices } from "@/lib/waiter/api";
 import { roleLabel } from "@/lib/auth";
 import { PageHeader } from "@/components/page-header";
+import { friendlyError } from "@/lib/errors";
 
 // waiterApi rejects with an axios-shaped `{ message }` object, but a thrown
-// Error is also possible — pull a human-readable string from either.
-function errMessage(e: unknown, fallback: string): string {
-  if (e && typeof e === "object" && "message" in e) {
-    const m = (e as { message?: unknown }).message;
-    if (typeof m === "string" && m) return m;
-  }
-  return fallback;
-}
+// Error is also possible — friendlyError() words either for people.
+const errMessage = (e: unknown, fallback: string) => friendlyError(e, fallback);
 
 export default function WaiterProfilePage() {
   const router = useRouter();
@@ -76,9 +71,9 @@ export default function WaiterProfilePage() {
 
   async function saveProfile() {
     if (!user) return;
-    if (!fullName.trim()) return toast.error("Full name is required");
+    if (!fullName.trim()) return toast.error("Enter your full name.");
     if (username.trim().length < 3)
-      return toast.error("Username must be at least 3 characters");
+      return toast.error("Username needs at least 3 letters.");
 
     setSavingProfile(true);
     try {
@@ -93,9 +88,9 @@ export default function WaiterProfilePage() {
         username: updated.username ?? username.trim(),
       });
       setEditing(false);
-      toast.success("Profile updated");
+      toast.success("Profile saved");
     } catch (e) {
-      toast.error(errMessage(e, "Failed to update profile"));
+      toast.error(errMessage(e, "Couldn't save your profile. Please try again."));
     } finally {
       setSavingProfile(false);
     }
@@ -107,10 +102,10 @@ export default function WaiterProfilePage() {
 
   async function savePin() {
     if (!user) return;
-    if (!currentPin) return toast.error("Current PIN is required");
-    if (!isValidPin(newPin)) return toast.error("New PIN must be exactly 4 digits");
+    if (!currentPin) return toast.error("Enter your current PIN.");
+    if (!isValidPin(newPin)) return toast.error("New PIN must be 4 numbers.");
     if (newPin !== confirmPin)
-      return toast.error("PIN confirmation does not match");
+      return toast.error("The two new PINs don't match.");
 
     setSavingPin(true);
     try {
@@ -120,7 +115,7 @@ export default function WaiterProfilePage() {
       setConfirmPin("");
       toast.success("PIN changed");
     } catch (e) {
-      toast.error(errMessage(e, "Failed to change PIN"));
+      toast.error(errMessage(e, "Couldn't change your PIN. Please try again."));
     } finally {
       setSavingPin(false);
     }
@@ -208,11 +203,11 @@ export default function WaiterProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Account information */}
+        {/* Your details */}
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-start justify-between gap-4">
             <div>
-              <CardTitle>Account information</CardTitle>
+              <CardTitle>Your details</CardTitle>
               <CardDescription>Your name and username.</CardDescription>
             </div>
             {!editing ? (
@@ -283,7 +278,7 @@ export default function WaiterProfilePage() {
                 />
               </div>
               <p className="text-muted-foreground text-xs">
-                Roles are managed by your administrator.
+                Only your manager can change your role.
               </p>
             </div>
           </CardContent>
@@ -295,10 +290,10 @@ export default function WaiterProfilePage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <KeyRound className="size-5" />
-            Change login PIN
+            Change PIN
           </CardTitle>
           <CardDescription>
-            Use a 4-digit PIN to sign in to the waiter portal.
+            You sign in with this 4-number PIN.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -340,7 +335,7 @@ export default function WaiterProfilePage() {
           <div className="flex justify-end">
             <Button disabled={savingPin} onClick={savePin}>
               <KeyRound />
-              Update PIN
+              Save PIN
             </Button>
           </div>
         </CardContent>

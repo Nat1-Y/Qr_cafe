@@ -33,25 +33,25 @@ interface NavItem {
 const ALL_NAV_ITEMS: NavItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'cashier'], group: 'Main' },
   { name: 'Profile', href: '/dashboard/profile', icon: User, roles: ['admin', 'cashier'], group: 'Main' },
-  { name: 'Orders', href: '/dashboard/orders', icon: ClipboardList, roles: ['admin', 'cashier'], group: 'Operations' },
-  { name: 'Delivery orders', href: '/dashboard/deliveries', icon: Bike, roles: ['admin', 'cashier'], group: 'Operations' },
-  { name: 'Menu', href: '/dashboard/menu', icon: Utensils, roles: ['admin'], group: 'Operations' },
-  { name: 'Tables', href: '/dashboard/tables', icon: Coffee, roles: ['admin'], group: 'Operations' },
-  { name: 'Inventory', href: '/dashboard/inventory', icon: Package, roles: ['admin'], group: 'Inventory' },
-  { name: 'Stock locations', href: '/dashboard/inventory/locations', icon: MapPin, roles: ['admin'], group: 'Inventory' },
-  { name: 'Stock transfer', href: '/dashboard/inventory/transfers', icon: ArrowLeftRight, roles: ['admin'], group: 'Inventory' },
-  { name: 'Payments', href: '/dashboard/payments', icon: CreditCard, roles: ['admin', 'cashier'], group: 'Finance' },
-  { name: 'Expenses', href: '/dashboard/expenses', icon: DollarSign, roles: ['admin'], group: 'Finance' },
-  { name: 'Items sold', href: '/dashboard/payments-items', icon: Receipt, roles: ['admin'], group: 'Finance' },
-  { name: 'Employees', href: '/dashboard/employees', icon: Users, roles: ['admin'], group: 'People' },
-  { name: 'Users', href: '/dashboard/users', icon: UserCog, roles: ['admin'], group: 'People' },
+  { name: 'Orders', href: '/dashboard/orders', icon: ClipboardList, roles: ['admin', 'cashier'], group: 'Daily work' },
+  { name: 'Delivery orders', href: '/dashboard/deliveries', icon: Bike, roles: ['admin', 'cashier'], group: 'Daily work' },
+  { name: 'Menu', href: '/dashboard/menu', icon: Utensils, roles: ['admin'], group: 'Daily work' },
+  { name: 'Tables', href: '/dashboard/tables', icon: Coffee, roles: ['admin'], group: 'Daily work' },
+  { name: 'Stock', href: '/dashboard/inventory', icon: Package, roles: ['admin'], group: 'Stock' },
+  { name: 'Stock places', href: '/dashboard/inventory/locations', icon: MapPin, roles: ['admin'], group: 'Stock' },
+  { name: 'Move stock', href: '/dashboard/inventory/transfers', icon: ArrowLeftRight, roles: ['admin'], group: 'Stock' },
+  { name: 'Payments', href: '/dashboard/payments', icon: CreditCard, roles: ['admin', 'cashier'], group: 'Money' },
+  { name: 'Expenses', href: '/dashboard/expenses', icon: DollarSign, roles: ['admin'], group: 'Money' },
+  { name: 'Items sold', href: '/dashboard/payments-items', icon: Receipt, roles: ['admin'], group: 'Money' },
+  { name: 'Staff', href: '/dashboard/employees', icon: Users, roles: ['admin'], group: 'Staff' },
+  { name: 'Staff accounts', href: '/dashboard/users', icon: UserCog, roles: ['admin'], group: 'Staff' },
   { name: 'Reports', href: '/dashboard/reports', icon: BarChart3, roles: ['admin'], group: 'Reports' },
-  { name: 'Payment methods', href: '/dashboard/settings/payment-methods', icon: CreditCard, roles: ['admin'], group: 'Settings' },
-  { name: 'Roles', href: '/dashboard/settings/roles', icon: UserCog, roles: ['admin'], group: 'Settings' },
-  { name: 'Cashier employees', href: '/dashboard/cashier/employees', icon: Users, roles: ['cashier'], group: 'Operations' },
-  { name: 'Add order', href: '/dashboard/cashier/select-waiter', icon: ShoppingBag, roles: ['cashier'], group: 'Operations' },
-  { name: 'Items sold today', href: '/dashboard/cashier/items-sold', icon: Receipt, roles: ['cashier'], group: 'Operations' },
-  { name: 'Cashier expenses', href: '/dashboard/cashier/expenses', icon: DollarSign, roles: ['cashier'], group: 'Finance' },
+  { name: 'Payment types', href: '/dashboard/settings/payment-methods', icon: CreditCard, roles: ['admin'], group: 'Settings' },
+  { name: 'Roles and access', href: '/dashboard/settings/roles', icon: UserCog, roles: ['admin'], group: 'Settings' },
+  { name: 'Waiters', href: '/dashboard/cashier/employees', icon: Users, roles: ['cashier'], group: 'Daily work' },
+  { name: 'New order', href: '/dashboard/cashier/select-waiter', icon: ShoppingBag, roles: ['cashier'], group: 'Daily work' },
+  { name: 'Items sold today', href: '/dashboard/cashier/items-sold', icon: Receipt, roles: ['cashier'], group: 'Daily work' },
+  { name: 'Expenses', href: '/dashboard/cashier/expenses', icon: DollarSign, roles: ['cashier'], group: 'Money' },
   {name: 'Settings', href: '/dashboard/settings/data-management', icon: Wrench, roles: ['admin'], group: 'Settings' },
   { name: 'Printer settings', href: '/dashboard/settings/printer-settings', icon: Printer, roles: ['admin'], group: 'Settings' },
   { name: 'App updates', href: '/dashboard/settings/updates', icon: RefreshCw, roles: ['admin', 'cashier'], group: 'Settings' },
@@ -275,7 +275,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
-                  <LogOut className="h-4 w-4" />Log out
+                  <LogOut className="h-4 w-4" />Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

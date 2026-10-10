@@ -38,6 +38,8 @@ import { getUser } from "@/lib/auth";
 import { isAllAccessRole } from "@/lib/permissions";
 import { formatETB, shortDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
+import { friendlyError } from "@/lib/errors";
+import { formatOrderNumber } from "@/lib/utils";
 
 /** An order still owes money unless it's cancelled or already paid. */
 function isOrderUnpaid(order: any) {
@@ -85,7 +87,7 @@ export default function OrganizationDetailPage() {
         setCredit(c);
         setOrders(ord);
       })
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -109,7 +111,7 @@ export default function OrganizationDetailPage() {
 
   async function saveEdit() {
     if (!form.name?.trim()) {
-      toast.error("Name is required.");
+      toast.error("Enter a name.");
       return;
     }
     try {
@@ -118,7 +120,7 @@ export default function OrganizationDetailPage() {
       setEditOpen(false);
       await load();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
@@ -129,10 +131,10 @@ export default function OrganizationDetailPage() {
     setConfirmingId(orderId);
     try {
       await Orders.confirmOrganizationPayment(orderId, getUser()?.id);
-      toast.success("Payment confirmed");
+      toast.success("Marked as paid");
       await load();
     } catch (e: any) {
-      toast.error(e.message || "Failed to confirm payment");
+      toast.error(friendlyError(e, "Couldn't mark it as paid. Please try again."));
     } finally {
       setConfirmingId(null);
     }
@@ -147,8 +149,8 @@ export default function OrganizationDetailPage() {
           </Link>
         </Button>
         <PageHeader
-          title={org?.name || "Organization"}
-          description="Credit account, payments, transactions and orders."
+          title={org?.name || "Company account"}
+          description="Credit, payments, what they used, and orders."
           action={
             <div className="flex gap-2">
               <Button variant="outline" onClick={openEdit} disabled={!org}>
@@ -158,7 +160,7 @@ export default function OrganizationDetailPage() {
               <Button asChild>
                 <Link href={`/dashboard/orders/new?org=${id}`}>
                   <PlusIcon />
-                  Create order
+                  New order
                 </Link>
               </Button>
             </div>
@@ -174,7 +176,7 @@ export default function OrganizationDetailPage() {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="payments">Payments</TabsTrigger>
-            <TabsTrigger value="transactions">Transactions</TabsTrigger>
+            <TabsTrigger value="transactions">Credit used</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -198,7 +200,7 @@ export default function OrganizationDetailPage() {
                 <div>
                   <p className="text-muted-foreground text-xs">Status</p>
                   <Badge variant={org?.is_active ? "success" : "muted"}>
-                    {org?.is_active ? "Active" : "Inactive"}
+                    {org?.is_active ? "Active" : "Not active"}
                   </Badge>
                 </div>
               </CardContent>
@@ -223,14 +225,14 @@ export default function OrganizationDetailPage() {
                     {orders.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} className="text-muted-foreground py-8 text-center">
-                          No orders for this organization yet.
+                          No orders for this company yet.
                         </TableCell>
                       </TableRow>
                     ) : (
                       orders.map((o) => (
                         <TableRow key={o.id}>
                           <TableCell className="font-medium">
-                            #{o.order_number ?? o.id?.slice(0, 8)}
+                            {formatOrderNumber(o)}
                           </TableCell>
                           <TableCell>
                             <OrgCustomerCell order={o} />
@@ -249,10 +251,10 @@ export default function OrganizationDetailPage() {
                                 disabled={confirmingId === o.id}
                                 onClick={() => confirmPayment(o.id)}
                               >
-                                {confirmingId === o.id ? "Confirming…" : "Confirm"}
+                                {confirmingId === o.id ? "Confirming…" : "Mark paid"}
                               </Button>
                             ) : (
-                              <Badge variant="outline">Awaiting owner</Badge>
+                              <Badge variant="outline">Waiting for owner</Badge>
                             )}
                           </TableCell>
                         </TableRow>
@@ -285,7 +287,7 @@ export default function OrganizationDetailPage() {
                     {transactions.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={3} className="text-muted-foreground py-8 text-center">
-                          No transactions recorded.
+                          Nothing used yet.
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -316,7 +318,7 @@ export default function OrganizationDetailPage() {
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit organization</DialogTitle>
+            <DialogTitle>Edit company account</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             {([

@@ -101,7 +101,7 @@ const normalizeRow = (
   const warnings: string[] = [];
 
   const name = str(raw.name);
-  if (!name) errors.push("Name is required");
+  if (!name) errors.push("Enter a name");
 
   const unit = str(raw.unit) || "piece";
   const base_unit = str(raw.base_unit) || unit;
@@ -109,14 +109,14 @@ const normalizeRow = (
   let pieces_per_unit = 1;
   const piecesRaw = toNumber(raw.pieces_per_unit);
   if (piecesRaw !== null) {
-    if (piecesRaw < 1) warnings.push("pieces_per_unit < 1 — using 1");
+    if (piecesRaw < 1) warnings.push("Small units in one buying unit is less than 1. We use 1.");
     pieces_per_unit = Math.max(1, Math.round(piecesRaw));
   }
 
   let min_quantity = 0;
   const minRaw = toNumber(raw.min_quantity);
   if (minRaw !== null) {
-    if (minRaw < 0) errors.push(`Invalid min_quantity "${str(raw.min_quantity)}"`);
+    if (minRaw < 0) errors.push(`Warning level "${str(raw.min_quantity)}" must be 0 or more`);
     else min_quantity = Math.round(minRaw);
   }
 
@@ -124,7 +124,7 @@ const normalizeRow = (
   const qtyRaw = toNumber(raw.quantity);
   if (str(raw.quantity) !== "") {
     if (qtyRaw === null || qtyRaw < 0)
-      errors.push(`Invalid quantity "${str(raw.quantity)}"`);
+      errors.push(`Amount "${str(raw.quantity)}" is not a number`);
     else quantity = Math.round(qtyRaw);
   }
 
@@ -134,7 +134,7 @@ const normalizeRow = (
     location_id = ctx.locationsByName.get(location.toLowerCase()) ?? null;
     if (!location_id) {
       warnings.push(
-        `Unknown location "${location}" — stock goes to the default location`,
+        `No stock place called "${location}". Stock goes to the main place.`,
       );
     }
   }
@@ -142,9 +142,9 @@ const normalizeRow = (
   const lowerName = name.toLowerCase();
   if (lowerName) {
     if (seenNames.has(lowerName)) {
-      warnings.push("Duplicate name within this file");
+      warnings.push("This name is in the file twice");
     } else if (ctx.existingNames.has(lowerName)) {
-      warnings.push("An item with this name already exists — it will be updated");
+      warnings.push("You already have this item. It will be updated.");
     }
     seenNames.add(lowerName);
   }
@@ -184,12 +184,12 @@ export const parseInventoryFile = (
   } catch (e) {
     return {
       rows: [],
-      fatalError: e instanceof Error ? e.message : "Failed to parse file",
+      fatalError: e instanceof Error ? e.message : "We couldn't read this file. Start from the example file.",
     };
   }
 
   if (rawRows.length === 0) {
-    return { rows: [], fatalError: "No data rows found in the file" };
+    return { rows: [], fatalError: "The file has no items in it." };
   }
 
   const seenNames = new Set<string>();

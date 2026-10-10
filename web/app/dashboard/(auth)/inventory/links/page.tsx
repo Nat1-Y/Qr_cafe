@@ -18,6 +18,7 @@ import {
 import { DataTable, type Column } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
 import { Inventory } from "@/lib/resources";
+import { friendlyError } from "@/lib/errors";
 
 type ItemLink = {
   id: string;
@@ -44,7 +45,7 @@ export default function ItemLinksPage() {
       setLinks(l);
       setItems(i);
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setLoading(false);
     }
@@ -78,7 +79,7 @@ export default function ItemLinksPage() {
 
   async function submit() {
     if (!sourceId || !targetId) {
-      toast.error("Pick a source and a target item.");
+      toast.error("Pick both items.");
       return;
     }
     try {
@@ -87,24 +88,24 @@ export default function ItemLinksPage() {
         target_item_id: targetId,
         conversion_factor: factorNum,
       });
-      toast.success("Item link saved");
+      toast.success("Pack contents saved");
       setOpen(false);
       setSourceId("");
       setTargetId("");
       setFactor("1");
       await reload();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
   async function remove(link: ItemLink) {
     try {
       await Inventory.removeLink(link.id);
-      toast.success("Item link removed");
+      toast.success("Pack contents removed");
       await reload();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
@@ -114,7 +115,7 @@ export default function ItemLinksPage() {
   const columns: Column<ItemLink>[] = [
     {
       key: "source",
-      label: "Transferred item",
+      label: "Pack",
       searchValue: (l) => itemName(l.source_item_id, l.source_item_name),
       render: (l) => (
         <span className="font-medium">
@@ -124,7 +125,7 @@ export default function ItemLinksPage() {
     },
     {
       key: "target",
-      label: "Received as",
+      label: "Item inside",
       searchValue: (l) => itemName(l.target_item_id, l.target_item_name),
       render: (l) => (
         <span className="flex items-center gap-2">
@@ -135,7 +136,7 @@ export default function ItemLinksPage() {
     },
     {
       key: "factor",
-      label: "Ratio",
+      label: "How many inside",
       render: (l) => (
         <Badge variant="muted">
           1 → {Math.max(1, Number(l.conversion_factor) || 1)}
@@ -147,12 +148,12 @@ export default function ItemLinksPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Item links"
-        description="One-to-many transfer relations: a linked item is received as its target item, increasing the target's stock at the destination. Several items can share one target; unlinked items transfer as themselves."
+        title="Pack contents"
+        description="Pack contents (e.g. 1 crate = 24 bottles). When you move a pack, the place it goes to gets the items inside it. Items with no pack contents move as they are."
         action={
           <Button onClick={() => setOpen(true)}>
             <PlusIcon />
-            New link
+            Add pack contents
           </Button>
         }
       />
@@ -162,8 +163,8 @@ export default function ItemLinksPage() {
         rows={links}
         loading={loading}
         searchKeys={["source", "target"]}
-        searchPlaceholder="Search links…"
-        emptyMessage="No item links yet — all transfers use the default one-to-one behavior."
+        searchPlaceholder="Search packs"
+        emptyMessage="None yet. Every item moves as it is."
         rowActions={(row) => (
           <Button
             variant="ghost"
@@ -180,29 +181,29 @@ export default function ItemLinksPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Link2Icon className="size-4" />
-              New item link
+              Add pack contents
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>When this item is transferred…</Label>
+              <Label>When you move this pack…</Label>
               <select
                 className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={sourceId}
                 onChange={(e) => setSourceId(e.target.value)}>
-                <option value="">Select source item…</option>
+                <option value="">Pick the pack</option>
                 {sourceOptions.map((i) => (
                   <option key={i.id} value={i.id}>{i.name}</option>
                 ))}
               </select>
             </div>
             <div className="space-y-2">
-              <Label>…receive it as</Label>
+              <Label>…the other place gets</Label>
               <select
                 className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                 value={targetId}
                 onChange={(e) => setTargetId(e.target.value)}>
-                <option value="">Select target item…</option>
+                <option value="">Pick the item inside</option>
                 {targetOptions.map((i) => (
                   <option key={i.id} value={i.id}>{i.name}</option>
                 ))}
@@ -210,7 +211,7 @@ export default function ItemLinksPage() {
             </div>
             <div className="space-y-2">
               <Label>
-                Target units per transferred unit
+                How many inside one pack
                 {sourceItem && targetItem
                   ? ` (${targetItem.base_unit ?? "unit"} per ${sourceItem.base_unit ?? "unit"})`
                   : ""}
@@ -230,7 +231,7 @@ export default function ItemLinksPage() {
                 <strong>
                   {factorNum} {targetItem.base_unit ?? "unit"}
                 </strong>{" "}
-                of <strong>{targetItem.name}</strong> at the destination.
+                of <strong>{targetItem.name}</strong> in the other place.
               </div>
             )}
           </div>
@@ -238,7 +239,7 @@ export default function ItemLinksPage() {
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={submit}>Save link</Button>
+            <Button onClick={submit}>Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

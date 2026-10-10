@@ -80,17 +80,17 @@ const Reports: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Business reports"
-        description="Analytics, operational metrics, and complete data exports"
+        title="Sales & reports"
+        description="See how the business is doing and download the numbers."
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={handleExportReport}>
               <Download />
-              Export
+              Download Excel
             </Button>
             <Button onClick={handleGenerateReport}>
               <BarChart2 />
-              Generate
+              Make report
             </Button>
           </div>
         }
@@ -113,10 +113,10 @@ const Reports: React.FC = () => {
         </div>
         <Select value={businessUnit} onValueChange={setBusinessUnit}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="All units" />
+            <SelectValue placeholder="All sections" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All units</SelectItem>
+            <SelectItem value="all">All sections</SelectItem>
             <SelectItem value="cafe">Cafe</SelectItem>
             <SelectItem value="restaurant">Restaurant</SelectItem>
             <SelectItem value="barista">Barista</SelectItem>
@@ -134,15 +134,15 @@ const Reports: React.FC = () => {
           </TabsTrigger>
           <TabsTrigger value="product-mix" className="gap-2">
             <PackageSearch className="h-4 w-4" />
-            Product mix
+            What sold
           </TabsTrigger>
           <TabsTrigger value="sales-breakdown" className="gap-2">
             <PieChart className="h-4 w-4" />
-            Sales breakdown
+            Sales split
           </TabsTrigger>
           <TabsTrigger value="operations" className="gap-2">
             <BarChart2 className="h-4 w-4" />
-            Operations
+            Busy times
           </TabsTrigger>
           <TabsTrigger value="orders" className="gap-2">
             <ListOrdered className="h-4 w-4" />
@@ -150,7 +150,7 @@ const Reports: React.FC = () => {
           </TabsTrigger>
           <TabsTrigger value="z-report" className="gap-2">
             <FileText className="h-4 w-4" />
-            Z-Report
+            End of day report
           </TabsTrigger>
         </TabsList>
 
@@ -188,13 +188,13 @@ const Reports: React.FC = () => {
           <div className="grid grid-cols-1 xl:grid-cols-[1.1fr_1fr] gap-6">
             <HourlyPerformance items={reportData.hourlyPerformance} />
             <div className="rounded-md border bg-card p-5">
-              <h3 className="text-sm font-semibold mb-2">Operational focus</h3>
+              <h3 className="text-sm font-semibold mb-2">Plan your shifts</h3>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                Use this view to identify rush hours, staffing pressure, and settlement patterns before adjusting shifts or prep quantities.
+                See your busiest hours and how customers pay before you change shifts or how much you prepare.
               </p>
               <div className="grid grid-cols-1 gap-3">
-                <Button variant="outline" onClick={handlePerformanceMetrics}>Open performance metrics</Button>
-                <Button variant="outline" onClick={handleInventoryReports}>Open inventory reports</Button>
+                <Button variant="outline" onClick={handlePerformanceMetrics}>Open staff speed report</Button>
+                <Button variant="outline" onClick={handleInventoryReports}>Open stock report</Button>
               </div>
             </div>
           </div>

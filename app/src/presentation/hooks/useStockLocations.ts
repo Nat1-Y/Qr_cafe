@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import api from '@/application';
+import { friendlyError } from '@/lib/errors';
 
 export const useStockLocations = (includeInactive = true) => {
   const [loading, setLoading] = useState(true);
@@ -18,7 +19,7 @@ export const useStockLocations = (includeInactive = true) => {
       const list = response.data?.data?.locations ?? response.data?.locations ?? [];
       setLocations(list);
     } catch (e: any) {
-      setError(e?.message ?? 'Failed to load stock locations');
+      setError(friendlyError(e, "Couldn't load stock places. Please try again."));
     } finally {
       setLoading(false);
       hasLoadedRef.current = true;

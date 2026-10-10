@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Users } from "@/lib/resources";
 import { CONFIGURABLE_ROLES } from "@/lib/permissions";
+import { friendlyError } from "@/lib/errors";
 
 /**
  * Row action giving the owner full control over a staff account: change their
@@ -58,15 +59,15 @@ export function ManageAccessAction({
     const resettingLogin = authMode === "password" ? !!password : !!pin;
 
     if (!roleChanged && !resettingLogin) {
-      toast.error("Change the role or enter a new password/PIN first");
+      toast.error("Change the role, or type a new password or PIN first.");
       return;
     }
     if (authMode === "password" && password && password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error("Password needs at least 6 characters.");
       return;
     }
     if (authMode === "pin" && pin && !/^\d{4}$/.test(pin)) {
-      toast.error("PIN must be exactly 4 digits");
+      toast.error("PIN must be 4 numbers.");
       return;
     }
 
@@ -81,11 +82,11 @@ export function ManageAccessAction({
           authMode === "password" ? { password } : { pin },
         );
       }
-      toast.success("Access updated");
+      toast.success("Access saved");
       setOpen(false);
       await onSaved();
     } catch (e: any) {
-      toast.error(e?.message || "Failed to update access");
+      toast.error(friendlyError(e, "Couldn't save access. Please try again."));
     } finally {
       setSaving(false);
     }
@@ -103,8 +104,8 @@ export function ManageAccessAction({
           <DialogHeader>
             <DialogTitle>Manage access — {userName}</DialogTitle>
             <DialogDescription>
-              Change this employee&apos;s role and reset their login. Leave the
-              password and PIN blank to keep their current login unchanged.
+              Change this person&apos;s role or give them a new password or PIN. Leave the
+              password and PIN empty to keep their sign-in as it is.
             </DialogDescription>
           </DialogHeader>
 
@@ -131,7 +132,7 @@ export function ManageAccessAction({
             </div>
 
             <div className="space-y-2">
-              <Label>Reset login</Label>
+              <Label>New password or PIN</Label>
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -155,13 +156,13 @@ export function ManageAccessAction({
                     setPassword("");
                   }}
                 >
-                  4-Digit PIN
+                  4-number PIN
                 </Button>
               </div>
               {authMode === "password" ? (
                 <Input
                   type="password"
-                  placeholder="New password (min 6 characters)"
+                  placeholder="New password (at least 6 characters)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -170,7 +171,7 @@ export function ManageAccessAction({
                   type="tel"
                   inputMode="numeric"
                   maxLength={4}
-                  placeholder="New 4-digit PIN"
+                  placeholder="New 4-number PIN"
                   value={pin}
                   onChange={(e) =>
                     setPin(e.target.value.replace(/\D/g, "").slice(0, 4))

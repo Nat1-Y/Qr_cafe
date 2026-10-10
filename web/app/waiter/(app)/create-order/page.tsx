@@ -61,7 +61,7 @@ export default function CreateOrderPage() {
     outOfStockCount,
   } = useWaiterCreateOrder();
 
-  if (loading) return <LoadingSpinner text="Loading menu register..." />;
+  if (loading) return <LoadingSpinner text="Loading the menu…" />;
 
   const totalItemsCount = mappedMainCategories.reduce(
     (sum, c) => sum + c.count,

@@ -44,13 +44,13 @@ export const PaymentListTab = ({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2"><TrendingUp className="h-4 w-4 text-success" />Payment list</CardTitle>
-        <CardDescription>View all payments and their linked transactions.</CardDescription>
+        <CardDescription>Money each company paid, and what it was used for.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-1.5">
-          <Label>Organization *</Label>
+          <Label>Company *</Label>
           <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
-            <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder="Pick a company" /></SelectTrigger>
             <SelectContent>
               {orgs.filter(o => o.is_active !== false && o.is_active !== 0).map(o => (
                 <SelectItem key={o.id} value={String(o.id)}>
@@ -64,9 +64,9 @@ export const PaymentListTab = ({
         {selectedOrgId && (
           <>
             {loading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading...</div>
+              <div className="text-center py-8 text-muted-foreground">Loading…</div>
             ) : payments.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">No payments found for this organization.</div>
+              <div className="text-center py-8 text-muted-foreground">No payments from this company yet.</div>
             ) : (
               <div className="space-y-3">
                 {payments.map(payment => {
@@ -106,7 +106,7 @@ export const PaymentListTab = ({
                       </CollapsibleTrigger>
                       <CollapsibleContent className="border border-t-0 rounded-b-lg bg-muted/30 px-4 py-3 space-y-2">
                         {linkedTxns.length === 0 ? (
-                          <p className="text-xs text-muted-foreground italic">No transactions linked to this payment.</p>
+                          <p className="text-xs text-muted-foreground italic">Nothing used from this payment yet.</p>
                         ) : (
                           <Table>
                             <TableHeader>

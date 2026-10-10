@@ -1,5 +1,6 @@
 import { API_BASE } from "@/lib/api";
 import { getDeviceToken } from "@/lib/waiter/device";
+import { messageForStatus } from "@/lib/errors";
 
 export type WaiterUser = {
   id: string;
@@ -39,7 +40,9 @@ export async function waiterLogin(
 
   if (!res.ok) {
     let message =
-      res.status === 401 ? "Invalid name or PIN" : `Login failed (${res.status})`;
+      res.status === 401
+        ? "Wrong name or PIN. Please try again."
+        : (messageForStatus(res.status) ?? "Couldn't sign in. Please try again.");
     try {
       const body = await res.json();
       if (body?.message) message = body.message;
@@ -52,7 +55,7 @@ export async function waiterLogin(
 
   const data = await res.json();
   const token = data?.token?.access_token;
-  if (!token) throw new Error("Login failed: no token returned");
+  if (!token) throw new Error("Couldn't sign in. Please try again.");
 
   if (!ALLOWED_ROLES.includes(data.user?.role)) {
     throw new Error("This portal is for café waiters only.");

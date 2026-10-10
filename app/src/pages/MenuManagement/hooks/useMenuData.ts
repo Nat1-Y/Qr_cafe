@@ -14,6 +14,7 @@ import {
   slugifyCategory,
 } from "../utils";
 import type { LocalRecipe, LocalRecipeIngredient } from "@/db/types";
+import { friendlyError } from '@/lib/errors';
 
 export const useMenuData = () => {
   const { user } = useAuth();
@@ -142,9 +143,7 @@ export const useMenuData = () => {
         );
       }
     } catch (e: any) {
-      toast.error(
-        `Failed to load menu: ${e.response?.data?.message || e.message}`,
-      );
+      toast.error(friendlyError(e, "Couldn't load the menu. Please try again."));
     } finally {
       setLoading(false);
       hasLoadedRef.current = true;
@@ -238,7 +237,7 @@ export const useMenuData = () => {
       await fetchRecipes();
       toast.success("Recipe saved");
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || e.message || "Failed to save recipe");
+      toast.error(friendlyError(e, "Couldn't save the recipe. Please try again."));
       throw e;
     }
   };
@@ -246,33 +245,33 @@ export const useMenuData = () => {
   const deleteRecipe = async (menuItemId: string) => {
     const existing = recipesMap[menuItemId];
     if (!existing?.id) return;
-    if (!window.confirm("Delete this recipe? Stock will no longer auto-deduct for this item.")) return;
+    if (!window.confirm("Delete this recipe? Orders for this item will stop using stock.")) return;
     try {
       await api.recipes.delete(existing.id);
       await fetchRecipes();
       toast.success("Recipe deleted");
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || e.message || "Failed to delete recipe");
+      toast.error(friendlyError(e, "Couldn't delete the recipe. Please try again."));
     }
   };
 
   const handleManualSync = async () => {
     if (syncStatus.syncing) return;
     if (!syncStatus.online) {
-      toast.error("You are offline. Cannot sync right now.");
+      toast.error("No internet. Your menu changes will send later.");
       return;
     }
-    toast.loading("Synchronizing menu data...", { id: "manual-sync-progress" });
+    toast.loading("Updating the menu…", { id: "manual-sync-progress" });
     const success = await syncEngine.sync(['menu_items_pull', 'recipes_pull']);
     if (success) {
-      toast.success("Synchronization completed successfully!", {
+      toast.success("Menu is up to date", {
         id: "manual-sync-progress",
       });
       setCurrentPage(1);
       fetchMenu();
       fetchRecipes();
     } else {
-      toast.error("Synchronization failed or nothing to sync.", {
+      toast.error("Couldn't update the menu, or there was nothing new. Please try again.", {
         id: "manual-sync-progress",
       });
     }
@@ -380,7 +379,7 @@ export const useMenuData = () => {
   const handleAddMainCategory = async (name: string) => {
     const normalizedName = String(name || "").trim();
     if (!normalizedName) {
-      toast.error("Main category name is required");
+      toast.error("Enter a section name.");
       return null;
     }
 
@@ -407,10 +406,10 @@ export const useMenuData = () => {
       });
 
       setFormData((prev) => ({ ...prev, main_category: category.slug }));
-      toast.success("Main category added");
+      toast.success("Section added");
       return category;
     } catch (e: any) {
-      toast.error(e.response?.data?.message || e.message || "Failed to add main category");
+      toast.error(friendlyError(e, "Couldn't add the section. Please try again."));
       return null;
     }
   };
@@ -422,7 +421,7 @@ export const useMenuData = () => {
       setCurrentPage(1);
       fetchMenu();
     } catch {
-      toast.error("Failed to update");
+      toast.error("Couldn't change it. Please try again.");
     }
   };
 
@@ -441,11 +440,11 @@ export const useMenuData = () => {
     e.preventDefault();
     const priceInt = parseInt(formData.price, 10);
     if (!Number.isFinite(priceInt)) {
-      toast.error("Enter a valid price");
+      toast.error("Enter a price.");
       return;
     }
     if (shouldShowSubCat && !formData.sub_category) {
-      toast.error("Select a sub category");
+      toast.error("Pick a kind.");
       return;
     }
     const data = {
@@ -484,13 +483,13 @@ export const useMenuData = () => {
         toast.success("Item updated");
       } else {
         await api.menu.create(data);
-        toast.success("Item created");
+        toast.success("Item added");
       }
       setDialogOpen(false);
       setCurrentPage(1);
       fetchMenu();
     } catch {
-      toast.error("Failed to save");
+      toast.error("Couldn't save the item. Please try again.");
     }
   };
 
@@ -502,7 +501,7 @@ export const useMenuData = () => {
       setCurrentPage(1);
       fetchMenu();
     } catch {
-      toast.error("Failed to delete");
+      toast.error("Couldn't delete the item. Please try again.");
     }
   };
 

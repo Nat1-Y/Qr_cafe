@@ -55,7 +55,7 @@ export const InventoryFormDialog: React.FC<InventoryFormDialogProps> = ({
     <Dialog open={editDialog} onOpenChange={setEditDialog}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isAdding ? 'Add Inventory Item' : 'Edit Inventory Item'}</DialogTitle>
+          <DialogTitle>{isAdding ? 'Add stock item' : 'Edit stock item'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={submitForm} className="space-y-4">
           <div className="space-y-2">
@@ -69,7 +69,7 @@ export const InventoryFormDialog: React.FC<InventoryFormDialogProps> = ({
           </div>
 
           <div>
-            <Label>Minimum stock</Label>
+            <Label>Warn me when stock is below</Label>
             <Input
               type="number"
               step="1"
@@ -81,7 +81,7 @@ export const InventoryFormDialog: React.FC<InventoryFormDialogProps> = ({
 
 
           <div className="space-y-2">
-            <Label>Pieces per unit</Label>
+            <Label>How many small units in one buying unit</Label>
             <Input
               type="number"
               step="1"
@@ -94,16 +94,16 @@ export const InventoryFormDialog: React.FC<InventoryFormDialogProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Purchase unit</Label>
+              <Label>Buying unit (e.g. kg bag)</Label>
               <Input
                 value={formData.unit}
                 onChange={e => setFormData(p => ({ ...p, unit: e.target.value }))}
-                placeholder="box, piece, bag..."
+                placeholder="box, piece, bag…"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Base unit</Label>
+              <Label>Small unit (e.g. gram)</Label>
               <Input
                 value={formData.base_unit}
                 onChange={e => setFormData(p => ({ ...p, base_unit: e.target.value }))}
@@ -115,7 +115,7 @@ export const InventoryFormDialog: React.FC<InventoryFormDialogProps> = ({
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setEditDialog(false)} disabled={isSubmitting}>Cancel</Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving…' : isAdding ? 'Create' : 'Save'}
+              {isSubmitting ? 'Saving…' : isAdding ? 'Add' : 'Save'}
             </Button>
           </DialogFooter>
         </form>

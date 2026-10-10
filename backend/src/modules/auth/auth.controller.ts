@@ -64,11 +64,11 @@ export class AuthController {
   async login(@Body() body: LoginRequestDto) {
     const { username, password } = body;
     const user = await this.usersService.findForLogin(username);
-    if (!user) throw new UnauthorizedException("Invalid credentials");
+    if (!user) throw new UnauthorizedException("Wrong username, password or PIN.");
     if (!user.is_active)
-      throw new UnauthorizedException("Account is deactivated");
+      throw new UnauthorizedException("This account is turned off. Ask your manager.");
     const valid = await this.usersService.verifyPassword(user, password);
-    if (!valid) throw new UnauthorizedException("Invalid credentials");
+    if (!valid) throw new UnauthorizedException("Wrong username, password or PIN.");
     const token = await this.authService.login(user);
     return {
       status: "success",
@@ -92,11 +92,11 @@ export class AuthController {
   async pinLogin(@Body() body: PinLoginRequestDto) {
     const { name, pin } = body;
     const user = await this.usersService.findByName(name);
-    if (!user) throw new UnauthorizedException("Invalid credentials");
+    if (!user) throw new UnauthorizedException("Wrong username, password or PIN.");
     if (!user.is_active)
-      throw new UnauthorizedException("Account is deactivated");
+      throw new UnauthorizedException("This account is turned off. Ask your manager.");
     const ok = await this.usersService.verifyPin(user, pin);
-    if (!ok) throw new UnauthorizedException("Invalid credentials");
+    if (!ok) throw new UnauthorizedException("Wrong username, password or PIN.");
     const token = await this.authService.login(user);
     return {
       status: "success",
@@ -125,11 +125,11 @@ export class AuthController {
   async staffLogin(@Body() body: StaffLoginRequestDto) {
     const { name, password } = body;
     const user = await this.usersService.findByName(name);
-    if (!user) throw new UnauthorizedException("Invalid credentials");
+    if (!user) throw new UnauthorizedException("Wrong username, password or PIN.");
     if (!user.is_active)
-      throw new UnauthorizedException("Account is deactivated");
+      throw new UnauthorizedException("This account is turned off. Ask your manager.");
     const ok = await this.usersService.verifyPassword(user, password);
-    if (!ok) throw new UnauthorizedException("Invalid credentials");
+    if (!ok) throw new UnauthorizedException("Wrong username, password or PIN.");
     return {
       status: "success",
       message: "Staff login successful",
@@ -198,7 +198,7 @@ export class AuthController {
   @ApiOkResponse({ type: AuthProfileResponseDto })
   @Get("profile/:userId?")
   async getProfile(@Param("userId") userId: string) {
-    if (!userId) throw new UnauthorizedException("User ID is required");
+    if (!userId) throw new UnauthorizedException("Please sign in again.");
     const user = await this.usersService.findById(userId);
     if (!user) throw new UnauthorizedException("User not found");
     return {

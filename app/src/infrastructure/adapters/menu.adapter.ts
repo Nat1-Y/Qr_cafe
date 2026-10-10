@@ -523,7 +523,7 @@ const menuAdapterImpl = {
       };
     }
     return {
-      data: { status: "error", message: "Menu item not found locally" },
+      data: { status: "error", message: "We couldn't find that menu item on this till." },
       status: 404,
       statusText: "Not Found",
       headers: {},
@@ -660,7 +660,7 @@ const menuAdapterImpl = {
   createMainCategory: async (data: { name: string }) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Menu management requires an internet connection"),
+        new Error("No internet. Connect to change the menu."),
       );
     }
 
@@ -680,7 +680,7 @@ const menuAdapterImpl = {
   create: async (menuData: any) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Menu management requires an internet connection"),
+        new Error("No internet. Connect to change the menu."),
       );
     }
 
@@ -690,7 +690,7 @@ const menuAdapterImpl = {
   update: async (id: string, menuData: any) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Menu management requires an internet connection"),
+        new Error("No internet. Connect to change the menu."),
       );
     }
 
@@ -700,7 +700,7 @@ const menuAdapterImpl = {
   delete: async (id: string) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Menu management requires an internet connection"),
+        new Error("No internet. Connect to change the menu."),
       );
     }
 
@@ -710,7 +710,7 @@ const menuAdapterImpl = {
   toggleAvailability: async (id: string) => {
     if (!isOnline()) {
       return Promise.reject(
-        new Error("Menu management requires an internet connection"),
+        new Error("No internet. Connect to change the menu."),
       );
     }
 

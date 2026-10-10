@@ -124,7 +124,7 @@ export const useReceiptData = () => {
       );
       setOrders((or as any)?.data?.data ?? (or as any)?.data?.orders ?? []);
     } catch {
-      toast.error("Failed to load data");
+      toast.error("Couldn't load orders. Please try again.");
     } finally {
       setLoading(false);
     }

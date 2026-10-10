@@ -1,5 +1,6 @@
 import { API_BASE } from "@/lib/api";
 import { getDeviceToken } from "@/lib/cashier/device";
+import { messageForStatus } from "@/lib/errors";
 
 export type CashierUser = {
   id: string;
@@ -42,8 +43,8 @@ export async function cashierLogin(
   if (!res.ok) {
     let message =
       res.status === 401
-        ? "Invalid name or password"
-        : `Login failed (${res.status})`;
+        ? "Wrong name or password. Please try again."
+        : (messageForStatus(res.status) ?? "Couldn't sign in. Please try again.");
     try {
       const body = await res.json();
       if (body?.message) message = body.message;

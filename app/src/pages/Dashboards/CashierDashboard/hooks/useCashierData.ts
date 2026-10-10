@@ -5,6 +5,7 @@ import { isOnline } from "@/infrastructure/api/http-client";
 import { syncEngine } from "@/infrastructure/sync/sync-engine";
 import { useSyncRefetch } from "@/hooks/useSyncRefetch";
 import toast from "react-hot-toast";
+import { friendlyError } from '@/lib/errors';
 
 interface DataProps {
   user: any;
@@ -144,18 +145,18 @@ export const useCashierData = ({ user }: DataProps) => {
     if (syncStatus.syncing) return;
     if (!syncStatus.online) {
       toast.error(
-        "App is offline. Cannot sync. Please check internet connection.",
+        "No internet. Your work is saved and will send later.",
       );
       return;
     }
-    toast.loading("Synchronizing data...", { id: "manual-sync-progress" });
+    toast.loading("Sending updates…", { id: "manual-sync-progress" });
     const success = await syncEngine.sync();
     toast.dismiss("manual-sync-progress");
     if (success) {
-      toast.success("Synchronization completed successfully!");
+      toast.success("All updates sent");
       refreshDashboardData();
     } else {
-      toast.error("Failed to sync. Please try again.");
+      toast.error("Couldn't send updates. Your work is saved. Please try again.");
     }
   };
 
@@ -425,7 +426,7 @@ export const useCashierData = ({ user }: DataProps) => {
         }
       }
 
-      toast.success("Payment confirmed successfully!");
+      toast.success("Payment saved");
       refreshDashboardData();
       syncEngine.notifyListeners();
     } catch (error: any) {
@@ -435,9 +436,9 @@ export const useCashierData = ({ user }: DataProps) => {
         error.response?.status === 400 &&
         error.response?.data?.message?.includes("already exists")
       ) {
-        toast.error("Payment already created for this order");
+        toast.error("This order is already paid.");
       } else {
-        toast.error("Failed to confirm payment");
+        toast.error(friendlyError(error, "Couldn't take the payment. Please try again."));
       }
 
       refreshDashboardData();
@@ -529,17 +530,17 @@ export const useCashierData = ({ user }: DataProps) => {
   const updateProfile = async () => {
     if (!syncStatus.online || !isOnline()) {
       toast.error(
-        "Profile updates are disabled when the application is offline.",
+        "No internet. Connect to change your profile.",
       );
       return;
     }
     try {
       await api.auth.updateProfile(user.id, profileData);
-      toast.success("Profile updated successfully!");
+      toast.success("Profile saved");
       setShowProfileModal(false);
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error("Failed to update profile.");
+      toast.error(friendlyError(error, "Couldn't save your profile. Please try again."));
     }
   };
 
@@ -600,10 +601,10 @@ export const useCashierData = ({ user }: DataProps) => {
     setShowSettleTableModal(false);
     setBatchProgress(null);
 
-    if (fail === 0) toast.success(`Settled ${ok} payment${ok === 1 ? "" : "s"}`);
+    if (fail === 0) toast.success(`Paid ${ok} order${ok === 1 ? "" : "s"}`);
     else if (ok === 0)
-      toast.error(`Failed to settle ${fail} payment${fail === 1 ? "" : "s"}`);
-    else toast(`Settled ${ok}, ${fail} failed`);
+      toast.error(`Couldn't take payment for ${fail} order${fail === 1 ? "" : "s"}. Please try again.`);
+    else toast(`Paid ${ok}. ${fail} didn't go through. Please try again.`);
 
     refreshDashboardData();
     syncEngine.notifyListeners();

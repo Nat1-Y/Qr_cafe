@@ -85,7 +85,7 @@ const DashboardRouter = () => {
       case 'cashier':
         return <CashierDashboard />;
       default:
-        return <div className="p-6 text-center">Invalid user role</div>;
+        return <div className="p-6 text-center">This account can't use this app. Ask your manager.</div>;
     }
   };
 

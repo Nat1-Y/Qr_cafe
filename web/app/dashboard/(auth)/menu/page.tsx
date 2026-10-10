@@ -23,6 +23,7 @@ import { PageHeader } from "@/components/page-header";
 import { Menu } from "@/lib/resources";
 import { formatETB } from "@/lib/format";
 import { RecipeDialog } from "@/components/menu/recipe-dialog";
+import { friendlyError } from "@/lib/errors";
 
 type Item = {
   id: string;
@@ -63,7 +64,7 @@ export default function MenuPage() {
         setDepartments(d);
         setCategories(c);
       })
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }
   useEffect(() => {
@@ -125,7 +126,7 @@ export default function MenuPage() {
       setOpen(false);
       await load();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
@@ -136,7 +137,7 @@ export default function MenuPage() {
       toast.success("Deleted");
       await load();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
@@ -145,7 +146,7 @@ export default function MenuPage() {
       await Menu.toggle(id);
       await load();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
@@ -154,10 +155,10 @@ export default function MenuPage() {
     try {
       await Menu.createDepartment({ name: deptName.trim() });
       setDeptName("");
-      toast.success("Department added");
+      toast.success("Section added");
       await load();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
@@ -169,18 +170,18 @@ export default function MenuPage() {
       toast.success("Category added");
       await load();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
   async function removeCategory(id: string) {
-    if (!confirm("Delete this category? Items keep their existing category text.")) return;
+    if (!confirm("Delete this category? Items keep the category name they have now.")) return;
     try {
       await Menu.removeCategory(id);
       toast.success("Category deleted");
       await load();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   }
 
@@ -198,7 +199,7 @@ export default function MenuPage() {
     },
     {
       key: "main_category",
-      label: "Department",
+      label: "Section",
       className: "text-muted-foreground",
       searchValue: (it) => deptLabel(it.main_category),
       render: (it) => deptLabel(it.main_category),
@@ -221,26 +222,24 @@ export default function MenuPage() {
 
   const departmentColumns: Column<Department>[] = [
     { key: "name", label: "Name", className: "font-medium" },
-    { key: "slug", label: "Slug", className: "text-muted-foreground" },
   ];
 
   const categoryColumns: Column<Category>[] = [
     { key: "name", label: "Name", className: "font-medium" },
-    { key: "slug", label: "Slug", className: "text-muted-foreground" },
   ];
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Menu"
-        description="Items, categories, and printing departments for this branch."
+        description="What you sell, its categories, and which section prints it."
         action={
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               onClick={() => router.push("/dashboard/menu/bulk-import")}>
               <UploadIcon />
-              Bulk import
+              Add many
             </Button>
             <Button onClick={openNew}>
               <PlusIcon />
@@ -254,7 +253,7 @@ export default function MenuPage() {
         <TabsList>
           <TabsTrigger value="items">Items</TabsTrigger>
           <TabsTrigger value="categories">Categories</TabsTrigger>
-          <TabsTrigger value="departments">Departments</TabsTrigger>
+          <TabsTrigger value="departments">Sections</TabsTrigger>
         </TabsList>
 
         <TabsContent value="items">
@@ -264,7 +263,7 @@ export default function MenuPage() {
             loading={loading}
             searchKeys={["name", "category"]}
             searchPlaceholder="Search items…"
-            emptyMessage="No menu items. Add your first item."
+            emptyMessage="No menu items yet. Add your first item."
             filters={[
               {
                 key: "category",
@@ -274,7 +273,7 @@ export default function MenuPage() {
               },
               {
                 key: "main_category",
-                label: "Department",
+                label: "Section",
                 options: departments.map((d) => ({ value: d.slug, label: d.name })),
                 match: (it, v) => it.main_category === v,
               },
@@ -283,7 +282,7 @@ export default function MenuPage() {
                 label: "Availability",
                 options: [
                   { value: "available", label: "Available" },
-                  { value: "unavailable", label: "Unavailable" },
+                  { value: "unavailable", label: "Not available" },
                 ],
                 match: (it, v) =>
                   v === "available" ? !!it.is_available : !it.is_available,
@@ -320,8 +319,8 @@ export default function MenuPage() {
           <Card>
             <CardContent className="pt-6 space-y-2">
               <p className="text-sm text-muted-foreground">
-                Categories group items on the menu (e.g. Hot Drinks, Pastries) and
-                are used as filters in the waiter and cashier order screens.
+                Categories group items on the menu (e.g. Hot drinks, Pastries).
+                Waiters and cashiers use them to find items fast.
               </p>
               <div className="flex gap-2">
                 <Input
@@ -355,12 +354,12 @@ export default function MenuPage() {
           <Card>
             <CardContent className="pt-6 space-y-2">
               <p className="text-sm text-muted-foreground">
-                Departments route items to the right kitchen/bar printer (e.g.
-                Barista, Kitchen). Each item is assigned a department on its form.
+                Sections decide which printer an order prints on (e.g. Barista,
+                Kitchen). You pick a section for each item.
               </p>
               <div className="flex gap-2">
                 <Input
-                  placeholder="New department name"
+                  placeholder="New section name"
                   value={deptName}
                   onChange={(e) => setDeptName(e.target.value)}
                 />
@@ -376,8 +375,8 @@ export default function MenuPage() {
             rows={departments}
             loading={loading}
             searchKeys={["name", "slug"]}
-            searchPlaceholder="Search departments…"
-            emptyMessage="No departments yet."
+            searchPlaceholder="Search sections"
+            emptyMessage="No sections yet."
           />
         </TabsContent>
       </Tabs>
@@ -406,7 +405,7 @@ export default function MenuPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Department (printing)</Label>
+                  <Label>Section (where it prints)</Label>
                   <select
                     className="h-10 rounded-field border border-input bg-card px-3.5 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring disabled:opacity-50 w-full"
                     value={editing.main_category ?? ""}
@@ -443,11 +442,11 @@ export default function MenuPage() {
                   ))}
                 </select>
                 <p className="text-xs text-muted-foreground">
-                  Manage the list in the Categories tab.
+                  Change this list in the Categories tab.
                 </p>
               </div>
               <div className="space-y-2">
-                <Label>Predefined notes</Label>
+                <Label>Quick notes</Label>
                 <div className="flex gap-2">
                   <Input
                     value={noteInput}
@@ -484,7 +483,7 @@ export default function MenuPage() {
                   </div>
                 )}
                 <p className="text-muted-foreground text-xs">
-                  Waiters and cashiers can quick-select these when adding this item to an order.
+                  Waiters and cashiers can tap these when they add this item to an order.
                 </p>
               </div>
               <div className="flex items-center gap-3">

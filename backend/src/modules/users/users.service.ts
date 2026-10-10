@@ -517,7 +517,7 @@ export class UsersService {
     const pin_hash = pin ? await hash(pin, saltRounds) : null;
 
     if (!password_hash && !pin_hash) {
-      throw new Error("Either password or pin is required");
+      throw new Error("Enter a password or a PIN.");
     }
 
     const [created] = await db

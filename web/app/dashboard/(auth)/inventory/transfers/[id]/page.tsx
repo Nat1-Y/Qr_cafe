@@ -27,6 +27,8 @@ import {
 import { PageHeader } from "@/components/page-header";
 import { Inventory } from "@/lib/resources";
 import { shortDate, humanize } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
+import { uuidToDisplayId } from "@/lib/utils";
 
 type TransferItem = {
   id: string;
@@ -67,7 +69,7 @@ const STATUS_BADGE: Record<string, "success" | "warning" | "destructive" | "mute
 };
 
 const STATUS_LABEL: Record<string, string> = {
-  sent: "Awaiting receipt",
+  sent: "Not received yet",
   received: "Received",
   cancelled: "Cancelled",
 };
@@ -132,7 +134,7 @@ export default function TransferDetailPage({
     setLoading(true);
     Inventory.transfer(id)
       .then((t) => active && setTransfer(t))
-      .catch((e: any) => toast.error(e.message))
+      .catch((e: any) => toast.error(friendlyError(e)))
       .finally(() => active && setLoading(false));
     return () => {
       active = false;
@@ -142,13 +144,13 @@ export default function TransferDetailPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Transfer details"
-        description={`Transfer ${id.slice(0, 8)}`}
+        title="Stock move"
+        description={`Move #${uuidToDisplayId(id)}`}
         action={
           <Button asChild variant="outline">
             <Link href="/dashboard/inventory/transfers">
               <ArrowLeftIcon />
-              Back to transfers
+              Back to stock moves
             </Link>
           </Button>
         }
@@ -160,7 +162,7 @@ export default function TransferDetailPage({
           <Skeleton className="h-56 lg:col-span-2" />
         </div>
       ) : !transfer ? (
-        <p className="text-muted-foreground text-sm">Transfer not found.</p>
+        <p className="text-muted-foreground text-sm">We couldn&apos;t find this stock move. It may have been deleted.</p>
       ) : (
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-1">
@@ -208,7 +210,7 @@ export default function TransferDetailPage({
                   </dt>
                   <dd className="text-right font-medium">
                     {transfer.received_by_name ?? (
-                      <span className="text-muted-foreground font-normal">Not yet received</span>
+                      <span className="text-muted-foreground font-normal">Not received yet</span>
                     )}
                     {transfer.received_at && (
                       <div className="text-muted-foreground flex items-center justify-end gap-1 text-xs font-normal">
@@ -236,7 +238,7 @@ export default function TransferDetailPage({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <PackageIcon className="size-4" />
-                Items transferred
+                Items moved
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
@@ -245,15 +247,15 @@ export default function TransferDetailPage({
                   <TableRow>
                     <TableHead>Item</TableHead>
                     <TableHead className="text-right">Qty moved</TableHead>
-                    <TableHead>{transfer.from_location_name ?? "Source"}</TableHead>
-                    <TableHead>{transfer.to_location_name ?? "Destination"}</TableHead>
+                    <TableHead>{transfer.from_location_name ?? "From"}</TableHead>
+                    <TableHead>{transfer.to_location_name ?? "To"}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {transfer.items.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={4} className="text-muted-foreground text-center py-8">
-                        No items recorded for this transfer.
+                        No items in this move.
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -263,7 +265,7 @@ export default function TransferDetailPage({
                           <div className="font-medium">{item.item_name ?? "Item"}</div>
                           {item.received_as_name && (
                             <div className="text-primary text-xs">
-                              received as <strong>{item.received_as_name}</strong>
+                              the other place got <strong>{item.received_as_name}</strong>
                             </div>
                           )}
                         </TableCell>

@@ -85,7 +85,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({
                   {order.table_number ? (
                     <span className="font-medium text-foreground">Table {order.table_number}</span>
                   ) : (
-                    <span className="text-muted-foreground text-sm">None selected</span>
+                    <span className="text-muted-foreground text-sm">No table</span>
                   )}
                 </TableCell>
                 <TableCell className="font-medium text-sm">{waiterName}</TableCell>

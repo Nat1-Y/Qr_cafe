@@ -14,8 +14,8 @@ export const RevenueTrend: React.FC<RevenueTrendProps> = ({ points }) => {
     <Card className="transition-shadow">
       <CardHeader className="pb-3 border-b">
         <div>
-          <CardTitle>Revenue trend</CardTitle>
-          <CardDescription>Paid sales by business day</CardDescription>
+          <CardTitle>Money in over time</CardTitle>
+          <CardDescription>Paid sales for each day</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="pt-6">
@@ -37,7 +37,7 @@ export const RevenueTrend: React.FC<RevenueTrendProps> = ({ points }) => {
           </div>
         ) : (
           <div className="h-64 rounded-md border border-dashed bg-muted/20 flex items-center justify-center text-xs font-semibold text-muted-foreground">
-            No paid revenue found for the selected filters.
+            No paid sales for these filters.
           </div>
         )}
       </CardContent>

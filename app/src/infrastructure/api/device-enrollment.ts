@@ -20,7 +20,7 @@ export const enrollDevice = async (
   deviceName?: string,
 ): Promise<DeviceEnrollment> => {
   const trimmed = code.trim();
-  if (!trimmed) throw new Error("Enrollment code is required");
+  if (!trimmed) throw new Error("Enter the setup code.");
 
   const { data } = await api.post<EnrollResponse>("/devices/enroll", {
     code: trimmed,
@@ -28,7 +28,7 @@ export const enrollDevice = async (
   });
 
   if (!data?.token) {
-    throw new Error("Enrollment failed: no token returned");
+    throw new Error("That code didn't work. Check it and try again.");
   }
 
   const enrollment: DeviceEnrollment = {

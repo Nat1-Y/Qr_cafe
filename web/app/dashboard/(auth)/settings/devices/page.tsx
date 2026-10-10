@@ -37,6 +37,7 @@ import { PageHeader } from "@/components/page-header";
 import { Devices, DataCleanup } from "@/lib/resources";
 import { getBranchId } from "@/lib/api";
 import { humanize } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
 
 type EnrolledDevice = {
   id: string;
@@ -115,7 +116,7 @@ export default function DevicesPage() {
       setOnlineCount(devicesRes.online_count ?? 0);
       setCleanups(cleanupRes);
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setLoading(false);
       setDevicesLoading(false);
@@ -128,14 +129,14 @@ export default function DevicesPage() {
     try {
       if (action === "approve") {
         await DataCleanup.approve(id);
-        toast.success("Cleanup approved. The device will wipe once it syncs.");
+        toast.success("Approved. The device will clear its data after it sends its updates.");
       } else {
         await DataCleanup.reject(id);
-        toast.success("Cleanup request rejected.");
+        toast.success("Request turned down.");
       }
       await load();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setReviewingId(null);
     }
@@ -148,7 +149,7 @@ export default function DevicesPage() {
   async function rotate() {
     const branchId = getBranchId();
     if (!branchId) {
-      toast.error("Select a branch first.");
+      toast.error("Pick a branch first.");
       return;
     }
     setRotating(true);
@@ -156,10 +157,10 @@ export default function DevicesPage() {
       const res = await Devices.rotateEnrollmentCode(branchId);
       setCode(res.code);
       toast.success(
-        "New enrollment code generated. The previous code no longer works.",
+        "New setup code made. The old code no longer works.",
       );
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setRotating(false);
     }
@@ -177,11 +178,11 @@ export default function DevicesPage() {
         return next;
       });
       toast.success(
-        `${toKick.name ?? "Device"} kicked out. It will return to the enrollment screen.`,
+        `${toKick.name ?? "Device"} cleared and signed out. It will go back to the setup screen.`,
       );
       setToKick(null);
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setKicking(false);
     }
@@ -194,12 +195,12 @@ export default function DevicesPage() {
     try {
       await DataCleanup.push(branchId, toWipe.id);
       toast.success(
-        `Wipe queued for ${toWipe.name ?? "device"}. It clears once the device is online and fully synced.`,
+        `${toWipe.name ?? "The device"} will clear its data once it is online and has sent all updates.`,
       );
       setToWipe(null);
       await load();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     } finally {
       setWiping(false);
     }
@@ -209,25 +210,25 @@ export default function DevicesPage() {
     <div className="space-y-6">
       <PageHeader
         title="Devices"
-        description="The enrollment code POS installs use to join this branch."
+        description="The setup code tills use to join this branch."
       />
 
       <Card className="max-w-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MonitorSmartphoneIcon className="size-5" />
-            Branch enrollment code
+            Branch setup code
           </CardTitle>
           <CardDescription>
-            Enter this code on a desktop app's first run to pin that install to this
-            branch. The same code works for every device — rotate it to revoke
-            access for new enrollments (already-enrolled devices stay connected).
+            Type this code when you open the app on a new device to link it to this
+            branch. The same code works for every device. Make a new code to stop new
+            devices joining (devices already set up stay connected).
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-muted flex items-center justify-between rounded-md border p-4">
             <div>
-              <div className="text-muted-foreground text-xs">Enrollment code</div>
+              <div className="text-muted-foreground text-xs">Setup code</div>
               <div className="font-mono text-2xl">
                 {loading ? "…" : code || "Not set"}
               </div>
@@ -252,7 +253,7 @@ export default function DevicesPage() {
               </div>
               <p className="text-muted-foreground text-center text-xs">
                 On a new device, open the waiter app and tap{" "}
-                <span className="font-medium">Scan QR</span> to enroll without
+                <span className="font-medium">Scan QR</span> to set it up without
                 typing the code.
               </p>
             </div>
@@ -261,10 +262,10 @@ export default function DevicesPage() {
           <Button onClick={rotate} disabled={rotating || loading}>
             <RefreshCwIcon />
             {rotating
-              ? "Generating…"
+              ? "Making…"
               : code
-                ? "Rotate code"
-                : "Generate enrollment code"}
+                ? "Make a new code"
+                : "Make a setup code"}
           </Button>
         </CardContent>
       </Card>
@@ -273,20 +274,20 @@ export default function DevicesPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MonitorSmartphoneIcon className="size-5" />
-            Enrolled devices
+            Devices set up
           </CardTitle>
           <CardDescription>
             {devicesLoading
               ? "Loading devices…"
               : `${onlineCount} of ${devices.length} device${
                   devices.length === 1 ? "" : "s"
-                } online (heartbeat within 5 minutes).`}
+                } online (seen in the last 5 minutes).`}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {!devicesLoading && devices.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No devices enrolled to this branch yet.
+              No devices set up for this branch yet.
             </p>
           ) : (
             <ul className="divide-y">
@@ -319,8 +320,8 @@ export default function DevicesPage() {
                       size="icon"
                       title={
                         devicesWithActiveCleanup.has(d.id)
-                          ? "A cleanup is already queued for this device"
-                          : "Wipe this device's local data"
+                          ? "This device will already clear its data"
+                          : "Clear data on this device"
                       }
                       disabled={devicesWithActiveCleanup.has(d.id)}
                       onClick={() => setToWipe(d)}>
@@ -329,7 +330,7 @@ export default function DevicesPage() {
                     <Button
                       variant="destructive"
                       size="icon"
-                      title="Kick out this device"
+                      title="Clear and sign out this device"
                       onClick={() => setToKick(d)}>
                       <Trash2Icon />
                     </Button>
@@ -345,13 +346,10 @@ export default function DevicesPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <DatabaseIcon className="size-5" />
-            Data cleanup requests
+            Requests to clear old data
           </CardTitle>
           <CardDescription>
-            Requests a cashier sent from the desktop app, plus wipes you
-            pushed above. Approving (or pushing) clears the device&apos;s
-            local data and permanently deletes this branch&apos;s orders
-            &amp; payments. This can&apos;t be undone.
+            Requests cashiers sent from the till, and clears you started above. If you say yes, the device&apos;s data is cleared and this branch&apos;s orders and payments are deleted for good. You can&apos;t undo this.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -359,7 +357,7 @@ export default function DevicesPage() {
             <p className="text-muted-foreground text-sm">Loading requests…</p>
           ) : cleanups.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No cleanup requests for this branch.
+              No requests for this branch.
             </p>
           ) : (
             <ul className="divide-y">
@@ -384,7 +382,7 @@ export default function DevicesPage() {
                         disabled={reviewingId === r.id}
                         onClick={() => review(r.id, "reject")}>
                         <XIcon />
-                        Reject
+                        Say no
                       </Button>
                       <Button
                         size="sm"
@@ -395,7 +393,7 @@ export default function DevicesPage() {
                         ) : (
                           <CheckIcon />
                         )}
-                        Approve
+                        Say yes
                       </Button>
                     </div>
                   ) : (
@@ -419,13 +417,12 @@ export default function DevicesPage() {
         onOpenChange={(open) => !open && !wiping && setToWipe(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Wipe this device&apos;s local data?</DialogTitle>
+            <DialogTitle>Clear the data on this device?</DialogTitle>
             <DialogDescription>
-              {toWipe?.name ?? "This device"} will finish syncing, then
-              permanently clear all of its local data and this branch&apos;s
-              orders &amp; payments will be deleted. The device stays enrolled
-              and re-downloads menu, users and settings afterwards. This
-              can&apos;t be undone.
+              {toWipe?.name ?? "This device"} will send its last updates, then
+              clear all its data, and this branch&apos;s orders and payments
+              will be deleted. The device stays set up and downloads the menu,
+              staff and settings again after. You can&apos;t undo this.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -438,12 +435,12 @@ export default function DevicesPage() {
               {wiping ? (
                 <>
                   <Loader2Icon className="animate-spin" />
-                  Queuing…
+                  Sending…
                 </>
               ) : (
                 <>
                   <EraserIcon />
-                  Wipe device data
+                  Clear device data
                 </>
               )}
             </Button>
@@ -456,12 +453,11 @@ export default function DevicesPage() {
         onOpenChange={(open) => !open && !kicking && setToKick(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Kick out this device?</DialogTitle>
+            <DialogTitle>Clear and sign out this device?</DialogTitle>
             <DialogDescription>
               {toKick?.name ?? "This device"} will be removed and signed out
-              immediately. It will return to the enrollment screen and needs the
-              enrollment code (or a QR scan) to reconnect. This can&apos;t be
-              undone.
+              now. It goes back to the setup screen and needs the setup code (or
+              a QR scan) to join again. You can&apos;t undo this.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -474,12 +470,12 @@ export default function DevicesPage() {
               {kicking ? (
                 <>
                   <Loader2Icon className="animate-spin" />
-                  Kicking out…
+                  Signing out…
                 </>
               ) : (
                 <>
                   <Trash2Icon />
-                  Kick out
+                  Clear and sign out
                 </>
               )}
             </Button>

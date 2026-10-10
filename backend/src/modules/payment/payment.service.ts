@@ -415,7 +415,7 @@ export class PaymentService {
       .trim()
       .toLowerCase();
     if (!orderId || !department) {
-      throw new BadRequestException("order_id and department are required");
+      throw new BadRequestException("Choose an order and a section.");
     }
     const method = body.payment_method || "cash";
 

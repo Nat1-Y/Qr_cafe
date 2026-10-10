@@ -63,7 +63,7 @@ export function BranchSwitcher() {
         <Button variant="outline" size="sm" className="gap-2">
           <StoreIcon />
           <span className="max-w-40 truncate">
-            {currentBranch?.name ?? "Select branch"}
+            {currentBranch?.name ?? "Pick a branch"}
           </span>
           <ChevronsUpDownIcon className="size-3.5 opacity-60" />
         </Button>

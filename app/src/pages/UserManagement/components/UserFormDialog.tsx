@@ -37,7 +37,7 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({
   roles = []
 }) => {
   const roleList = roles.length > 0 ? roles : [
-    { id: 1, name: 'admin', display_name: 'Administrator', is_active: true },
+    { id: 1, name: 'admin', display_name: 'Manager', is_active: true },
     { id: 3, name: 'cashier', display_name: 'Cashier', is_active: true }
   ];
 
@@ -46,7 +46,7 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{selectedUser ? 'Edit User' : 'Add New User'}</DialogTitle>
+          <DialogTitle>{selectedUser ? 'Edit staff account' : 'Add staff account'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -60,7 +60,7 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({
 
           {/* Auth Mode Tabs */}
           <div className="space-y-2">
-            <Label>Authentication method</Label>
+            <Label>How they sign in</Label>
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -78,7 +78,7 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({
                 onClick={() => setAuthMode('pin')}
                 className="flex-1"
               >
-                4-Digit PIN
+                4-number PIN
               </Button>
             </div>
           </div>
@@ -86,28 +86,28 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({
           {authMode === 'password' ? (
             <div className="space-y-2">
               <Label htmlFor="password">Password {selectedUser && '(leave blank to keep)'}</Label>
-              <Input id="password" type="password" value={formData.password || ''} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))} required={!selectedUser} placeholder="Min 6 chars" />
+              <Input id="password" type="password" value={formData.password || ''} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))} required={!selectedUser} placeholder="At least 6 characters" />
             </div>
           ) : (
             <div className="space-y-2">
-              <Label htmlFor="pin">4-Digit PIN {selectedUser && '(leave blank to keep)'}</Label>
-              <Input id="pin" type="tel" value={formData.pin || ''} onChange={e => setFormData(p => ({ ...p, pin: e.target.value.replace(/\D/g, '').slice(0, 4) }))} required={!selectedUser} placeholder="Enter 4-digit PIN" maxLength={4} inputMode="numeric" />
+              <Label htmlFor="pin">4-number PIN {selectedUser && '(leave blank to keep)'}</Label>
+              <Input id="pin" type="tel" value={formData.pin || ''} onChange={e => setFormData(p => ({ ...p, pin: e.target.value.replace(/\D/g, '').slice(0, 4) }))} required={!selectedUser} placeholder="4-number PIN" maxLength={4} inputMode="numeric" />
             </div>
           )}
 
           {formData.role === 'admin' && authMode === 'password' && (
             <div className="space-y-2">
-              <Label htmlFor="cancel_password">Cancel password {selectedUser && '(leave blank to keep)'}</Label>
+              <Label htmlFor="cancel_password">Manager PIN for cancelling {selectedUser && '(leave blank to keep)'}</Label>
               <Input
                 id="cancel_password"
                 type="password"
                 value={formData.cancel_password || ''}
                 onChange={e => setFormData(p => ({ ...p, cancel_password: e.target.value }))}
-                placeholder="Admin override password used for order cancellations"
+                placeholder="Used when a cashier cancels an order"
                 autoComplete="new-password"
               />
               <p className="text-xs text-muted-foreground font-medium">
-                This password is cached locally for cashier cancellation checks.
+                The till keeps this so cashiers can cancel orders with it.
               </p>
             </div>
           )}
@@ -139,12 +139,12 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({
 
           <div className="flex items-center gap-2">
             <input type="checkbox" id="is_active" checked={formData.is_active} onChange={e => setFormData(p => ({ ...p, is_active: e.target.checked }))} className="rounded border-input" />
-            <Label htmlFor="is_active" className="cursor-pointer">Active user</Label>
+            <Label htmlFor="is_active" className="cursor-pointer">Account is active</Label>
           </div>
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button type="submit">{selectedUser ? 'Update User' : 'Create User'}</Button>
+            <Button type="submit">{selectedUser ? 'Save changes' : 'Add account'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -45,7 +45,7 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
       <SearchInput
           value={search}
-          placeholder="Search item..."
+          placeholder="Search items"
           onChange={(e) => onSearchChange(e.target.value)} wrapperClassName="flex-1 sm:flex-none sm:w-44" />
 
       <div className="flex flex-wrap items-center gap-2">
@@ -67,7 +67,7 @@ export const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="specific">Specific date</SelectItem>
+              <SelectItem value="specific">One day</SelectItem>
               <SelectItem value="range">Date range</SelectItem>
             </SelectContent>
           </Select>

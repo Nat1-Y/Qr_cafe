@@ -93,9 +93,9 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ initialFilterStatus =
                 <AlertTriangle className="h-4 w-4" />
               </div>
               <div className="space-y-1">
-                <p className="font-semibold text-destructive">Inventory shortage blocked order creation</p>
+                <p className="font-semibold text-destructive">Not enough stock for this order</p>
                 <p className="text-sm text-destructive">
-                  The order was not created because one or more ingredients are below the required quantity.
+                  The order was not sent because some ingredients are running out.
                 </p>
                 <ul className="space-y-1 text-sm text-destructive">
                   {inventoryShortage.slice(0, 3).map((item, index) => (
@@ -104,7 +104,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ initialFilterStatus =
                     </li>
                   ))}
                   {inventoryShortage.length > 3 && (
-                    <li>And {inventoryShortage.length - 3} more shortage{inventoryShortage.length - 3 === 1 ? '' : 's'}.</li>
+                    <li>And {inventoryShortage.length - 3} more item{inventoryShortage.length - 3 === 1 ? '' : 's'} running out.</li>
                   )}
                 </ul>
               </div>
@@ -130,7 +130,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ initialFilterStatus =
         menuMainCategoryById={menuMainCategoryById}
       />
 
-      {filteredOrders.length === 0 && <div className='text-center py-8 text-muted-foreground'>No orders found.</div>}
+      {filteredOrders.length === 0 && <div className='text-center py-8 text-muted-foreground'>No orders match.</div>}
       <OrdersList
         orders={paginatedOrders}
         selectedDate={selectedDate}

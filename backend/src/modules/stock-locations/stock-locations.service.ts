@@ -90,7 +90,7 @@ export class StockLocationsService {
     if (!name) throw new BadRequestException("Location name is required");
 
     const slug = slugify(payload?.slug || name);
-    if (!slug) throw new BadRequestException("Location slug is required");
+    if (!slug) throw new BadRequestException("Enter a name for this stock place.");
 
     const locationType = LOCATION_TYPES.has(payload?.location_type)
       ? payload.location_type
@@ -103,7 +103,7 @@ export class StockLocationsService {
       .where(and(eq(stockLocations.slug, slug), eq(stockLocations.branch_id, branchId)))
       .limit(1);
     if (existing) {
-      throw new BadRequestException(`Location slug "${slug}" already exists`);
+      throw new BadRequestException("A stock place with this name already exists.");
     }
 
     const isDefault = payload?.is_default === true;
@@ -180,7 +180,7 @@ export class StockLocationsService {
 
     if (payload?.slug !== undefined) {
       const slug = slugify(payload.slug);
-      if (!slug) throw new BadRequestException("Location slug is required");
+      if (!slug) throw new BadRequestException("Enter a name for this stock place.");
       const [conflict] = await db
         .select({ id: stockLocations.id })
         .from(stockLocations)
@@ -193,7 +193,7 @@ export class StockLocationsService {
         )
         .limit(1);
       if (conflict) {
-        throw new BadRequestException(`Location slug "${slug}" already exists`);
+        throw new BadRequestException("A stock place with this name already exists.");
       }
       updates.slug = slug;
     }
@@ -204,7 +204,7 @@ export class StockLocationsService {
 
     if (payload?.location_type !== undefined) {
       if (!LOCATION_TYPES.has(payload.location_type)) {
-        throw new BadRequestException("Invalid location type");
+        throw new BadRequestException("Choose a type of stock place.");
       }
       updates.location_type = payload.location_type;
     }

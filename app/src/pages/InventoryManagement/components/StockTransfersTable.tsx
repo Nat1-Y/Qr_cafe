@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { NormalizedInventoryItem, StockTransfer } from '../types';
+import { humanize } from '@/lib/format';
 
 interface StockTransfersTableProps {
   transfers: StockTransfer[];
@@ -24,7 +25,7 @@ export const StockTransfersTable: React.FC<StockTransfersTableProps> = ({ transf
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle>{showAll ? 'Transfer history' : 'Recent transfers'}</CardTitle>
+        <CardTitle>{showAll ? 'Stock moves' : 'Latest stock moves'}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {visibleTransfers.length > 0 ? visibleTransfers.map(transfer => (
@@ -37,7 +38,7 @@ export const StockTransfersTable: React.FC<StockTransfersTableProps> = ({ transf
                   {(transfer.to_location_name || transfer.to_location || '—')}
                 </div>
                 <span className="text-xs text-muted-foreground">
-                  {transfer.created_at ? new Date(transfer.created_at).toLocaleString() : 'Local transfer'}
+                  {transfer.created_at ? new Date(transfer.created_at).toLocaleString() : 'Not sent yet'}
                 </span>
               </div>
               <div className="text-xs text-muted-foreground">
@@ -48,7 +49,7 @@ export const StockTransfersTable: React.FC<StockTransfersTableProps> = ({ transf
                     ? ` → ${meta.received_as_name} (+${meta.received_quantity ?? line.quantity})`
                     : '';
                   return `${item?.name || 'Item'}: ${line.quantity}${receivedAs}`;
-                }).join(', ') || 'No line items'}
+                }).join(', ') || 'No items'}
               </div>
               {transfer.notes && (
                 <div className="text-xs text-muted-foreground">Note: {transfer.notes}</div>
@@ -56,7 +57,7 @@ export const StockTransfersTable: React.FC<StockTransfersTableProps> = ({ transf
             </div>
             <div className="flex items-center gap-2">
               <Badge variant={transfer.status === 'received' ? 'success' : 'secondary'} className="w-fit">
-                {transfer.status}
+                {humanize(transfer.status)}
               </Badge>
               {onReceive && transfer.status !== 'received' && (
                 <Button variant="outline" size="sm" className="h-7" onClick={() => onReceive(transfer)}>
@@ -71,7 +72,7 @@ export const StockTransfersTable: React.FC<StockTransfersTableProps> = ({ transf
             </div>
           </div>
         )) : (
-          <p className="text-sm text-muted-foreground">No stock transfers yet.</p>
+          <p className="text-sm text-muted-foreground">No stock moved yet.</p>
         )}
       </CardContent>
     </Card>

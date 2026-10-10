@@ -19,7 +19,7 @@ export const ReceiptFormatSettings: React.FC<ReceiptFormatSettingsProps> = ({
 
   return (
     <div className="bg-card rounded-lg p-4 space-y-4 max-h-96 overflow-y-auto">
-      <h3 className="font-semibold text-lg">Receipt format settings</h3>
+      <h3 className="font-semibold text-lg">Receipt layout</h3>
 
       {/* Business Information */}
       <div className="space-y-3">
@@ -107,7 +107,7 @@ export const ReceiptFormatSettings: React.FC<ReceiptFormatSettingsProps> = ({
 
       {/* Transaction Details */}
       <div className="space-y-3">
-        <h4 className="text-sm font-medium text-muted-foreground">Transaction details</h4>
+        <h4 className="text-sm font-medium text-muted-foreground">Order details</h4>
         <div className="space-y-2">
           <label className="flex items-center space-x-2">
             <input
@@ -125,7 +125,7 @@ export const ReceiptFormatSettings: React.FC<ReceiptFormatSettingsProps> = ({
               onChange={(e) => handleChange('showTableNumber', e.target.checked)}
               className="rounded"
             />
-            <span className="text-sm">Show Table number</span>
+            <span className="text-sm">Show table number</span>
           </label>
           <label className="flex items-center space-x-2">
             <input
@@ -243,7 +243,7 @@ export const ReceiptFormatSettings: React.FC<ReceiptFormatSettingsProps> = ({
               onChange={(e) => handleChange('showPaymentMethod', e.target.checked)}
               className="rounded"
             />
-            <span className="text-sm">Show payment method</span>
+            <span className="text-sm">Show how they paid</span>
           </label>
           <label className="flex items-center space-x-2">
             <input
@@ -252,7 +252,7 @@ export const ReceiptFormatSettings: React.FC<ReceiptFormatSettingsProps> = ({
               onChange={(e) => handleChange('showTransactionRef', e.target.checked)}
               className="rounded"
             />
-            <span className="text-sm">Show transaction reference</span>
+            <span className="text-sm">Show payment reference</span>
           </label>
         </div>
       </div>

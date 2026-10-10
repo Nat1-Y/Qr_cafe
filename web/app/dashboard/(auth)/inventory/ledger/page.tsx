@@ -19,7 +19,8 @@ import { DataTable, type Column } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
 import { StatCards, type StatCard } from "@/components/stat-cards";
 import { Inventory, StockLocations } from "@/lib/resources";
-import { shortDate } from "@/lib/format";
+import { shortDate, humanize } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
 
 type LedgerEntry = {
   id: string;
@@ -51,13 +52,13 @@ const TYPE_BADGE: Record<string, "success" | "warning" | "destructive" | "info" 
 };
 
 const TYPE_LABEL: Record<string, string> = {
-  sale: "Sale",
-  sale_reversal: "Sale reversal",
-  transfer_out: "Transfer out",
-  transfer_in: "Transfer in",
-  adjustment: "Adjustment",
+  sale: "Used by order",
+  sale_reversal: "Order cancelled, stock returned",
+  transfer_out: "Moved out",
+  transfer_in: "Moved in",
+  adjustment: "Stock count change",
   count: "Stock count",
-  initial: "Initial stock",
+  initial: "Starting stock",
 };
 
 const PAGE_SIZE = 25;
@@ -88,7 +89,7 @@ export default function InventoryLedgerPage() {
   useEffect(() => {
     StockLocations.list()
       .then(setLocations)
-      .catch((e: any) => toast.error(e.message));
+      .catch((e: any) => toast.error(friendlyError(e)));
   }, []);
 
   const reload = useCallback(() => {
@@ -105,7 +106,7 @@ export default function InventoryLedgerPage() {
         setCount(res.count);
         setStats(res.stats as Record<string, number>);
       })
-      .catch((e: any) => toast.error(e.message))
+      .catch((e: any) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, [page, debouncedSearch, movementType, locationId, dateFrom, dateTo]);
 
@@ -118,14 +119,14 @@ export default function InventoryLedgerPage() {
     {
       label: "Added",
       value: (stats.total_in ?? 0).toLocaleString(),
-      hint: "Stock-ins, reversals, transfers in",
+      hint: "New stock, cancelled orders, moved in",
       icon: TrendingUpIcon,
       valueClass: "text-success",
     },
     {
-      label: "Deducted",
+      label: "Used",
       value: (stats.total_out ?? 0).toLocaleString(),
-      hint: "Sales, transfers out",
+      hint: "Used by orders, moved out",
       icon: TrendingDownIcon,
       valueClass: "text-destructive",
     },
@@ -157,7 +158,7 @@ export default function InventoryLedgerPage() {
       label: "Type",
       render: (r) => (
         <Badge variant={TYPE_BADGE[r.movement_type] ?? "muted"}>
-          {TYPE_LABEL[r.movement_type] ?? r.movement_type}
+          {TYPE_LABEL[r.movement_type] ?? humanize(r.movement_type)}
         </Badge>
       ),
     },
@@ -180,7 +181,7 @@ export default function InventoryLedgerPage() {
     },
     {
       key: "quantity_after",
-      label: "Balance left",
+      label: "Left after",
       render: (r) => (
         <span className="font-semibold tabular-nums">
           {r.quantity_after ?? "—"} {r.base_unit ?? ""}
@@ -189,7 +190,7 @@ export default function InventoryLedgerPage() {
     },
     {
       key: "reference",
-      label: "Reference",
+      label: "From",
       render: (r) => {
         if (r.order_id) {
           return (
@@ -221,8 +222,8 @@ export default function InventoryLedgerPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Inventory ledger"
-        description="Full audit trail of every stock deduction and addition, with the balance left after each entry."
+        title="Stock history"
+        description="Every time stock was used or added, and how much was left after."
       />
 
       <StatCards cards={cards} loading={loading} />
@@ -249,7 +250,7 @@ export default function InventoryLedgerPage() {
             setDateTo(range.to);
           },
         }}
-        emptyMessage="No stock movements recorded yet."
+        emptyMessage="No stock changes yet."
         filters={[
           {
             key: "movement_type",
@@ -258,7 +259,7 @@ export default function InventoryLedgerPage() {
           },
           {
             key: "location",
-            label: "Location",
+            label: "Stock place",
             options: locations.map((l) => ({ value: l.id, label: l.name })),
           },
         ]}

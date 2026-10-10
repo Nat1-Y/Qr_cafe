@@ -32,10 +32,10 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
       <TableHeader>
         <TableRow>
           <TableHead className="text-foreground">Item</TableHead>
-          <TableHead className="text-center text-foreground">Stock (purchase unit)</TableHead>
-          <TableHead className="text-center text-foreground">Stock (base unit)</TableHead>
-          <TableHead className="text-center text-foreground">Unit configuration</TableHead>
-          <TableHead className="text-center text-foreground">Limit &amp; Status</TableHead>
+          <TableHead className="text-center text-foreground">Stock (buying unit)</TableHead>
+          <TableHead className="text-center text-foreground">Stock (small unit)</TableHead>
+          <TableHead className="text-center text-foreground">Units</TableHead>
+          <TableHead className="text-center text-foreground">Warning level</TableHead>
           <TableHead className="text-right text-foreground pr-4">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -59,7 +59,7 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
             } else {
               const globalMin = Number(item.min_quantity || 0);
               isLow = selectedLocationDefault && globalMin > 0 && qty < globalMin;
-              if (globalMin > 0) limitText = `${globalMin} ${item.base_unit || 'pcs'} (Global)`;
+              if (globalMin > 0) limitText = `${globalMin} ${item.base_unit || 'pcs'} (all places)`;
             }
 
             return (
@@ -84,7 +84,7 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
                       1 {item.unit || 'Box'} = {piecesPerUnit} {item.base_unit || 'pcs'}
                     </span>
                   ) : (
-                    <span className="text-xs text-muted-foreground/50 italic">Single unit item</span>
+                    <span className="text-xs text-muted-foreground/50 italic">One unit only</span>
                   )}
                 </TableCell>
                 <TableCell className="text-center">
@@ -94,7 +94,7 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
                     ) : isLow ? (
                       <Badge variant="warning" className="px-2 bg-warning/15 text-warning border-warning/20">Low stock</Badge>
                     ) : (
-                      <Badge variant="outline" className="px-2 bg-success/10 text-success border-success/20">Healthy</Badge>
+                      <Badge variant="outline" className="px-2 bg-success/10 text-success border-success/20">Enough</Badge>
                     )}
                   
                   </div>
@@ -107,7 +107,7 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
                       className="h-7 bg-background hover:bg-primary/10 hover:text-primary hover:border-primary/30" 
                       onClick={() => onUpdateQty(item)}
                     >
-                      Update qty
+                      Change amount
                     </Button>
                     <Button 
                       variant="ghost" 
@@ -144,7 +144,7 @@ export const ItemsTable: React.FC<ItemsTableProps> = ({
         ) : (
           <TableRow>
             <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
-              No items available
+              No stock items yet
             </TableCell>
           </TableRow>
         )}

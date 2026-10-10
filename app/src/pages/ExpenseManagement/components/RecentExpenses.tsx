@@ -3,7 +3,7 @@ import { Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Expense } from '../types';
 import { formatDateTime } from '../utils';
-import { formatETB } from '@/lib/format';
+import { formatETB, humanize } from '@/lib/format';
 
 interface RecentExpensesProps {
   recentExpenses: Expense[];
@@ -20,7 +20,7 @@ export const RecentExpenses: React.FC<RecentExpensesProps> = ({ recentExpenses }
         <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
           {recentExpenses.length === 0 ? (
             <div className="text-center text-xs font-medium text-muted-foreground py-8 border border-dashed rounded-xl bg-muted/20">
-              No recent expenses to display
+              No expenses yet
             </div>
           ) : (
             recentExpenses.map((expense) => (
@@ -28,7 +28,7 @@ export const RecentExpenses: React.FC<RecentExpensesProps> = ({ recentExpenses }
                 <div className="min-w-0">
                   <p className="font-semibold text-sm text-foreground truncate">{expense.title}</p>
                   <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                    {expense.category} · {expense.payment_method} · {expense.paid_to || 'No payee'}
+                    {humanize(expense.category)} · {humanize(expense.payment_method)} · {expense.paid_to || 'No one named'}
                   </p>
                 </div>
                 <div className="text-right shrink-0">

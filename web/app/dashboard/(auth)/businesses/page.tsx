@@ -8,7 +8,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { DataTable, type Column } from "@/components/data-table";
 import { apiFetch } from "@/lib/api";
-import { formatETB } from "@/lib/format";
+import { formatETB, humanize } from "@/lib/format";
+import { friendlyError } from "@/lib/errors";
 
 type Business = {
   id: string;
@@ -35,11 +36,10 @@ const columns: Column<Business>[] = [
           className="font-medium hover:underline">
           {b.name}
         </Link>
-        <div className="text-muted-foreground text-xs">{b.slug}</div>
       </>
     ),
   },
-  { key: "plan", label: "Plan", className: "capitalize" },
+  { key: "plan", label: "Package", render: (b) => humanize(b.plan) },
   {
     key: "branch_count",
     label: "Branches",
@@ -70,7 +70,7 @@ const columns: Column<Business>[] = [
   },
   {
     key: "revenue",
-    label: "Revenue",
+    label: "Money in",
     sortable: true,
     sortValue: (b) => b.revenue,
     render: (b) => <span className="font-medium">{formatETB(b.revenue)}</span>,
@@ -90,7 +90,7 @@ export default function BusinessesPage() {
   useEffect(() => {
     apiFetch<Business[]>("/platform/businesses")
       .then(setRows)
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error(friendlyError(e)))
       .finally(() => setLoading(false));
   }, []);
 
@@ -117,11 +117,11 @@ export default function BusinessesPage() {
         loading={loading}
         searchKeys={["name", "plan"]}
         searchPlaceholder="Search businesses…"
-        emptyMessage="No businesses yet. Create your first one."
+        emptyMessage="No businesses yet. Add your first one."
         filters={[
           {
             key: "plan",
-            label: "Plan",
+            label: "Package",
             options: [
               { value: "free", label: "Free" },
               { value: "basic", label: "Basic" },
@@ -134,7 +134,7 @@ export default function BusinessesPage() {
             label: "Status",
             options: [
               { value: "active", label: "Active" },
-              { value: "suspended", label: "Suspended" },
+              { value: "suspended", label: "Paused" },
             ],
             match: (b, v) => (v === "active" ? b.is_active : !b.is_active),
           },
@@ -153,7 +153,7 @@ function StatusBadge({ active }: { active: boolean }) {
           ? "bg-success-soft text-success"
           : "bg-muted text-muted-foreground")
       }>
-      {active ? "Active" : "Suspended"}
+      {active ? "Active" : "Paused"}
     </span>
   );
 }

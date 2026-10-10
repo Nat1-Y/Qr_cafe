@@ -40,7 +40,7 @@ export class ExpensesService {
   private normalizeAmount(value: any): number {
     const amount = Math.round(Number(value));
     if (!Number.isFinite(amount) || amount < 0) {
-      throw new BadRequestException("Amount must be a non-negative number");
+      throw new BadRequestException("Enter an amount of 0 or more.");
     }
     return amount;
   }
@@ -49,7 +49,7 @@ export class ExpensesService {
     if (value === undefined || value === null || value === "") return null;
     const dt = new Date(value);
     if (Number.isNaN(dt.getTime())) {
-      throw new BadRequestException("Invalid date");
+      throw new BadRequestException("Check the date and try again.");
     }
     return dt;
   }

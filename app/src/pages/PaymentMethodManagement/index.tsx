@@ -30,8 +30,8 @@ export const PaymentMethodManagement: React.FC = () => {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
-        title="Payment methods"
-        description="How guests can pay at the till, like cash or telebirr."
+        title="Payment types"
+        description="How customers can pay at the till, like cash or telebirr."
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={fetchMethods} disabled={loading}>
@@ -40,7 +40,7 @@ export const PaymentMethodManagement: React.FC = () => {
             </Button>
             <Button onClick={openAdd} disabled={!online}>
               <Plus />
-              Add method
+              Add payment type
             </Button>
           </div>
         }
