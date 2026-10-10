@@ -113,7 +113,7 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
                     <EmptyState
                       icon={<CreditCard />}
                       title="No payments found"
-                      description="Try adjusting filters"
+                      description="Try clearing the filters."
                     />
                   </TableCell>
                 </TableRow>

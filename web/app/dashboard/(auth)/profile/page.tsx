@@ -117,7 +117,7 @@ export default function ProfilePage() {
     <div className="space-y-6">
       <PageHeader
         title="Profile"
-        description="Manage your account information and password."
+        description="Your name, contact details and password."
       />
 
       <div className="grid gap-6 lg:grid-cols-3">

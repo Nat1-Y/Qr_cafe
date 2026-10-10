@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, RefreshCw } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import PageHeader from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { LocationStats } from './components/LocationStats';

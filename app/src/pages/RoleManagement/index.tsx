@@ -1,8 +1,7 @@
 import React from 'react';
-import { Plus, RefreshCw, Shield, UserCog } from 'lucide-react';
+import { Plus, RefreshCw } from 'lucide-react';
 import PageHeader from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { RoleStats } from './components/RoleStats';
 import { RolesTable } from './components/RolesTable';
 import { RoleFormDialog } from './components/RoleFormDialog';
@@ -32,7 +31,7 @@ export const RoleManagement: React.FC = () => {
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Role management"
-        description="Create and manage custom roles for assigning to users"
+        description="What each role can see and do."
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={fetchRoles} disabled={loading}>

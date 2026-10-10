@@ -53,7 +53,7 @@ export const MenuItemGrid: React.FC<MenuItemGridProps> = ({
       <EmptyState
         icon={<Utensils />}
         title="No items found"
-        description="Try adjusting your search or filter criteria"
+        description="Try another word, or clear the filters."
         action={
           isAdmin ? (
             <Button onClick={onOpenAdd}>

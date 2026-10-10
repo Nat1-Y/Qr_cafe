@@ -1,7 +1,6 @@
 import React from "react";
 import { Plus, LogOut } from "lucide-react";
 import BranchBadge from "@/components/waiter/BranchBadge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 interface OrderHistoryHeaderProps {

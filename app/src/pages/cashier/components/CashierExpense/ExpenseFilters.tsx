@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input, SearchInput } from '@/components/ui/input';
 import {

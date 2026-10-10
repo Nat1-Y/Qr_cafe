@@ -80,7 +80,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ initialFilterStatus =
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Order management"
-        description="Manage orders and track progress"
+        description="Every order, newest first."
       />
 
       <OrderStats orders={filteredOrders} paidOrderIdSet={paidOrderIdSet} />

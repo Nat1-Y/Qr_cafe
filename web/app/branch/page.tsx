@@ -100,7 +100,7 @@ export default function BranchLoginPage() {
     setLoading(true);
     try {
       const user = await operatorLogin(username.trim(), password);
-      toast.success("Welcome back");
+      toast.success("Signed in");
       router.push(landingRoute(user.role));
     } catch (err: any) {
       toast.error(err.message || "Login failed");

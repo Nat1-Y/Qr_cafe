@@ -31,7 +31,7 @@ export const PaymentMethodManagement: React.FC = () => {
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Payment methods"
-        description="Manage the payment methods displayed at checkout"
+        description="How guests can pay at the till, like cash or telebirr."
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={fetchMethods} disabled={loading}>

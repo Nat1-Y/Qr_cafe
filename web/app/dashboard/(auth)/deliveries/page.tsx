@@ -97,7 +97,7 @@ type Courier = {
   phone: string | null;
 };
 
-// Small uppercase icon+label heading used to separate the Manage dialog's
+// Small icon+label heading used to separate the Manage dialog's
 // sections (items / status / courier / payments) so a dense form reads as
 // distinct steps instead of one long stack of fields.
 function SectionLabel({

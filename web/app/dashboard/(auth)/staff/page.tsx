@@ -124,7 +124,7 @@ export default function StaffPage() {
     <div className="space-y-6">
       <PageHeader
         title="Staff"
-        description="Manage POS logins and review each employee's order activity."
+        description="Staff logins, and what each person has sold."
         action={
           <Button variant="outline" asChild>
             <Link href="/dashboard/staff/bulk-import">

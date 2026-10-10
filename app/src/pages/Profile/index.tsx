@@ -45,7 +45,7 @@ export const Profile: React.FC = () => {
     <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
       <PageHeader
         title="Profile"
-        description="Manage your account information and preferences"
+        description="Your name, contact details and password."
         actions={
           isWaiter && (
             <Button variant="outline" size="sm" onClick={handleLogout} disabled={isLoading}>

@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User as UserIcon, Mail, Shield, Edit3, X, Save, WifiOff } from 'lucide-react';
+import { User as UserIcon, Shield, Edit3, X, Save, WifiOff } from 'lucide-react';
 import { ProfileFormData } from '../types';
 
 interface ProfileFormProps {

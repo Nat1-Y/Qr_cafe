@@ -1,7 +1,7 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input, SearchInput } from '@/components/ui/input';
-import { Search, Filter } from 'lucide-react';
+import { SearchInput } from '@/components/ui/input';
+import { Filter } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 
 interface QueryBarProps {

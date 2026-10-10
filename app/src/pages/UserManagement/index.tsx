@@ -41,7 +41,7 @@ export const UserManagement: React.FC = () => {
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="User management"
-        description="Manage system users and their permissions"
+        description="Who can sign in, and with which role."
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={handleManualSync} disabled={syncStatus.syncing || !syncStatus.online}>

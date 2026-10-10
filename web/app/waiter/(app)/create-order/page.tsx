@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/waiter/LoadingSpinner";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { formatOrderNumber } from "@/lib/utils";
 
 import { useWaiterCreateOrder } from "@/components/waiter/create-order/useWaiterCreateOrder";

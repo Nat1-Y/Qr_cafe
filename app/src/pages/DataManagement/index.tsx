@@ -144,7 +144,7 @@ const DataManagement = () => {
         <div className="p-4 md:p-8 space-y-6">
             <PageHeader
                 title="Settings"
-                description="System configuration and data management"
+                description="Backups, resets and other data housekeeping."
             />
 
             <div className="max-w-2xl mx-auto">

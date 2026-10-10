@@ -20,7 +20,7 @@ export const EmployeeManagement: React.FC = () => {
     <div className="p-4 md:p-8 space-y-6">
       <PageHeader
         title="Employee management"
-        description="Live server orders created by employees"
+        description="Orders each employee has taken."
       />
 
       <EmployeeFilters

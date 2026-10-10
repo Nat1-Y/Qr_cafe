@@ -137,7 +137,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                     <EmptyState
                       icon={<Package />}
                       title="No items found"
-                      description="Add inventory items to track stock"
+                      description="Add stock items to start counting them."
                     />
                   </TableCell>
                 </TableRow>

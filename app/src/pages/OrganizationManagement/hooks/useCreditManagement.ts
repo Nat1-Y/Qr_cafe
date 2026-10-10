@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import api from '@/application';
-import { Payment, Transaction, TransactionHistoryData, CreditSummary, ServiceRow } from '../types';
+import { Payment, Transaction, TransactionHistoryData, ServiceRow } from '../types';
 import { DEFAULT_HISTORY_LIMIT } from '../constants';
 
 export const useCreditManagement = (orgs: any[]) => {

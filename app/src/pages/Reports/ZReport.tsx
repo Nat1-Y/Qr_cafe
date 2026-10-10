@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Printer, Download, Calendar as CalendarIcon } from 'lucide-react';
+import { Printer } from 'lucide-react';
 import { printZReport } from '@/utils/receiptPrinter';
 import api from '@/application';
 import { DatePicker } from '@/components/ui/date-picker';

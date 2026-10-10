@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/waiter/LoadingSpinner";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input, SearchInput } from "@/components/ui/input";
 import { EmptyState } from "@/components/empty-state";
 import StatsCard from "@/components/waiter/StatsCard";

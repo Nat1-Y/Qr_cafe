@@ -1,28 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  UtensilsCrossedIcon,
-  BoxesIcon,
-  ReceiptTextIcon,
-  ArmchairIcon,
-  TrendingUpIcon,
-  WalletIcon,
-  ClockIcon,
-} from "lucide-react";
 import { toast } from "sonner";
 
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { PageHeader } from "@/components/page-header";
 import { DateFilterBar } from "@/components/date-filter-bar";
 import { Menu, Inventory, Tables, Orders, Payments } from "@/lib/resources";

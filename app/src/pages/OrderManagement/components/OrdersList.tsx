@@ -1,4 +1,4 @@
-import { uuidToDisplayId, formatOrderNumber, getOrderSource, displayStatus } from "@/lib/utils";
+import { formatOrderNumber, getOrderSource, displayStatus } from "@/lib/utils";
 import StatusBadge from '@/components/common/StatusBadge';
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';

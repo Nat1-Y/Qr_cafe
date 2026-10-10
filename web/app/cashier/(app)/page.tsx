@@ -118,6 +118,22 @@ type QueueOrder = {
 // reopens it — mirrors the desktop/waiter portals' canAddItems.
 const ADDABLE_STATUSES = new Set(["pending", "done"]);
 
+// Receipt-style item lines: "qty × name" with the amount on the right.
+const ItemLines = ({ items }: { items: Item[] }) =>
+  items.length > 0 ? (
+    <ul className="space-y-0.5 text-sm">
+      {items.map((it, i) => (
+        <li key={it.id || i} className="flex items-baseline justify-between gap-3">
+          <span className="min-w-0 truncate text-body">
+            <span className="text-muted-foreground">{parseInt(String(it.quantity), 10) || 1} ×</span>{" "}
+            {it.menu_item_name || it.name || "Item"}
+          </span>
+          <span className="shrink-0 text-muted-foreground">{formatCurrency(itemSubtotal(it))}</span>
+        </li>
+      ))}
+    </ul>
+  ) : null;
+
 type ConfirmTarget =
   | { kind: "department"; order: QueueOrder; due: Due }
   | { kind: "whole"; order: QueueOrder };
@@ -587,20 +603,6 @@ export default function CashierQueuePage() {
     [],
   );
 
-  const ItemLines = ({ items }: { items: Item[] }) =>
-    items.length > 0 ? (
-      <ul className="space-y-0.5 text-sm">
-        {items.map((it, i) => (
-          <li key={it.id || i} className="flex items-baseline justify-between gap-3">
-            <span className="min-w-0 truncate text-body">
-              <span className="text-muted-foreground">{parseInt(String(it.quantity), 10) || 1} ×</span>{" "}
-              {it.menu_item_name || it.name || "Item"}
-            </span>
-            <span className="shrink-0 text-muted-foreground">{formatCurrency(itemSubtotal(it))}</span>
-          </li>
-        ))}
-      </ul>
-    ) : null;
 
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 

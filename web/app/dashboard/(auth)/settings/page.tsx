@@ -66,7 +66,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Settings"
-        description="Manage your account and how this business operates."
+        description="How this business runs: payments, delivery, roles and devices."
       />
 
       <Card className="gap-0 overflow-hidden py-0">

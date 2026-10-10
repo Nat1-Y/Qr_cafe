@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeftRight, RefreshCw } from 'lucide-react';
+import { ArrowLeftRight } from 'lucide-react';
 import PageHeader from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import useInventoryData from '../InventoryManagement/hooks/useInventoryData';

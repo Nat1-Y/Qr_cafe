@@ -164,13 +164,6 @@ export default function WaiterLoginPage() {
     [selected],
   );
 
-  // Split in half for the desktop left/right layout; the mobile/tablet
-  // fallback shows the full list in one panel instead.
-  const [leftItems, rightItems] = useMemo(() => {
-    const half = Math.ceil(visibleItems.length / 2);
-    return [visibleItems.slice(0, half), visibleItems.slice(half)];
-  }, [visibleItems]);
-
   const triggerShake = useCallback(() => {
     setShake(true);
     setTimeout(() => setShake(false), 450);

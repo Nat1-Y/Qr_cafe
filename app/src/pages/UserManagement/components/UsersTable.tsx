@@ -91,7 +91,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                     <EmptyState
                       icon={<Filter />}
                       title="No users found"
-                      description="Try adjusting your search or filter criteria"
+                      description="Try another word, or clear the filters."
                     />
                   </TableCell>
                 </TableRow>

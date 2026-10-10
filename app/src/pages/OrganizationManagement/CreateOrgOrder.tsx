@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Minus, Plus, Search } from 'lucide-react';
+import { ArrowLeft, Minus, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';

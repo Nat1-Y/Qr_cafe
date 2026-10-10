@@ -12,12 +12,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 import { apiFetch } from "@/lib/api";
 import { formatETB } from "@/lib/format";

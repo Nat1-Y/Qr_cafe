@@ -1,7 +1,7 @@
 import React from 'react';
-import { Search } from 'lucide-react';
+
 import { Card, CardContent } from '@/components/ui/card';
-import { Input, SearchInput } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/input';
 
 interface InventoryFiltersProps {
   searchTerm: string;

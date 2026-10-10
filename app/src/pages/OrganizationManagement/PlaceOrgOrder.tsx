@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Search } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageHeader from '@/components/layout/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input, SearchInput } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/application';
