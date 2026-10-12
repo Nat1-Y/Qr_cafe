@@ -36,7 +36,8 @@ export function AuthSplitLayout({
             <p className="mt-4 text-base text-sidebar-muted">{subline}</p>
           </div>
         )}
-        <p className="text-meta text-sidebar-muted">© {new Date().getFullYear()} Syntax Software Solution</p>
+        {/* Keeps the headline centred between the logo and the bottom edge. */}
+        <span aria-hidden="true" />
       </aside>
 
       <main className="flex min-h-screen flex-col px-4 py-8 md:px-12">

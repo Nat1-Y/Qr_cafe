@@ -31,14 +31,8 @@ const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({
         <p className="text-[34px] font-semibold leading-[1.15] tracking-[-0.02em]">{headline}</p>
         <p className="mt-4 text-base text-sidebar-muted">{subline}</p>
       </div>
-      <a
-        href="https://syntaxsoftwaresolution.com/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-meta text-sidebar-muted transition-colors hover:text-sidebar-foreground"
-      >
-        © Syntax Software Solution
-      </a>
+      {/* Keeps the headline centred between the logo and the bottom edge. */}
+      <span aria-hidden="true" />
     </aside>
 
     <main className="flex min-h-screen flex-col px-4 py-8 md:px-12">
