@@ -12,6 +12,7 @@ import {
 import { users } from "./users.table";
 import { organizations } from "./organizations.table";
 import { deliveryMethods } from "./delivery_methods.table";
+import { customerSessions } from "./customer-sessions.table";
 import { tenantColumns } from "./_tenant";
 
 export const orders = pgTable(
@@ -51,6 +52,13 @@ export const orders = pgTable(
   total_amount: integer("total_amount"),
   total_cents: integer("total_cents").default(0),
   notes: text("notes"),
+  // Where the order was placed — see ORDER_SOURCE. Never changes after create.
+  source: varchar("source", { length: 20 }).default("waiter").notNull(),
+  // The guest's QR session for source='qr' orders; null for staff orders.
+  customer_session_id: uuid("customer_session_id").references(
+    () => customerSessions.id,
+    { onDelete: "set null" },
+  ),
   meta: json("meta"),
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),
@@ -58,5 +66,10 @@ export const orders = pgTable(
   (t) => [
     index("orders_branch_id_idx").on(t.branch_id),
     index("orders_branch_created_idx").on(t.branch_id, t.created_at),
+    index("orders_branch_source_created_idx").on(
+      t.branch_id,
+      t.source,
+      t.created_at,
+    ),
   ],
 );

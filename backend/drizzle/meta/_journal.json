@@ -120,6 +120,13 @@
       "when": 1791473211008,
       "tag": "0016_conscious_ogun",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792008058509,
+      "tag": "0017_qr_self_ordering",
+      "breakpoints": true
     }
   ]
 }

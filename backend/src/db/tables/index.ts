@@ -34,6 +34,8 @@ export * from "./recipes.table";
 export * from "./recipe-ingredients.table";
 export * from "./system-settings.table";
 export * from "./dining-tables.table";
+export * from "./customer-sessions.table";
+export * from "./payment-intents.table";
 export * from "./organizations.table";
 export * from "./org-credit-payments.table";
 export * from "./org-credit-transactions.table";
