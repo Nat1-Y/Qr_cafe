@@ -233,6 +233,27 @@ export class CustomerController {
     return { status: "success", data: { received: true, at: request.created_at } };
   }
 
+  /** The guest picked a way to pay (only shown when more than one is enabled). */
+  @Post("t/:qrToken/orders/:orderId/pay")
+  @HttpCode(200)
+  async startPayment(
+    @Param("qrToken") token: string,
+    @Param("orderId", new ParseUUIDPipe()) orderId: string,
+    @Body() body: unknown,
+    @Headers(SESSION_HEADER) headerSession?: string,
+  ) {
+    const table = await this.access.resolve(token);
+    const session = await this.sessions.require(table, headerSession ?? sessionFromBody(body));
+    this.limiter.consume(`order:s:${session.id}`, RATE_RULES.orderPerSession, TOO_MANY_ORDERS);
+    const provider = String((body as { provider?: unknown } | null)?.provider ?? "");
+    const started = await this.access.run(table, async () => {
+      const mine = (await this.orders.listForSession(session)).find((o) => o.id === orderId);
+      if (!mine) throw new NotFoundException("We couldn't find that order.");
+      return this.intents.start(table.branchId, provider, mine, String((body as { return_url?: unknown } | null)?.return_url ?? ""));
+    });
+    return { status: "success", data: started };
+  }
+
   /** "How would you like to pay?" — only enabled providers. */
   @Get("t/:qrToken/payment-options")
   async paymentOptions(@Param("qrToken") token: string) {

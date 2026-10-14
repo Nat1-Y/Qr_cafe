@@ -7,6 +7,12 @@ import { waiterServices as api } from "@/lib/waiter/api";
 import { useWaiterAuth } from "@/components/waiter/auth-context";
 import { toast } from "sonner";
 import { ADD_ITEMS_ORDER_SESSION_KEY } from "@/components/waiter/order-history/useWaiterOrderHistory";
+import {
+  extractMenuItemsFromResponse,
+  normalizeMainCategory,
+  normalizeMenuItems,
+} from "@/lib/ordering/menu";
+import { buildWaiterOrderLines, waiterCartTotal } from "@/lib/ordering/cart";
 import { formatETB } from "@/lib/format";
 import { friendlyError } from "@/lib/errors";
 
@@ -72,55 +78,7 @@ export const useWaiterCreateOrder = () => {
     router.push("/waiter/login");
   }, [logout, router]);
 
-  const normalizeMainCategory = useCallback((value: any) => {
-    const v = String(value || "")
-      .trim()
-      .toLowerCase();
-    return v || "other";
-  }, []);
-
-  const extractMenuItemsFromResponse = useCallback((response: any) => {
-    const payload = response?.data;
-    const candidates = [
-      payload?.data?.menuItems,
-      payload?.menuItems,
-      payload?.data?.items,
-      payload?.items,
-      payload?.data,
-      payload,
-    ];
-
-    for (const candidate of candidates) {
-      if (Array.isArray(candidate)) return candidate;
-    }
-
-    return [];
-  }, []);
-
   const fetchData = useCallback(async () => {
-    const normalizeMenuItems = (rawItems: any[]) => {
-      const normalizedItems = Array.isArray(rawItems)
-        ? rawItems.map((item) => ({
-            ...item,
-            main_category:
-              item.meta?.main_category ||
-              item.main_category ||
-              normalizeMainCategory(item.category),
-            category: item.category,
-            sub_category:
-              item.meta?.sub_category ||
-              item.sub_category ||
-              item.category ||
-              "",
-            is_available:
-              typeof item.is_available === "boolean"
-                ? item.is_available
-                : (item.available ?? true),
-          }))
-        : [];
-      return normalizedItems.filter((item) => item.is_available);
-    };
-
     try {
       setLoading(true);
 
@@ -232,7 +190,7 @@ export const useWaiterCreateOrder = () => {
     } finally {
       setLoading(false);
     }
-  }, [normalizeMainCategory, extractMenuItemsFromResponse, user?.id]);
+  }, [user?.id]);
 
   useEffect(() => {
     fetchData();
@@ -276,7 +234,7 @@ export const useWaiterCreateOrder = () => {
           normalizeMainCategory(entry.name) === normalizeMainCategory(category),
       );
     },
-    [getItemCategories, normalizeMainCategory, slugifyCategory],
+    [getItemCategories, slugifyCategory],
   );
 
   const isFastingCategory = useCallback((_cat: any) => {
@@ -290,7 +248,7 @@ export const useWaiterCreateOrder = () => {
       if (v === "barista") return "Barista";
       return v.charAt(0).toUpperCase() + v.slice(1);
     },
-    [normalizeMainCategory],
+    [],
   );
 
   // Filter items by category
@@ -351,7 +309,6 @@ export const useWaiterCreateOrder = () => {
     menuItems,
     getItemCategories,
     itemHasCategory,
-    normalizeMainCategory,
     isFastingCategory,
     stockFilter,
     availabilityByItem,
@@ -379,7 +336,7 @@ export const useWaiterCreateOrder = () => {
     });
 
     return categories;
-  }, [getItemCategories, menuItems, normalizeMainCategory]);
+  }, [getItemCategories, menuItems]);
 
   const getCategories = useCallback(() => {
     const seen = new Set<string>();
@@ -403,7 +360,7 @@ export const useWaiterCreateOrder = () => {
     });
 
     return categories;
-  }, [selectedMainCategory, menuItems, itemHasCategory, normalizeMainCategory]);
+  }, [selectedMainCategory, menuItems, itemHasCategory]);
 
   const addToOrder = useCallback(
     (menuItem: any) => {
@@ -439,7 +396,7 @@ export const useWaiterCreateOrder = () => {
 
       toast.success("Added", {
         id: "waiter-add-to-order",
-        duration: 1000,
+        duration: 1000,
       });
     },
     [orderItems],
@@ -473,11 +430,7 @@ export const useWaiterCreateOrder = () => {
     );
   }, []);
 
-  const calculateTotal = useCallback(() => {
-    return orderItems
-      .reduce((sum, item) => sum + parseFloat(item.price) * item.quantity, 0)
-      .toFixed(2);
-  }, [orderItems]);
+  const calculateTotal = useCallback(() => waiterCartTotal(orderItems), [orderItems]);
 
   const categorizeOrderItems = useCallback(() => {
     const beverageItems: any[] = [];
@@ -540,21 +493,7 @@ export const useWaiterCreateOrder = () => {
 
       if (isAddMode && orderIdParam) {
         await api.orders.addItems(orderIdParam, {
-          items: orderItems.map((item) => {
-            const unitPrice = parseFloat(item.price);
-            const quantity = parseInt(item.quantity, 10);
-            const isBeverage = item.main_category === "barista";
-            return {
-              menu_item_id: item.menu_item_id,
-              menu_item_name: item.menu_item_name,
-              quantity,
-              unit_price: unitPrice,
-              subtotal: unitPrice * quantity,
-              main_category: item.main_category || "barista",
-              item_type: isBeverage ? "beverage" : "food",
-              note: item.note?.trim() || undefined,
-            };
-          }),
+          items: buildWaiterOrderLines(orderItems),
           updated_by: user!.id,
         });
         toast.success("Items added to the order");
@@ -589,21 +528,7 @@ export const useWaiterCreateOrder = () => {
           : effectiveTable === "takeaway"
             ? "Take Away"
             : `Table ${effectiveTable}`,
-        items: orderItems.map((item) => {
-          const unitPrice = parseFloat(item.price);
-          const quantity = parseInt(item.quantity, 10);
-          const isBeverage = item.main_category === "barista";
-          return {
-            menu_item_id: item.menu_item_id,
-            menu_item_name: item.menu_item_name,
-            quantity: quantity,
-            unit_price: unitPrice,
-            subtotal: unitPrice * quantity,
-            main_category: item.main_category || "barista",
-            item_type: isBeverage ? "beverage" : "food",
-            note: item.note?.trim() || undefined,
-          };
-        }),
+        items: buildWaiterOrderLines(orderItems),
         total_amount: parseFloat(calculateTotal()),
         notes: notes.trim() || undefined,
       };
@@ -686,7 +611,6 @@ export const useWaiterCreateOrder = () => {
     getMainCategoryLabel,
     menuItems,
     itemHasCategory,
-    normalizeMainCategory,
   ]);
 
   const mappedSubCategories = useMemo(() => {
@@ -706,7 +630,6 @@ export const useWaiterCreateOrder = () => {
     itemHasCategory,
     menuItems,
     selectedMainCategory,
-    normalizeMainCategory,
   ]);
 
   const mainFilteredCount = useMemo(() => {
@@ -715,7 +638,7 @@ export const useWaiterCreateOrder = () => {
         itemHasCategory(item, selectedMainCategory) ||
         normalizeMainCategory(item.main_category) === selectedMainCategory,
     ).length;
-  }, [itemHasCategory, menuItems, selectedMainCategory, normalizeMainCategory]);
+  }, [itemHasCategory, menuItems, selectedMainCategory]);
 
   const outOfStockCount = useMemo(
     () =>

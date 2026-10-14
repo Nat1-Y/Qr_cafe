@@ -20,7 +20,8 @@
     "db:backfill-inventory-location-permissions": "ts-node-dev --transpile-only scripts/backfillInventoryLocationPermissions.ts",
     "legacy:dev": "nodemon --watch server.js --watch routes --watch controllers --watch models --watch middleware --watch config --ignore data/** --ignore web/** server.js",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "db:seed-qr-demo": "ts-node-dev --transpile-only scripts/seedQrDemo.ts"
   },
   "keywords": [
     "cafe",
