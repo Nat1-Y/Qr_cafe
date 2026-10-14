@@ -22,6 +22,7 @@ import { ExpensesModule } from "./modules/expenses/expenses.module";
 import { StaffPenaltiesModule } from "./modules/staff-penalties/staff-penalties.module";
 import { RolePermissionsModule } from "./modules/role-permissions/role-permissions.module";
 import { DataCleanupModule } from "./modules/data-cleanup/data-cleanup.module";
+import { CustomerModule } from "./modules/customer/customer.module";
 import { DbModule } from "./db/db.module";
 import { AppController } from "./app.controller";
 
@@ -53,6 +54,7 @@ import { AppController } from "./app.controller";
     StaffPenaltiesModule,
     RolePermissionsModule,
     DataCleanupModule,
+    CustomerModule,
   ],
   controllers: [AppController],
   providers: [],

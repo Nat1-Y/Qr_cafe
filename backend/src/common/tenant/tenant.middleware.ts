@@ -9,10 +9,12 @@ import { BranchesService } from "../../modules/branches/branches.service";
 import {
   DEFAULT_BRANCH_ID,
   DEFAULT_BUSINESS_ID,
+  PUBLIC_TENANT,
   runWithTenant,
   TenantContext,
   TenantScope,
 } from "./tenant-context";
+import { isPublicPath } from "./public-path";
 
 // Resolves the tenant for every request and runs the handler inside an
 // AsyncLocalStorage scope so singleton services can read it via getTenant().
@@ -31,6 +33,13 @@ export class TenantMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: any, _res: any, next: () => void) {
+    // Guest QR endpoints never take a tenant from headers, JWTs or the default
+    // branch — only from the table token, resolved by the customer module. A
+    // stale staff cookie/Bearer on the same browser must not 401 a guest either.
+    if (isPublicPath(req)) {
+      runWithTenant(PUBLIC_TENANT, () => next());
+      return;
+    }
     const ctx = await this.resolve(req);
     runWithTenant(ctx, () => next());
   }

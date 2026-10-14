@@ -4,8 +4,14 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets";
-import { Server, Socket } from "socket.io";
+import { Namespace, Socket } from "socket.io";
 import { DevicesService } from "../devices/devices.service";
+import { toGuestOrder } from "../../common/ordering/guest-order";
+
+/** A QR guest's private room on the /customer namespace. */
+export function guestRoom(sessionId: string) {
+  return `cs:${sessionId}`;
+}
 
 /**
  * Real-time push channel for order events. Cashier/kitchen clients open a
@@ -27,7 +33,7 @@ export class OrdersGateway implements OnGatewayConnection {
   private readonly logger = new Logger(OrdersGateway.name);
 
   @WebSocketServer()
-  server!: Server;
+  server!: Namespace;
 
   constructor(private readonly devices: DevicesService) {}
 
@@ -67,6 +73,7 @@ export class OrdersGateway implements OnGatewayConnection {
   notifyNewOrder(branchId: string | null | undefined, order: unknown) {
     if (!branchId || !this.server) return;
     this.server.to(this.room(branchId)).emit("new_order", { order });
+    this.notifyGuest(order);
   }
 
   /**
@@ -78,6 +85,7 @@ export class OrdersGateway implements OnGatewayConnection {
   notifyOrderUpdated(branchId: string | null | undefined, order: unknown) {
     if (!branchId || !this.server) return;
     this.server.to(this.room(branchId)).emit("order_updated", { order });
+    this.notifyGuest(order);
   }
 
   /**
@@ -91,6 +99,39 @@ export class OrdersGateway implements OnGatewayConnection {
   ) {
     if (!branchId || !this.server) return;
     this.server.to(this.room(branchId)).emit("order_items_added", payload);
+    this.notifyGuest(payload.order);
+  }
+
+  /**
+   * QR orders: also send the guest view (no staff data) to the ordering
+   * guest's own session room on the /customer namespace — never a branch room.
+   */
+  notifyGuest(order: unknown) {
+    const sessionId = (order as { customer_session_id?: string | null } | null)
+      ?.customer_session_id;
+    if (!sessionId) return;
+    try {
+      this.server.server
+        ?.of("/customer")
+        .to(guestRoom(sessionId))
+        .emit("order_updated", {
+          order: toGuestOrder(order as Record<string, unknown>),
+        });
+    } catch (err) {
+      this.logger.warn(`Guest push failed: ${(err as Error)?.message}`);
+    }
+  }
+
+  /** A guest asked for a waiter or the bill (QR ordering). */
+  notifyAssist(branchId: string | null | undefined, request: unknown) {
+    if (!branchId || !this.server) return;
+    this.server.to(this.room(branchId)).emit("assist_request", { request });
+  }
+
+  /** A staff member handled an assist request — clear it on every screen. */
+  notifyAssistDismissed(branchId: string | null | undefined, id: string) {
+    if (!branchId || !this.server) return;
+    this.server.to(this.room(branchId)).emit("assist_dismissed", { id });
   }
 
   private room(branchId: string) {

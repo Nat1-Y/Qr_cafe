@@ -66,6 +66,18 @@ import {
   normalizePaymentRowStatus,
 } from "../../common/status/order-status.constants";
 import { isAllAccessRole } from "../../common/permissions/permissions.constants";
+import {
+  OrderSource,
+  staffOrderSource,
+} from "../../common/status/order-source.constants";
+
+/** Server-decided order fields — see OrderService.create. */
+export interface InternalOrderOptions {
+  source?: OrderSource;
+  customerSessionId?: string | null;
+  /** Merged into orders.meta (e.g. the guest's optional name/phone). */
+  extraMeta?: Record<string, unknown>;
+}
 
 // Second alias on the users table so a single query can join both the waiter
 // (orders.employee_id) and the cashier who rang the order up on their behalf
@@ -378,7 +390,12 @@ export class OrderService {
     return meta;
   }
 
-  async create(orderData: any) {
+  /**
+   * `internal` carries server-decided fields that must never come from a
+   * request body (a staff client could otherwise stamp its order `source:'qr'`).
+   * Only server-side callers — the guest QR module — pass it.
+   */
+  async create(orderData: any, internal: InternalOrderOptions = {}) {
     const {
       employee_id,
       waiter_id,
@@ -469,11 +486,16 @@ export class OrderService {
           total_amount,
           status: "pending",
           notes,
-          meta: this.buildOrgCustomerMeta(
-            org_customer_name,
-            org_customer_phone,
-            org_customer_notes,
-          ),
+          source: internal.source ?? staffOrderSource(finalCashierId),
+          customer_session_id: internal.customerSessionId ?? null,
+          meta: {
+            ...this.buildOrgCustomerMeta(
+              org_customer_name,
+              org_customer_phone,
+              org_customer_notes,
+            ),
+            ...(internal.extraMeta ?? {}),
+          },
         })
         .returning();
 
@@ -747,6 +769,7 @@ export class OrderService {
               ? "paid"
               : "pending",
         notes,
+        source: staffOrderSource(finalCashierId),
         created_at: created_at ? new Date(created_at) : new Date(),
         // client_numbered marks serials owned by an offline POS ticket so a
         // later claim never renumbers them out from under the printed copy.
@@ -1446,6 +1469,11 @@ export class OrderService {
       );
     }
 
+    await this.pushSyncedQrOrdersToGuests([
+      ...syncOrders.map((o: any) => o?.id),
+      ...syncPayments.map((p: any) => p?.order_id),
+    ]);
+
     return {
       orders: orderResults,
       persisted_ids: persistedIds,
@@ -1453,6 +1481,98 @@ export class OrderService {
       payments_persisted_ids: paymentsPersistedIds,
       payments_skipped_ids: paymentsSkippedIds,
     };
+  }
+
+  /**
+   * A POS confirms it physically printed an order's tickets (every section).
+   * Stamps meta.printed_at once — later acks keep the first time. Drives the
+   * guest tracker's "In the kitchen" step and clears the web cashier's
+   * "Not printed yet" badge. Pushed to the guest only; the POS that sent the
+   * ack already knows, and the web cashier picks it up on its next poll.
+   */
+  async acknowledgePrinted(id: string) {
+    const branchId = requireBranchId();
+    const changed = await db.transaction(async (tx: any) => {
+      const [row] = await tx
+        .select({ meta: orders.meta })
+        .from(orders)
+        .where(and(eq(orders.id, id), eq(orders.branch_id, branchId)))
+        .for("update");
+      if (!row) throw new NotFoundException("Order not found");
+      const meta = (row.meta ?? {}) as Record<string, unknown>;
+      if (meta.printed_at) return false;
+      await tx
+        .update(orders)
+        .set({ meta: { ...meta, printed_at: new Date().toISOString() } })
+        .where(and(eq(orders.id, id), eq(orders.branch_id, branchId)));
+      return true;
+    });
+    const full = await this.findById(id);
+    if (changed && full) this.ordersGateway.notifyGuest(full);
+    return full;
+  }
+
+  /**
+   * qr_require_cashier_accept: a QR order waits (meta.awaiting_accept) until a
+   * cashier accepts it; the POS only prints it after that. Accepting pushes the
+   * update to the branch so the POS picks it up and prints right away.
+   */
+  async acceptQrOrder(id: string) {
+    const branchId = requireBranchId();
+    const [row] = await db
+      .select({ meta: orders.meta, source: orders.source })
+      .from(orders)
+      .where(and(eq(orders.id, id), eq(orders.branch_id, branchId)))
+      .limit(1);
+    if (!row) throw new NotFoundException("Order not found");
+    const meta = (row.meta ?? {}) as Record<string, unknown>;
+    if (meta.awaiting_accept === true) {
+      const { awaiting_accept: _waiting, ...rest } = meta;
+      await db
+        .update(orders)
+        .set({ meta: { ...rest, accepted_at: new Date().toISOString() }, updated_at: new Date() })
+        .where(and(eq(orders.id, id), eq(orders.branch_id, branchId)));
+    }
+    const full = await this.findById(id);
+    if (full) {
+      await emitUpdated(db, "order", "ORDER_UPDATED", full as any);
+      this.ordersGateway.notifyOrderUpdated((full as any).branch_id, full);
+    }
+    return full;
+  }
+
+  /**
+   * A POS settling or serving a QR order offline reaches the server through
+   * bulkSync, which (unlike the online paths) emits no socket event. Push the
+   * new state to the ordering guest only — staff rooms are left alone so a POS
+   * never gets its own change echoed back. Best-effort; the guest also polls.
+   */
+  private async pushSyncedQrOrdersToGuests(orderIds: unknown[]) {
+    const ids = [
+      ...new Set(orderIds.filter((id): id is string => this.isValidUUID(String(id ?? "")))),
+    ];
+    if (ids.length === 0) return;
+    try {
+      const qrRows = await db
+        .select({ id: orders.id })
+        .from(orders)
+        .where(
+          and(
+            inArray(orders.id, ids),
+            eq(orders.branch_id, requireBranchId()),
+            sql`${orders.customer_session_id} is not null`,
+          ),
+        );
+      for (const row of qrRows) {
+        const full = await this.findById(row.id);
+        if (full) this.ordersGateway.notifyGuest(full);
+      }
+    } catch (err) {
+      console.warn(
+        "[OrderService] Guest push after bulk sync failed",
+        (err as Error)?.message,
+      );
+    }
   }
 
   async findById(id: string) {
@@ -2708,6 +2828,11 @@ export class OrderService {
       const addedSnapshot: any[] = [];
 
       for (const item of items) {
+        // A repeat menu item only merges into an existing row when its note
+        // matches too — "Macchiato, no sugar" added to an order that already
+        // has "Macchiato, extra hot" is a separate line, or the kitchen would
+        // never see the new note.
+        const note = String(item.note ?? "").trim() || null;
         const [existingItem] = await tx
           .select()
           .from(order_items)
@@ -2715,6 +2840,7 @@ export class OrderService {
             and(
               eq(order_items.order_id, id),
               eq(order_items.menu_item_id, item.menu_item_id),
+              sql`coalesce(${order_items.note}, '') = ${note ?? ""}`,
             ),
           )
           .limit(1);
@@ -2729,6 +2855,7 @@ export class OrderService {
           subtotal: itemSubtotal,
           item_type: item.item_type || "food",
           main_category: item.main_category,
+          note,
         });
 
         if (existingItem) {
@@ -2740,12 +2867,7 @@ export class OrderService {
               quantity: newQuantity,
               subtotal: Number(item.unit_price) * newQuantity,
             })
-            .where(
-              and(
-                eq(order_items.order_id, id),
-                eq(order_items.menu_item_id, item.menu_item_id),
-              ),
-            );
+            .where(eq(order_items.id, existingItem.id));
         } else {
           await tx.insert(order_items).values({
             ...tenantInsert(),
@@ -2756,6 +2878,7 @@ export class OrderService {
             subtotal: itemSubtotal,
             item_type: item.item_type || "food",
             main_category: item.main_category,
+            note,
           });
         }
       }
@@ -3025,11 +3148,14 @@ export class OrderService {
     // web dashboard) carry no cashier and no real waiter — the attributed
     // employee IS a back-office user — so tag them "owner" instead of falsely
     // labelling the owner a waiter.
-    const orderSource = order?.cashier_id
-      ? "cashier"
-      : OrderService.BACK_OFFICE_ROLES.has(employee?.role)
-        ? "owner"
-        : "waiter";
+    const orderSource =
+      order?.source === "qr"
+        ? "qr"
+        : order?.cashier_id
+          ? "cashier"
+          : OrderService.BACK_OFFICE_ROLES.has(employee?.role)
+            ? "owner"
+            : "waiter";
     return {
       ...order,
       // Mirror cashier_id into created_by_id so existing clients (which key off

@@ -1,28 +1,14 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
+import { configureApp } from "./app.setup";
 import * as dotenv from "dotenv";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 async function bootstrap() {
   dotenv.config();
-  const app = await NestFactory.create(AppModule);
-  app.enableCors({
-    origin: "*",
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-App-Client",
-      "Accept",
-      "X-User-Id",
-      "X-Branch-Id",
-      "X-Business-Id",
-      "X-Device-Token",
-      "X-App-Version",
-    ],
-  });
-  app.setGlobalPrefix("api");
+  // rawBody: payment provider webhooks verify signatures over the exact bytes.
+  const app = await NestFactory.create(AppModule, { rawBody: true });
+  configureApp(app);
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle("Cafe API")

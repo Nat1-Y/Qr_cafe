@@ -20,6 +20,7 @@ import {
 } from "@nestjs/swagger";
 import { OrderService } from "./order.service";
 import { ZReportService } from "./z-report.service";
+import { AssistService } from "./assist.service";
 import {
   OrderItemsUpdateDto,
   OrderRequestDto,
@@ -49,7 +50,38 @@ export class OrderController {
   constructor(
     private orderService: OrderService,
     private zReportService: ZReportService,
+    private assistService: AssistService,
   ) {}
+
+  @ApiOperation({ summary: "Open guest requests (call waiter / bill) for this branch" })
+  @Get("assist-requests")
+  async listAssistRequests() {
+    return {
+      status: "success",
+      data: { requests: this.assistService.list(requireBranchId()) },
+    };
+  }
+
+  @ApiOperation({ summary: "Dismiss a guest request once handled" })
+  @Post("assist-requests/:requestId/dismiss")
+  async dismissAssistRequest(@Param("requestId") requestId: string) {
+    const dismissed = this.assistService.dismiss(requireBranchId(), requestId);
+    return { status: "success", data: { dismissed } };
+  }
+
+  @ApiOperation({ summary: "POS confirms an order's tickets printed (all sections)" })
+  @Post(":id/printed-ack")
+  async acknowledgePrinted(@Param("id") id: string) {
+    const order = await this.orderService.acknowledgePrinted(id);
+    return { status: "success", data: { order } };
+  }
+
+  @ApiOperation({ summary: "Accept a QR order that waits for a cashier (prints on accept)" })
+  @Post(":id/accept")
+  async acceptQrOrder(@Param("id") id: string) {
+    const order = await this.orderService.acceptQrOrder(id);
+    return { status: "success", data: { order } };
+  }
 
   @ApiOperation({ summary: "Create a new order" })
   @ApiBody({ type: OrderRequestDto })

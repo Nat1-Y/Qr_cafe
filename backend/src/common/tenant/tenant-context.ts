@@ -6,7 +6,12 @@ import { AsyncLocalStorage } from "node:async_hooks";
 export const DEFAULT_BUSINESS_ID = "00000000-0000-0000-0000-000000000001";
 export const DEFAULT_BRANCH_ID = "00000000-0000-0000-0000-000000000002";
 
-export type TenantScope = "platform" | "owner" | "branch";
+// "public" = an unauthenticated guest request (QR self-ordering, /api/public/*)
+// before its table token has been resolved. It is never pinned to a branch, so
+// requireBranchId()/requireBusinessId() throw instead of falling back to the
+// default tenant — a public handler that forgets to resolve its token fails
+// loudly rather than reading the default branch's data.
+export type TenantScope = "platform" | "owner" | "branch" | "public";
 
 export interface TenantContext {
   /** null only for platform super admins (no owning business). */
@@ -48,8 +53,22 @@ export function requireBranchId(): string {
 }
 
 export function requireBusinessId(): string {
-  return getTenant()?.businessId ?? DEFAULT_BUSINESS_ID;
+  const t = getTenant();
+  if (t?.scope === "public" && !t.businessId) {
+    throw new Error("No business in context for a public request.");
+  }
+  return t?.businessId ?? DEFAULT_BUSINESS_ID;
 }
+
+/** Context for a public (guest) request before its QR token is resolved. */
+export const PUBLIC_TENANT: TenantContext = {
+  businessId: null,
+  branchId: null,
+  scope: "public",
+  userId: null,
+  username: null,
+  role: null,
+};
 
 /** Spread into insert values for the 22 fully branch-scoped tables. */
 export function tenantInsert(): { business_id: string; branch_id: string } {

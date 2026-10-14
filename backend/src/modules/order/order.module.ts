@@ -4,6 +4,7 @@ import { OrderController } from "./order.controller";
 import { OrderInventoryService } from "./order-inventory.service";
 import { ZReportService } from "./z-report.service";
 import { OrdersGateway } from "./orders.gateway";
+import { AssistService } from "./assist.service";
 
 @Module({
   providers: [
@@ -11,8 +12,15 @@ import { OrdersGateway } from "./orders.gateway";
     OrderInventoryService,
     ZReportService,
     OrdersGateway,
+    AssistService,
   ],
   controllers: [OrderController],
-  exports: [OrderService, OrderInventoryService, ZReportService, OrdersGateway],
+  exports: [
+    OrderService,
+    OrderInventoryService,
+    ZReportService,
+    OrdersGateway,
+    AssistService,
+  ],
 })
 export class OrderModule {}
