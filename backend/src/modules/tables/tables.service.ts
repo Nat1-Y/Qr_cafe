@@ -7,6 +7,19 @@ import { and, asc, eq } from "drizzle-orm";
 import { db } from "../../db/drizzle";
 import { diningTables } from "../../db/schema";
 import { requireBranchId, tenantInsert } from "../../common/tenant/tenant-context";
+import { generateQrToken } from "../../common/qr/qr-token";
+
+// Guest-facing name on the QR card/app ("Terrace 4"); blank clears it.
+function cleanLabel(value: unknown): string | null {
+  const label = String(value ?? "")
+    .replace(/<[^>]*>?/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80);
+  return label || null;
+}
+
+const isOn = (v: unknown) => v === true || v === "true";
 
 @Injectable()
 export class TablesService {
@@ -40,6 +53,8 @@ export class TablesService {
         id: payload?.id,
         table_number: tableNumber,
         status: payload?.status ?? "available",
+        ...(payload?.label !== undefined ? { label: cleanLabel(payload.label) } : {}),
+        ...(payload?.qr_enabled !== undefined ? { qr_enabled: isOn(payload.qr_enabled) } : {}),
       })
       .returning();
 
@@ -60,12 +75,32 @@ export class TablesService {
       updates.status = String(payload.status);
     }
 
+    if (payload?.label !== undefined) updates.label = cleanLabel(payload.label);
+
+    // Owner switch: turn QR ordering off for just this table.
+    if (payload?.qr_enabled !== undefined) updates.qr_enabled = isOn(payload.qr_enabled);
+
     const [updated] = await db
       .update(diningTables)
       .set(updates)
       .where(and(eq(diningTables.id, id), eq(diningTables.branch_id, requireBranchId())))
       .returning();
 
+    if (!updated) throw new NotFoundException("Table not found");
+    return updated;
+  }
+
+  /**
+   * New QR code for a table. The old token stops resolving immediately, so
+   * every printed card for this table stops working — the UI confirms first.
+   */
+  async rotateQr(id: string) {
+    await this.findById(id);
+    const [updated] = await db
+      .update(diningTables)
+      .set({ qr_token: generateQrToken(), qr_rotated_at: new Date(), updated_at: new Date() })
+      .where(and(eq(diningTables.id, id), eq(diningTables.branch_id, requireBranchId())))
+      .returning();
     if (!updated) throw new NotFoundException("Table not found");
     return updated;
   }

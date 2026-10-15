@@ -39,6 +39,9 @@ import { useCashierAuth } from "@/components/cashier/auth-context";
 import { cashierServices } from "@/lib/cashier/api";
 import { AddItemsToOrderDialog } from "@/components/cashier/AddItemsToOrderDialog";
 import { friendlyError } from "@/lib/errors";
+import { getDeviceToken } from "@/lib/cashier/device";
+import { qrStaffApi } from "@/lib/staff/qr-live";
+import { QrOrderBadges, QrStaffAlerts } from "@/components/staff/QrStaffAlerts";
 
 const POLL_MS = 7000;
 
@@ -115,6 +118,9 @@ type QueueOrder = {
   created_by_id?: string;
   waiter_id?: string;
   employee_id?: string;
+  // "qr" for guest self-orders; meta carries the guest's name / print state.
+  source?: string;
+  meta?: Record<string, unknown> | null;
 };
 
 // Items can be added to an open order or a served ("done") one, which
@@ -271,6 +277,21 @@ export default function CashierQueuePage() {
 
   const loadRef = useRef(loadQueue);
   loadRef.current = loadQueue;
+
+  // QR orders: live alerts use this device's token; accepting releases a held order to print.
+  const staffAuth = useMemo(() => ({ deviceToken: getDeviceToken() }), []);
+  const acceptQrOrder = useCallback(
+    async (order: QueueOrder) => {
+      try {
+        await qrStaffApi.accept(staffAuth, order.id);
+        toast.success(`Order #${order.order_number ?? ""} accepted. It's printing now.`);
+        await loadRef.current(false);
+      } catch (err) {
+        toast.error(friendlyError(err, "Couldn't accept the order. Please try again."));
+      }
+    },
+    [staffAuth],
+  );
   useEffect(() => {
     loadRef.current(false);
     const t = setInterval(() => loadRef.current(false), POLL_MS);
@@ -711,6 +732,9 @@ export default function CashierQueuePage() {
         </div>
       </div>
 
+      {/* Guest requests from QR tables; new QR orders chime and refresh the queue */}
+      <QrStaffAlerts auth={staffAuth} onNewQrOrder={() => loadRef.current(false)} />
+
       {/* KPI row */}
       <section className="space-y-3">
         <div
@@ -823,8 +847,9 @@ export default function CashierQueuePage() {
                           #{order.order_number ?? "—"}
                           {order.table_number != null ? ` · Table ${order.table_number}` : ""}
                         </p>
+                        <QrOrderBadges order={order} onAccept={() => void acceptQrOrder(order)} />
                         <p className="mt-0.5 flex flex-wrap items-center gap-1 text-meta text-muted-foreground">
-                          {order.employee_name || "Waiter"}
+                          {order.source === "qr" ? "Ordered by the guest" : order.employee_name || "Waiter"}
                           <span aria-hidden>·</span>
                           <Clock className="size-3" />
                           {timeAgo(order.created_at)}

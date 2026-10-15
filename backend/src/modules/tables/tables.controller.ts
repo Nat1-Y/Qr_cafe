@@ -41,6 +41,12 @@ export class TablesController {
     return { status: "success", message: "Table updated", data: { table } };
   }
 
+  @Post(":id/rotate-qr")
+  async rotateQr(@Param("id") id: string) {
+    const table = await this.tablesService.rotateQr(id);
+    return { status: "success", message: "New QR code made", data: { table } };
+  }
+
   @Delete(":id")
   async remove(@Param("id") id: string) {
     const table = await this.tablesService.remove(id);

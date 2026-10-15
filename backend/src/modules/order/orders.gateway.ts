@@ -128,6 +128,12 @@ export class OrdersGateway implements OnGatewayConnection {
     this.server.to(this.room(branchId)).emit("assist_request", { request });
   }
 
+  /** Owner asked the POS to print a sample QR ticket for one section. */
+  notifyTestTicket(branchId: string | null | undefined, payload: { section: string }) {
+    if (!branchId || !this.server) return;
+    this.server.to(this.room(branchId)).emit("qr_test_ticket", payload);
+  }
+
   /** A staff member handled an assist request — clear it on every screen. */
   notifyAssistDismissed(branchId: string | null | undefined, id: string) {
     if (!branchId || !this.server) return;

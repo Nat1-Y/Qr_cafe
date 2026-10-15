@@ -23,8 +23,13 @@ import {
   calculateReportData,
   exportBusinessData,
   filterSourceDataByDateRange,
+  ORDER_SOURCE_LABELS,
+  orderSourceOf,
+  salesBySource,
+  type OrderSourceKey,
   type SourceData,
 } from "@/lib/reports";
+import { SourceSalesCard } from "@/components/reports/source-sales";
 
 import { ReportsStats } from "@/components/reports/reports-stats";
 
@@ -47,6 +52,7 @@ export default function ReportsPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [topItemsPeriod, setTopItemsPeriod] = useState("selected_range");
+  const [placedBy, setPlacedBy] = useState<"all" | OrderSourceKey>("all");
 
   const loadSource = async (silent = false) => {
     if (!silent) setLoading(true);
@@ -76,12 +82,26 @@ export default function ReportsPage() {
     loadSource();
   }, []);
 
+  // "Placed by" filter: QR guests, waiters or cashiers (orders.source).
+  const scopedSource = useMemo<SourceData>(
+    () =>
+      placedBy === "all"
+        ? source
+        : { ...source, orders: source.orders.filter((o) => orderSourceOf(o) === placedBy) },
+    [source, placedBy],
+  );
+
+  const sourceSplit = useMemo(() => {
+    const filtered = filterSourceDataByDateRange(source.orders, source.payments, source.menuItems, dateFrom, dateTo);
+    return salesBySource(filtered.orders, filtered.payments);
+  }, [source, dateFrom, dateTo]);
+
   const reportData = useMemo(() => {
     if (loading) return INITIAL_REPORT_DATA;
     const filtered = filterSourceDataByDateRange(
-      source.orders,
-      source.payments,
-      source.menuItems,
+      scopedSource.orders,
+      scopedSource.payments,
+      scopedSource.menuItems,
       dateFrom,
       dateTo,
     );
@@ -92,7 +112,7 @@ export default function ReportsPage() {
       businessUnit,
       topItemsPeriod,
     );
-  }, [loading, source, businessUnit, dateFrom, dateTo, topItemsPeriod]);
+  }, [loading, scopedSource, businessUnit, dateFrom, dateTo, topItemsPeriod]);
 
   const handleExport = async () => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
@@ -100,7 +120,7 @@ export default function ReportsPage() {
       return;
     }
     try {
-      await exportBusinessData(source, businessUnit, dateFrom, dateTo);
+      await exportBusinessData(scopedSource, businessUnit, dateFrom, dateTo);
       toast.success("Excel file downloaded");
     } catch (e: any) {
       toast.error(friendlyError(e, "Couldn't make the Excel file. Please try again."));
@@ -128,6 +148,18 @@ export default function ReportsPage() {
               <option value="cafe">Cafe</option>
               <option value="restaurant">Restaurant</option>
               <option value="barista">Barista</option>
+            </select>
+            <select
+              value={placedBy}
+              onChange={(e) => setPlacedBy(e.target.value as "all" | OrderSourceKey)}
+              className={inputCls}
+              aria-label="Placed by">
+              <option value="all">Placed by anyone</option>
+              {(Object.keys(ORDER_SOURCE_LABELS) as OrderSourceKey[]).map((k) => (
+                <option key={k} value={k}>
+                  {ORDER_SOURCE_LABELS[k]}
+                </option>
+              ))}
             </select>
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download />
@@ -166,7 +198,7 @@ export default function ReportsPage() {
         </div>
       ) : (
         <>
-          <ReportsStats source={source} unit={businessUnit} dateFrom={dateFrom} dateTo={dateTo} />
+          <ReportsStats source={scopedSource} unit={businessUnit} dateFrom={dateFrom} dateTo={dateTo} />
 
           <Tabs defaultValue="z-report" className="space-y-5 overflow-auto">
             <TabsList className="flex h-auto w-full flex-wrap justify-between gap-1 p-1">
@@ -215,6 +247,7 @@ export default function ReportsPage() {
             </TabsContent>
 
             <TabsContent value="sales-breakdown" className="space-y-6">
+              <SourceSalesCard rows={sourceSplit} />
               <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
                 <PaymentMethodsBreakdown paymentMethods={reportData.paymentMethods} />
                 <CategorySales items={reportData.categorySales} />

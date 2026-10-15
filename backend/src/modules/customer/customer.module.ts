@@ -3,6 +3,7 @@ import { OrderModule } from "../order/order.module";
 import { InventoryModule } from "../inventory/inventory.module";
 import { PaymentModule } from "../payment/payment.module";
 import { CustomerController } from "./customer.controller";
+import { QrSettingsController } from "./qr-settings.controller";
 import { CustomerAccessService } from "./customer-access.service";
 import { CustomerSessionService } from "./customer-session.service";
 import { CustomerMenuService } from "./customer-menu.service";
@@ -13,7 +14,7 @@ import { RateLimiter } from "./rate-limiter";
 // Guest QR self-ordering: the public /api/public/* API and the /customer socket.
 @Module({
   imports: [OrderModule, InventoryModule, PaymentModule],
-  controllers: [CustomerController],
+  controllers: [CustomerController, QrSettingsController],
   providers: [
     CustomerAccessService,
     CustomerSessionService,

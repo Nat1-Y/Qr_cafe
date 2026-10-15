@@ -1262,3 +1262,55 @@ export function exportItemsSoldPdf(
   const todaySlug = new Date().toISOString().slice(0, 10);
   doc.save(`items-sold-${unitSlug}-${periodSlug}-${todaySlug}.pdf`);
 }
+
+// ---------------------------------------------------------------------------
+// Where an order was placed (orders.source): guests by QR, waiters, cashiers.
+// ---------------------------------------------------------------------------
+
+export type OrderSourceKey = "qr" | "waiter" | "cashier";
+
+export const ORDER_SOURCE_LABELS: Record<OrderSourceKey, string> = {
+  qr: "Guests (QR)",
+  waiter: "Waiters",
+  cashier: "Cashiers",
+};
+
+export const orderSourceOf = (order: { source?: unknown; cashier_id?: unknown }): OrderSourceKey => {
+  if (order?.source === "qr") return "qr";
+  if (order?.source === "cashier" || (order?.source == null && order?.cashier_id)) return "cashier";
+  return "waiter";
+};
+
+export interface SourceSales {
+  key: OrderSourceKey;
+  label: string;
+  orders: number;
+  paidOrders: number;
+  revenue: number;
+}
+
+/** Orders and paid sales per source, for the "Where orders came from" split. */
+export const salesBySource = (
+  orders: Array<Record<string, unknown>>,
+  payments: Array<Record<string, unknown>>,
+): SourceSales[] => {
+  const paidIds = new Set(
+    payments.filter((p) => normalizeStatus(String(p?.status ?? "")) === "paid").map((p) => normalizeId(p?.order_id)),
+  );
+  const isPaid = makeIsPaidOrder(paidIds);
+  const rows: Record<OrderSourceKey, SourceSales> = {
+    qr: { key: "qr", label: ORDER_SOURCE_LABELS.qr, orders: 0, paidOrders: 0, revenue: 0 },
+    waiter: { key: "waiter", label: ORDER_SOURCE_LABELS.waiter, orders: 0, paidOrders: 0, revenue: 0 },
+    cashier: { key: "cashier", label: ORDER_SOURCE_LABELS.cashier, orders: 0, paidOrders: 0, revenue: 0 },
+  };
+  for (const o of orders) {
+    if (isVoidedOrderStatus(String(o?.status ?? ""))) continue;
+    const row = rows[orderSourceOf(o)];
+    row.orders += 1;
+    if (isPaid(o)) {
+      row.paidOrders += 1;
+      row.revenue += Number(o?.total_amount ?? 0) || 0;
+    }
+  }
+  return [rows.qr, rows.waiter, rows.cashier];
+};

@@ -1,4 +1,5 @@
 import { apiFetch } from "./api";
+import type { QrSettings } from "./qr";
 
 // Centralized resource calls. The backend wraps lists as
 // { status, data: { <key>, count } }; these unwrap to the inner payload.
@@ -96,6 +97,15 @@ export const Tables = {
   create: (b: any) => apiFetch("/tables", j(b)),
   update: (id: string, b: any) => apiFetch(`/tables/${id}`, put(b)),
   remove: (id: string) => apiFetch(`/tables/${id}`, del),
+  // New QR code: the old printed card stops working at once.
+  rotateQr: (id: string) => apiFetch(`/tables/${id}/rotate-qr`, j({})).then((d) => d.data.table),
+};
+
+// QR self-ordering settings for the current branch (see web/lib/qr.ts).
+export const QrOrdering = {
+  get: () => apiFetch("/settings/qr").then((d) => d.data),
+  update: (b: Partial<QrSettings>) => apiFetch("/settings/qr", put(b)).then((d) => d.data.settings as QrSettings),
+  testTicket: (section: string) => apiFetch("/settings/qr/test-ticket", j({ section })),
 };
 
 export const Users = {

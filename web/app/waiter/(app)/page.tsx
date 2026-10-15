@@ -14,11 +14,16 @@ import QuickActions from "@/components/waiter/dashboard/QuickActions";
 import RecentOrdersPanel from "@/components/waiter/dashboard/RecentOrdersPanel";
 import { Segmented } from "@/components/segmented";
 import { formatETB } from "@/lib/format";
+import { QrTableOrders } from "@/components/waiter/dashboard/QrTableOrders";
+import { getDeviceToken } from "@/lib/waiter/device";
+import { getWaiterToken } from "@/lib/waiter/auth";
 
 export default function WaiterDashboardPage() {
   const { user, logout } = useWaiterAuth();
   const router = useRouter();
   const [statsRange, setStatsRange] = useState("today");
+  // QR table orders + guest requests, scoped to this device's branch.
+  const [qrAuth] = useState(() => ({ deviceToken: getDeviceToken(), bearer: getWaiterToken() }));
 
   const { loading, dashboardData, attendanceStatus } = useWaiterData(user?.id);
   const { rangeOrders, stats } = useWaiterStats(
@@ -72,6 +77,8 @@ export default function WaiterDashboardPage() {
         onViewMenu={() => router.push("/waiter/create-order")}
         onMyProfile={() => router.push("/waiter/profile")}
       />
+
+      <QrTableOrders auth={qrAuth} />
 
       <section className="space-y-3">
         <Segmented

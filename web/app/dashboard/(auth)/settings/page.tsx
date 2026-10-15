@@ -5,6 +5,7 @@ import {
   ChevronRightIcon,
   DatabaseIcon,
   MonitorSmartphoneIcon,
+  QrCodeIcon,
   ShieldIcon,
   SlidersHorizontalIcon,
   UserIcon,
@@ -34,6 +35,12 @@ const SECTIONS: SettingLink[] = [
     description: "How the tills work at this branch.",
     href: "/dashboard/settings/preferences",
     icon: SlidersHorizontalIcon,
+  },
+  {
+    title: "QR ordering",
+    description: "Guests order from their table by scanning a code.",
+    href: "/dashboard/settings/qr-ordering",
+    icon: QrCodeIcon,
   },
   {
     title: "Payment types",
