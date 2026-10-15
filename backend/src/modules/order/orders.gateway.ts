@@ -49,8 +49,13 @@ export class OrdersGateway implements OnGatewayConnection {
         const tenant = await this.devices.resolveToken(String(token));
         branchId = tenant?.branchId ?? null;
       }
-      // Fallback for clients that aren't device-enrolled (e.g. owner console).
-      if (!branchId && auth.branchId) branchId = String(auth.branchId);
+      // A bare branchId is no credential: accepting it let anyone listen to a
+      // branch's orders (guest names and phones included). Every client sends
+      // its device token; the old fallback survives only behind the same
+      // emergency switch as the REST API.
+      if (!branchId && auth.branchId && process.env.LEGACY_UNAUTHENTICATED_TENANT === "true") {
+        branchId = String(auth.branchId);
+      }
 
       if (!branchId) {
         this.logger.warn(

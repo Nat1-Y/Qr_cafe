@@ -16,6 +16,23 @@ import {
 } from "./tenant-context";
 import { isPublicPath } from "./public-path";
 
+// Routes that legitimately run before a device is enrolled or a user signs in.
+// They still resolve the tenant the old way (headers, else the default
+// branch) because login looks users up by branch.
+const ANONYMOUS_ROUTES = [
+  /^\/api\/?$/,
+  /^\/api\/health(\/|$)/,
+  /^\/api\/docs(\/|-json|$)/,
+  /^\/api\/auth\/(login|pin-login|staff-login|time|logout)\/?$/,
+  /^\/api\/devices\/enroll\/?$/,
+];
+
+function isAnonymousRoute(req: { originalUrl?: string; url?: string; method?: string }): boolean {
+  if (req.method === "OPTIONS") return true;
+  const path = String(req.originalUrl ?? req.url ?? "").split("?")[0];
+  return ANONYMOUS_ROUTES.some((re) => re.test(path));
+}
+
 // Resolves the tenant for every request and runs the handler inside an
 // AsyncLocalStorage scope so singleton services can read it via getTenant().
 //
@@ -117,6 +134,18 @@ export class TenantMiddleware implements NestMiddleware {
         // can't affect it.)
         throw new UnauthorizedException("Session expired. Please sign in again.");
       }
+    }
+
+    // No device token and no JWT. Only the sign-in / enrollment / health
+    // endpoints may run like this; everything else used to trust the
+    // caller-supplied x-branch-id (or fall back to the default branch) — and
+    // the permission guard exempts role-less requests — so anyone could read
+    // any branch's data. Every real client (desktop POS, web cashier/waiter,
+    // owner dashboard) sends a device token or JWT, so they're unaffected.
+    // LEGACY_UNAUTHENTICATED_TENANT=true restores the old behaviour as an
+    // emergency rollback.
+    if (!isAnonymousRoute(req) && process.env.LEGACY_UNAUTHENTICATED_TENANT !== "true") {
+      throw new UnauthorizedException("Sign in, or set up this device for your branch first.");
     }
 
     const headerBranch = req.headers["x-branch-id"] as string | undefined;
