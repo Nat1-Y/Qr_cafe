@@ -16,6 +16,7 @@ import {
 // Components
 import { HeaderBanner } from './components/HeaderBanner';
 import { PrintFailureBanner } from './components/PrintFailureBanner';
+import { QrAssistAlerts } from '@/components/qr/QrOrderBits';
 import { DateFilterBar } from './components/DateFilterBar';
 import { OrdersForPaymentPanel } from './components/OrdersForPaymentPanel';
 import { RecentPaymentsPanel } from './components/RecentPaymentsPanel';
@@ -333,6 +334,9 @@ const CashierDashboard = () => {
         stuckOrders={stuckPrintOrders}
         onRetry={retryStuckPrint}
       />
+
+      {/* Guest requests from QR tables ("Call waiter", "Ask for the bill") */}
+      <QrAssistAlerts />
 
       {/* KPI row */}
       <section className="space-y-3">

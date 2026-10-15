@@ -27,7 +27,8 @@ export class OrderFacade {
     orderId: number | string,
     items: unknown[],
     printerName?: string,
-  ) => this.adapter.printAddedItemsNative(orderId, items, printerName);
+    opts?: { jobKey?: string },
+  ) => this.adapter.printAddedItemsNative(orderId, items, printerName, opts);
   getPendingCancellationPrints = () =>
     this.adapter.getPendingCancellationPrints();
   printCancelledOrderNative = (id: number | string, printerName?: string) =>
@@ -47,8 +48,11 @@ export class OrderFacade {
   getReceiptImages = (id: number | string) => this.adapter.getReceiptImages(id);
   getTicketPayload = (id: number | string) => this.adapter.getTicketPayload(id);
   markPrinted = (id: number | string) => this.adapter.markPrinted(id);
-  printOrderNative = (id: number | string, printerName?: string) =>
-    this.adapter.printOrderNative(id, printerName);
+  printOrderNative = (
+    id: number | string,
+    printerName?: string,
+    opts?: { jobKey?: string },
+  ) => this.adapter.printOrderNative(id, printerName, opts);
   testPrintNative = (printerName?: string) =>
     this.adapter.testPrintNative(printerName);
   getZReport = (params?: unknown) => this.adapter.getZReport(params);

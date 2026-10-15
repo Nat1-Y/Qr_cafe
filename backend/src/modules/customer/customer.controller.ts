@@ -169,7 +169,7 @@ export class CustomerController {
       maxItems: settings.maxItemsPerOrder,
     });
     const { order, replay } = await this.access.run(table, () =>
-      this.orders.placeOrder(table, session, input, { requireAccept: settings.requireCashierAccept }),
+      this.orders.placeOrder(table, session, input, { requireAccept: settings.requireCashierAccept, autoPrint: settings.autoPrint }),
     );
     const payment = await this.access.run(table, () =>
       this.intents.checkoutOptions(table.branchId, order),

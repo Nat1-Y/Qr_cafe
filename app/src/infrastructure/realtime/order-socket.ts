@@ -21,6 +21,11 @@ import { syncEngine } from "@/infrastructure/sync/sync-engine";
 type OrderHandler = (order: any) => void;
 type NewOrderHandler = OrderHandler;
 type ItemsAddedHandler = (payload: { order: any; addition: any }) => void;
+export type QrEvent =
+  | { type: "assist_request"; payload: { request?: any } }
+  | { type: "assist_dismissed"; payload: { id?: string } }
+  | { type: "qr_test_ticket"; payload: { section?: string } };
+type QrEventHandler = (event: QrEvent) => void;
 
 /** Derive the server origin (no /api prefix, no path) for the socket URL. */
 const deriveOrigin = (base: string): string => {
@@ -39,6 +44,7 @@ class OrderSocketManager {
   private readonly handlers = new Set<NewOrderHandler>();
   private readonly updateHandlers = new Set<OrderHandler>();
   private readonly itemsAddedHandlers = new Set<ItemsAddedHandler>();
+  private readonly qrHandlers = new Set<QrEventHandler>();
 
   /**
    * Begin tracking connectivity so the socket connects/reconnects as it comes
@@ -134,6 +140,18 @@ class OrderSocketManager {
       dispatch(this.itemsAddedHandlers, payload);
     });
 
+    // QR ordering: guest "Call waiter" / "Ask for the bill", a staff member
+    // clearing one, and the owner's "Print a test QR ticket".
+    socket.on("assist_request", (payload: any) => {
+      dispatch(this.qrHandlers, { type: "assist_request", payload });
+    });
+    socket.on("assist_dismissed", (payload: any) => {
+      dispatch(this.qrHandlers, { type: "assist_dismissed", payload });
+    });
+    socket.on("qr_test_ticket", (payload: any) => {
+      dispatch(this.qrHandlers, { type: "qr_test_ticket", payload });
+    });
+
     this.socket = socket;
   }
 
@@ -178,6 +196,16 @@ class OrderSocketManager {
     this.connect();
     return () => {
       this.itemsAddedHandlers.delete(handler);
+    };
+  }
+
+  /** Subscribe to QR-ordering events (assist requests, test tickets). */
+  subscribeQrEvents(handler: QrEventHandler): () => void {
+    this.qrHandlers.add(handler);
+    this.ensureStarted();
+    this.connect();
+    return () => {
+      this.qrHandlers.delete(handler);
     };
   }
 

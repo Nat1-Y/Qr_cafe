@@ -5,6 +5,7 @@ import { useTableData } from './hooks/useTableData';
 import { TableStats } from './components/TableStats';
 import { TablesGrid } from './components/TablesGrid';
 import { AddTableDialog } from './components/AddTableDialog';
+import { TableQrCodes } from './components/TableQrCodes';
 import OfflineBanner from '@/components/OfflineBanner';
 import { INITIAL_FORM } from './constants';
 
@@ -29,10 +30,13 @@ const TableManagement = () => {
         title="Tables"
         description={`${tables.length} tables · ${available} free right now`}
         actions={
-          <Button onClick={() => setDialogOpen(true)} disabled={!syncStatus.online}>
-            <Plus />
-            Add table
-          </Button>
+          <>
+            {syncStatus.online ? <TableQrCodes /> : null}
+            <Button onClick={() => setDialogOpen(true)} disabled={!syncStatus.online}>
+              <Plus />
+              Add table
+            </Button>
+          </>
         }
       />
 

@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn, formatOrderNumber, getOrderPlacerLabel, getOrderCreator } from '@/lib/utils';
+import { QrOrderBadges } from '@/components/qr/QrOrderBits';
 
 interface TableSummary {
   table_number: string;
@@ -256,6 +257,7 @@ export const OrdersForPaymentPanel: React.FC<OrdersForPaymentPanelProps> = ({
                     {formatOrderNumber(order)}
                     {order.table_number ? ` · Table ${order.table_number}` : ''}
                   </p>
+                  <QrOrderBadges order={order} />
                   {summary && <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">{summary}</p>}
                   <p className="mt-1 text-meta text-muted-foreground">
                     {staff ? `${getOrderPlacerLabel(order)}: ${staff}` : null}

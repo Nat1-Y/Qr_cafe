@@ -18,6 +18,7 @@ import { CustomerAccessService } from "./customer-access.service";
 import { PaymentProviderRegistry } from "../payment/providers/payment-provider.registry";
 import { OrdersGateway } from "../order/orders.gateway";
 import { cleanText } from "./customer.validation";
+import { publicAllowedOrigins } from "../../common/tenant/public-path";
 
 /** One printer section ("where it prints") and whether it has a printer. */
 export interface SectionRouting {
@@ -61,6 +62,10 @@ export class QrSettingsController {
       status: "success",
       data: {
         branch: { name: branch?.name ?? "", phone: branch?.phone ?? null },
+        // Where table QR codes point (the guest web app). GUEST_BASE_URL wins;
+        // otherwise the first allowed web origin.
+        guest_base_url:
+          (process.env.GUEST_BASE_URL || publicAllowedOrigins()[0] || "").replace(/\/+$/, "") || null,
         settings: await this.access.settings(branchId),
         providers: await this.providers.describe(branchId),
         sections: await this.sections(branchId),

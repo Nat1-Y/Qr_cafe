@@ -44,6 +44,12 @@ import {
 import { checkOrderInventoryAvailability } from "@/application/inventory/order-inventory.service";
 import { settingsAdapter } from "@/infrastructure/adapters/settings.adapter";
 import { renderReceiptImages, ReceiptBlock } from "@/utils/receiptImage";
+import {
+  isQrOrder,
+  pickTicketPrinter,
+  qrTicketHeader,
+  runTicketJobs,
+} from "@/infrastructure/printing/ticket-jobs";
 import { formatOrderNumber } from "@/lib/utils";
 import { getSessionUser } from "@/shared/utils/sessionUser";
 
@@ -409,6 +415,10 @@ const shouldAutoPrintOrder = (order: any) => {
   if (!KITCHEN_PRINT_STATUSES.has(status)) return false;
   if (paymentStatus === "paid") return false;
   if (isOrderMarkedPrinted(order)) return false;
+  // QR orders held for a cashier to accept print on accept, not on create;
+  // and the owner can switch off automatic printing of QR orders entirely.
+  if (order?.meta?.awaiting_accept === true) return false;
+  if (order?.meta?.no_auto_print === true) return false;
   return true;
 };
 
@@ -484,6 +494,14 @@ const mapServerOrderToLocal = (remote: any, cached?: any) => ({
   total_amount: remote.total_amount,
   notes: remote.notes,
   table_number: remote.table_number,
+  // QR self-ordering: where the order came from, and server meta (guest name,
+  // printed_at, awaiting_accept…). The local print flag mirrored into meta
+  // stays sticky like the is_printed column.
+  source: remote.source ?? cached?.source,
+  meta: {
+    ...(remote.meta && typeof remote.meta === "object" ? remote.meta : {}),
+    ...(Number(cached?.meta?.is_printed) === 1 ? { is_printed: 1 } : {}),
+  },
   items: remote.items || [],
   synced: 1,
   // Keep the local print flag so a pull/socket refresh never re-queues an
@@ -535,6 +553,13 @@ const orderRowChanged = (existing: any, incoming: any): boolean => {
       return true;
     }
   }
+  if (String(existing.source ?? "") !== String(incoming.source ?? "")) return true;
+  // meta carries state the POS acts on (e.g. a QR order being accepted).
+  const serverMeta = (m: any) => {
+    const { is_printed: _local, ...rest } = m && typeof m === "object" ? m : {};
+    return JSON.stringify(rest);
+  };
+  if (serverMeta(existing.meta) !== serverMeta(incoming.meta)) return true;
   const existingItems = JSON.stringify(existing.items ?? []);
   const incomingItems = JSON.stringify(incoming.items ?? []);
   return existingItems !== incomingItems;
@@ -1920,7 +1945,11 @@ const ordersAdapterImpl = {
     };
   },
 
-  printOrderNative: async (id: string, printerName?: string) => {
+  printOrderNative: async (
+    id: string,
+    printerName?: string,
+    opts?: { jobKey?: string },
+  ) => {
     const order = await findOrder(id);
     if (!order) {
       throw new Error("We couldn't find that order on this till.");
@@ -1948,18 +1977,14 @@ const ordersAdapterImpl = {
     // simple/active printer when simple mode allows it; otherwise null → skip.
     // `viaFallback` tells callers the ticket printed through simple mode rather
     // than its own route — the price toggle only applies to those tickets.
-    const pickPrinter = (
-      configured?: string,
-    ): { printer: string; viaFallback: boolean } | null => {
-      const name = String(configured || "").trim();
-      if (name && availablePrinters.includes(name)) {
-        return { printer: name, viaFallback: false };
-      }
-      if (simplePrintMode && simplePrinter) {
-        return { printer: simplePrinter, viaFallback: true };
-      }
-      return null;
-    };
+    // A section with no printer (or one that isn't connected) falls back to the
+    // main printer — the simple-mode printer, else the active one — instead of
+    // dropping its ticket.
+    const mainPrinter = simplePrintMode
+      ? simplePrinter
+      : resolvePrinter(printerName || getActivePrinterName(), availablePrinters);
+    const pickPrinter = (configured?: string) =>
+      pickTicketPrinter(configured, availablePrinters, mainPrinter);
 
     // Group items by main_category (prefer menu.main_category, then item fields)
     const itemsByDept: Record<string, any[]> = {};
@@ -2015,25 +2040,31 @@ const ordersAdapterImpl = {
           large: true,
         },
         { kind: "divider" },
-        order.table_number
-          ? {
-              kind: "text",
-              text: `Table: #${order.table_number}`,
-              align: "center",
-              bold: true,
-            }
-          : {
-              kind: "text",
-              text: "Type: Take Away",
-              align: "center",
-              bold: true,
-            },
-        {
-          kind: "text",
-          text: `Waiter: ${waiterName}`,
-          align: "center",
-          bold: true,
-        },
+        // QR orders: a loud "QR ORDER · Table 7" + the guest's name instead
+        // of Table/Waiter (a guest placed it, not a waiter).
+        ...(isQrOrder(order)
+          ? qrTicketHeader(order)
+          : ([
+              order.table_number
+                ? {
+                    kind: "text",
+                    text: `Table: #${order.table_number}`,
+                    align: "center",
+                    bold: true,
+                  }
+                : {
+                    kind: "text",
+                    text: "Type: Take Away",
+                    align: "center",
+                    bold: true,
+                  },
+              {
+                kind: "text",
+                text: `Waiter: ${waiterName}`,
+                align: "center",
+                bold: true,
+              },
+            ] as ReceiptBlock[])),
         {
           kind: "text",
           text: `Date: ${printedAtDate.toLocaleString()}`,
@@ -2071,7 +2102,7 @@ const ordersAdapterImpl = {
           const itemNote = String(item.note || item.notes || "").trim();
           if (itemNote) {
             for (const line of wrapTicketText(`- ${itemNote}`)) {
-              itemBlocks.push({ kind: "text", text: line, align: "center" });
+              itemBlocks.push({ kind: "text", text: line, align: "center", bold: true });
             }
           }
           return itemBlocks;
@@ -2195,17 +2226,20 @@ const ordersAdapterImpl = {
       );
     }
 
+    // Every section must print before the order counts as printed: a section
+    // with no usable printer at all keeps the order unprinted (retried, and
+    // shown in the print-failure banner) instead of losing its ticket.
     if (skippedDepartments.length > 0) {
-      console.warn(
-        `[print] Some tickets were not printed (no routed printer, simple fallback ${simplePrintMode ? "unavailable" : "off"}): ${skippedDepartments.join(", ")}`,
+      throw new Error(
+        `No printer is connected for: ${skippedDepartments.join(", ")}. Connect a printer and the ticket will print.`,
       );
     }
 
-    const printJobs = Object.values(jobsByPrinter).map((job: any) =>
+    // One job per printer; with a jobKey (the auto-print loop) each printer's
+    // success is remembered, so a retry prints only the missing tickets.
+    await runTicketJobs(opts?.jobKey ?? "", jobsByPrinter, (job) =>
       print_thermal_printer(job as any),
     );
-
-    await Promise.allSettled(printJobs);
 
     return true;
   },
@@ -2223,6 +2257,7 @@ const ordersAdapterImpl = {
     orderId: string,
     additionItems: any[],
     printerName?: string,
+    opts?: { jobKey?: string },
   ) => {
     const order = await findOrder(orderId);
     if (!order) {
@@ -2244,18 +2279,14 @@ const ordersAdapterImpl = {
       : "";
     const showPricesOnTicket = getTicketShowPrices();
 
-    const pickPrinter = (
-      configured?: string,
-    ): { printer: string; viaFallback: boolean } | null => {
-      const name = String(configured || "").trim();
-      if (name && availablePrinters.includes(name)) {
-        return { printer: name, viaFallback: false };
-      }
-      if (simplePrintMode && simplePrinter) {
-        return { printer: simplePrinter, viaFallback: true };
-      }
-      return null;
-    };
+    // A section with no printer (or one that isn't connected) falls back to the
+    // main printer — the simple-mode printer, else the active one — instead of
+    // dropping its ticket.
+    const mainPrinter = simplePrintMode
+      ? simplePrinter
+      : resolvePrinter(printerName || getActivePrinterName(), availablePrinters);
+    const pickPrinter = (configured?: string) =>
+      pickTicketPrinter(configured, availablePrinters, mainPrinter);
 
     const itemsByDept: Record<string, any[]> = {};
     const itemDeptPairs = await Promise.all(
@@ -2273,6 +2304,7 @@ const ordersAdapterImpl = {
     if (departments.length === 0) return true;
 
     const jobsByPrinter: Record<string, any> = {};
+    const missingSections: string[] = [];
     const printedAtDate = getApproximateServerDate();
 
     const buildAddedItemsTicketBlocks = (
@@ -2308,25 +2340,31 @@ const ordersAdapterImpl = {
           large: true,
         },
         { kind: "divider" },
-        order.table_number
-          ? {
-              kind: "text",
-              text: `Table: #${order.table_number}`,
-              align: "center",
-              bold: true,
-            }
-          : {
-              kind: "text",
-              text: "Type: Take Away",
-              align: "center",
-              bold: true,
-            },
-        {
-          kind: "text",
-          text: `Waiter: ${waiterName}`,
-          align: "center",
-          bold: true,
-        },
+        // QR orders: a loud "QR ORDER · Table 7" + the guest's name instead
+        // of Table/Waiter (a guest placed it, not a waiter).
+        ...(isQrOrder(order)
+          ? qrTicketHeader(order)
+          : ([
+              order.table_number
+                ? {
+                    kind: "text",
+                    text: `Table: #${order.table_number}`,
+                    align: "center",
+                    bold: true,
+                  }
+                : {
+                    kind: "text",
+                    text: "Type: Take Away",
+                    align: "center",
+                    bold: true,
+                  },
+              {
+                kind: "text",
+                text: `Waiter: ${waiterName}`,
+                align: "center",
+                bold: true,
+              },
+            ] as ReceiptBlock[])),
         {
           kind: "text",
           text: `Added: ${printedAtDate.toLocaleString()}`,
@@ -2361,7 +2399,7 @@ const ordersAdapterImpl = {
           const itemNote = String(item.note || item.notes || "").trim();
           if (itemNote) {
             for (const line of wrapTicketText(`- ${itemNote}`)) {
-              itemBlocks.push({ kind: "text", text: line, align: "center" });
+              itemBlocks.push({ kind: "text", text: line, align: "center", bold: true });
             }
           }
           return itemBlocks;
@@ -2415,7 +2453,10 @@ const ordersAdapterImpl = {
       if (stations.length > 0) {
         for (const station of stations) {
           const pick = pickPrinter(station.printer);
-          if (!pick) continue;
+          if (!pick) {
+            missingSections.push(`${dept} (${station.label || "station"})`);
+            continue;
+          }
           const headerLabel = station.label || `DEPT: ${dept.toUpperCase()}`;
           const showPrices = pick.viaFallback
             ? showPricesOnTicket
@@ -2429,7 +2470,10 @@ const ordersAdapterImpl = {
         }
       } else {
         const pick = pickPrinter(getPrinterForDepartment(dept));
-        if (!pick) continue;
+        if (!pick) {
+          missingSections.push(dept);
+          continue;
+        }
         const showPrices = pick.viaFallback ? showPricesOnTicket : false;
         const blocks = buildAddedItemsTicketBlocks(
           deptItems,
@@ -2440,20 +2484,17 @@ const ordersAdapterImpl = {
       }
     }
 
-    // Unlike printOrderNative, a routing gap here isn't fatal to the caller —
-    // the addition is still marked printed (this ticket type isn't part of the
-    // stuck-order retry banner) but we still surface it for visibility.
-    if (Object.keys(jobsByPrinter).length === 0) {
-      console.warn(
-        `[print] Added-items ticket for order ${orderId} had no routed printer for departments: ${departments.join(", ")}`,
+    // Same guarantee as order tickets: no printer at all means the addition
+    // stays unprinted and is retried, never silently marked done.
+    if (missingSections.length > 0 || Object.keys(jobsByPrinter).length === 0) {
+      throw new Error(
+        `No printer is connected for: ${(missingSections.length ? missingSections : departments).join(", ")}. Connect a printer and the added items will print.`,
       );
-      return false;
     }
 
-    const printJobs = Object.values(jobsByPrinter).map((job: any) =>
+    await runTicketJobs(opts?.jobKey ?? "", jobsByPrinter, (job) =>
       print_thermal_printer(job as any),
     );
-    await Promise.allSettled(printJobs);
 
     return true;
   },
@@ -2596,7 +2637,7 @@ const ordersAdapterImpl = {
           const itemNote = String(item.note || item.notes || "").trim();
           if (itemNote) {
             for (const line of wrapTicketText(`- ${itemNote}`)) {
-              itemBlocks.push({ kind: "text", text: line, align: "center" });
+              itemBlocks.push({ kind: "text", text: line, align: "center", bold: true });
             }
           }
           return itemBlocks;

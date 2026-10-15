@@ -12,6 +12,25 @@ import {
   hasOrderBeenPrintedHere,
   recordOrderPrintedHere,
 } from "@/infrastructure/printing/printed-registry";
+import { api as httpApi } from "@/infrastructure/api/http-client";
+import { playChime } from "@/shared/utils/chime";
+import {
+  getDepartmentStations,
+  getPrinterForDepartment,
+} from "@/infrastructure/printing/printer-config";
+
+/**
+ * Tell the server every section's ticket for this order is out. Drives the
+ * guest tracker's "In the kitchen" step and clears the web cashier's
+ * "Not printed yet" badge. Best-effort: an order created offline (not on the
+ * server yet) or a dropped request just means the badge clears later.
+ */
+const acknowledgePrinted = (orderId: unknown) => {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return;
+  httpApi.post(`/orders/${encodeURIComponent(String(orderId))}/printed-ack`).catch(() => {
+    // not on the server yet / offline — nothing to do
+  });
+};
 
 interface PrintingProps {
   refreshDashboardData: () => Promise<void>;
@@ -151,7 +170,12 @@ export const useCashierPrinting = ({
           // printOrderNative owns all copy/station fan-out internally (per-station
           // copies for routed departments, the global copies setting for plain
           // ones). Call it exactly once so copies are never multiplied here.
-          await (api.orders as any).printOrderNative(order.id);
+          // Each printer's ticket is remembered under this key, so if one
+          // printer fails the next poll prints only what's missing.
+          await (api.orders as any).printOrderNative(order.id, undefined, {
+            jobKey: `order:${order.id}`,
+          });
+          acknowledgePrinted(order.id);
 
           // The ticket is physically out — record it durably FIRST, so even if
           // markPrinted below fails the next poll skips-and-heals instead of
@@ -299,6 +323,8 @@ export const useCashierPrinting = ({
           await (api.orders as any).printAddedItemsNative(
             addition.order_id,
             addition.items,
+            undefined,
+            { jobKey: registryKey },
           );
 
           // Ticket physically out — record durably before the flag write, same
@@ -359,8 +385,15 @@ export const useCashierPrinting = ({
       printingRef.current.add(orderId);
       try {
         // printOrderNative owns all copy/station fan-out internally; call it
-        // once so copies are never multiplied at this layer.
-        await (api.orders as any).printOrderNative(orderId);
+        // once so copies are never multiplied at this layer. An order this
+        // station already fully printed is a deliberate reprint (all tickets);
+        // anything else — e.g. retrying a stuck order — prints only the
+        // tickets that haven't come out yet.
+        const fullyPrinted = hasOrderBeenPrintedHere(orderId);
+        await (api.orders as any).printOrderNative(orderId, undefined, {
+          jobKey: fullyPrinted ? undefined : `order:${orderId}`,
+        });
+        if (!fullyPrinted) acknowledgePrinted(orderId);
 
         // Ticket is physically out — record durably before the flag write so
         // a markPrinted failure can never lead to an automatic duplicate.
@@ -443,6 +476,13 @@ export const useCashierPrinting = ({
         if (order) {
           await persistServerOrders([order]);
         }
+        if (order?.source === "qr") {
+          playChime();
+          const guest = order?.meta?.customer_name ? ` · ${order.meta.customer_name}` : "";
+          toast(`New QR order #${order.order_number ?? ""} · Table ${order.table_number ?? "?"}${guest}`, {
+            duration: 5000,
+          });
+        }
         refreshDashboardData();
         await pollUnprintedOrders();
       } catch (e) {
@@ -505,6 +545,28 @@ export const useCashierPrinting = ({
       unsubscribe();
     };
   }, [pollUnprintedItemAdditions, refreshDashboardData, enabled]);
+
+  // Owner pressed "Print a test QR ticket" for a section in the web settings:
+  // print a test page on that section's printer (or the main printer if the
+  // section has none), so routing can be checked without a real order.
+  useEffect(() => {
+    if (!enabled) return;
+    return orderSocket.subscribeQrEvents(async (event) => {
+      if (event.type !== "qr_test_ticket") return;
+      const section = String(event.payload?.section || "").trim();
+      if (!section) return;
+      const printer =
+        getDepartmentStations(section).find((s) => s.printer)?.printer ||
+        getPrinterForDepartment(section) ||
+        getActivePrinterName();
+      try {
+        await (api.orders as any).testPrintNative(printer);
+        toast.success(`Test QR ticket printed for ${section}`, { duration: 3000 });
+      } catch {
+        toast.error(`The test ticket for ${section} didn't print. Check that printer.`, { duration: 4000 });
+      }
+    });
+  }, [enabled]);
 
   // Diagnostic Printer testing utility
   const testQzPrint = async () => {

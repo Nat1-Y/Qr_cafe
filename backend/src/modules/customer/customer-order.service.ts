@@ -146,7 +146,7 @@ export class CustomerOrderService {
     access: TableAccess,
     session: CustomerSession,
     input: GuestOrderInput,
-    opts: { requireAccept: boolean },
+    opts: { requireAccept: boolean; autoPrint?: boolean },
   ): Promise<{ order: GuestOrder; replay: boolean }> {
     const replay = await this.findReplay(input.client_order_id, session);
     if (replay) return { order: replay, replay: true };
@@ -160,6 +160,8 @@ export class CustomerOrderService {
     // Saved for later: with this on, the POS waits for a cashier to accept the
     // order before it prints (see shouldAutoPrintOrder on the desktop).
     if (opts.requireAccept) extraMeta.awaiting_accept = true;
+    // Owner turned off "Print QR orders automatically": the POS leaves it unprinted.
+    if (opts.autoPrint === false) extraMeta.no_auto_print = true;
 
     try {
       const created = await this.orderService.create(
