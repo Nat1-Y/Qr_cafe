@@ -217,8 +217,9 @@ describe("placing an order", () => {
       status: "pending",
       table_number: 7,
       total_amount: 270,
-      waiter_id: null,
-      employee_id: null,
+      // attributed to the table's assigned waiter
+      waiter_id: A.waiterId,
+      employee_id: A.waiterId,
       branch_id: A.branchId,
       notes: "We're in a hurry",
     });
@@ -562,7 +563,7 @@ describe("assist requests", () => {
     const s = await startSession(A.tableToken);
     const got = once<{ request: { type: string; table_number: number; table_label: string } }>(pos, "assist_request");
     await http().post(`/api/public/t/${A.tableToken}/assist`).set("X-Customer-Session", s).send({ type: "request_bill" }).expect(200);
-    expect((await got).request).toMatchObject({ type: "request_bill", table_number: 7, table_label: "Terrace 7" });
+    expect((await got).request).toMatchObject({ type: "request_bill", table_number: 7, table_label: "Terrace 7", waiter_id: A.waiterId, waiter_name: "Waiter W" });
 
     const again = await http().post(`/api/public/t/${A.tableToken}/assist`).set("X-Customer-Session", s).send({ type: "request_bill" });
     expect(again.status).toBe(429);

@@ -3,9 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "../../db/drizzle";
-import { diningTables } from "../../db/schema";
+import { diningTables, users } from "../../db/schema";
 import { requireBranchId, tenantInsert } from "../../common/tenant/tenant-context";
 import { generateQrToken } from "../../common/qr/qr-token";
 
@@ -21,14 +21,36 @@ function cleanLabel(value: unknown): string | null {
 
 const isOn = (v: unknown) => v === true || v === "true";
 
+/**
+ * The waiter a table is assigned to: an active staff member of this branch,
+ * or null ("" / null clears the assignment). Rejects anyone else, so a table
+ * can never point at another branch's user.
+ */
+async function resolveAssignedWaiter(value: unknown): Promise<string | null> {
+  if (value == null || value === "") return null;
+  const id = String(value);
+  const [row] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(and(eq(users.id, id), eq(users.branch_id, requireBranchId()), eq(users.is_active, true)))
+    .limit(1);
+  if (!row) throw new BadRequestException("Choose a waiter who works at this branch.");
+  return row.id;
+}
+
+const waiterName = sql<string | null>`coalesce(nullif(trim(concat_ws(' ', ${users.first_name}, ${users.last_name})), ''), ${users.name}, ${users.username})`;
+
 @Injectable()
 export class TablesService {
+  /** Tables with the assigned waiter's name, for staff screens. */
   async findAll() {
-    return db
-      .select()
+    const rows = await db
+      .select({ table: diningTables, assigned_waiter_name: waiterName })
       .from(diningTables)
+      .leftJoin(users, eq(diningTables.assigned_waiter_id, users.id))
       .where(eq(diningTables.branch_id, requireBranchId()))
       .orderBy(asc(diningTables.table_number));
+    return rows.map((r) => ({ ...r.table, assigned_waiter_name: r.table.assigned_waiter_id ? r.assigned_waiter_name : null }));
   }
 
   async findById(id: string) {
@@ -55,6 +77,9 @@ export class TablesService {
         status: payload?.status ?? "available",
         ...(payload?.label !== undefined ? { label: cleanLabel(payload.label) } : {}),
         ...(payload?.qr_enabled !== undefined ? { qr_enabled: isOn(payload.qr_enabled) } : {}),
+        ...(payload?.assigned_waiter_id !== undefined
+          ? { assigned_waiter_id: await resolveAssignedWaiter(payload.assigned_waiter_id) }
+          : {}),
       })
       .returning();
 
@@ -79,6 +104,11 @@ export class TablesService {
 
     // Owner switch: turn QR ordering off for just this table.
     if (payload?.qr_enabled !== undefined) updates.qr_enabled = isOn(payload.qr_enabled);
+
+    // The waiter responsible for this table (QR orders are attributed to them).
+    if (payload?.assigned_waiter_id !== undefined) {
+      updates.assigned_waiter_id = await resolveAssignedWaiter(payload.assigned_waiter_id);
+    }
 
     const [updated] = await db
       .update(diningTables)

@@ -478,8 +478,9 @@ export const useCashierPrinting = ({
         }
         if (order?.source === "qr") {
           playChime();
-          const guest = order?.meta?.customer_name ? ` · ${order.meta.customer_name}` : "";
-          toast(`New QR order #${order.order_number ?? ""} · Table ${order.table_number ?? "?"}${guest}`, {
+          // The table's assigned waiter (QR orders are attributed to them).
+          const waiter = order?.employee_name ? ` · ${order.employee_name}` : " · no waiter assigned";
+          toast(`New QR order #${order.order_number ?? ""} · Table ${order.table_number ?? "?"}${waiter}`, {
             duration: 5000,
           });
         }

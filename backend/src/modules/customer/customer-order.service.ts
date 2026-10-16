@@ -169,8 +169,10 @@ export class CustomerOrderService {
           id: input.client_order_id,
           type: "cafe",
           table_number: access.tableNumber,
-          employee_id: null,
-          waiter_id: null,
+          // Attributed to the table's assigned waiter (null if none): their
+          // name goes on tickets and alerts, and the order is in their list.
+          employee_id: access.assignedWaiterId,
+          waiter_id: access.assignedWaiterId,
           items: lines,
           total_amount: orderTotal(lines),
           notes: input.order_note ?? undefined,

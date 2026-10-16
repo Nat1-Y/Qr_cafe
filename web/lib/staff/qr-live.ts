@@ -14,6 +14,9 @@ export interface AssistRequest {
   type: AssistType;
   table_number: number;
   table_label: string | null;
+  /** The table's assigned waiter (null when nobody is assigned). */
+  waiter_id: string | null;
+  waiter_name: string | null;
   order_numbers: number[];
   created_at: string;
 }
@@ -30,7 +33,10 @@ export interface PushedOrder {
   source?: string | null;
   order_number?: number | null;
   table_number?: number | null;
-  meta?: { customer_name?: string } | null;
+  /** The table's assigned waiter, when there is one. */
+  waiter_id?: string | null;
+  employee_name?: string | null;
+  meta?: Record<string, unknown> | null;
 }
 
 export interface OpenQrOrder {
@@ -41,6 +47,8 @@ export interface OpenQrOrder {
   total_amount?: number | null;
   created_at?: string | null;
   status?: string;
+  waiter_id?: string | null;
+  employee_name?: string | null;
   meta?: Record<string, unknown> | null;
   items?: Array<{ quantity?: number; menu_item_name?: string; name?: string; note?: string | null }>;
 }
@@ -131,12 +139,19 @@ const POLL_MS = 15_000;
  * Live QR feed for staff screens: calls `onQrOrder` for each new QR order and
  * keeps the list of open guest requests current (socket first, poll fallback).
  */
-export function useQrStaffFeed(auth: StaffAuth, onQrOrder: (order: PushedOrder) => void) {
+export function useQrStaffFeed(
+  auth: StaffAuth,
+  onQrOrder: (order: PushedOrder) => void,
+  /** Chime only for requests this screen cares about (e.g. a waiter's own tables). */
+  shouldAlert?: (request: AssistRequest) => boolean,
+) {
   const [requests, setRequests] = useState<AssistRequest[]>([]);
   const onQrOrderRef = useRef(onQrOrder);
+  const shouldAlertRef = useRef(shouldAlert);
   useEffect(() => {
     onQrOrderRef.current = onQrOrder;
-  }, [onQrOrder]);
+    shouldAlertRef.current = shouldAlert;
+  }, [onQrOrder, shouldAlert]);
   const connected = useRef(false);
   const { deviceToken, bearer } = auth;
 
@@ -171,7 +186,7 @@ export function useQrStaffFeed(auth: StaffAuth, onQrOrder: (order: PushedOrder) 
         const r = payload?.request;
         if (!r) return;
         setRequests((prev) => [...prev.filter((x) => !(x.table_number === r.table_number && x.type === r.type)), r]);
-        playChime();
+        if (!shouldAlertRef.current || shouldAlertRef.current(r)) playChime();
       });
       socket.on("assist_dismissed", (payload: { id?: string }) => {
         setRequests((prev) => prev.filter((x) => x.id !== payload?.id));
@@ -203,12 +218,13 @@ export function useQrStaffFeed(auth: StaffAuth, onQrOrder: (order: PushedOrder) 
 }
 
 /** QR-order facts staff screens show, read from an order row. */
-export function qrOrderInfo(order: { source?: unknown; meta?: unknown; table_number?: unknown }) {
+export function qrOrderInfo(order: { source?: unknown; meta?: unknown; table_number?: unknown; employee_name?: unknown }) {
   const isQr = order.source === "qr";
-  const meta = (order.meta ?? {}) as { customer_name?: unknown; printed_at?: unknown; awaiting_accept?: unknown; qr_table_label?: unknown };
+  const meta = (order.meta ?? {}) as { printed_at?: unknown; awaiting_accept?: unknown; qr_table_label?: unknown };
   return {
     isQr,
-    customerName: typeof meta.customer_name === "string" ? meta.customer_name : null,
+    // QR orders are attributed to the table's assigned waiter (employee_name).
+    waiterName: typeof order.employee_name === "string" && order.employee_name ? order.employee_name : null,
     notPrinted: isQr && !meta.printed_at,
     awaitingAccept: isQr && meta.awaiting_accept === true,
     tableLabel: typeof meta.qr_table_label === "string" ? meta.qr_table_label : null,

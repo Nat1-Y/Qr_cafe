@@ -10,6 +10,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { tenantColumns } from "./_tenant";
+import { users } from "./users.table";
 import { generateQrToken } from "../../common/qr/qr-token";
 
 export const diningTables = pgTable(
@@ -32,6 +33,11 @@ export const diningTables = pgTable(
     qr_rotated_at: timestamp("qr_rotated_at"),
     // Optional guest-facing name, e.g. "Terrace 4". Falls back to the number.
     label: varchar("label", { length: 80 }),
+    // The waiter responsible for this table. QR orders from the table are
+    // attributed to them (shown on tickets, alerts and their own order list).
+    assigned_waiter_id: uuid("assigned_waiter_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     created_at: timestamp("created_at").defaultNow(),
     updated_at: timestamp("updated_at").defaultNow(),
   },

@@ -69,11 +69,14 @@ export function isQrOrder(order: { source?: unknown } | null | undefined): boole
 
 /**
  * Header lines for a QR order's ticket: a loud "QR ORDER · Table 7" and the
- * guest's name when they gave one. Replaces the Table/Waiter lines (a QR
- * order has no waiter).
+ * waiter assigned to that table (who brings the order over). Replaces the
+ * usual Table/Waiter lines.
  */
-export function qrTicketHeader(order: { table_number?: unknown; meta?: unknown }): ReceiptBlock[] {
-  const meta = (order.meta ?? {}) as { customer_name?: unknown; qr_table_label?: unknown };
+export function qrTicketHeader(
+  order: { table_number?: unknown; meta?: unknown; employee_name?: unknown },
+  waiterName?: string | null,
+): ReceiptBlock[] {
+  const meta = (order.meta ?? {}) as { qr_table_label?: unknown };
   const table = order.table_number != null ? ` · Table ${String(order.table_number)}` : "";
   const blocks: ReceiptBlock[] = [
     { kind: "text", text: `QR ORDER${table}`, align: "center", bold: true, large: true },
@@ -81,8 +84,14 @@ export function qrTicketHeader(order: { table_number?: unknown; meta?: unknown }
   if (typeof meta.qr_table_label === "string" && meta.qr_table_label.trim()) {
     blocks.push({ kind: "text", text: meta.qr_table_label.trim(), align: "center", bold: true });
   }
-  if (typeof meta.customer_name === "string" && meta.customer_name.trim()) {
-    blocks.push({ kind: "text", text: `Guest: ${meta.customer_name.trim()}`, align: "center", bold: true });
-  }
+  const waiter =
+    (typeof order.employee_name === "string" && order.employee_name.trim()) ||
+    (waiterName && waiterName !== "Unknown" ? waiterName : "");
+  blocks.push({
+    kind: "text",
+    text: waiter ? `Waiter: ${waiter}` : "Waiter: not assigned",
+    align: "center",
+    bold: true,
+  });
   return blocks;
 }

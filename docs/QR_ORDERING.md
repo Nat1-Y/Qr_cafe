@@ -4,6 +4,16 @@ Guests scan the QR code on their table, browse the live menu, order with notes,
 and follow their order until it's served. QR orders use the same pipeline as
 waiter orders: same queue, same order numbers, same printing, same settlement.
 
+## Waiters and tables
+
+Each table can have an assigned waiter (Dashboard › Tables › edit a table ›
+"Waiter for this table"). A QR order from that table belongs to that waiter:
+their name is on the kitchen/barista tickets, the till and web cashier alerts
+and the order; it appears in their own orders; and their waiter app shows
+only their tables' QR orders and guest requests (plus tables with no waiter,
+so nothing is missed). A table with no waiter shows "No waiter assigned"
+everywhere so staff know to pick it up.
+
 ## Run it locally
 
 Needs Node 22, Docker, and pnpm 9 (`npx -y pnpm@9.15.9` works without a global install).

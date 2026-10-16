@@ -5,7 +5,7 @@
 //
 //   pnpm db:seed-qr-demo
 import * as bcrypt from "bcryptjs";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db, pool } from "../src/db/drizzle";
 import {
   branches,
@@ -145,6 +145,20 @@ async function main() {
 
   await seedMenu();
   await seedTables();
+  // Dawit looks after tables 1–8; 9–12 have no waiter (shows that case too).
+  const [dawit] = await db.select({ id: users.id }).from(users).where(eq(users.username, "waiter")).limit(1);
+  if (dawit) {
+    await db
+      .update(diningTables)
+      .set({ assigned_waiter_id: dawit.id })
+      .where(
+        and(
+          eq(diningTables.branch_id, DEFAULT_BRANCH_ID),
+          sql`${diningTables.table_number} <= 8`,
+          sql`${diningTables.assigned_waiter_id} is null`,
+        ),
+      );
+  }
 
   await upsertSetting(QR_SETTING_KEYS.enabled, "true");
   await upsertSetting(QR_SETTING_KEYS.welcomeMessage, "Selam! Order from your table — we'll bring it right over.");

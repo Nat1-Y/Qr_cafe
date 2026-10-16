@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PrinterIcon, QrCodeIcon } from "lucide-react";
 import { ResourceManager, type Column } from "@/components/resource-manager";
 import { StatusBadge } from "@/components/status-badge";
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TableQrDialog } from "@/components/tables/TableQrDialog";
-import { Tables } from "@/lib/resources";
+import { Tables, Users } from "@/lib/resources";
 import type { QrTable } from "@/lib/qr";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +24,16 @@ const columns: Column<T>[] = [
     key: "label",
     label: "Name on card",
     render: (r) => (r.label ? <span className="text-foreground">{r.label}</span> : <span className="text-muted-foreground">—</span>),
+  },
+  {
+    key: "assigned_waiter_id",
+    label: "Waiter",
+    render: (r) =>
+      r.assigned_waiter_name ? (
+        <span className="text-foreground">{r.assigned_waiter_name}</span>
+      ) : (
+        <span className="text-muted-foreground">No waiter</span>
+      ),
   },
   {
     key: "qr_enabled",
@@ -74,8 +84,11 @@ function FloorTiles({ rows, loading }: { rows: T[]; loading: boolean }) {
                 <span className="text-kpi leading-none text-foreground">{t.table_number}</span>
                 {!t.qr_enabled ? <QrCodeIcon className="size-4 text-muted-foreground opacity-50" aria-label="QR ordering off" /> : null}
               </span>
-              <span className={cn("text-sm font-semibold", occupied ? "text-highlight-foreground" : "text-accent")}>
-                {occupied ? "Occupied" : "Free"}
+              <span className="min-w-0">
+                <span className={cn("block text-sm font-semibold", occupied ? "text-highlight-foreground" : "text-accent")}>
+                  {occupied ? "Occupied" : "Free"}
+                </span>
+                <span className="block truncate text-meta text-muted-foreground">{t.assigned_waiter_name ?? "No waiter"}</span>
               </span>
             </div>
           );
@@ -85,8 +98,27 @@ function FloorTiles({ rows, loading }: { rows: T[]; loading: boolean }) {
   );
 }
 
+interface WaiterOption {
+  id: string;
+  name: string;
+}
+
 export default function TablesPage() {
   const [qrFor, setQrFor] = useState<T | null>(null);
+  // Active waiters to assign to tables (QR orders go to the table's waiter).
+  const [waiters, setWaiters] = useState<WaiterOption[]>([]);
+  useEffect(() => {
+    Users.waiters()
+      .then((rows: Array<{ id: string; first_name?: string | null; last_name?: string | null; name?: string; username?: string }>) =>
+        setWaiters(
+          rows.map((u) => ({
+            id: u.id,
+            name: [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || u.name || u.username || "Waiter",
+          })),
+        ),
+      )
+      .catch(() => setWaiters([]));
+  }, []);
 
   return (
     <ResourceManager<T>
@@ -97,6 +129,12 @@ export default function TablesPage() {
       fields={[
         { key: "table_number", label: "Table number", type: "number", required: true },
         { key: "label", label: "Name on card (optional)", type: "text" },
+        {
+          key: "assigned_waiter_id",
+          label: "Waiter for this table",
+          type: "select",
+          options: waiters.map((w) => ({ value: w.id, label: w.name })),
+        },
         { key: "qr_enabled", label: "Guests can order by QR", type: "switch", default: true },
       ]}
       load={Tables.list}

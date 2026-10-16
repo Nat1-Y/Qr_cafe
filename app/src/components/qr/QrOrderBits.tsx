@@ -12,12 +12,18 @@ interface QrOrderLike {
   table_number?: unknown;
   meta?: unknown;
   is_printed?: unknown;
+  employee_name?: unknown;
+  waiter_name?: unknown;
 }
 
 /** "QR · Table 7", guest name and waiting/not-printed badges for a QR order. */
 export function QrOrderBadges({ order }: { order: QrOrderLike }) {
   if (order?.source !== 'qr') return null;
-  const meta = (order.meta ?? {}) as { customer_name?: unknown; awaiting_accept?: unknown; is_printed?: unknown };
+  const meta = (order.meta ?? {}) as { awaiting_accept?: unknown; is_printed?: unknown };
+  const waiter =
+    (typeof order.employee_name === 'string' && order.employee_name) ||
+    (typeof order.waiter_name === 'string' && order.waiter_name) ||
+    '';
   const printedHere = Number(order.is_printed) === 1 || Number(meta.is_printed) === 1;
   return (
     <span className="mt-1 flex flex-wrap items-center gap-1.5">
@@ -25,9 +31,8 @@ export function QrOrderBadges({ order }: { order: QrOrderLike }) {
         <QrCode aria-hidden />
         QR{order.table_number != null ? ` · Table ${String(order.table_number)}` : ''}
       </Badge>
-      {typeof meta.customer_name === 'string' && meta.customer_name ? (
-        <Badge variant="secondary">{meta.customer_name}</Badge>
-      ) : null}
+      {/* The queue line already shows the waiter; flag only tables with none. */}
+      {waiter ? null : <Badge variant="warning">No waiter assigned</Badge>}
       {meta.awaiting_accept === true ? (
         <Badge variant="warning">Waiting for a cashier to accept</Badge>
       ) : !printedHere ? (
@@ -45,6 +50,7 @@ interface AssistRequest {
   type: 'call_waiter' | 'request_bill';
   table_number: number;
   table_label: string | null;
+  waiter_name?: string | null;
   order_numbers: number[];
   created_at: string;
 }
@@ -74,7 +80,8 @@ export function QrAssistAlerts() {
         const r = event.payload.request as AssistRequest;
         setRequests((prev) => [...prev.filter((x) => !(x.table_number === r.table_number && x.type === r.type)), r]);
         playChime();
-        toast(`Table ${r.table_number} ${r.type === 'request_bill' ? 'is asking for the bill' : 'is calling a waiter'}`, {
+        const who = r.waiter_name ? ` (${r.waiter_name})` : '';
+        toast(`Table ${r.table_number}${who} ${r.type === 'request_bill' ? 'is asking for the bill' : 'is calling a waiter'}`, {
           duration: 5000,
         });
       } else if (event.type === 'assist_dismissed') {
@@ -116,6 +123,7 @@ export function QrAssistAlerts() {
               </span>{' '}
               {bill ? 'is asking for the bill' : 'is calling a waiter'}
               {r.order_numbers.length ? ` · order ${r.order_numbers.map((n) => `#${n}`).join(', ')}` : ''}
+              {` · ${r.waiter_name ? `${r.waiter_name}'s table` : 'no waiter assigned'}`}
             </p>
             <Button size="sm" variant="outline" onClick={() => void dismiss(r.id)}>
               <Check /> On it

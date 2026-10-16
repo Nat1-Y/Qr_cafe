@@ -41,6 +41,9 @@ export interface QrTable {
   qr_token: string;
   qr_enabled: boolean;
   qr_rotated_at: string | null;
+  /** The waiter responsible for this table; QR orders are attributed to them. */
+  assigned_waiter_id: string | null;
+  assigned_waiter_name: string | null;
 }
 
 /**

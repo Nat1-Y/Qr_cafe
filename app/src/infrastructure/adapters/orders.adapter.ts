@@ -2043,7 +2043,7 @@ const ordersAdapterImpl = {
         // QR orders: a loud "QR ORDER · Table 7" + the guest's name instead
         // of Table/Waiter (a guest placed it, not a waiter).
         ...(isQrOrder(order)
-          ? qrTicketHeader(order)
+          ? qrTicketHeader(order, waiterName)
           : ([
               order.table_number
                 ? {
@@ -2343,7 +2343,7 @@ const ordersAdapterImpl = {
         // QR orders: a loud "QR ORDER · Table 7" + the guest's name instead
         // of Table/Waiter (a guest placed it, not a waiter).
         ...(isQrOrder(order)
-          ? qrTicketHeader(order)
+          ? qrTicketHeader(order, waiterName)
           : ([
               order.table_number
                 ? {

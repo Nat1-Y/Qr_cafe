@@ -127,6 +127,13 @@
       "when": 1792008058509,
       "tag": "0017_qr_self_ordering",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792178846427,
+      "tag": "0018_table_waiter",
+      "breakpoints": true
     }
   ]
 }

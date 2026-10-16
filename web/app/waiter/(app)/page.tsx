@@ -78,7 +78,7 @@ export default function WaiterDashboardPage() {
         onMyProfile={() => router.push("/waiter/profile")}
       />
 
-      <QrTableOrders auth={qrAuth} />
+      <QrTableOrders auth={qrAuth} waiterId={user?.id ? String(user.id) : null} />
 
       <section className="space-y-3">
         <Segmented

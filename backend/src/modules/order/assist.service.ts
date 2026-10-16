@@ -9,6 +9,9 @@ export interface AssistRequest {
   type: AssistType;
   table_number: number;
   table_label: string | null;
+  /** The table's assigned waiter, so their app can show only their tables. */
+  waiter_id: string | null;
+  waiter_name: string | null;
   order_numbers: number[];
   created_at: string;
 }

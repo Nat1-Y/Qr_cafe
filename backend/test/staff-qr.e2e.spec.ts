@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import request from "supertest";
 import type { INestApplication } from "@nestjs/common";
 import { eq } from "drizzle-orm";
@@ -104,5 +105,40 @@ describe("QR settings", () => {
     await http().post("/api/settings/qr/test-ticket").set("X-Device-Token", A.deviceToken).send({ section: "Juice" }).expect(201);
     expect(await got).toEqual({ section: "juice" });
     pos.close();
+  });
+});
+
+describe("waiters assigned to tables", () => {
+  it("assigns a waiter, rejects another branch's user, and attributes QR orders", async () => {
+    const B = await seedBranch({ businessId: A.businessId });
+    const t8 = await tableRow(A.offTableToken);
+    await http().put(`/api/tables/${t8.id}`).set("X-Device-Token", A.deviceToken).send({ assigned_waiter_id: B.waiterId }).expect(400);
+    await http().put(`/api/tables/${t8.id}`).set("X-Device-Token", A.deviceToken).send({ assigned_waiter_id: A.waiterId, qr_enabled: true }).expect(200);
+
+    const list = await http().get("/api/tables").set("X-Device-Token", A.deviceToken).expect(200);
+    const row = list.body.data.tables.find((t: { id: string }) => t.id === t8.id);
+    expect(row).toMatchObject({ assigned_waiter_id: A.waiterId, assigned_waiter_name: "Waiter W" });
+
+    // Order from it: attributed to the waiter, visible in the cashier queue with their name.
+    const s = (await http().get(`/api/public/t/${A.offTableToken}`).expect(200)).body.data.session.token;
+    const placed = await http()
+      .post(`/api/public/t/${A.offTableToken}/orders`)
+      .set("X-Customer-Session", s)
+      .send({ client_order_id: randomUUID(), items: [{ menu_item_id: A.items.tea, quantity: 1 }] })
+      .expect(201);
+    const order = await http().get(`/api/orders/${placed.body.data.order.id}`).set("X-Device-Token", A.deviceToken).expect(200);
+    const o = order.body.data?.order ?? order.body.data;
+    expect(o).toMatchObject({ source: "qr", waiter_id: A.waiterId, employee_name: "Waiter W" });
+
+    // Unassign: the next QR order has no waiter.
+    await http().put(`/api/tables/${t8.id}`).set("X-Device-Token", A.deviceToken).send({ assigned_waiter_id: "" }).expect(200);
+    resetRateLimits(app);
+    const placed2 = await http()
+      .post(`/api/public/t/${A.offTableToken}/orders`)
+      .set("X-Customer-Session", s)
+      .send({ client_order_id: randomUUID(), items: [{ menu_item_id: A.items.tea, quantity: 1 }] })
+      .expect(201);
+    const o2 = (await http().get(`/api/orders/${placed2.body.data.order.id}`).set("X-Device-Token", A.deviceToken).expect(200)).body.data;
+    expect((o2.order ?? o2).waiter_id).toBeNull();
   });
 });

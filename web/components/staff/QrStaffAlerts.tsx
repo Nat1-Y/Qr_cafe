@@ -6,7 +6,7 @@ import { BellRingIcon, CheckIcon, PrinterIcon, QrCodeIcon, ReceiptTextIcon } fro
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { playChime, qrOrderInfo, useQrStaffFeed, type PushedOrder, type StaffAuth } from "@/lib/staff/qr-live";
+import { playChime, qrOrderInfo, useQrStaffFeed, type AssistRequest, type PushedOrder, type StaffAuth } from "@/lib/staff/qr-live";
 
 function minutesAgo(iso: string): string {
   const m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
@@ -20,23 +20,33 @@ function minutesAgo(iso: string): string {
 export function QrStaffAlerts({
   auth,
   onNewQrOrder,
+  forWaiterId,
   className,
 }: {
   auth: StaffAuth;
   onNewQrOrder?: () => void;
+  /** Waiter app: only this waiter's tables (and tables with no waiter). */
+  forWaiterId?: string | null;
   className?: string;
 }) {
+  const isMine = useCallback(
+    (waiterId: string | null | undefined) => !forWaiterId || !waiterId || waiterId === forWaiterId,
+    [forWaiterId],
+  );
   const handleOrder = useCallback(
     (order: PushedOrder) => {
+      if (!isMine(order.waiter_id)) return;
       playChime();
       const where = order.table_number != null ? `Table ${order.table_number}` : "a table";
-      const who = order.meta?.customer_name ? ` · ${order.meta.customer_name}` : "";
+      const who = order.employee_name ? ` · ${order.employee_name}` : " · no waiter assigned";
       toast.info(`New QR order #${order.order_number ?? ""} from ${where}${who}`, { duration: 6000 });
       onNewQrOrder?.();
     },
-    [onNewQrOrder],
+    [onNewQrOrder, isMine],
   );
-  const { requests, dismiss } = useQrStaffFeed(auth, handleOrder);
+  const alertFor = useCallback((r: AssistRequest) => isMine(r.waiter_id), [isMine]);
+  const { requests: allRequests, dismiss } = useQrStaffFeed(auth, handleOrder, alertFor);
+  const requests = allRequests.filter((r) => isMine(r.waiter_id));
 
   if (requests.length === 0) return null;
   return (
@@ -54,7 +64,8 @@ export function QrStaffAlerts({
               <span className="font-semibold">
                 Table {r.table_number}
                 {r.table_label ? ` (${r.table_label})` : ""}
-              </span>{" "}
+              </span>
+              {r.waiter_name ? ` · ${r.waiter_name}'s table` : ""}{" "}
               {bill ? "is asking for the bill" : "is calling a waiter"}
               {r.order_numbers.length ? ` · order ${r.order_numbers.map((n) => `#${n}`).join(", ")}` : ""}
               <span className="ml-1 opacity-80">· {minutesAgo(r.created_at)}</span>
@@ -74,7 +85,7 @@ export function QrOrderBadges({
   order,
   onAccept,
 }: {
-  order: { source?: unknown; meta?: unknown; table_number?: number | null };
+  order: { source?: unknown; meta?: unknown; table_number?: number | null; employee_name?: string | null };
   onAccept?: () => void;
 }) {
   const info = qrOrderInfo(order);
@@ -85,7 +96,8 @@ export function QrOrderBadges({
         <QrCodeIcon aria-hidden />
         QR{order.table_number != null ? ` · Table ${order.table_number}` : ""}
       </Badge>
-      {info.customerName ? <Badge variant="secondary">{info.customerName}</Badge> : null}
+      {/* The waiter's name is on the line below; only flag tables nobody is assigned to. */}
+      {info.waiterName ? null : <Badge variant="warning">No waiter assigned</Badge>}
       {info.awaitingAccept ? (
         <>
           <Badge variant="warning">Waiting for you to accept</Badge>

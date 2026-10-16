@@ -99,7 +99,7 @@ export async function seedBranch(
   const tableToken = generateQrToken();
   const offTableToken = generateQrToken();
   await db.insert(diningTables).values([
-    { ...t, table_number: 7, qr_token: tableToken, label: "Terrace 7" },
+    { ...t, table_number: 7, qr_token: tableToken, label: "Terrace 7", assigned_waiter_id: waiterId },
     { ...t, table_number: 8, qr_token: offTableToken, qr_enabled: false },
   ]);
 

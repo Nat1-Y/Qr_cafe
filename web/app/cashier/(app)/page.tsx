@@ -849,7 +849,9 @@ export default function CashierQueuePage() {
                         </p>
                         <QrOrderBadges order={order} onAccept={() => void acceptQrOrder(order)} />
                         <p className="mt-0.5 flex flex-wrap items-center gap-1 text-meta text-muted-foreground">
-                          {order.source === "qr" ? "Ordered by the guest" : order.employee_name || "Waiter"}
+                          {order.source === "qr"
+                            ? `${order.employee_name ? `Waiter: ${order.employee_name}` : "No waiter"} · ordered by QR`
+                            : order.employee_name || "Waiter"}
                           <span aria-hidden>·</span>
                           <Clock className="size-3" />
                           {timeAgo(order.created_at)}

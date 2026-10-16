@@ -15,19 +15,21 @@ function since(iso: string | null | undefined): string {
 }
 
 /**
- * Waiter view of QR ordering: guest requests to respond to, and every open
- * order guests placed from their tables (all tables in the branch — tables
- * aren't assigned to waiters), so someone can bring it over.
+ * Waiter view of QR ordering: open orders and guest requests from the tables
+ * assigned to this waiter, plus tables nobody is assigned to (so they're
+ * never missed).
  */
-export function QrTableOrders({ auth }: { auth: StaffAuth }) {
+export function QrTableOrders({ auth, waiterId }: { auth: StaffAuth; waiterId: string | null }) {
   const [orders, setOrders] = useState<OpenQrOrder[]>([]);
   const load = useCallback(async () => {
     try {
-      setOrders(await qrStaffApi.openQrOrders(auth));
+      // This waiter's tables, plus tables nobody is assigned to.
+      const all = await qrStaffApi.openQrOrders(auth);
+      setOrders(all.filter((o) => !waiterId || !o.waiter_id || o.waiter_id === waiterId));
     } catch {
       // keep the last list
     }
-  }, [auth]);
+  }, [auth, waiterId]);
 
   useEffect(() => {
     const kick = window.setTimeout(() => void load(), 0);
@@ -45,16 +47,16 @@ export function QrTableOrders({ auth }: { auth: StaffAuth }) {
 
   return (
     <section className="space-y-3">
-      <QrStaffAlerts auth={auth} onNewQrOrder={() => void load()} />
+      <QrStaffAlerts auth={auth} forWaiterId={waiterId} onNewQrOrder={() => void load()} />
       <div className="rounded-card border border-border bg-card">
         <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
           <h2 className="flex items-center gap-2 text-section text-foreground">
-            <QrCodeIcon className="size-5 text-muted-foreground" aria-hidden /> Table orders (QR)
+            <QrCodeIcon className="size-5 text-muted-foreground" aria-hidden /> My tables · QR orders
           </h2>
           <span className="rounded-full bg-highlight px-2.5 py-0.5 text-eyebrow text-highlight-foreground">{sorted.length}</span>
         </div>
         {sorted.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted-foreground">No open QR orders. New ones show up here.</p>
+          <p className="px-4 py-8 text-center text-sm text-muted-foreground">No open QR orders on your tables. New ones show up here.</p>
         ) : (
           <ul className="divide-y divide-border">
             {sorted.map((o) => (

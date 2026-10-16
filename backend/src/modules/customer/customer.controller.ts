@@ -265,6 +265,8 @@ export class CustomerController {
       type,
       table_number: table.tableNumber,
       table_label: table.label,
+      waiter_id: table.assignedWaiterId,
+      waiter_name: table.assignedWaiterName,
       order_numbers: orderNumbers,
     });
     return { status: "success", data: { received: true, at: request.created_at } };
