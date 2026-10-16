@@ -77,6 +77,14 @@ describe("QR token → tenant", () => {
     expect(res.body.data.session.token).toMatch(/^[A-Za-z0-9_-]{43}$/);
   });
 
+  it("serves server-renderable welcome info without starting a session", async () => {
+    const res = await http().get(`/api/public/t/${A.tableToken}/info`).expect(200);
+    expect(res.body.data).toMatchObject({ cafe: { name: "Café A" }, table: { number: 7 }, ordering: { open: true } });
+    expect(res.body.data.session).toBeUndefined();
+    expect(res.headers["cache-control"]).toMatch(/max-age=30/);
+    await http().get(`/api/public/t/${generateQrToken()}/info`).expect(404);
+  });
+
   it("returns a friendly 404 for unknown or malformed tokens", async () => {
     const res = await http().get(`/api/public/t/${generateQrToken()}`).expect(404);
     expect(res.body.message).toMatch(/QR code isn't working/);

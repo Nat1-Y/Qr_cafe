@@ -215,6 +215,11 @@ const am: Record<MessageKey, string> = {
 
 const dictionaries: Record<Lang, Record<MessageKey, string>> = { en, am };
 
+/** Dictionary key for a tracker stage. */
+export function stageLabelKey(stage: "sent" | "in_kitchen" | "served" | "cancelled"): MessageKey {
+  return stage === "in_kitchen" ? "stepKitchen" : stage === "served" ? "stepServed" : stage === "cancelled" ? "cancelled" : "stepSent";
+}
+
 export type Translate = (key: MessageKey, vars?: Record<string, string | number>) => string;
 
 export function translate(lang: Lang, key: MessageKey, vars?: Record<string, string | number>): string {

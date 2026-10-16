@@ -5,9 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatETB } from "@/lib/format";
-import { useI18n, type MessageKey } from "@/lib/customer/i18n";
+import { stageLabelKey, useI18n, type MessageKey } from "@/lib/customer/i18n";
 import type { GuestOrder, GuestStage, Landing, PaymentOption } from "@/lib/customer/types";
-import { GuestHeader } from "./MenuScreen";
+import { GuestHeader } from "./GuestHeader";
 
 const STEPS: Array<{ stage: Exclude<GuestStage, "cancelled">; key: MessageKey; Icon: typeof SendIcon }> = [
   { stage: "sent", key: "stepSent", Icon: SendIcon },
@@ -15,9 +15,6 @@ const STEPS: Array<{ stage: Exclude<GuestStage, "cancelled">; key: MessageKey; I
   { stage: "served", key: "stepServed", Icon: UtensilsIcon },
 ];
 
-export function stageLabelKey(stage: GuestStage): MessageKey {
-  return stage === "in_kitchen" ? "stepKitchen" : stage === "served" ? "stepServed" : stage === "cancelled" ? "cancelled" : "stepSent";
-}
 
 function Tracker({ order }: { order: GuestOrder }) {
   const { t } = useI18n();

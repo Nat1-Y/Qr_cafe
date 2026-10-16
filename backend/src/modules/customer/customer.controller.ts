@@ -107,6 +107,43 @@ export class CustomerController {
     };
   }
 
+  /**
+   * Who/where for the welcome screen, without starting a session — so the web
+   * app can render it on the server (fast first paint) and cache it briefly.
+   * Called by the web server, so it isn't limited per IP like the guest routes.
+   */
+  @Get("t/:qrToken/info")
+  async info(@Param("qrToken") token: string, @Res({ passthrough: true }) res: Response) {
+    const table = await this.access.resolve(token);
+    const settings = await this.access.settings(table.branchId);
+    const ordering = this.access.orderingState(table, settings);
+    res.setHeader("Cache-Control", "public, max-age=30");
+    return {
+      status: "success",
+      data: {
+        cafe: {
+          name: table.branchName,
+          logo_url: table.logoUrl,
+          phone: table.phone,
+          currency: table.currency,
+          welcome_message: settings.welcomeMessage || null,
+        },
+        table: { number: table.tableNumber, label: table.label },
+        ordering: {
+          open: ordering.open,
+          reason: ordering.reason,
+          message: ordering.reason ? CLOSED_MESSAGES[ordering.reason] : null,
+          hours: settings.orderingHours,
+        },
+        options: {
+          show_prices: settings.showPrices,
+          allow_notes: settings.allowNotes,
+          max_items: settings.maxItemsPerOrder,
+        },
+      },
+    };
+  }
+
   @Get("t/:qrToken/menu")
   async getMenu(
     @Param("qrToken") token: string,

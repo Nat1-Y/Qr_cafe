@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { io, type Socket } from "socket.io-client";
+import type { Socket } from "socket.io-client";
 import { apiOrigin, guestApi, GuestApiError } from "./api";
 import type { GuestOrder, GuestStage } from "./types";
 
@@ -71,25 +71,31 @@ export function useGuestOrders(token: string, session: string | null) {
   useEffect(() => {
     if (!session) return;
     let socket: Socket | null = null;
-    try {
-      socket = io(`${apiOrigin()}/customer`, {
-        auth: { qrToken: token, session },
-        transports: ["websocket", "polling"],
-        reconnectionDelayMax: 10_000,
-      });
-      socket.on("connect", () => {
-        connectedRef.current = true;
-        void refresh(); // catch anything missed while disconnected
-      });
-      socket.on("disconnect", () => {
+    let closed = false;
+    // The socket client is loaded after first paint — the polling below covers
+    // the moment before it connects (or if it never does).
+    import("socket.io-client")
+      .then(({ io }) => {
+        if (closed) return;
+        socket = io(`${apiOrigin()}/customer`, {
+          auth: { qrToken: token, session },
+          transports: ["websocket", "polling"],
+          reconnectionDelayMax: 10_000,
+        });
+        socket.on("connect", () => {
+          connectedRef.current = true;
+          void refresh(); // catch anything missed while disconnected
+        });
+        socket.on("disconnect", () => {
+          connectedRef.current = false;
+        });
+        socket.on("order_updated", (payload: { order?: GuestOrder }) => {
+          if (payload?.order) upsert(payload.order);
+        });
+      })
+      .catch(() => {
         connectedRef.current = false;
       });
-      socket.on("order_updated", (payload: { order?: GuestOrder }) => {
-        if (payload?.order) upsert(payload.order);
-      });
-    } catch {
-      connectedRef.current = false;
-    }
 
     const kick = window.setTimeout(() => void refresh(), 0);
     const poll = window.setInterval(() => {
@@ -106,7 +112,8 @@ export function useGuestOrders(token: string, session: string | null) {
       window.clearInterval(poll);
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("online", onVisible);
-      socket?.close();
+      closed = true;
+      (socket as Socket | null)?.close();
       connectedRef.current = false;
     };
   }, [token, session, refresh, upsert]);

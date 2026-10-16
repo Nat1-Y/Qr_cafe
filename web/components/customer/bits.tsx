@@ -16,12 +16,17 @@ export function LanguageToggle({ className }: { className?: string }) {
     <button
       type="button"
       onClick={() => setLang(lang === "en" ? "am" : "en")}
-      aria-label={t("switchToLabel")}
+      title={t("switchToLabel")}
       className={cn(
         "inline-flex h-11 min-w-11 items-center justify-center rounded-full border border-border bg-card px-3.5 text-meta font-semibold text-foreground transition-colors hover:bg-row-hover focus-visible:ring-4 focus-visible:ring-ring focus-visible:outline-none",
         className,
       )}>
-      <span lang={lang === "en" ? "am" : "en"}>{t("switchTo")}</span>
+      {/* In English the only Ethiopic on screen is this label: draw it with the
+          phone's own font so English guests don't download the 200 KB
+          Ethiopic webfont just for one word. */}
+      <span lang={lang === "en" ? "am" : "en"} className={lang === "en" ? "font-[system-ui,sans-serif]" : undefined}>
+        {t("switchTo")}
+      </span>
     </button>
   );
 }

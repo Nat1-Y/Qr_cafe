@@ -4,11 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
-import { I18nProvider, useI18n, type MessageKey } from "@/lib/customer/i18n";
+import { I18nProvider, stageLabelKey, useI18n, type MessageKey } from "@/lib/customer/i18n";
 import { guestApi, GuestApiError } from "@/lib/customer/api";
 import { readJSON, removeKey, storageKeys, writeJSON } from "@/lib/customer/storage";
 import { useGuestOrders } from "@/lib/customer/use-guest-orders";
-import type { GuestOrder, Landing, Menu, MenuChange, MenuItem, PaymentOption } from "@/lib/customer/types";
+import type { GuestOrder, Landing, Menu, MenuChange, MenuItem, PaymentOption, PublicInfo } from "@/lib/customer/types";
 import {
   addToCart,
   cartCount,
@@ -19,18 +19,27 @@ import {
   type CartLine,
 } from "@/lib/ordering/cart";
 import { LiveRegion, MenuSkeleton, OfflineBanner, WelcomeSkeleton } from "./bits";
-import { MenuScreen } from "./MenuScreen";
 import { CartBar } from "./CartBar";
 import { BrokenQr, LoadError, Welcome } from "./Welcome";
-import { OrdersView, stageLabelKey } from "./OrdersView";
 import type { GuestDetails } from "./CartSheet";
 
 // Sheets and dialogs load on first use, keeping the menu's first paint small.
 const ItemSheet = dynamic(() => import("./ItemSheet"), { ssr: false });
 const CartSheet = dynamic(() => import("./CartSheet"), { ssr: false });
 const ChangesDialog = dynamic(() => import("./ChangesDialog"), { ssr: false });
+// The menu and tracker load right after the welcome screen, not before it.
+const MenuScreen = dynamic(() => import("./MenuScreen").then((m) => m.MenuScreen), { loading: () => <MenuSkeleton /> });
+const OrdersView = dynamic(() => import("./OrdersView").then((m) => m.OrdersView), { loading: () => <MenuSkeleton /> });
 
 type View = "welcome" | "menu" | "orders";
+
+interface GuestAppProps {
+  token: string;
+  /** Café/table info fetched on the server, so the first paint needs no JS. */
+  initialInfo?: PublicInfo | null;
+  /** The server already knows the code is unknown or rotated. */
+  initialBroken?: boolean;
+}
 type Phase = "loading" | "ready" | "broken" | "error";
 
 interface Pending {
@@ -77,12 +86,16 @@ function useBackToClose(open: boolean, close: () => void) {
   }, [open]);
 }
 
-function GuestApp({ token }: { token: string }) {
+function GuestApp({ token, initialInfo, initialBroken }: GuestAppProps) {
   const { t, lang } = useI18n();
   const { setTheme } = useTheme();
 
-  const [phase, setPhase] = useState<Phase>("loading");
-  const [landing, setLanding] = useState<Landing | null>(null);
+  // With server-rendered info the welcome screen paints straight from HTML;
+  // the guest session is started in the background right after.
+  const [phase, setPhase] = useState<Phase>(initialBroken ? "broken" : initialInfo ? "ready" : "loading");
+  const [landing, setLanding] = useState<Landing | null>(
+    initialInfo ? { ...initialInfo, session: { token: "", expires_at: "" } } : null,
+  );
   const [menu, setMenu] = useState<Menu | null>(null);
   const [menuFailed, setMenuFailed] = useState(false);
   const [viewChoice, setViewChoice] = useState<View | null>(null);
@@ -103,8 +116,8 @@ function GuestApp({ token }: { token: string }) {
   const [assistBusy, setAssistBusy] = useState(false);
   const [announce, setAnnounce] = useState("");
 
-  const session = landing?.session.token ?? null;
-  const { orders, loaded: ordersLoaded, sessionEnded, lastChange, upsert } = useGuestOrders(token, session);
+  const session = landing?.session.token || null;
+  const { orders, sessionEnded, lastChange, upsert } = useGuestOrders(token, session);
 
   // Guests follow their phone's light/dark setting unless they've picked one.
   useEffect(() => {
@@ -361,7 +374,6 @@ function GuestApp({ token }: { token: string }) {
   if (phase === "error") return <LoadError message={t("errNetwork")} onRetry={() => void load()} />;
   if (phase === "loading" || !landing) return <WelcomeSkeleton />;
   if (sessionEnded) return <LoadError message={t("errSession")} onRetry={() => window.location.reload()} />;
-  if (!ordersLoaded && viewChoice == null) return <WelcomeSkeleton />;
 
   return (
     <div className="mx-auto min-h-dvh max-w-lg bg-background">
@@ -481,10 +493,10 @@ function GuestApp({ token }: { token: string }) {
   );
 }
 
-export function CustomerApp({ token }: { token: string }) {
+export function CustomerApp(props: GuestAppProps) {
   return (
     <I18nProvider>
-      <GuestApp token={token} />
+      <GuestApp {...props} />
     </I18nProvider>
   );
 }

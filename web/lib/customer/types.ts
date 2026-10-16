@@ -22,6 +22,9 @@ export interface Landing {
   session: { token: string; expires_at: string };
 }
 
+/** The welcome-screen info, without a session (server-rendered). */
+export type PublicInfo = Omit<Landing, "session">;
+
 export type Availability = "in_stock" | "low" | "out";
 
 export interface MenuItem {

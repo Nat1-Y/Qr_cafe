@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/customer/i18n";
 import type { Landing } from "@/lib/customer/types";
 import { LanguageToggle } from "./bits";
-import { TableChip } from "./MenuScreen";
+import { TableChip } from "./GuestHeader";
 
 function CafeMark({ landing }: { landing: Landing }) {
   const [failed, setFailed] = useState(false);
@@ -41,7 +41,7 @@ export function Welcome({
       <div className="flex justify-end">
         <LanguageToggle />
       </div>
-      <div className="mx-auto flex w-full max-w-sm flex-1 flex-col items-center justify-center gap-4 text-center motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-2 motion-safe:duration-300">
+      <div className="mx-auto flex w-full max-w-sm flex-1 flex-col items-center justify-center gap-4 text-center">
         <CafeMark landing={landing} />
         <h1 className="text-title text-foreground">{t("welcomeTitle", { cafe: landing.cafe.name })}</h1>
         <TableChip landing={landing} />
