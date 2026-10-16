@@ -6,12 +6,7 @@ import { BellRingIcon, CheckIcon, PrinterIcon, QrCodeIcon, ReceiptTextIcon } fro
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { playChime, qrOrderInfo, useQrStaffFeed, type AssistRequest, type PushedOrder, type StaffAuth } from "@/lib/staff/qr-live";
-
-function minutesAgo(iso: string): string {
-  const m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
-  return m < 1 ? "just now" : m === 1 ? "1 min ago" : `${m} min ago`;
-}
+import { playChime, qrOrderInfo, timeAgo, useQrStaffFeed, type AssistRequest, type PushedOrder, type StaffAuth } from "@/lib/staff/qr-live";
 
 /**
  * Guest requests ("Call waiter", "Ask for the bill") as dismissible alerts,
@@ -68,7 +63,7 @@ export function QrStaffAlerts({
               {r.waiter_name ? ` · ${r.waiter_name}'s table` : ""}{" "}
               {bill ? "is asking for the bill" : "is calling a waiter"}
               {r.order_numbers.length ? ` · order ${r.order_numbers.map((n) => `#${n}`).join(", ")}` : ""}
-              <span className="ml-1 opacity-80">· {minutesAgo(r.created_at)}</span>
+              <span className="ml-1 opacity-80">· {timeAgo(r.created_at)}</span>
             </p>
             <Button size="sm" variant="outline" onClick={() => void dismiss(r.id)}>
               <CheckIcon /> On it

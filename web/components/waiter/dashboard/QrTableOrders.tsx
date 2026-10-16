@@ -3,16 +3,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { QrCodeIcon } from "lucide-react";
 import { formatETB } from "@/lib/format";
-import { qrStaffApi, type OpenQrOrder, type StaffAuth } from "@/lib/staff/qr-live";
+import { qrStaffApi, timeAgo, type OpenQrOrder, type StaffAuth } from "@/lib/staff/qr-live";
 import { QrOrderBadges, QrStaffAlerts } from "@/components/staff/QrStaffAlerts";
 
 const POLL_MS = 15_000;
-
-function since(iso: string | null | undefined): string {
-  if (!iso) return "";
-  const m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
-  return m < 1 ? "just now" : `${m} min ago`;
-}
 
 /**
  * Waiter view of QR ordering: open orders and guest requests from the tables
@@ -71,7 +65,7 @@ export function QrTableOrders({ auth, waiterId }: { auth: StaffAuth; waiterId: s
                   </div>
                   <span className="shrink-0 text-right">
                     <span className="block font-semibold text-foreground">{formatETB(o.total_amount ?? 0)}</span>
-                    <span className="block text-meta text-muted-foreground">{since(o.created_at)}</span>
+                    <span className="block text-meta text-muted-foreground">{timeAgo(o.created_at)}</span>
                   </span>
                 </div>
                 <ul className="text-sm text-body">

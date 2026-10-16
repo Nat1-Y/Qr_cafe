@@ -230,3 +230,15 @@ export function qrOrderInfo(order: { source?: unknown; meta?: unknown; table_num
     tableLabel: typeof meta.qr_table_label === "string" ? meta.qr_table_label : null,
   };
 }
+
+/** "just now", "5 min ago", "2 h ago", "1 day ago" — how long since `iso`. */
+export function timeAgo(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
+  if (m < 1) return "just now";
+  if (m < 60) return `${m} min ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} h ago`;
+  const d = Math.floor(h / 24);
+  return d === 1 ? "1 day ago" : `${d} days ago`;
+}
