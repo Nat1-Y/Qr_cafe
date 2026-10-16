@@ -53,7 +53,7 @@ from that same address (or set `NEXT_PUBLIC_GUEST_BASE_URL` / `GUEST_BASE_URL`).
 
 ## Deploying
 
-1. **Run migration 0017 on the real database:** `pnpm db:migrate` in `backend/`.
+1. **Run migrations 0017 and 0018 on the real database:** `pnpm db:migrate` in `backend/`.
    The server does **not** migrate on start (the call in `db.module.ts` is
    commented out). Try it on a copy first.
 2. Backend env: `WEB_ORIGIN` (the guest app's public origin(s)), `GUEST_BASE_URL`
@@ -114,14 +114,15 @@ printers. Run this once in the café before going live.
 
 **Normal order**
 
-5. Print one table card (Tables › QR code › Print table card). Scan it with a phone on the café Wi-Fi.
-6. Order one coffee with the note "No sugar" and one food item with "Extra spicy". Add your name.
+5. Assign a waiter to a table (Tables › edit › "Waiter for this table"). Print that table's card (Tables › QR code › Print table card). Scan it with a phone on the café Wi-Fi.
+6. Order one coffee with the note "No sugar" and one food item with "Extra spicy".
 7. Check each ticket:
    - The coffee prints **only** on the barista printer and the food **only** on the kitchen printer, each **once**.
-   - Each ticket's header shows "QR ORDER · Table N", your name and the order number.
+   - Each ticket's header shows "QR ORDER · Table N", "Waiter: <the table's waiter>" and the order number.
    - The notes print in bold.
 8. On the phone, the tracker moves to "In the kitchen" within a few seconds.
-9. On the web cashier, the order shows "QR · Table N" and your name. The "Not printed yet" badge disappears.
+9. On the web cashier, the order shows "QR · Table N" and "Waiter: <name> · ordered by QR". The "Not printed yet" badge disappears.
+   In the waiter app, signed in as that waiter, the order is under "My tables · QR orders". Repeat with a table that has no waiter: tickets say "Waiter: not assigned" and the screens show "No waiter assigned".
 
 **Adding items**
 

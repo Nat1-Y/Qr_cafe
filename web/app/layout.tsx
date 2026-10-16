@@ -8,8 +8,7 @@ import "./globals.css";
 
 import { BRAND } from "@/lib/brand";
 import { Toaster } from "@/components/ui/sonner";
-import NextTopLoader from "nextjs-toploader";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { TopLoader } from "@/components/top-loader";
 import { PWARegister } from "@/components/pwa-register";
 
 const outfit = Outfit({
@@ -54,18 +53,16 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn(outfit.variable, ethiopic.variable)} suppressHydrationWarning>
       <body suppressHydrationWarning className="bg-background font-sans">
-        <TooltipProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange>
-            {children}
-            <PWARegister />
-            <Toaster position="top-center" />
-            <NextTopLoader color="var(--primary)" showSpinner={false} height={2} shadow={false} />
-          </ThemeProvider>
-        </TooltipProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange>
+          {children}
+          <PWARegister />
+          <Toaster position="top-center" />
+          <TopLoader />
+        </ThemeProvider>
       </body>
     </html>
   );
