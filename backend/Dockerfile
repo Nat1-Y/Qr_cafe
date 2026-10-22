@@ -38,6 +38,7 @@ RUN pnpm install --prod --frozen-lockfile
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/drizzle ./drizzle
 COPY drizzle.config.ts ./
+COPY scripts/ ./scripts/
 
 # Expose NestJS server port
 EXPOSE 3000
